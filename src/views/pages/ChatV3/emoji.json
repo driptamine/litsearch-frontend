@@ -1,0 +1,54 @@
+{
+  "emojis": [
+    {
+      "name": "Grinning Face",
+      "unicode": "1F600",
+      "emoji": "😀"
+    },
+    {
+      "name": "Face with Tears of Joy",
+      "unicode": "1F602",
+      "emoji": "😂"
+    },
+    {
+      "name": "Smiling Face with Heart-Eyes",
+      "unicode": "1F60D",
+      "emoji": "😍"
+    },
+    {
+      "name": "Thinking Face",
+      "unicode": "1F914",
+      "emoji": "🤔"
+    },
+    {
+      "name": "Thumbs Up",
+      "unicode": "1F44D",
+      "emoji": "👍"
+    },
+    {
+      "name": "Fire",
+      "unicode": "1F525",
+      "emoji": "🔥"
+    },
+    {
+      "name": "Party Popper",
+      "unicode": "1F389",
+      "emoji": "🎉"
+    },
+    {
+      "name": "Rocket",
+      "unicode": "1F680",
+      "emoji": "🚀"
+    },
+    {
+      "name": "Clapping Hands",
+      "unicode": "1F44F",
+      "emoji": "👏"
+    },
+    {
+      "name": "Crying Face",
+      "unicode": "1F622",
+      "emoji": "😢"
+    }
+  ]
+}

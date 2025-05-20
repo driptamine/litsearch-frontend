@@ -1,0 +1,279 @@
+{
+  "tracks": [
+    {
+      "id": 1,
+      "title": "Neighborhood Drug Dealer",
+      "artists": [
+        {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/1sBkRIssrMs1AbVkOJbc7a"
+        },
+        "href": "https://api.spotify.com/v1/artists/1sBkRIssrMs1AbVkOJbc7a",
+        "id": "1sBkRIssrMs1AbVkOJbc7a",
+        "name": "Rick Ross",
+        "type": "artist",
+        "uri": "spotify:artist:1sBkRIssrMs1AbVkOJbc7a"
+        }
+      ],
+      "album": "Hood Billionaire (Deluxe)",
+      "genre": "Hip-Hop",
+      "duration_ms": "3:53",
+      "release_year": 2014,
+      "url": "https://d3fxu5f9ok11ds.cloudfront.net/1-05 Neighborhood Drug Dealer.mp3-1745659073400"
+    },
+    {
+      "id": 2,
+      "title": "Kerosene",
+      "artists": [
+        {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/7K3zpFXBvPcvzhj7zlGJdO"
+        },
+        "href": "https://api.spotify.com/v1/artists/7K3zpFXBvPcvzhj7zlGJdO",
+        "id": "7K3zpFXBvPcvzhj7zlGJdO",
+        "name": "Crystal Castles",
+        "type": "artist",
+        "uri": "spotify:artist:7K3zpFXBvPcvzhj7zlGJdO"
+        }
+      ],
+      "album": "(III)",
+      "genre": "Electronic",
+      "duration_ms": "3:22",
+      "release_year": 2012,
+      "url": "https://d3fxu5f9ok11ds.cloudfront.net/02 Crystal Castles - Kerosene.mp3-1745659249900"
+    },
+    {
+      "id": 3,
+      "title": "The Fall Of Adam",
+      "artists": [
+        {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/2VYQTNDsvvKN9wmU5W7xpj"
+        },
+        "href": "https://api.spotify.com/v1/artists/2VYQTNDsvvKN9wmU5W7xpj",
+        "id": "2VYQTNDsvvKN9wmU5W7xpj",
+        "name": "Marilyn Manson",
+        "type": "artist",
+        "uri": "spotify:artist:2VYQTNDsvvKN9wmU5W7xpj"
+        }
+      ],
+      "album": "Holy Wood",
+      "genre": "Rock",
+      "duration_ms": "3:23",
+      "release_year": 2000,
+      "url": "https://d3fxu5f9ok11ds.cloudfront.net/1-17 The Fall Of Adam.mpga-1745659343842"
+    },
+    {
+      "id": 4,
+      "title": "Blow a Bag",
+      "artist": "Future",
+      "artists": [
+        {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/1RyvyyTE3xzB2ZywiAwp0i"
+        },
+        "href": "https://api.spotify.com/v1/artists/1RyvyyTE3xzB2ZywiAwp0i",
+        "id": "1RyvyyTE3xzB2ZywiAwp0i",
+        "name": "Future",
+        "type": "artist",
+        "uri": "spotify:artist:1RyvyyTE3xzB2ZywiAwp0i"
+        }
+      ],
+      "album": "DS2 (Deluxe)",
+      "genre": "Hip-Hop",
+      "duration_ms": "2:54",
+      "release_year": 2015,
+      "url": "https://d3fxu5f9ok11ds.cloudfront.net/10 Future - Blow a Bag.mp3-1745659321838"
+    },
+    {
+      "id": 5,
+      "title": "nightmare on the northside 3",
+      "artists": [
+        {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/5VKvqCyBxqbaXUp8eK0aUy"
+        },
+        "href": "https://api.spotify.com/v1/artists/5VKvqCyBxqbaXUp8eK0aUy",
+        "id": "5VKvqCyBxqbaXUp8eK0aUy",
+        "name": "Scrim",
+        "type": "artist",
+        "uri": "spotify:artist:5VKvqCyBxqbaXUp8eK0aUy"
+        }
+      ],
+      "album": "via crucis",
+      "genre": "Hip-Hop",
+      "duration_ms": "1:53",
+      "release_year": 2024,
+      "url": "https://d3fxu5f9ok11ds.cloudfront.net/10 nightmare on the northside 3.mp3-1745659508082"
+    },
+    {
+      "id": 6,
+      "title": "25/8",
+      "artists": [
+        {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/5VKvqCyBxqbaXUp8eK0aUy"
+        },
+        "href": "https://api.spotify.com/v1/artists/5VKvqCyBxqbaXUp8eK0aUy",
+        "id": "5VKvqCyBxqbaXUp8eK0aUy",
+        "name": "Homixide Gang",
+        "type": "artist",
+        "uri": "spotify:artist:5VKvqCyBxqbaXUp8eK0aUy"
+        }
+      ],
+      "album": "via crucis",
+      "genre": "Hip-Hop",
+      "duration_ms": "1:53",
+      "release_year": 2024,
+      "url": "https://d3fxu5f9ok11ds.cloudfront.net/16%2025_8.mp3-1746158025941"
+    },
+    {
+      "id": 7,
+      "title": "Rav3 p4rty",
+      "artists": [
+        {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/5VKvqCyBxqbaXUp8eK0aUy"
+        },
+        "href": "https://api.spotify.com/v1/artists/5VKvqCyBxqbaXUp8eK0aUy",
+        "id": "5VKvqCyBxqbaXUp8eK0aUy",
+        "name": "Yeat",
+        "type": "artist",
+        "uri": "spotify:artist:5VKvqCyBxqbaXUp8eK0aUy"
+        }
+      ],
+      "album": "via crucis",
+      "genre": "Hip-Hop",
+      "duration_ms": "1:53",
+      "release_year": 2024,
+      "url": "https://d3fxu5f9ok11ds.cloudfront.net/04%20Rav3%20p4rty.mp3-1746158692954"
+    },
+    {
+      "id": 8,
+      "title": "Passenger",
+      "artists": [
+        {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/5VKvqCyBxqbaXUp8eK0aUy"
+        },
+        "href": "https://api.spotify.com/v1/artists/5VKvqCyBxqbaXUp8eK0aUy",
+        "id": "5VKvqCyBxqbaXUp8eK0aUy",
+        "name": "Deftones",
+        "type": "artist",
+        "uri": "spotify:artist:5VKvqCyBxqbaXUp8eK0aUy"
+        }
+      ],
+      "album": "via crucis",
+      "genre": "Hip-Hop",
+      "duration_ms": "1:53",
+      "release_year": 2024,
+      "url": "https://d3fxu5f9ok11ds.cloudfront.net/1-10%20Passenger.mp3-1746158741645"
+    },
+    {
+      "id": 9,
+      "title": "Only When I'm Numb",
+      "artists": [
+        {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/5VKvqCyBxqbaXUp8eK0aUy"
+        },
+        "href": "https://api.spotify.com/v1/artists/5VKvqCyBxqbaXUp8eK0aUy",
+        "id": "5VKvqCyBxqbaXUp8eK0aUy",
+        "name": "Snow Strippers",
+        "type": "artist",
+        "uri": "spotify:artist:5VKvqCyBxqbaXUp8eK0aUy"
+        }
+      ],
+      "album": "via crucis",
+      "genre": "Hip-Hop",
+      "duration_ms": "1:53",
+      "release_year": 2024,
+      "url": "https://d3fxu5f9ok11ds.cloudfront.net/Only%20When%20I'm%20Numb.m4a-1746158778521"
+    },
+    {
+      "id": 10,
+      "title": "Song to Say Goodbye",
+      "artists": [
+        {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/5VKvqCyBxqbaXUp8eK0aUy"
+        },
+        "href": "https://api.spotify.com/v1/artists/5VKvqCyBxqbaXUp8eK0aUy",
+        "id": "5VKvqCyBxqbaXUp8eK0aUy",
+        "name": "Placebo",
+        "type": "artist",
+        "uri": "spotify:artist:5VKvqCyBxqbaXUp8eK0aUy"
+        }
+      ],
+      "album": "via crucis",
+      "genre": "Hip-Hop",
+      "duration_ms": "1:53",
+      "release_year": 2024,
+      "url": "https://d3fxu5f9ok11ds.cloudfront.net/13%20Song%20to%20Say%20Goodbye.mp3-1746158825314"
+    },
+    {
+      "id": 11,
+      "title": "Сатурналии",
+      "artists": [
+        {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/5VKvqCyBxqbaXUp8eK0aUy"
+        },
+        "href": "https://api.spotify.com/v1/artists/5VKvqCyBxqbaXUp8eK0aUy",
+        "id": "5VKvqCyBxqbaXUp8eK0aUy",
+        "name": "ATL",
+        "type": "artist",
+        "uri": "spotify:artist:5VKvqCyBxqbaXUp8eK0aUy"
+        }
+      ],
+      "album": "via crucis",
+      "genre": "Hip-Hop",
+      "duration_ms": "1:53",
+      "release_year": 2024,
+      "url": "https://d3fxu5f9ok11ds.cloudfront.net/11%20%D0%A1%D0%B0%D1%82%D1%83%D1%80%D0%BD%D0%B0%D0%BB%D0%B8%D0%B8.mp3-1746158861149"
+    },
+    {
+      "id": 12,
+      "title": "Take To",
+      "artists": [
+        {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/5VKvqCyBxqbaXUp8eK0aUy"
+        },
+        "href": "https://api.spotify.com/v1/artists/5VKvqCyBxqbaXUp8eK0aUy",
+        "id": "5VKvqCyBxqbaXUp8eK0aUy",
+        "name": "Snow Strippers",
+        "type": "artist",
+        "uri": "spotify:artist:5VKvqCyBxqbaXUp8eK0aUy"
+        }
+      ],
+      "album": "via crucis",
+      "genre": "Hip-Hop",
+      "duration_ms": "1:53",
+      "release_year": 2024,
+      "url": "https://d3fxu5f9ok11ds.cloudfront.net/Take%20To.mp3-1746158906639"
+    },
+    {
+      "id": 13,
+      "title": "Dafodil",
+      "artists": [
+        {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/5VKvqCyBxqbaXUp8eK0aUy"
+        },
+        "href": "https://api.spotify.com/v1/artists/5VKvqCyBxqbaXUp8eK0aUy",
+        "id": "5VKvqCyBxqbaXUp8eK0aUy",
+        "name": "Jamie xx",
+        "type": "artist",
+        "uri": "spotify:artist:5VKvqCyBxqbaXUp8eK0aUy"
+        }
+      ],
+      "album": "via crucis",
+      "genre": "Hip-Hop",
+      "duration_ms": "1:53",
+      "release_year": 2024,
+      "url": "https://d3fxu5f9ok11ds.cloudfront.net/01%20Dafodil.mp3-1746158945196"
+    }
+
+  ]
+}

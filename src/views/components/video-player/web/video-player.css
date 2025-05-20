@@ -1,0 +1,83 @@
+.video-player {
+  position: relative;
+  /* max-width: 800px; */
+  margin: 0 auto;
+}
+/* .video-player video {
+  width: 100%;
+  height: 100%;
+} */
+.controls {
+  position: absolute;
+  bottom: 3px;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  /* background-color: rgba(0, 0, 0, 0.5); */
+  /* padding: 10px; */
+}
+.controls button,
+.controls input[type="range"],
+.controls span {
+  color: #fff;
+  font-size: 16px;
+  margin-right: 10px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  outline: none;
+}
+.controls button:hover,
+.controls input[type="range"]:hover {
+  /* opacity: 0.1; */
+  /* color: #1db0b9; */
+  /* color: #5483d2; */
+  /* color: #90d254; */
+  /* color: #3a94ac; */
+  color: #686cb9;
+  /* color: #004d40; */
+}
+.controls button:active,
+.controls input[type="range"]:active {
+  /* opacity: 0.6; */
+}
+.controls button.active {
+  color: #00ccff;
+}
+.controls input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  background-color: #fff;
+}
+.controls input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background-color: #00ccff;
+  cursor: pointer;
+}
+.controls input[type="range"]::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background-color: #00ccff;
+  cursor: pointer;
+}
+.controls span {
+  font-weight: bold;
+}
+.controls .active-icon {
+  color: #00ccff;
+}
+.controls .inactive-icon {
+  color: #fff;
+  opacity: 0.5;
+}

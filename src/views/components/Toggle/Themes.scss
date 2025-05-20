@@ -1,0 +1,88 @@
+html {
+  --textColor1: rgb(245, 245, 245);
+  --textColor1Hover: #ffffff;
+  --textColor2: rgb(175, 175, 175);
+  --textColor2Hover: #ffffff;
+  --textColor3: rgb(225, 225, 225);
+  --textColor3Hover: #ffffff;
+
+  --navTextColor: rgba(255, 255, 255, 0.5);
+  --navTextColorActive: rgba(255, 255, 255, 1);
+
+  --backgroundImgSize: cover;
+  --backgroundImgRepeat: no-repeat;
+
+  --navigationbarBackground: #0d1013f0;
+  --videoContainerBackgroundColor: rgba(0, 0, 0, 0.04);
+  --popupListsBackground: linear-gradient(
+    rgba(0, 0, 0, 0.4) 0%,
+    var(--navigationbarBackground) 15%
+  );
+  --subFeedHeaderBorder: #84828245;
+  --refreshButtonBorder: thin solid transparent;
+  --refreshButtonHoverBackground: #0000008e;
+  --refreshButtonHoverColor: #ffffff;
+  --refreshButtonColor: #dcdcdd;
+  --refreshButtonBackground: #00000026;
+  --refreshButtonHoverBorder: 1px solid #00000026;
+  --refreshButtonShadow: 2px 2px 5px 0px rgba(12, 12, 12, 0.75);
+  --videoBoxShadow: rgba(0, 0, 0, 0.12) 4px 4px 8px;
+  --newHighlightColor: #ffffff;
+  --footerBackground: rgba(0, 0, 0, 0.6);
+
+  --twitterBackground: #1010108c;
+  --scrollbarColors: rgb(51, 51, 51) transparent;
+  --backgroundColor: hsl(0, 0%, 5%);
+  --sidebarsBackgroundColor: rgba(9, 12, 15, 0.678);
+  --backgroundImgPositionY: center;
+}
+
+
+html[data-theme='dark'] {
+  --main1: #101216;
+  --main2: #181a1df6;
+  --main3: rgb(53, 54, 58);
+  --main4: rgb(53, 54, 58);
+  --text1: rgba(255, 255, 255 0.7);
+
+  --backgroundImg: none;
+  --backgroundColor: #101216;
+  --scrollbarColors: #3c4554 transparent;
+
+  --navigationbarBackground: var(--main2);
+  --navTextColor: var(--text1);
+  --twitterBackground: var(--main2);
+  --videoBoxShadow: rgba(63, 63, 63, 0.1) 4px 4px 8px;
+}
+
+html[data-theme='light'] {
+  --backgroundImg: none;
+  --backgroundColor: #f1f1f1;
+  --backgroundImgSize: unset;
+  --backgroundImgRepeat: unset;
+
+  --textColor1: rgb(10, 10, 10);
+  --textColor1Hover: rgb(24, 24, 24);
+  --textColor2: rgb(32, 32, 32);
+  --textColor2Hover: #464646;
+  --sidebarsBackgroundColor: hsla(0, 0%, 100%, 0.88);
+
+  --videoContainerBackgroundColor: rgba(0, 0, 0, 0);
+  --navTextColor: rgb(10, 10, 10);
+  --navigationbarBackground: #ffffffe1;
+  --newHighlightColor: rgb(20, 100, 200);
+  --popupListsBackground: linear-gradient(rgba(255, 255, 255, 0.65) 0%, #efefef 15%);
+
+  --refreshButtonBackground: rgb(230, 230, 230);
+  --refreshButtonBorder: thin solid #eeeeee;
+  --refreshButtonColor: #2a2a2a;
+  --refreshButtonHoverBackground: rgb(255, 255, 255);
+  --refreshButtonHoverColor: #1d1d1d;
+  --refreshButtonHoverBorder: 1px solid rgb(255, 255, 255);
+  --scrollbarColors: rgb(41, 41, 41) transparent;
+
+  --subFeedHeaderBorder: #29292988;
+
+  --footerBackground: #00000021;
+  --twitterBackground: hsla(0, 0%, 100%, 0.88);
+}

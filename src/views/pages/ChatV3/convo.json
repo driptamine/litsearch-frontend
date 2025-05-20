@@ -1,0 +1,46 @@
+{
+  "conversation": [
+    {
+      "id": 1,
+      "sender": "Alice",
+      "message": "Hey Bob! How's it going? 😊",
+      "timestamp": "2025-03-30T10:00:00Z"
+    },
+    {
+      "id": 2,
+      "sender": "Bob",
+      "message": "Hey Alice! I'm good, just working on a project. 🚀",
+      "timestamp": "2025-03-30T10:01:15Z"
+    },
+    {
+      "id": 3,
+      "sender": "Alice",
+      "message": "Nice! What are you working on?",
+      "timestamp": "2025-03-30T10:02:30Z"
+    },
+    {
+      "id": 4,
+      "sender": "Bob",
+      "message": "A React app with a chat feature! 😃",
+      "timestamp": "2025-03-30T10:03:45Z"
+    },
+    {
+      "id": 5,
+      "sender": "Alice",
+      "message": "Oh cool! I’m also learning React. Maybe I can help?",
+      "timestamp": "2025-03-30T10:04:50Z"
+    },
+    {
+      "id": 6,
+      "sender": "Bob",
+      "message": "That would be awesome! Let’s set up a call later. 📞",
+      "timestamp": "2025-03-30T10:05:30Z"
+    },
+    {
+      "id": 7,
+      "sender": "Alice",
+      "message": "Sounds good! Just send me a time. ⏰",
+      "timestamp": "2025-03-30T10:06:10Z"
+    }
+  ]
+}

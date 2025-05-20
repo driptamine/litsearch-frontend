@@ -1,0 +1,24 @@
+{
+  "videos": [
+    {
+      "title": "Amazing Nature Scenery",
+      "url": "https://example.com/nature_video.mp4"
+    },
+    {
+      "title": "Cooking Tutorial: Delicious Pasta",
+      "url": "https://example.com/pasta_tutorial.webm"
+    },
+    {
+      "title": "Travel Vlog: Exploring Ancient Ruins",
+      "url": "https://example.com/travel_vlog.ogv"
+    },
+    {
+      "title": "Funny Cat Compilation",
+      "url": "https://example.com/funny_cats.mp4"
+    },
+    {
+      "title": "Introduction to Web Development",
+      "url": "https://example.com/web_dev_intro.mp4"
+    }
+  ]
+}

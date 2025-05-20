@@ -1,0 +1,37 @@
+.modal-overlay {
+  position: fixed;
+  top: 2em;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 600px;
+  height: 37em;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.SearchInput {
+  height: auto;
+  border: 1px solid black;
+  border-radius: 10px;
+}
+.UploadInput {
+  height: auto;
+}
+.video-library {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.video-library div {
+  margin: 10px;
+}

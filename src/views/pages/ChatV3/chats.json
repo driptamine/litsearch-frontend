@@ -1,0 +1,60 @@
+{
+  "users": [
+    { "id": 1, "name": "John Doe" },
+    { "id": 2, "name": "Jane Smith" },
+    { "id": 3, "name": "Alice Johnson" },
+    { "id": 4, "name": "Bob Lee" },
+
+    { "id": 5, "name": "Alex Doe" },
+    { "id": 6, "name": "Rick Smith" },
+    { "id": 7, "name": "Melany Johnson" },
+    { "id": 8, "name": "Becky Lee" },
+
+    { "id": 9, "name": "Karen Doe" },
+    { "id": 10, "name": "Julia Smith" }
+
+
+  ],
+  "messages": {
+    "1": [
+      { "sender": "John Doe", "text": "Hey! How are you?" },
+      { "sender": "You", "text": "I'm good, thanks!" }
+    ],
+    "2": [
+      { "sender": "Jane Smith", "text": "Hello! What's up?" },
+      { "sender": "You", "text": "Just working on a project." }
+    ],
+    "3": [
+      { "sender": "Alice Johnson", "text": "Have you seen the latest news?" },
+      { "sender": "You", "text": "Not yet, what's going on?" }
+    ],
+    "4": [
+      { "sender": "Bob Lee", "text": "We should catch up sometime!" },
+      { "sender": "You", "text": "Absolutely, let's plan something." }
+    ],
+    "5": [
+      { "sender": "John Doe", "text": "Hey! How are you?" },
+      { "sender": "You", "text": "I'm good, thanks!" }
+    ],
+    "6": [
+      { "sender": "Jane Smith", "text": "Hello! What's up?" },
+      { "sender": "You", "text": "Just working on a project." }
+    ],
+    "7": [
+      { "sender": "Alice Johnson", "text": "Have you seen the latest news?" },
+      { "sender": "You", "text": "Not yet, what's going on?" }
+    ],
+    "8": [
+      { "sender": "Bob Lee", "text": "We should catch up sometime!" },
+      { "sender": "You", "text": "Absolutely, let's plan something." }
+    ],
+    "9": [
+      { "sender": "Alice Johnson", "text": "Have you seen the latest news?" },
+      { "sender": "You", "text": "Not yet, what's going on?" }
+    ],
+    "10": [
+      { "sender": "Bob Lee", "text": "We should catch up sometime!" },
+      { "sender": "You", "text": "Absolutely, let's plan something." }
+    ]
+  }
+}

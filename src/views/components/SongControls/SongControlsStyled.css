@@ -1,0 +1,125 @@
+.song-details {
+  /* position: absolute; */
+  left: 6em;
+  line-height: 22px;
+}
+.song-artwork {
+  /* position: absolute; */
+  left: 20px;
+  top: 20px;
+  line-height: 22px;
+}
+
+.song-details .song-name {
+  /* font-family: 'Proxima Nova', Georgia, sans-serif; */
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+
+  color: #fff;
+  font-size: 14px;
+}
+
+.song-artwork .song-name {
+  /* font-family: 'Proxima Nova', Georgia, sans-serif; */
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  color: #fff;
+  font-size: 14px;
+}
+
+.song-details .artist-name {
+  /* font-family: 'Proxima Thin', Georgia, sans-serif; */
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  color: #aaa;
+  font-size: 12px;
+}
+.song-artwork .artist-name {
+  /* font-family: 'Proxima Thin', Georgia, sans-serif; */
+  color: #aaa;
+  font-size: 12px;
+}
+
+.song-controls {
+  justify-content: center;
+  display: flex;
+  width: 40%;
+  /* margin-top: 20px; */
+}
+
+.forward,
+.reverse,
+.play-btn {
+  padding: 0 5px;
+  color: rgb(179, 179, 179);
+  cursor: pointer;
+}
+
+.reverse,
+.forward {
+  font-size: 16px;
+}
+.song-player-container {
+  width: 100%;
+  display: flex;
+}
+.song-container {
+  display: flex;
+  width: 30%;
+}
+.song-player-container .play-btn {
+  /* position: relative; */
+  top: -7px;
+  font-size: 40px;
+}
+
+.song-player-container .pause-btn {
+  /* position: relative; */
+  top: -7px;
+  font-size: 40px;
+  margin: 0 5px;
+}
+
+.play-btn .fa {
+  /* -webkit-text-stroke: 4px rgb(40, 40, 40); */
+  -webkit-text-stroke: 4px rgb(0, 0, 0);
+}
+.song-player-control {
+  display: flex;
+  align-items: center;
+  /* flex-direction: column; */
+}
+.song-progress-container {
+  /* margin-top: -10px; */
+  display: flex;
+  justify-content: center;
+}
+
+.song-progress {
+  width: 500px;
+  height: 4px;
+  background: rgb(64, 64, 64);;
+  border-radius: 4px;
+}
+
+.song-expired {
+  margin: 0;
+  width: 100px;
+  height: 4px;
+  /* background: #1db954; */
+  /* background: #353555; */
+  background: #646498;
+  /* background: #6e7bb4; */
+  border-radius: 4px;
+}
+
+.timer-start {
+  font-size: 12px;
+  /* position: relative; */
+  /* top: -5px; */
+  left: -10px;
+}
+
+.timer-end {
+  font-size: 12px;
+  /* position: relative; */
+  /* top: -5px; */
+  left: 10px;
+}

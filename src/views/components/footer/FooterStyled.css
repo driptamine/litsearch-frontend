@@ -1,0 +1,14 @@
+.footer {
+  /* position: fixed; */
+  position: sticky;
+  display: flex;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+  /* background: rgb(0, 0, 0); */
+  /* background: #181818; */
+  background: #101010;
+  /* background: rgb(40, 40, 40); */
+  height: 80px;
+  z-index: 2;
+}
