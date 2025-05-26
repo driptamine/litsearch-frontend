@@ -10,63 +10,49 @@ const VideoUploaderGPT = () => {
   const [files, setFiles] = useState([]);
   const [progressMap, setProgressMap] = useState({});
   const [videoLinks, setVideoLinks] = useState({});
-  const [dragging, setDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [showDropZone, setShowDropZone] = useState(false);
+  const dragCounter = useRef(0);
 
   const inputRef = useRef();
-
-  const getMediaType = (file) => {
-    if (file.type.startsWith("image/")) return "photo";
-    if (file.type.startsWith("video/")) return "video";
-    if (file.type.startsWith("audio/")) return "track";
-    return null;
-  };
 
   const updateProgress = (fileName, value) => {
     setProgressMap(prev => ({ ...prev, [fileName]: value }));
   };
 
   const handleFileChange = (e) => {
-    const selectedFiles = Array.from(e.target.files)
-    // .map(file => {
-    //   const mediaType = getMediaType(file);
-    //   return mediaType ? { file, mediaType} : null;
-    // }).filter(Boolean)
-
+    const selectedFiles = Array.from(e.target.files);
     setFiles(prev => [...prev, ...selectedFiles]);
+  };
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    dragCounter.current += 1;
+    setShowDropZone(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    dragCounter.current -= 1;
+    if (dragCounter.current === 0) {
+      setShowDropZone(false);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault(); // necessary to allow drop
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
-    setDragging(false);
-
-    const droppedFiles = Array.from(e.dataTransfer.files)
-    // .map(file => {
-    //   const mediaType = getMediaType(file);
-    //   console.log(`MEDIATYPE - ${mediaType}`);
-    //   return mediaType ? { file, mediaType } : null;
-    // }).filter(Boolean);
-
-
+    dragCounter.current = 0;
+    setShowDropZone(false);
+    const droppedFiles = Array.from(e.dataTransfer.files);
     setFiles(prev => [...prev, ...droppedFiles]);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setDragging(false);
-  };
-
-  const handleClick = () => {
-    inputRef.current.click();
   };
 
   const handleUpload = async () => {
     if (files.length === 0) return;
-
     setIsUploading(true);
 
     const uploadSingleFile = async (file) => {
@@ -107,14 +93,11 @@ const VideoUploaderGPT = () => {
       try {
         const simulation = simulateInitialProgress();
 
-        // const mediaType = getMediaType(file);
-
         const initRes = await axios.post(
           "http://localhost:8000/videos/create_presigned_url/",
           {
             filename: fileName,
             content_type: file.type
-            // media_type: mediaType
           },
           { headers: { "Content-Type": "application/json" } }
         );
@@ -176,31 +159,41 @@ const VideoUploaderGPT = () => {
       }
     };
 
-    // Launch all uploads in parallel
     await Promise.all(files.map(file => uploadSingleFile(file)));
-
     setIsUploading(false);
   };
 
   return (
-    <div>
-      <PostCreator />
-      
-      <DropZone
-        isDragging={dragging}
-        onDragOver={handleDragOver}
+    <Container>
+      <PostCreatorWrapper
+        onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
         onDrop={handleDrop}
-        onClick={handleClick}
       >
-        {/*<PostCreator />*/}
-        {/*<p>Drag & drop video files here, or click to browse</p>*/}
-        {/*<HiddenInput type="file" ref={inputRef} onChange={handleFileChange} multiple />*/}
-      </DropZone>
+        <PostCreator />
+      </PostCreatorWrapper>
 
-      <button onClick={handleUpload} disabled={files.length === 0 || isUploading}>
+      {showDropZone && (
+        <DropZone
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          onClick={() => inputRef.current.click()}
+        >
+          <p>Drop video here or click to browse</p>
+        </DropZone>
+      )}
+
+      <HiddenInput
+        type="file"
+        ref={inputRef}
+        onChange={handleFileChange}
+        multiple
+      />
+
+      <UploadButton onClick={handleUpload} disabled={files.length === 0 || isUploading}>
         {isUploading ? "Uploading..." : "Upload All"}
-      </button>
+      </UploadButton>
 
       <PreviewVideos>
         {files.map((file) => (
@@ -221,33 +214,48 @@ const VideoUploaderGPT = () => {
           </div>
         ))}
       </PreviewVideos>
-    </div>
+    </Container>
   );
 };
 
 // Styled Components
+const Container = styled.div`
+  position: relative;
+`;
+
+const PostCreatorWrapper = styled.div`
+  position: relative;
+  z-index: 1;
+`;
+
 const DropZone = styled.div`
-  border: 2px dashed ${({ isDragging }) => (isDragging ? "#4a90e2" : "#ccc")};
-  /* background: ${({ isDragging }) => (isDragging ? "#f0f8ff" : "#fafafa")}; */
-  background: ${({ isDragging }) => (isDragging ? "red" : "#fafafa")};
-
-  /* background: ${props => props.theme.cardColor}; */
-  color: ${props => props.theme.text};
-
+  pointer-events: all;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 160px;
-  max-width: 620px;
-  text-align: center;
-  border-radius: 10px;
-  margin-bottom: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px dashed #4a90e2;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
 `;
 
 const HiddenInput = styled.input`
   display: none;
 `;
+
+const UploadButton = styled.button`
+  margin-top: 20px;
+`;
+
 const PreviewVideos = styled.div`
   display: flex;
+  flex-wrap: wrap;
 `;
 
 export default VideoUploaderGPT;

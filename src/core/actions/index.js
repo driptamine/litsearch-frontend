@@ -7,7 +7,7 @@ export const fetchAuthUser = createAction(
   "login/fetch",
   (data) => ({
     payload: {
-      email: data.email,
+      email_or_username: data.email,
       password: data.password
     }
   })

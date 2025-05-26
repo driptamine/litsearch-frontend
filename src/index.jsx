@@ -30,7 +30,7 @@ import  store  from 'core/store/storeV5_GPT';
 // import { store, sagaMiddleware } from 'core/store/storeV2';
 
 import 'views/components/Toggle/Themes.scss';
-
+import "highlight.js/styles/github-dark.css";
 
 import history  from "core/services/history";
 

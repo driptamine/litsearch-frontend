@@ -13,19 +13,13 @@ import { FaUnsplash } from 'react-icons/fa';
 import { FaSoundcloud } from 'react-icons/fa';
 import { FaDeezer } from 'react-icons/fa';
 import { FaInstagram } from 'react-icons/fa';
-// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
-// import { styled as styledd }  from 'styled-components';
-// import * as styledd from 'styled-components';
+
 import styled from 'styled-components';
 
 
-// MATERIAL DONE
-// import { TextField, Container, Grid, Button } from "@mui/material";
 import { StyledTextField, StyledContainer, StyledGrid, StyledButton } from 'views/styledComponents';
 
-// VIEWS
-// import FormControl from './FormControl'
+
 import {
   twitchSignInAction, googleSignInAction, appleSignInAction,
   spotifySignInAction, unsplashSignInAction, deezerSignInAction, instagramSignInAction } from "views/pages/LoginPage/action"
@@ -51,122 +45,6 @@ import { feedPreferencesAtom, useFeedPreferences } from 'core/atoms/atoms';
 import useEventListenerMemo from 'core/hooks2/useEventListenerMemo';
 
 
-const ContainerStyled = styled.div`
-  body {
-    background: red;
-  }
-  margin-top: 2em;
-  border: 4px solid black;
-  border-radius: 11px;
-  background-color: black;
-  min-width: 300px;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-
-
-`;
-
-const LitLoopDiv = styled.div`
-  width: 80%;
-  margin-left: auto;
-  margin-right: auto;
-`;
-
-const FormStyled = styled.form`
-  text-align: center;
-  width: 80%;
-
-  /* min-width: 280px;
-  max-width: 300px; */
-
-  min-width: 220px;
-  max-width: 240px;
-
-  margin-left: auto;
-  margin-right: auto;
-
-
-`;
-
-const TextFieldStyledInput = styled.input`
-  /* padding: 0 30px; */
-  /* border: 4px solid #000; */
-  border: 0;
-  border-radius: 10px;
-  padding: 15px;
-
-  width: 100%;
-  box-sizing: border-box;
-`;
-
-const LitLoopLogo = styled.img`
-  width: 10%;
-  height: 50%;
-
-  display: block;
-  margin-left: auto;
-  margin-right: auto }
-`;
-
-const LitLoopTitle = styled.p`
-  text-align: center;
-  font-size: 27px;
-  color: white;
-  font-family: Verdana;
-`;
-
-
-const LoginBtn = styled.button`
-  /* background: linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%); */
-  background: linear-gradient(45deg, #673ab7 30%, #3f51b5 90%);
-  border: 0;
-  border-radius: 10px;
-
-  /* box-shadow: 0 3px 5px 2px rgba(255, 105, 135, .3); */
-  color: white;
-  height: 45px;
-  width: 100%;
-  padding: 0 30px;
-  cursor: pointer;
-`;
-
-const OAuthWrapper = styled.div`
-  width: 80%;
-  margin-left: auto;
-  margin-right: auto;
-  min-width: 280px;
-  max-width: 300px;
-`;
-
-const OAuthLoginButton = styled.button`
-  cursor: pointer;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 1em;
-  margin-bottom: 1em;
-  display: flex;
-  /* height: 30px; */
-  width: 66%;
-  padding: 10px;
-  border: 0;
-  border-radius: 6px;
-  grid-gap: 10px;
-  gap: 10px;
-`;
-
-const FaSpotifyIcon = styled(FaSpotify)`
-  color: #2fd566;
-
-`
-const FaSoundCloudIcon = styled(FaSoundcloud)`
-  color: #f50;
-
-`
-const ReStyledGrid = styled(StyledGrid)`
-  margin-bottom: 1em;
-
-`
 
 function SignUpForm () {
   const {
@@ -518,6 +396,7 @@ function SignUpForm () {
     // }
 }
 
+
 const mapDispatchToProps = dispatch => {
     return {
         login: (creds) => {
@@ -526,4 +405,121 @@ const mapDispatchToProps = dispatch => {
     }
 }
 
+
+const ContainerStyled = styled.div`
+  body {
+    background: red;
+  }
+  margin-top: 2em;
+  border: 4px solid black;
+  border-radius: 11px;
+  background-color: black;
+  min-width: 300px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+
+
+`;
+
+const LitLoopDiv = styled.div`
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+`;
+
+const FormStyled = styled.form`
+  text-align: center;
+  width: 80%;
+
+  /* min-width: 280px;
+  max-width: 300px; */
+
+  min-width: 220px;
+  max-width: 240px;
+
+  margin-left: auto;
+  margin-right: auto;
+
+
+`;
+
+const TextFieldStyledInput = styled.input`
+  /* padding: 0 30px; */
+  /* border: 4px solid #000; */
+  border: 0;
+  border-radius: 10px;
+  padding: 15px;
+
+  width: 100%;
+  box-sizing: border-box;
+`;
+
+const LitLoopLogo = styled.img`
+  width: 10%;
+  height: 50%;
+
+  display: block;
+  margin-left: auto;
+  margin-right: auto }
+`;
+
+const LitLoopTitle = styled.p`
+  text-align: center;
+  font-size: 27px;
+  color: white;
+  font-family: Verdana;
+`;
+
+
+const LoginBtn = styled.button`
+  /* background: linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%); */
+  background: linear-gradient(45deg, #673ab7 30%, #3f51b5 90%);
+  border: 0;
+  border-radius: 10px;
+
+  /* box-shadow: 0 3px 5px 2px rgba(255, 105, 135, .3); */
+  color: white;
+  height: 45px;
+  width: 100%;
+  padding: 0 30px;
+  cursor: pointer;
+`;
+
+const OAuthWrapper = styled.div`
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  min-width: 280px;
+  max-width: 300px;
+`;
+
+const OAuthLoginButton = styled.button`
+  cursor: pointer;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  display: flex;
+  /* height: 30px; */
+  width: 66%;
+  padding: 10px;
+  border: 0;
+  border-radius: 6px;
+  grid-gap: 10px;
+  gap: 10px;
+`;
+
+const FaSpotifyIcon = styled(FaSpotify)`
+  color: #2fd566;
+
+`
+const FaSoundCloudIcon = styled(FaSoundcloud)`
+  color: #f50;
+
+`
+const ReStyledGrid = styled(StyledGrid)`
+  margin-bottom: 1em;
+
+`
 export default connect(null, mapDispatchToProps)(SignUpForm)

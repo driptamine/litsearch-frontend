@@ -40,8 +40,6 @@ const GoogleAuthCallback = () => {
         }
       };
 
-      // const MyGoogle = await GoogleAPI.getMe({ accessToken: accessToken }).then(async (res) => {
-      // const MyGoogle = await axios.get('https://www.googleapis.com/oauth2/v1/userinfo', config).then(async (res) => {
       const MyGoogle = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', config).then(async (res) => {
         // const user = res?.data?.data?.[0];
         const user = res?.data;

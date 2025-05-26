@@ -26,6 +26,9 @@ export const lightTheme = {
 
     imgSrc: "views/assets/viewsLogos/purple-views-logo.png",
 
+    textareaBorderColor: "black",
+
+    attachmentColor: "#e4e4e4"
 }
 
 export const darkTheme = {
@@ -57,6 +60,9 @@ export const darkTheme = {
     imageCardColor: "#222222",
 
     imgSrc: "views/assets/viewsLogos/views-logo-official.png",
+    textareaBorderColor: "black",
+
+    attachmentColor: "#656565"
 }
 
 

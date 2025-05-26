@@ -3,70 +3,53 @@ import styled from "styled-components";
 import axios from "axios";
 import PostCreator from "views/components/upload/PostCreator";
 
-const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
-const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+const CHUNK_SIZE = 5 * 1024 * 1024;
+const MAX_FILE_SIZE = 100 * 1024 * 1024;
 
 const VideoUploaderGPT = () => {
   const [files, setFiles] = useState([]);
   const [progressMap, setProgressMap] = useState({});
   const [videoLinks, setVideoLinks] = useState({});
-  const [dragging, setDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-
+  const [showDropZone, setShowDropZone] = useState(false);
+  const dragCounter = useRef(0);
   const inputRef = useRef();
 
-  const getMediaType = (file) => {
-    if (file.type.startsWith("image/")) return "photo";
-    if (file.type.startsWith("video/")) return "video";
-    if (file.type.startsWith("audio/")) return "track";
-    return null;
-  };
-
-  const updateProgress = (fileName, value) => {
-    setProgressMap(prev => ({ ...prev, [fileName]: value }));
-  };
+  const [videoId, setVideoId] = useState(null);
 
   const handleFileChange = (e) => {
-    const selectedFiles = Array.from(e.target.files)
-    // .map(file => {
-    //   const mediaType = getMediaType(file);
-    //   return mediaType ? { file, mediaType} : null;
-    // }).filter(Boolean)
-
+    const selectedFiles = Array.from(e.target.files);
     setFiles(prev => [...prev, ...selectedFiles]);
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
-    setDragging(false);
-
-    const droppedFiles = Array.from(e.dataTransfer.files)
-    // .map(file => {
-    //   const mediaType = getMediaType(file);
-    //   console.log(`MEDIATYPE - ${mediaType}`);
-    //   return mediaType ? { file, mediaType } : null;
-    // }).filter(Boolean);
-
-
+    dragCounter.current = 0;
+    setShowDropZone(false);
+    const droppedFiles = Array.from(e.dataTransfer.files);
     setFiles(prev => [...prev, ...droppedFiles]);
   };
 
-  const handleDragOver = (e) => {
+  const handleDragEnter = (e) => {
     e.preventDefault();
-    setDragging(true);
+    dragCounter.current += 1;
+    setShowDropZone(true);
   };
 
-  const handleDragLeave = () => {
-    setDragging(false);
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    dragCounter.current -= 1;
+    if (dragCounter.current <= 0) {
+      setShowDropZone(false);
+    }
   };
 
-  const handleClick = () => {
-    inputRef.current.click();
+  const handleDragOver = (e) => {
+    e.preventDefault(); // Necessary for onDrop to fire
   };
 
   const handleUpload = async () => {
     if (files.length === 0) return;
-
     setIsUploading(true);
 
     const uploadSingleFile = async (file) => {
@@ -76,7 +59,6 @@ const VideoUploaderGPT = () => {
       }
 
       const fileName = `${file.name}-${Date.now()}`;
-      updateProgress(file.name, 0);
       const visualRef = { current: 0 };
 
       const simulateInitialProgress = (target = 60, speed = 200) => {
@@ -84,7 +66,7 @@ const VideoUploaderGPT = () => {
           const step = () => {
             if (visualRef.current < target) {
               visualRef.current += 1;
-              updateProgress(file.name, visualRef.current);
+              setProgressMap(prev => ({ ...prev, [file.name]: visualRef.current }));
               setTimeout(step, speed);
             } else resolve();
           };
@@ -93,11 +75,10 @@ const VideoUploaderGPT = () => {
       };
 
       const animateProgress = (target, speed = 100) => {
-        if (target <= visualRef.current) return;
         const step = () => {
           if (visualRef.current < target) {
             visualRef.current += 1;
-            updateProgress(file.name, visualRef.current);
+            setProgressMap(prev => ({ ...prev, [file.name]: visualRef.current }));
             setTimeout(step, speed);
           }
         };
@@ -107,17 +88,10 @@ const VideoUploaderGPT = () => {
       try {
         const simulation = simulateInitialProgress();
 
-        // const mediaType = getMediaType(file);
-
-        const initRes = await axios.post(
-          "http://localhost:8000/videos/create_presigned_url/",
-          {
-            filename: fileName,
-            content_type: file.type
-            // media_type: mediaType
-          },
-          { headers: { "Content-Type": "application/json" } }
-        );
+        const initRes = await axios.post("http://localhost:8000/videos/create_presigned_url/", {
+          filename: fileName,
+          content_type: file.type
+        }, { headers: { "Content-Type": "application/json" } });
 
         const { upload_id, key } = initRes.data;
         const totalParts = Math.ceil(file.size / CHUNK_SIZE);
@@ -128,15 +102,11 @@ const VideoUploaderGPT = () => {
           const end = Math.min(start + CHUNK_SIZE, file.size);
           const blob = file.slice(start, end);
 
-          const presignRes = await axios.post(
-            "http://localhost:8000/videos/get_presigned_url/",
-            {
-              upload_id,
-              key,
-              part_number: partNumber,
-            },
-            { headers: { "Content-Type": "application/json" } }
-          );
+          const presignRes = await axios.post("http://localhost:8000/videos/get_presigned_url/", {
+            upload_id,
+            key,
+            part_number: partNumber,
+          }, { headers: { "Content-Type": "application/json" } });
 
           const { url } = presignRes.data;
 
@@ -148,59 +118,59 @@ const VideoUploaderGPT = () => {
           parts.push({ PartNumber: partNumber, ETag: etag });
 
           const realProgress = Math.round((partNumber / totalParts) * 40) + 60;
-          if (realProgress > visualRef.current) {
-            animateProgress(realProgress);
-          }
+          animateProgress(realProgress);
         }
 
         await simulation;
 
-        const completeRes = await axios.post(
-          "http://localhost:8000/videos/complete_upload/",
-          {
-            upload_id,
-            key,
-            parts,
-            media_type: 'video',
-          },
-          { headers: { "Content-Type": "application/json" } }
-        );
+        const completeRes = await axios.post("http://localhost:8000/videos/complete_upload/", {
+          upload_id,
+          key,
+          parts,
+          media_type: 'video',
+        }, { headers: { "Content-Type": "application/json" } });
 
-        setVideoLinks((prev) => ({
-          ...prev,
-          [file.name]: completeRes.data.location,
-        }));
+        setVideoLinks(prev => ({ ...prev, [file.name]: completeRes.data.location }));
+
+        // setVideoId(completeRes.video_id)
+
       } catch (err) {
         console.error(`Upload failed for ${file.name}:`, err);
         alert(`Upload failed for ${file.name}`);
       }
     };
 
-    // Launch all uploads in parallel
     await Promise.all(files.map(file => uploadSingleFile(file)));
-
     setIsUploading(false);
   };
 
+
+
   return (
     <div>
-      <PostCreator />
-      
-      <DropZone
-        isDragging={dragging}
-        onDragOver={handleDragOver}
+      <Wrapper
+        className="DROPPP"
+        onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
         onDrop={handleDrop}
-        onClick={handleClick}
       >
-        {/*<PostCreator />*/}
-        {/*<p>Drag & drop video files here, or click to browse</p>*/}
-        {/*<HiddenInput type="file" ref={inputRef} onChange={handleFileChange} multiple />*/}
-      </DropZone>
+        <PostCreator
+          // videoId={videoId}
 
-      <button onClick={handleUpload} disabled={files.length === 0 || isUploading}>
+          />
+
+        {showDropZone && (
+          <DropZone onClick={() => inputRef.current.click()}>
+            <p>Drop files to upload</p>
+          </DropZone>
+        )}
+      </Wrapper>
+      <HiddenInput type="file" ref={inputRef} onChange={handleFileChange} multiple />
+
+      <UploadButton onClick={handleUpload} disabled={files.length === 0 || isUploading}>
         {isUploading ? "Uploading..." : "Upload All"}
-      </button>
+      </UploadButton>
 
       <PreviewVideos>
         {files.map((file) => (
@@ -226,28 +196,41 @@ const VideoUploaderGPT = () => {
 };
 
 // Styled Components
+const Wrapper = styled.div`
+  /* position: relative; */
+  border: 1px solid black;
+  width: 600px;
+`;
+
 const DropZone = styled.div`
-  border: 2px dashed ${({ isDragging }) => (isDragging ? "#4a90e2" : "#ccc")};
-  /* background: ${({ isDragging }) => (isDragging ? "#f0f8ff" : "#fafafa")}; */
-  background: ${({ isDragging }) => (isDragging ? "red" : "#fafafa")};
-
-  /* background: ${props => props.theme.cardColor}; */
-  color: ${props => props.theme.text};
-
-  height: 160px;
-  max-width: 620px;
-  text-align: center;
-  border-radius: 10px;
-  margin-bottom: 16px;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px;
+  height: 300px;
+  background: rgba(240, 248, 255, 0.85);
+  border: 2px dashed #4a90e2;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 22px;
+  color: #333;
+  pointer-events: all;
+  transition: all 0.2s ease;
 `;
 
 const HiddenInput = styled.input`
   display: none;
 `;
+
+const UploadButton = styled.button`
+  margin-top: 20px;
+`;
+
 const PreviewVideos = styled.div`
   display: flex;
+  flex-wrap: wrap;
 `;
 
 export default VideoUploaderGPT;

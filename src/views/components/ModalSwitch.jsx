@@ -4,6 +4,10 @@ import styled from 'styled-components';
 // CHAT
 import ChatList from 'views/pages/ChatV3/Left/ChatList';
 import ChatWindow from 'views/pages/ChatV3/Main/ChatWindow';
+
+import ChatWindowGemini from 'views/pages/ChatGemini/Main/ChatWindow';
+
+
 // import chatsData from 'views/pages/ChatV3/chats.json';
 import chatsData from 'views/pages/ChatV3/chatsV2.json';
 import emojiData from 'views/pages/ChatV3/emoji.json';
@@ -15,7 +19,9 @@ import UploadGPTaxios from "views/components/upload/UploadToEC2GPTaxios";
 // import VideoUploaderGPT from "views/components/upload/VideoUploaderGPTV2";
 // import VideoUploaderGPT from "views/components/upload/VideoUploaderGPTV3";
 // import VideoUploaderGPT from "views/components/upload/VideoUploaderGPTV4";
-import VideoUploaderGPT from "views/components/upload/VideoUploaderGPTV4Multi";
+// import VideoUploaderGPT from "views/components/upload/VideoUploaderGPTV4Multi";
+import VideoUploaderGPT from "views/components/upload/VideoUploaderGPTV4MultiUX";
+// import VideoUploaderGPT from "views/components/upload/VideoUploaderGPTV4MultiUXPostCreator";
 import PostCreator from "views/components/upload/PostCreator";
 
 import ModalCustom from "views/components/ModalCustom";
@@ -47,7 +53,10 @@ import PlaylistProfile from "views/pages/PlaylistProfile";
 import TrackProfile from "views/pages/TrackProfile";
 import LinksProfile from "views/pages/LinksProfile";
 
-import LoginPage from "views/pages/LoginPage";
+// import LoginPage from "views/pages/LoginPage/index";
+import LoginPage from "views/pages/LoginPage/indexV2";
+
+
 import SignUpPage from "views/pages/SignUpPage";
 
 // import MainSearch from "views/pages/MainSearch";
@@ -448,6 +457,7 @@ function ModalSwitch({  children, renderModal, stopSong, pauseSong, resumeSong, 
           <ChatList users={chatsData.users} />
         </Route>*/}
         <Route exact path="/chat/:userId" component={ChatWindow} />
+        <Route exact path="/wow" component={ChatWindowGemini} />
 
         <Route exact path="/musicv2" component={TrackListLoopV2} />
         <Route exact path="/musicv1" component={TrackListLoopV1} />
