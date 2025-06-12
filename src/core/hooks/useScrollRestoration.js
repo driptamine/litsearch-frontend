@@ -1,5 +1,5 @@
-import { useLayoutEffect } from "react";
-import { useLocation, useHistory } from "react-router-dom";
+import { useLayoutEffect } from 'react';
+import { useLocation, useHistory } from 'react-router-dom';
 
 function useScrollRestoration() {
   const location = useLocation();

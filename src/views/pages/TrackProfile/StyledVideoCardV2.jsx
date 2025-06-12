@@ -1,16 +1,16 @@
-import React, { useState, useRef, useEffect, useReducer } from "react";
-import { findDOMNode } from "react-dom";
-import ReactPlayer, { ReactPlayerProps } from "react-player";
-import screenful from "screenfull";
-import styled from "styled-components";
+import React, { useState, useRef, useEffect, useReducer } from 'react';
+import { findDOMNode } from 'react-dom';
+import ReactPlayer, { ReactPlayerProps } from 'react-player';
+import screenful from 'screenfull';
+import styled from 'styled-components';
 
 // MATERIAL
-// import Typography from "@mui/material/Typography";
-// import Slider from "@mui/material/Slider";
-// import Tooltip from "@mui/material/Tooltip";
-// import Grid from "@mui/material/Grid";
-// import Paper from "@mui/material/Paper";
-// import Popover from "@mui/material/Popover";
+// import Typography from '@mui/material/Typography';
+// import Slider from '@mui/material/Slider';
+// import Tooltip from '@mui/material/Tooltip';
+// import Grid from '@mui/material/Grid';
+// import Paper from '@mui/material/Paper';
+// import Popover from '@mui/material/Popover';
 
 import {
   // StyledTypography,
@@ -21,12 +21,12 @@ import {
   // StyledPopover,
 } from 'views/styledComponents';
 
-// import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-// import VolumeUp from "@mui/icons-material/VolumeUp";
-// import VolumeDown from "@mui/icons-material/VolumeDown";
-// import VolumeMute from "@mui/icons-material/VolumeOff";
-// import FullScreen from "@mui/icons-material/Fullscreen";
-// import { makeStyles, withStyles } from "@mui/material/styles";
+// import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+// import VolumeUp from '@mui/icons-material/VolumeUp';
+// import VolumeDown from '@mui/icons-material/VolumeDown';
+// import VolumeMute from '@mui/icons-material/VolumeOff';
+// import FullScreen from '@mui/icons-material/Fullscreen';
+// import { makeStyles, withStyles } from '@mui/material/styles';
 
 import {
   StyledPlayArrowIcon,
@@ -38,7 +38,7 @@ import {
 
 // VIEWS
 // React-netflix-player
-// import Controls from "./Controls";
+// import Controls from './Controls';
 import PlayerControls from 'views/components/video-player/PlayerControls';
 import PlayerOverlay from 'views/components/video-player/PlayerOverlay';
 import { INITIAL_STATE, reducer } from 'views/components/video-player/reducer';

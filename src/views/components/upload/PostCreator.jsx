@@ -3,22 +3,33 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import './modal/portal.css';
-import styled from "styled-components";
+import styled from 'styled-components';
 
-import { FaFilm } from "react-icons/fa";
-import { FaImage } from "react-icons/fa";
-import { FaMusic } from "react-icons/fa";
-
-
+import { FaFilm } from 'react-icons/fa';
+import { FaImage } from 'react-icons/fa';
+import { FaMusic } from 'react-icons/fa';
 
 
-const PostCreator = () => {
+const PostCreator = ({ mediaIds, showDropZone }) => {
   const [postText, setPostText] = useState('');
   const [submittedPost, setSubmittedPost] = useState('');
+
+  const [description, setDescription] = useState('');
+  const [photoIds, setPhotoIds] = useState([]);
+  const [videoIds, setVideoIds] = useState([]);
+  const [trackIds, setTrackIds] = useState([]);
 
   const handleChange = (e) => {
     setPostText(e.target.value);
   };
+
+  useEffect(() => {
+    if (mediaIds) {
+      setPhotoIds(mediaIds.photo_ids || []);
+      setVideoIds(mediaIds.video_ids || []);
+      setTrackIds(mediaIds.track_ids || []);
+    }
+  }, [mediaIds]);
 
   const handleSubmit = async (e) => {
     const url = `http://localhost:8000/posts/create`
@@ -26,7 +37,21 @@ const PostCreator = () => {
     if (postText.trim()) {
       console.log(postText);
       try {
-        const response = await axios.post(url, { content: postText });
+        const postData = {
+          // title,
+          description: description,
+
+          photo_ids: photoIds,
+          video_ids: videoIds,
+          track_ids: trackIds,
+        };
+
+        const response = await axios.post('http://localhost:8000/posts/create_post_api/', postData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
         if (response.status === 201) {
           console.log(response.data);
           setSubmittedPost(response.data.content);
@@ -48,7 +73,7 @@ const PostCreator = () => {
       textarea.style.height = `${textarea.scrollHeight}px`; // Set to scroll height
     }
   };
-
+  const showAttachment = photoIds.length > 0 || videoIds.length > 0 ||  trackIds.length > 0
   return (
     <div>
       {/*<form onSubmit={handleSubmit}>*/}
@@ -75,6 +100,13 @@ const PostCreator = () => {
 
         <CreatePostButton onClick={handleSubmit}>Create Post</CreatePostButton>
       </FlexBoxWrapper>
+
+      {showDropZone && (
+        <DropZone onClick={() => inputRef.current.click()}>
+          <p>Drop files to upload</p>
+        </DropZone>
+      )}
+
       {/*<PreviewPost
         postText={postText}
       />*/}
@@ -91,11 +123,26 @@ const PostCreator = () => {
           dangerouslySetInnerHTML={{ __html: submittedPost }}
         />
       )}
+
+      <Attachments
+        className="attachments"
+        >
+        {showAttachment && (
+          <>
+          <strong>Attached:</strong><br />
+          </>
+        )}
+
+        {photoIds.length > 0 && <>Photos: {photoIds.join(', ')}<br /></>}
+        {videoIds.length > 0 && <>Videos: {videoIds.join(', ')}<br /></>}
+        {trackIds.length > 0 && <>Tracks: {trackIds.join(', ')}<br /></>}
+      </Attachments>
+
     </div>
   );
 };
 
-const VideoAttachmentModal = ({ isOpen, onClose, onUploadSuccess }) => {
+const ModalOverlay = ({ isOpen, onClose, onUploadSuccess }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [userVideos, setUserVideos] = useState([]);
   const [videoFile, setVideoFile] = useState(null);
@@ -227,35 +274,19 @@ const VideoAttachment = () => {
   };
 
   return (
-    <WrapperVideo>
+    <WrapperContent>
 
       <Button onClick={openModal}>
         <FaFilm />
       </Button>
-      <VideoAttachmentModal
+      <ModalOverlay
         isOpen={isModalOpen}
         onClose={closeModal}
         onUploadSuccess={handleUploadSuccess}
       />
-      {/*<PhotoAttachmentModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        onUploadSuccess={handleUploadSuccess}
-      />*/}
-      {/*<TrackAttachmentModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        onUploadSuccess={handleUploadSuccess}
-      />*/}
-    </WrapperVideo>
-  );
 
-  // return (
-  //   <div>
-  //     <button onClick={openModal}>Open Modal</button>
-  //     <Modal isOpen={isModalOpen} onClose={closeModal} />
-  //   </div>
-  // );
+    </WrapperContent>
+  );
 };
 
 const PhotoAttachment = () => {
@@ -271,35 +302,19 @@ const PhotoAttachment = () => {
   };
 
   return (
-    <WrapperPhoto>
+    <WrapperContent>
 
       <Button onClick={openModal}>
         <FaImage />
       </Button>
-      <VideoAttachmentModal
+      <ModalOverlay
         isOpen={isModalOpen}
         onClose={closeModal}
         onUploadSuccess={handleUploadSuccess}
       />
-      {/*<PhotoAttachmentModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        onUploadSuccess={handleUploadSuccess}
-      />*/}
-      {/*<TrackAttachmentModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        onUploadSuccess={handleUploadSuccess}
-      />*/}
-    </WrapperPhoto>
-  );
 
-  // return (
-  //   <div>
-  //     <button onClick={openModal}>Open Modal</button>
-  //     <Modal isOpen={isModalOpen} onClose={closeModal} />
-  //   </div>
-  // );
+    </WrapperContent>
+  );
 };
 
 const TrackAttachment = () => {
@@ -315,35 +330,19 @@ const TrackAttachment = () => {
   };
 
   return (
-    <WrapperPhoto>
+    <WrapperContent>
 
       <Button onClick={openModal}>
         <FaMusic />
       </Button>
-      <VideoAttachmentModal
+      <ModalOverlay
         isOpen={isModalOpen}
         onClose={closeModal}
         onUploadSuccess={handleUploadSuccess}
       />
-      {/*<PhotoAttachmentModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        onUploadSuccess={handleUploadSuccess}
-      />*/}
-      {/*<TrackAttachmentModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        onUploadSuccess={handleUploadSuccess}
-      />*/}
-    </WrapperPhoto>
-  );
 
-  // return (
-  //   <div>
-  //     <button onClick={openModal}>Open Modal</button>
-  //     <Modal isOpen={isModalOpen} onClose={closeModal} />
-  //   </div>
-  // );
+    </WrapperContent>
+  );
 };
 
 const PreviewPost = ({postText}) => {
@@ -373,6 +372,10 @@ const FlexBoxAttachments = styled.div`
   display: flex;
 
 `;
+const Attachments = styled.div`
+   
+
+`;
 
 const FlexBoxWrapper = styled.div`
   display: flex;
@@ -385,8 +388,38 @@ const FlexBoxWrapper = styled.div`
 // const Button = styled.button`
 //   cursor: pointer;
 // `
+
+const DropZone = styled.div`
+  /* position: fixed; */
+  /* top: 0; */
+  /* left: 0; */
+
+  position: absolute;
+  top: 81px;
+  width: 597px;
+  height: 142px;
+
+  /* width: 300px; */
+  /* height: 300px; */
+  background: rgba(240, 248, 255, 0.85);
+  border: 2px dashed #4a90e2;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 22px;
+  color: #333;
+  pointer-events: all;
+  transition: all 0.2s ease;
+`;
+
 const Button = styled.div`
   cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 const CreatePostButton = styled.button`
   cursor: pointer;
@@ -395,15 +428,18 @@ const CreatePostButton = styled.button`
   color: white;
   height: 40px;
   right: 0;
-  background: #3f51b5b5;
+  background: #7886c9;
   border-radius: 5px;
   border: none;
+
+  user-select: none;
 `
-const WrapperPhoto = styled.div`
+const WrapperContent = styled.div`
   cursor: pointer;
   margin-left: 10px;
   margin: auto;
-  padding: 10px;
+
+
   border-radius: 5px;
 
   &:hover {

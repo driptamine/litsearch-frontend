@@ -1,12 +1,12 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React from 'react';
+import { useSelector } from 'react-redux';
 
 // MATERIAL DONE
-// import { Typography, Box, useTheme } from "@mui/material";
+// import { Typography, Box, useTheme } from '@mui/material';
 import { StyledTypography, StyledBox } from 'views/styledComponents';
 
 // CORE
-import { selectors } from "core/reducers/index";
+import { selectors } from 'core/reducers/index';
 
 function MovieRatingTag({ movieId }) {
   const movie = useSelector(state => selectors.selectMovie(state, movieId));

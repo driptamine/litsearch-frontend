@@ -1,12 +1,12 @@
-import { call, takeEvery, select } from "redux-saga/effects";
-import * as actions from "core/actions";
+import { call, takeEvery, select } from 'redux-saga/effects';
+import * as actions from 'core/actions';
 
-import * as schemas from "core/schemas";
-import { selectors } from "core/reducers/index";
+import * as schemas from 'core/schemas';
+import { selectors } from 'core/reducers/index';
 
-import { callAPIWithHeader } from "./apiSaga";
-import { fetcherAPIwithHeaderSaga } from "./fetcherAPIwithHeaderSaga";
-import { fetcherAPISaga } from "./fetcherAPISaga";
+import { callAPIWithHeader } from './apiSaga';
+import { fetcherAPIwithHeaderSaga } from './fetcherAPIwithHeaderSaga';
+import { fetcherAPISaga } from './fetcherAPISaga';
 
 // function* fetchPlaylistSaga(action) {
 //   yield call(callAPIWithHeader, `/playlist/${action.payload.playlistId}/`, null, schemas.playlistSchema);

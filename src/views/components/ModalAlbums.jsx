@@ -1,6 +1,6 @@
 import React from 'react';
 import ModalMovieList from 'views/components/ModalMovieList';
-import PopularAlbums from "views/pages/PopularAlbums";
+import PopularAlbums from 'views/pages/PopularAlbums';
 import { getAllMovies } from 'core/data';
 
 const ModalAlbums = () => {

@@ -1,8 +1,8 @@
-import React, { Component } from "react";
-import ReactDOM from "react-dom";
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 
-import FineUploaderTraditional from "fine-uploader-wrappers";
-import Gallery from "react-fine-uploader";
+import FineUploaderTraditional from 'fine-uploader-wrappers';
+import Gallery from 'react-fine-uploader';
 
 import "react-fine-uploader/gallery/gallery.css";
 

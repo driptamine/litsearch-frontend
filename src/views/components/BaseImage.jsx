@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { useTrackVisibility } from "react-intersection-observer-hook";
-import styled from "styled-components";
+import React, { useState, useEffect } from 'react';
+import { useTrackVisibility } from 'react-intersection-observer-hook';
+import styled from 'styled-components';
 
 
 // MATERIAL DONE
-// import { makeStyles } from "@mui/material/styles";
-// import { Box, useTheme } from "@mui/material";
+// import { makeStyles } from '@mui/material/styles';
+// import { Box, useTheme } from '@mui/material';
 import { StyledBox } from 'views/styledComponents';
 
-import placeholderPng from "views/assets/placeholder.png";
+import placeholderPng from 'views/assets/placeholder.png';
 
 
-import LoadingIndicator from "./LoadingIndicator";
-import AspectRatio, { getAspectRatioString } from "./AspectRatio";
+import LoadingIndicator from './LoadingIndicator';
+import AspectRatio, { getAspectRatioString } from './AspectRatio';
 
 const ORIGINAL = "original";
 const DEFAULT_ALT = "Not Loaded";

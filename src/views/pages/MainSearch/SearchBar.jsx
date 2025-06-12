@@ -1,21 +1,21 @@
-import React from "react";
+import React from 'react';
 // import { useSearchParams } from 'react-router-dom';
 
 import styled from 'styled-components';
 
-import Downshift from "downshift";
+import Downshift from 'downshift';
 
 // MATERIAL DONE
-// import { makeStyles } from "@mui/material/styles";
-// import { TextField, Paper, InputAdornment, IconButton } from "@mui/material";
-// import SearchIcon from "@mui/icons-material/Search";
+// import { makeStyles } from '@mui/material/styles';
+// import { TextField, Paper, InputAdornment, IconButton } from '@mui/material';
+// import SearchIcon from '@mui/icons-material/Search';
 
 
 // VIEWS
 import TextInput from 'views/components/SearchBar/TextField';
-import LoadingIndicator from "views/components/LoadingIndicator";
-// import clsx from "clsx";
-import AutoSearchSuggestion from "./AutoSearchSuggestion";
+import LoadingIndicator from 'views/components/LoadingIndicator';
+// import clsx from 'clsx';
+import AutoSearchSuggestion from './AutoSearchSuggestion';
 
 
 const StyledTextField = styled.input`

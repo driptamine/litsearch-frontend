@@ -1,10 +1,10 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import { selectors } from "core/reducers/index";
-import BaseImage from "views/components/BaseImage";
-import BaseCard from "views/components/BaseCard";
-import ListItemWithAvatarFromSpotify from "views/components/ListItemWithAvatarFromSpotify";
-import { useConfiguration } from "./ConfigurationProvider";
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { selectors } from 'core/reducers/index';
+import BaseImage from 'views/components/BaseImage';
+import BaseCard from 'views/components/BaseCard';
+import ListItemWithAvatarFromSpotify from 'views/components/ListItemWithAvatarFromSpotify';
+import { useConfiguration } from './ConfigurationProvider';
 
 function ArtistListItem({ artistId, ...props }) {
   const artist = useSelector(state => selectors.selectArtist(state, artistId));

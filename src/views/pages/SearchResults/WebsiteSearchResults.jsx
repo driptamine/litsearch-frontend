@@ -1,11 +1,11 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchWebsiteSearch } from "core/actions";
-import { selectors } from "core/reducers/index";
-import InfiniteGridList from "views/components/InfiniteGridList";
-import InfiniteList from "views/components/InfiniteList";
-import WebsiteCard from "views/components/WebsiteCard/WebsiteCard";
-import WebsiteCardBing from "views/components/WebsiteCard/WebsiteCardBing";
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchWebsiteSearch } from 'core/actions';
+import { selectors } from 'core/reducers/index';
+import InfiniteGridList from 'views/components/InfiniteGridList';
+import InfiniteList from 'views/components/InfiniteList';
+import WebsiteCard from 'views/components/WebsiteCard/WebsiteCard';
+import WebsiteCardBing from 'views/components/WebsiteCard/WebsiteCardBing';
 
 function renderItem(websiteId) {
   return (

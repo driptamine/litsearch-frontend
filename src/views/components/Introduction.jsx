@@ -1,14 +1,14 @@
-import React from "react";
-import styled, { css } from "styled-components";
+import React from 'react';
+import styled, { css } from 'styled-components';
 
 
-import BaseImage from "views/components/BaseImage";
-import BaseImageV2 from "views/components/BaseImageV2";
+import BaseImage from 'views/components/BaseImage';
+import BaseImageV2 from 'views/components/BaseImageV2';
 
 import { StyledBox, StyledTypography } from 'views/styledComponents';
-// import { makeStyles, Box, Typography } from "@mui/material";
-import { getAspectRatioString } from "./AspectRatio";
-import { useConfiguration } from "./ConfigurationProvider";
+// import { makeStyles, Box, Typography } from '@mui/material';
+import { getAspectRatioString } from './AspectRatio';
+import { useConfiguration } from './ConfigurationProvider';
 
 // const useStyles = makeStyles(theme => ({
 //   backdrop: {

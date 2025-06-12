@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch } from 'react-redux';
 import { useLocation, useParams } from 'react-router-dom';
-import { matchPath } from "react-router";
+import { matchPath } from 'react-router';
 
 import styled from 'styled-components';
 
 import styles from './Autocomplete.module.css'
-import useHistoryPush from "core/hooks/useHistoryPush";
+import useHistoryPush from 'core/hooks/useHistoryPush';
 
 
 const Autocomplete = ({ suggestions, output, renderInput, clearIcon, onInputValueChange }) => {

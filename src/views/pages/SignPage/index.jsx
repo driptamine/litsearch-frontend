@@ -1,11 +1,11 @@
-import React from "react";
-import { toast } from "react-toastify";
-import { useDispatch } from "react-redux";
-import styled from "styled-components";
+import React from 'react';
+import { toast } from 'react-toastify';
+import { useDispatch } from 'react-redux';
+import styled from 'styled-components';
 
 
-import useInput from "../hooks/useInput";
-import { signup } from "../reducers/user";
+import useInput from '../hooks/useInput';
+import { signup } from '../reducers/user';
 
 export const StyledAuth = styled.div`
   width: 385px;

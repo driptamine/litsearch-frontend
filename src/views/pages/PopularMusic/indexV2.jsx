@@ -7,16 +7,18 @@ import { FiPlay } from 'react-icons/fi';
 import { FiPause } from 'react-icons/fi';
 import { FaPlay } from 'react-icons/fa';
 import { FaPause } from 'react-icons/fa';
-import { IoMusicalNote } from "react-icons/io5";
+import { IoMusicalNote } from 'react-icons/io5';
 
 // import AudioProviderV2 from 'views/pages/PopularMusic/AudioContextV2'
 import AudioProviderV3 from 'views/pages/PopularMusic/AudioContextV3'
+import { TrackUploader } from 'views/components/upload/uploader/tracks/TrackUploader'
 // import { useAudio } from 'views/pages/PopularMusic/AudioContextV2';
 import { useAudio } from 'views/pages/PopularMusic/AudioContextV3';
 
 const TrackList = () => {
   return (
     <AudioProviderV3>
+      <TrackUploader />
       <TrackListContent />
     </AudioProviderV3>
   );

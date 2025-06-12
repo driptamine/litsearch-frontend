@@ -1,6 +1,6 @@
 // REFERENCE: https://developer.imdb.com/documentation/api-documentation/calling-the-api/?ref_=side_nav#one-off-api-query-example-using-typescript
-import { DataExchange } from "aws-sdk";
-import { readFileSync } from "fs";
+import { DataExchange } from 'aws-sdk';
+import { readFileSync } from 'fs';
 
 // Replace these 4 values with your own values
 const assetId = "<Put your Asset ID here>";

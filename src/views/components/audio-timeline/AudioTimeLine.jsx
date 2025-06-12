@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import classNames from 'classnames';
 
-import { audio, getPlayerTimes, PlayerTimesState } from "core/player";
+import { audio, getPlayerTimes, PlayerTimesState } from 'core/player';
 import './audio-timeline.css';
 
 

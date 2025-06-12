@@ -1,7 +1,7 @@
-import React from "react";
-import { Switch } from "react-router-dom";
-import useScrollRestoration from "core/hooks/useScrollRestoration";
-import useScrollMemory from "core/hooks/useScrollMemory";
+import React from 'react';
+import { Switch } from 'react-router-dom';
+import useScrollRestoration from 'core/hooks/useScrollRestoration';
+import useScrollMemory from 'core/hooks/useScrollMemory';
 
 function SwitchWithScrollRestoration({ children, location }) {
   useScrollRestoration();

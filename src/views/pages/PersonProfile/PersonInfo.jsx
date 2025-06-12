@@ -1,16 +1,16 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React from 'react';
+import { useSelector } from 'react-redux';
 
 
 // MATERIAL DONE
-// import { Typography } from "@mui/material";
+// import { Typography } from '@mui/material';
 import { StyledTypography } from 'views/styledComponents';
 
 // VIEWS
-import TextWithLabel from "views/components/TextWithLabel";
+import TextWithLabel from 'views/components/TextWithLabel';
 
 // CORE
-import { selectors } from "core/reducers/index";
+import { selectors } from 'core/reducers/index';
 
 function PersonInfo({ personId }) {
   const person = useSelector(state => selectors.selectPerson(state, personId));

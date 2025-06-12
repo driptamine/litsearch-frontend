@@ -1,14 +1,14 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import styled from "styled-components";
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import styled from 'styled-components';
 
 
-// import { useTheme } from "@mui/material/styles";
-import AlbumCard from "views/components/AlbumCard";
-import BaseGridList from "views/components/BaseGridList";
+// import { useTheme } from '@mui/material/styles';
+import AlbumCard from 'views/components/AlbumCard';
+import BaseGridList from 'views/components/BaseGridList';
 
-import { fetchArtistAlbums } from "core/actions";
-import { selectors } from "core/reducers/index";
+import { fetchArtistAlbums } from 'core/actions';
+import { selectors } from 'core/reducers/index';
 
 const StyledBaseGridList = styled(BaseGridList)`
 

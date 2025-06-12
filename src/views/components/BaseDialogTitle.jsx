@@ -1,14 +1,14 @@
-import React, { useContext } from "react";
+import React, { useContext } from 'react';
 
 // MATERIAL DONE
-// import { DialogTitle, Typography, Box, IconButton } from "@mui/material";
+// import { DialogTitle, Typography, Box, IconButton } from '@mui/material';
 import { StyledDialogTitle, StyledTypography, StyledBox, StyledIconButton } from 'views/styledComponents';
 
-// import CloseIcon from "@mui/icons-material/Close";
+// import CloseIcon from '@mui/icons-material/Close';
 import {StyledCloseIcon} from 'views/styledComponents/icons';
-// import { makeStyles } from "@mui/material/styles";
+// import { makeStyles } from '@mui/material/styles';
 
-import { DialogContext } from "./BaseDialog";
+import { DialogContext } from './BaseDialog';
 
 
 // const useStyles = makeStyles(theme => ({

@@ -1,8 +1,8 @@
-// import SongControls from "./SongControls";
-import SongControlsStyled from "./SongControlsStyled";
-import { connect, useSelector } from "react-redux";
-import { bindActionCreators } from "redux";
-import { increaseSongTime } from "core/actions";
+// import SongControls from './SongControls';
+import SongControlsStyled from './SongControlsStyled';
+import { connect, useSelector } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { increaseSongTime } from 'core/actions';
 
 // const mapStateToProps = state => {
 //   return {

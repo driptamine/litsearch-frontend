@@ -1,7 +1,7 @@
 // https://chatgpt.com/c/6806b14f-2990-800c-9d8d-9fd25f20630a
-import React, { useState, useRef } from "react";
-import styled from "styled-components";
-import axios from "axios";
+import React, { useState, useRef } from 'react';
+import styled from 'styled-components';
+import axios from 'axios';
 
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB

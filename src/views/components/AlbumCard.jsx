@@ -1,29 +1,29 @@
-import React from "react";
+import React from 'react';
 import { connect, useSelector } from 'react-redux';
 import { withRouter} from 'react-router-dom';
 import styled from 'styled-components';
 
 
-import BaseImage from "views/components/BaseImage";
-import BaseCard from "views/components/BaseCard";
+import BaseImage from 'views/components/BaseImage';
+import BaseCard from 'views/components/BaseCard';
 
-import RouterLink from "views/components/RouterLink";
-import ModalLink from "views/components/ModalLink";
+import RouterLink from 'views/components/RouterLink';
+import ModalLink from 'views/components/ModalLink';
 
 
-import BaseCardHeader from "views/components/BaseCardHeader";
-import MovieRatingTag from "./MovieRatingTag";
-import { getAspectRatioString } from "./AspectRatio";
-import { useConfiguration } from "./ConfigurationProvider";
+import BaseCardHeader from 'views/components/BaseCardHeader';
+import MovieRatingTag from './MovieRatingTag';
+import { getAspectRatioString } from './AspectRatio';
+import { useConfiguration } from './ConfigurationProvider';
 
 
 import Button from 'views/components/Button';
 import LikeIcon from 'views/components/LikeIcon';
-import { screenLargerThan } from "views/style/util"
+import { screenLargerThan } from 'views/style/util'
 // import { likePhoto, unLikePhoto } from '../../actions/photo';
 
-import { fetchLikeAlbum, fetchUnLikeAlbum } from "core/actions";
-import { selectors } from "core/reducers/index";
+import { fetchLikeAlbum, fetchUnLikeAlbum } from 'core/actions';
+import { selectors } from 'core/reducers/index';
 import { primaryColor1, white, likeColor, greenColor, } from 'views/style/colors';
 
 

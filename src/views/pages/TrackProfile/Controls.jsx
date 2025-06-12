@@ -1,30 +1,30 @@
 // // REFERENCE https://github.com/vivekjne/video-player-react-youtube
 //
-// import React, { forwardRef, useState, useEffect } from "react";
-// import PropTypes from "prop-types";
-// import styled from "styled-components";
+// import React, { forwardRef, useState, useEffect } from 'react';
+// import PropTypes from 'prop-types';
+// import styled from 'styled-components';
 //
 //
 // // MATERIAL
-// import Typography from "@mui/material/Typography";
-// import Button from "@mui/material/Button";
-// import IconButton from "@mui/material/IconButton";
-// import Grid from "@mui/material/Grid";
-// import Slider from "@mui/material/Slider";
+// import Typography from '@mui/material/Typography';
+// import Button from '@mui/material/Button';
+// import IconButton from '@mui/material/IconButton';
+// import Grid from '@mui/material/Grid';
+// import Slider from '@mui/material/Slider';
 //
-// import BookmarkIcon from "@mui/icons-material/Bookmark";
-// import FastRewindIcon from "@mui/icons-material/FastRewind";
-// import FastForwardIcon from "@mui/icons-material/FastForward";
-// import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-// import PauseIcon from "@mui/icons-material/Pause";
-// import Tooltip from "@mui/material/Tooltip";
+// import BookmarkIcon from '@mui/icons-material/Bookmark';
+// import FastRewindIcon from '@mui/icons-material/FastRewind';
+// import FastForwardIcon from '@mui/icons-material/FastForward';
+// import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+// import PauseIcon from '@mui/icons-material/Pause';
+// import Tooltip from '@mui/material/Tooltip';
 //
-// import VolumeUp from "@mui/icons-material/VolumeUp";
-// import VolumeDown from "@mui/icons-material/VolumeDown";
-// import VolumeMute from "@mui/icons-material/VolumeOff";
-// import FullScreen from "@mui/icons-material/Fullscreen";
-// import Popover from "@mui/material/Popover";
-// import { makeStyles, withStyles } from "@mui/material/styles";
+// import VolumeUp from '@mui/icons-material/VolumeUp';
+// import VolumeDown from '@mui/icons-material/VolumeDown';
+// import VolumeMute from '@mui/icons-material/VolumeOff';
+// import FullScreen from '@mui/icons-material/Fullscreen';
+// import Popover from '@mui/material/Popover';
+// import { makeStyles, withStyles } from '@mui/material/styles';
 //
 //
 // import { TbArrowsDiagonal } from 'react-icons/tb'

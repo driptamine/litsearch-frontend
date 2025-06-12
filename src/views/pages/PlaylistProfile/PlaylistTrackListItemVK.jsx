@@ -1,31 +1,31 @@
-import React, { useState } from "react";
-import { connect, useSelector, useDispatch } from "react-redux";
-import { Link, useLocation, withRouter } from "react-router-dom";
-import styled from "styled-components";
+import React, { useState } from 'react';
+import { connect, useSelector, useDispatch } from 'react-redux';
+import { Link, useLocation, withRouter } from 'react-router-dom';
+import styled from 'styled-components';
 
 // MATERIAL UNDONE
-// import { CardActionArea, ListItem, ListItemText, ListItemAvatar, Avatar, makeStyles } from "@mui/material";
+// import { CardActionArea, ListItem, ListItemText, ListItemAvatar, Avatar, makeStyles } from '@mui/material';
 import { StyledCardActionArea, StyledListItem, StyledListItemText, StyledListItemAvatar, StyledAvatar } from 'views/styledComponents';
-// import MuiListItem from "@mui/material/ListItem";
+// import MuiListItem from '@mui/material/ListItem';
 
 
 
 // VIEWS
-import BaseImage from "views/components/BaseImage";
-import BaseCard from "views/components/BaseCard";
-import BaseCardHeader from "views/components/BaseCardHeader";
-import RouterLink from "views/components/RouterLink";
-import ModalLink from "views/components/ModalLink";
-import IconButton from "views/components/icon-button/IconButton";
+import BaseImage from 'views/components/BaseImage';
+import BaseCard from 'views/components/BaseCard';
+import BaseCardHeader from 'views/components/BaseCardHeader';
+import RouterLink from 'views/components/RouterLink';
+import ModalLink from 'views/components/ModalLink';
+import IconButton from 'views/components/icon-button/IconButton';
 
-import { PlayIcon } from "views/components/Sidebar/Icons";
-import FormattedTime from "views/components/formatted-time/FormattedTime";
-import { getAspectRatioString } from "views/components/AspectRatio";
+import { PlayIcon } from 'views/components/Sidebar/Icons';
+import FormattedTime from 'views/components/formatted-time/FormattedTime';
+import { getAspectRatioString } from 'views/components/AspectRatio';
 import "views/components/track-card/track-card.css"
 
 
 // CORE
-import { selectors } from "core/reducers/index";
+import { selectors } from 'core/reducers/index';
 
 const HideIndexItem = styled.div`
   padding: 10px 16px;

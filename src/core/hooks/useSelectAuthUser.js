@@ -1,5 +1,5 @@
-import { useSelector } from "react-redux";
-import { selectors } from "core/reducers/index";
+import { useSelector } from 'react-redux';
+import { selectors } from 'core/reducers/index';
 
 const useSelectAuthUser = () => {
   const { isFetching } = useSelector(state =>

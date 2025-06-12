@@ -1,31 +1,71 @@
-import React, { useState, useRef } from "react";
-import styled from "styled-components";
-import axios from "axios";
-import PostCreator from "views/components/upload/PostCreator";
+import React, { useState, useRef } from 'react';
+import styled from 'styled-components';
+import axios from 'axios';
+import { IoIosCloseCircle } from 'react-icons/io';
+
+import PostCreator from 'views/components/upload/PostCreator';
 
 const CHUNK_SIZE = 5 * 1024 * 1024;
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
 
-const VideoUploaderGPT = () => {
+export const BaseMediaUploader = ({ mediaType, onUploadComplete, label }) => {
   const [files, setFiles] = useState([]);
   const [progressMap, setProgressMap] = useState({});
-  const [videoLinks, setVideoLinks] = useState({});
+  const [fileLinks, setFileLinks] = useState({});
   const [isUploading, setIsUploading] = useState(false);
   const [showDropZone, setShowDropZone] = useState(false);
   const dragCounter = useRef(0);
   const inputRef = useRef();
 
-  const handleFileChange = (e) => {
-    const selectedFiles = Array.from(e.target.files);
-    setFiles(prev => [...prev, ...selectedFiles]);
+
+  const getMediaType = (mimeType) => {
+    if (mimeType.startsWith("video/")) return "video";
+    if (mimeType.startsWith("image/")) return "photo";
+    if (mimeType.startsWith("audio/")) return "track";
+    return "other";
   };
 
-  const handleDrop = (e) => {
+  const filterValidVideos = async (fileList) => {
+    const results = await Promise.all(
+      fileList.map(file =>
+        new Promise((resolve) => {
+          if (file.type.startsWith("video/")) {
+            const url = URL.createObjectURL(file);
+            const video = document.createElement("video");
+            video.preload = "metadata";
+            video.onloadedmetadata = () => {
+              URL.revokeObjectURL(url);
+              if (video.duration <= 900) {
+                resolve(file);
+              } else {
+                alert(`${file.name} is longer than 60 seconds and will be skipped.`);
+                resolve(null);
+              }
+            };
+            video.src = url;
+          } else {
+            resolve(file);
+          }
+        })
+      )
+    );
+    return results.filter(Boolean);
+  };
+
+
+  const handleFileChange = async (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    const validFiles = await filterValidVideos(selectedFiles);
+    setFiles(prev => [...prev, ...validFiles]);
+  };
+
+  const handleDrop = async (e) => {
     e.preventDefault();
     dragCounter.current = 0;
     setShowDropZone(false);
     const droppedFiles = Array.from(e.dataTransfer.files);
-    setFiles(prev => [...prev, ...droppedFiles]);
+    const validFiles = await filterValidVideos(droppedFiles);
+    setFiles(prev => [...prev, ...validFiles]);
   };
 
   const handleDragEnter = (e) => {
@@ -88,7 +128,9 @@ const VideoUploaderGPT = () => {
 
         const initRes = await axios.post("http://localhost:8000/videos/create_presigned_url/", {
           filename: fileName,
-          content_type: file.type
+          content_type: file.type,
+          // media_type: getMediaType(file.type),
+          media_type: mediaType
         }, { headers: { "Content-Type": "application/json" } });
 
         const { upload_id, key } = initRes.data;
@@ -125,10 +167,17 @@ const VideoUploaderGPT = () => {
           upload_id,
           key,
           parts,
-          media_type: 'video',
+          // media_type: getMediaType(file.type),
+          media_type: mediaType,
         }, { headers: { "Content-Type": "application/json" } });
 
-        setVideoLinks(prev => ({ ...prev, [file.name]: completeRes.data.location }));
+        // setFileLinks(prev => ({ ...prev, [file.name]: completeRes.data.location }));
+
+        const { id, location } = completeRes.data;
+        setFileLinks(prev => ({ ...prev, [file.name]: location }));
+
+        onUploadComplete?.(id);
+
       } catch (err) {
         console.error(`Upload failed for ${file.name}:`, err);
         alert(`Upload failed for ${file.name}`);
@@ -137,6 +186,35 @@ const VideoUploaderGPT = () => {
 
     await Promise.all(files.map(file => uploadSingleFile(file)));
     setIsUploading(false);
+  };
+
+  const handleRemoveFile = (fileName) => {
+    setFiles(prev => prev.filter(file => file.name !== fileName));
+
+    setProgressMap(prev => {
+      const newMap = { ...prev };
+      delete newMap[fileName];
+      return newMap;
+    });
+
+    setFileLinks(prev => {
+      const newLinks = { ...prev };
+      delete newLinks[fileName];
+      return newLinks;
+    });
+  }
+
+  const renderMediaPreview = (fileName, url, type) => {
+    if (type.startsWith("image/")) {
+      return <img src={url} alt={fileName} style={{ maxWidth: "300px", maxHeight: "300px" }} />;
+    }
+    if (type.startsWith("audio/")) {
+      return <audio controls src={url} style={{ width: "300px" }} />;
+    }
+    if (type.startsWith("video/")) {
+      return <video controls src={url} width="auto" height="300" />;
+    }
+    return <p>Unsupported media type</p>;
   };
 
   return (
@@ -148,7 +226,7 @@ const VideoUploaderGPT = () => {
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
-        <PostCreator />
+        {label} Here
 
         {showDropZone && (
           <DropZone onClick={() => inputRef.current.click()}>
@@ -162,34 +240,46 @@ const VideoUploaderGPT = () => {
         {isUploading ? "Uploading..." : "Upload All"}
       </UploadButton>
 
-      <PreviewVideos>
+      <PreviewFiles>
         {files.map((file) => (
           <div key={file.name} style={{ marginBottom: "16px", marginLeft: "16px" }}>
-            <p>{file.name}</p>
+            <p>
+              <button>{file.name}</button>{"   "}
+              <button onClick={() => handleRemoveFile(file.name)} style={{ cursor: 'pointer', marginTop: "8px" }}>
+
+                <IoIosCloseCircle size={15}/>
+              </button>
+            </p>
+
             <progress value={progressMap[file.name] || 0} max="100" style={{ width: "100%" }} />
             <div>{progressMap[file.name] || 0}%</div>
-            {videoLinks[file.name] && (
+            {fileLinks[file.name] && (
               <>
+
+                {renderMediaPreview(file.name, fileLinks[file.name], file.type)}
+
                 <p>
-                  <a href={videoLinks[file.name]} target="_blank" rel="noopener noreferrer">
-                    View Video
+                  <a href={fileLinks[file.name]} target="_blank" rel="noopener noreferrer">
+                    View File
                   </a>
                 </p>
-                <video src={videoLinks[file.name]} controls width="300" height="300" />
               </>
             )}
+
+
           </div>
         ))}
-      </PreviewVideos>
+      </PreviewFiles>
     </div>
   );
 };
 
 // Styled Components
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   /* position: relative; */
   border: 1px solid black;
   width: 600px;
+  height: 100px;
 `;
 
 const DropZone = styled.div`
@@ -216,11 +306,12 @@ const HiddenInput = styled.input`
 
 const UploadButton = styled.button`
   margin-top: 20px;
+  user-select: none;
 `;
 
-const PreviewVideos = styled.div`
+const PreviewFiles = styled.div`
   display: flex;
   flex-wrap: wrap;
 `;
 
-export default VideoUploaderGPT;
+// export default BaseMediaUploader;

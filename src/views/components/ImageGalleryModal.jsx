@@ -1,5 +1,5 @@
-import React from "react";
-import MediaGalleryModal from "./MediaGalleryModal";
+import React from 'react';
+import MediaGalleryModal from './MediaGalleryModal';
 
 function ImageGalleryModal({ title, filePaths }) {
   return (

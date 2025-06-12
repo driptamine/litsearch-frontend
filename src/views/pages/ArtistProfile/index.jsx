@@ -1,24 +1,24 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 // MATERIAL DONE
-// import { Typography } from "@mui/material";
+// import { Typography } from '@mui/material';
 import { StyledTypography } from 'views/styledComponents';
 
-import Profile from "views/components/Profile";
-import ArtistInfo from "./ArtistInfo";
-import ArtistIntroduction from "./ArtistIntroduction";
-import ArtistIntroductionV2 from "./ArtistIntroductionV2";
-// import ArtistImageGridList from "./ArtistImageGridList";
-// import ArtistCastingGridList from "./ArtistCastingGridList";
+import Profile from 'views/components/Profile';
+import ArtistInfo from './ArtistInfo';
+import ArtistIntroduction from './ArtistIntroduction';
+import ArtistIntroductionV2 from './ArtistIntroductionV2';
+// import ArtistImageGridList from './ArtistImageGridList';
+// import ArtistCastingGridList from './ArtistCastingGridList';
 
-import ArtistAlbums from "./ArtistAlbums";
+import ArtistAlbums from './ArtistAlbums';
 
-import { selectors } from "core/reducers/index";
-import { verifyCachedData } from "core/utils";
-import { fetchArtist } from "core/actions";
+import { selectors } from 'core/reducers/index';
+import { verifyCachedData } from 'core/utils';
+import { fetchArtist } from 'core/actions';
 
 const REQUIRED_FIELDS = ["biography", "imdb_id"];
 

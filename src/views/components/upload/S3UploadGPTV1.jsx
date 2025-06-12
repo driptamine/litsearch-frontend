@@ -1,5 +1,5 @@
 // https://chatgpt.com/c/67e1965e-60e8-800c-83b7-c40c5bd2317c
-import { useState } from "react";
+import { useState } from 'react';
 
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB per chunk
 

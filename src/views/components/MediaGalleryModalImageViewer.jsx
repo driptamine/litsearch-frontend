@@ -1,7 +1,7 @@
-import React from "react";
-import BaseImage from "./BaseImage";
-import { getAspectRatioString } from "./AspectRatio";
-import { useConfiguration } from "./ConfigurationProvider";
+import React from 'react';
+import BaseImage from './BaseImage';
+import { getAspectRatioString } from './AspectRatio';
+import { useConfiguration } from './ConfigurationProvider';
 
 function MediaGalleryModalImageViewer({ filePath }) {
   const { getImageUrl } = useConfiguration();

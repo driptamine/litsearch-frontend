@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { useTrackVisibility } from "react-intersection-observer-hook";
+import React, { useState, useEffect } from 'react';
+import { useTrackVisibility } from 'react-intersection-observer-hook';
 
 // MATERIAL UNDONE
-// import { Box, useTheme } from "@mui/material";
+// import { Box, useTheme } from '@mui/material';
 import { StyledBox } from 'views/styledComponents';
-// import { makeStyles } from "@mui/material/styles";
+// import { makeStyles } from '@mui/material/styles';
 
-import placeholderPng from "views/assets/placeholder.png";
-import LoadingIndicator from "./LoadingIndicator";
-import AspectRatio, { getAspectRatioString } from "./AspectRatio";
+import placeholderPng from 'views/assets/placeholder.png';
+import LoadingIndicator from './LoadingIndicator';
+import AspectRatio, { getAspectRatioString } from './AspectRatio';
 
 const ORIGINAL = "original";
 const DEFAULT_ALT = "Not Loaded";

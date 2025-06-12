@@ -1,8 +1,8 @@
 // REFERENCE https://stackoverflow.com/questions/62516611/how-to-add-custom-styles-to-the-controls-provided-by-react-player
 
-import { useState, useRef } from "react"
-import ReactPlayer from "react-player"
-import { IoPlay, IoPause } from "react-icons/io5"
+import { useState, useRef } from 'react'
+import ReactPlayer from 'react-player'
+import { IoPlay, IoPause } from 'react-icons/io5'
 
 const Player = () => {
   const [playing, setPlaying] = useState(true)

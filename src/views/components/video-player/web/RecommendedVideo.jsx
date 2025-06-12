@@ -18,54 +18,6 @@ import './video-player.css';
 import Slider from './slider/Slider';
 import { StyledTypography } from 'views/styledComponents';
 
-const DisplayDiv = styled.div`
-  display: flex;
-`;
-const Overlay = styled.div`
-  position: absolute;
-`;
-
-const StyledSlider = styled(Slider)`
-  position: absolute;
-  bottom: 18px;
-`;
-const OverlayPlayButton = styled.div`
-
-  position: absolute;
-  z-index: 100;
-  width: 403px;
-  height: 176px;
-  /* background: #0000002e; */
-`;
-const OverlayPlayButtonV2 = styled.div`
-
-  width: 100%;
-  height: 75%;
-  background-color: transparent;
-
-  position: absolute;
-  z-index: 100;
-  top:0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-
-  margin-top: 0px;
-  margin-bottom: 1px;
-  margin-right: auto;
-  margin-left: auto;
-
-
-`;
-const PlayButton = styled.button`
-  /* cursor: pointer; */
-  margin-left: 10px;
-`;
-const Duration = styled.div`
-  /* cursor: pointer; */
-  color: white;
-  font-family: sans-serif;
-`;
 
 const RecommendedVideo = ({ url, light, viewsCount, likesCount }, props) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -201,6 +153,7 @@ const RecommendedVideo = ({ url, light, viewsCount, likesCount }, props) => {
         onLoadedData={(e) => {
           setDuration(e.currentTarget.duration.toFixed(2))
         }}
+        // controls
       >
 
       </Video>
@@ -219,6 +172,56 @@ const Video = styled.video`
 
   margin-left: auto;
   margin-right: auto;
+`;
+
+
+const DisplayDiv = styled.div`
+  display: flex;
+`;
+const Overlay = styled.div`
+  position: absolute;
+`;
+
+const StyledSlider = styled(Slider)`
+  position: absolute;
+  bottom: 18px;
+`;
+const OverlayPlayButton = styled.div`
+
+  position: absolute;
+  z-index: 100;
+  width: 403px;
+  height: 176px;
+  /* background: #0000002e; */
+`;
+const OverlayPlayButtonV2 = styled.div`
+
+  width: 100%;
+  height: 75%;
+  background-color: transparent;
+
+  position: absolute;
+  z-index: 100;
+  top:0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  margin-top: 0px;
+  margin-bottom: 1px;
+  margin-right: auto;
+  margin-left: auto;
+
+
+`;
+const PlayButton = styled.button`
+  /* cursor: pointer; */
+  margin-left: 10px;
+`;
+const Duration = styled.div`
+  /* cursor: pointer; */
+  color: white;
+  font-family: sans-serif;
 `;
 
 export default RecommendedVideo

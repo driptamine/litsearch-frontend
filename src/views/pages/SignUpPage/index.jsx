@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useContext } from 'react'
 import { connect, useDispatch, useSelector} from 'react-redux';
-import { Redirect, useHistory } from "react-router-dom";
+import { Redirect, useHistory } from 'react-router-dom';
 
 // ICONS
 import { FaTwitch } from 'react-icons/fa';
@@ -22,7 +22,7 @@ import { StyledTextField, StyledContainer, StyledGrid, StyledButton } from 'view
 
 import {
   twitchSignInAction, googleSignInAction, appleSignInAction,
-  spotifySignInAction, unsplashSignInAction, deezerSignInAction, instagramSignInAction } from "views/pages/LoginPage/action"
+  spotifySignInAction, unsplashSignInAction, deezerSignInAction, instagramSignInAction } from 'views/pages/LoginPage/action'
 import ReAuthenticateButton from 'views/pages/Auth/ReAuthenticateButton';
 import disconnectYoutube from 'views/pages/Auth/youtube/disconnectYoutube';
 import disconnectTwitch from 'views/pages/Auth/twitch/disconnectTwitch';
@@ -33,14 +33,14 @@ import { YoutubeContext } from 'views/pages/Auth/youtube/useToken';
 import { SpotifyContext } from 'views/pages/Auth/spotify/useToken';
 import { GoogleContext } from 'views/pages/Auth/google/useToken';
 
-import litloopLogo from "views/assets/litloopLogo3.png";
+import litloopLogo from 'views/assets/litloopLogo3.png';
 
 // CORE
-import history  from "core/services/history";
+import history  from 'core/services/history';
 import { fetchAuthUser, fetchSignUpUser  } from 'core/actions'
-import useHistoryPush from "core/hooks/useHistoryPush";
+import useHistoryPush from 'core/hooks/useHistoryPush';
 // import { selectAuth } from 'core/reducers/authSlice';
-import { selectors } from "core/reducers/index";
+import { selectors } from 'core/reducers/index';
 import { feedPreferencesAtom, useFeedPreferences } from 'core/atoms/atoms';
 import useEventListenerMemo from 'core/hooks2/useEventListenerMemo';
 

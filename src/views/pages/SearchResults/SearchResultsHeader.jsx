@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react';
 
 // MATERIAL DONE
-// import { Typography, Box } from "@mui/material";
+// import { Typography, Box } from '@mui/material';
 import { StyledTypography, StyledBox } from 'views/styledComponents';
 
 function SearchResultsHeader({ query, totalResults }) {

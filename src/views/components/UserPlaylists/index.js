@@ -1,7 +1,7 @@
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-import UserPlaylists from "./component";
+import UserPlaylists from './component';
 
 import { fetchPlaylistsMenu, fetchPlaylistSongs } from '../actions-pau1fitz/playlistActions';
 import { updateHeaderTitle } from '../actions-pau1fitz/uiActions';

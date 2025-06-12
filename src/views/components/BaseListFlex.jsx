@@ -1,13 +1,13 @@
-import React from "react";
+import React from 'react';
 import styled from 'styled-components';
 
-import LoadingIndicator from "views/components/LoadingIndicator";
+import LoadingIndicator from 'views/components/LoadingIndicator';
 
 // MATERIAL UNDONE
-// import { makeStyles } from "@mui/material/styles";
-// import { Typography } from "@mui/material";
-import { StyledTypography } from "views/styledComponents";
-import Skeleton from "views/skeletons/HomeSkeleton";
+// import { makeStyles } from '@mui/material/styles';
+// import { Typography } from '@mui/material';
+import { StyledTypography } from 'views/styledComponents';
+import Skeleton from 'views/skeletons/HomeSkeleton';
 
 const DEFAULT_ITEMS = [];
 

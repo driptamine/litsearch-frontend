@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
-import { fetchPopularMagazines } from "core/actions";
-import { selectors } from "core/reducers/index";
-// import MagazineFeedCard from "views/components/MagazineFeedCard";
-import MagazineCard from "views/components/MagazineCard";
-import InfiniteGridList from "views/components/InfiniteGridList";
-import InfiniteList from "views/components/InfiniteList";
+import { fetchPopularMagazines } from 'core/actions';
+import { selectors } from 'core/reducers/index';
+// import MagazineFeedCard from 'views/components/MagazineFeedCard';
+import MagazineCard from 'views/components/MagazineCard';
+import InfiniteGridList from 'views/components/InfiniteGridList';
+import InfiniteList from 'views/components/InfiniteList';
 
 const StyledLi = styled.li`
   width: 550px;

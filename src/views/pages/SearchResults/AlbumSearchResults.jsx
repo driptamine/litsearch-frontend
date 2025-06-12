@@ -1,10 +1,10 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchAlbumSearch } from "core/actions";
-import { selectors } from "core/reducers/index";
-import InfiniteGridList from "views/components/InfiniteGridList";
-import AlbumCard from "views/components/AlbumCard";
-import AlbumItem from "views/components/AlbumItem";
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAlbumSearch } from 'core/actions';
+import { selectors } from 'core/reducers/index';
+import InfiniteGridList from 'views/components/InfiniteGridList';
+import AlbumCard from 'views/components/AlbumCard';
+import AlbumItem from 'views/components/AlbumItem';
 
 function renderItem(albumId) {
   return (

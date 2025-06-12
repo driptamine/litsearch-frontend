@@ -6,17 +6,17 @@ import styled from 'styled-components';
 import {
   twitchSignInAction, googleSignInAction, appleSignInAction,
   spotifySignInAction, unsplashSignInAction, deezerSignInAction, instagramSignInAction
-} from "views/pages/LoginPage/action";
+} from 'views/pages/LoginPage/action';
 import { TwitchContext } from 'views/pages/Auth/twitch/useToken';
 import { YoutubeContext } from 'views/pages/Auth/youtube/useToken';
 import { GoogleContext } from 'views/pages/Auth/google/useToken';
 import { SpotifyContext } from 'views/pages/Auth/spotify/useToken';
 
-import litloopLogo from "views/assets/litloopLogo3.png";
+import litloopLogo from 'views/assets/litloopLogo3.png';
 import { fetchAuthUser } from 'core/actions';
-import { selectors } from "core/reducers/index";
+import { selectors } from 'views/pages/LoginPage/action';
 import useEventListenerMemo from 'core/hooks2/useEventListenerMemo';
-import history  from "core/services/history";
+import history  from 'views/pages/LoginPage/action';
 
 import ReAuthenticateButton from 'views/pages/Auth/ReAuthenticateButton';
 import { FaSpotify, FaApple } from 'react-icons/fa';
@@ -71,9 +71,9 @@ const LoginForm = () => {
       if (e.data.access_token && setGoogleAccessToken) setGoogleAccessToken(e.data.access_token);
       if (e.data.username && setGoogleUsername) setGoogleUsername(e.data.username);
       if (e.data.profileImg && setGoogleProfileImage) setGoogleProfileImage(e.data.profileImg);
-      history.push('/');
+      history.push('/feed');
     }
-    history.push('/');
+    // history.push('/');
   };
 
   useEventListenerMemo('message', receiveMessage, window, true, { capture: false });

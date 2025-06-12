@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useState, useEffect, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import axios from 'axios';
 
@@ -9,23 +9,23 @@ import { FaRegComment } from 'react-icons/fa';
 import { AiFillEye } from 'react-icons/ai';
 
 // MATERIAL DONE
-// import { makeStyles } from "@mui/material/styles";
+// import { makeStyles } from '@mui/material/styles';
 
 
-import BaseImage from "views/components/BaseImage";
-import BaseCard from "views/components/BaseCard";
-import RouterLink from "views/components/RouterLink";
-import ModalLink from "views/components/ModalLink";
-import BaseCardHeader from "views/components/BaseCardHeader";
-import CrossLayout from "views/components/cross/CrossLayout";
-import MovieRatingTag from "./MovieRatingTag";
-import { getAspectRatioString } from "./AspectRatio";
-import { useConfiguration } from "./ConfigurationProvider";
+import BaseImage from 'views/components/BaseImage';
+import BaseCard from 'views/components/BaseCard';
+import RouterLink from 'views/components/RouterLink';
+import ModalLink from 'views/components/ModalLink';
+import BaseCardHeader from 'views/components/BaseCardHeader';
+import CrossLayout from 'views/components/cross/CrossLayout';
+import MovieRatingTag from './MovieRatingTag';
+import { getAspectRatioString } from './AspectRatio';
+import { useConfiguration } from './ConfigurationProvider';
 
 import offline_data from 'views/skeletons/data.json';
 
-import { fetchMovieImdb } from "core/actions";
-import { selectors } from "core/reducers/index";
+import { fetchMovieImdb } from 'core/actions';
+import { selectors } from 'core/reducers/index';
 
 
 

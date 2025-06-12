@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { GlobalStyles } from "./components/styles/Global";
-import { Header } from "./components/styles/Header.styled";
-import { Footer } from "./components/styles/Footer.styled";
-import Quotes from "./components/Quotes";
-import { ThemeContainer, ThemeButton,} from "./components/styles/ThemeSwitching.styled";
-import { ThemeProvider } from "styled-components";
-import { light, dark, blue, green, brown, pink, } from "./components/styles/Theme.styled";
+import React, { useState, useEffect } from 'react';
+import { GlobalStyles } from './components/styles/Global';
+import { Header } from './components/styles/Header.styled';
+import { Footer } from './components/styles/Footer.styled';
+import Quotes from './components/Quotes';
+import { ThemeContainer, ThemeButton,} from './components/styles/ThemeSwitching.styled';
+import { ThemeProvider } from 'styled-components';
+import { light, dark, blue, green, brown, pink, } from './components/styles/Theme.styled';
 
 function App() {
   // theme state

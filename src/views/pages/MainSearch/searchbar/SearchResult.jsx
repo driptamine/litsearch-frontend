@@ -1,8 +1,8 @@
 import "./SearchResult.css";
 import styled from 'styled-components';
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
-import useHistoryPush from "core/hooks/useHistoryPush";
+import useHistoryPush from 'core/hooks/useHistoryPush';
 
 const StyledSpan = styled.span`
   cursor: default;

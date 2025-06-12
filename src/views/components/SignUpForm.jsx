@@ -1,8 +1,8 @@
-import React from "react";
-import FlatButton from "material-ui/FlatButton";
-import RaisedButton from "material-ui/RaisedButton";
-import TextField from "material-ui/TextField";
-import PasswordStr from "./PasswordStr";
+import React from 'react';
+import FlatButton from 'material-ui/FlatButton';
+import RaisedButton from 'material-ui/RaisedButton';
+import TextField from 'material-ui/TextField';
+import PasswordStr from './PasswordStr';
 import "./style.css";
 
 const SignUpForm = ({

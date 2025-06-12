@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
-import { fetchMovieCredits } from "core/actions";
-import { useDispatch, useSelector } from "react-redux";
-import { selectors } from "core/reducers/index";
-import BaseGridList from "views/components/BaseGridList";
-import MovieCastGridListItem from "./MovieCastGridListItem";
+import React, { useEffect } from 'react';
+import { fetchMovieCredits } from 'core/actions';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectors } from 'core/reducers/index';
+import BaseGridList from 'views/components/BaseGridList';
+import MovieCastGridListItem from './MovieCastGridListItem';
 
 function renderItem(castCreditId) {
   return <MovieCastGridListItem castCreditId={castCreditId} button />;

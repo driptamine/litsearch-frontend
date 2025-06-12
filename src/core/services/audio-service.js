@@ -1,4 +1,4 @@
-import { PLAYER_MAX_VOLUME, PLAYER_VOLUME_INCREMENT } from "core/constants/spotify";
+import { PLAYER_MAX_VOLUME, PLAYER_VOLUME_INCREMENT } from 'core/constants/spotify';
 import { playerActions } from 'core/actions/player';
 
 

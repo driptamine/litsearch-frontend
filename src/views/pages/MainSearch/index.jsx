@@ -1,7 +1,7 @@
-import { ChangeEvent, FC, useState } from "react";
-import data from "./data.json";
-import styled from "styled-components";
-// import { FaArrowDown } from "@react-icons/all-files/fa/FaArrowDown";
+import { ChangeEvent, FC, useState } from 'react';
+import data from './data.json';
+import styled from 'styled-components';
+// import { FaArrowDown } from '@react-icons/all-files/fa/FaArrowDown';
 
 import {
   AutoCompleteContainer,
@@ -9,7 +9,7 @@ import {
   Input,
   AutoCompleteItem,
   AutoCompleteItemButton
-} from "./styles";
+} from './styles';
 
 const Root = styled.div`
   position: relative;

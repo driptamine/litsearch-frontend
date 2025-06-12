@@ -1,12 +1,12 @@
 // REFERENCE
 // youtubeclone-frontend
 
-import React, { useState } from "react";
-import path from "path";
-import { toast } from "react-toastify";
-import { UploadIcon } from "./Icons";
-import UploadVideoModal from "./UploadVideoModal";
-import { upload } from "../utils";
+import React, { useState } from 'react';
+import path from 'path';
+import { toast } from 'react-toastify';
+import { UploadIcon } from './Icons';
+import UploadVideoModal from './UploadVideoModal';
+import { upload } from '../utils';
 
 const UploadVideo = () => {
   const [showModal, setShowModal] = useState(false);

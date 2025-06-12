@@ -1,24 +1,24 @@
-import React, {useState, useEffect} from "react";
-import { useSelector } from "react-redux";
-import axios from "axios";
+import React, {useState, useEffect} from 'react';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
 
 // MATERIAL DONE
-// import { Typography, Box, Grid, Link, makeStyles } from "@mui/material";
+// import { Typography, Box, Grid, Link, makeStyles } from '@mui/material';
 import { StyledTypography, StyledBox, StyledGrid, StyledLink } from 'views/styledComponents';
 
-import BaseImageV2 from "views/components/BaseImageV2";
-import BaseCard from "views/components/BaseCard";
-import CustomPlayerV4 from "views/components/video-player/web/CustomPlayerV4";
+import BaseImageV2 from 'views/components/BaseImageV2';
+import BaseCard from 'views/components/BaseCard';
+import CustomPlayerV4 from 'views/components/video-player/web/CustomPlayerV4';
 
-// import Rating from "./Rating";
-import Introduction from "views/components/Introduction";
-import ImdbLogo from "views/components/ImdbLogo";
-// import MovieGenreChip from "./MovieGenreChip";
+// import Rating from './Rating';
+import Introduction from 'views/components/Introduction';
+import ImdbLogo from 'views/components/ImdbLogo';
+// import MovieGenreChip from './MovieGenreChip';
 
-import { selectors } from "core/reducers/index";
-import { getMovieReleaseYear, getImdbProfileUrl } from "core/utils";
-import { getAspectRatioString } from "views/components/AspectRatio";
-import { useConfiguration } from "views/components/ConfigurationProvider";
+import { selectors } from 'core/reducers/index';
+import { getMovieReleaseYear, getImdbProfileUrl } from 'core/utils';
+import { getAspectRatioString } from 'views/components/AspectRatio';
+import { useConfiguration } from 'views/components/ConfigurationProvider';
 
 
 function VideoIntroduction({ videoId, obj, url }) {

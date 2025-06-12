@@ -1,16 +1,16 @@
-import { put, delay, fork, all, call, select, takeEvery, takeLatest, cancelled} from "redux-saga/effects";
-import { getFetchTypes, verifyCachedData, createUrl, createAPIUrl, createAuthUrl } from "core/utils";
-import { setAccessToken } from "core/actions";
-import * as schemas from "core/schemas";
-import * as actions from "core/actions";
+import { put, delay, fork, all, call, select, takeEvery, takeLatest, cancelled} from 'redux-saga/effects';
+import { getFetchTypes, verifyCachedData, createUrl, createAPIUrl, createAuthUrl } from 'core/utils';
+import { setAccessToken } from 'core/actions';
+import * as schemas from 'core/schemas';
+import * as actions from 'core/actions';
 
-// import { watchFetchAlbum, watchFetchLikeAlbum } from "./album";
-// import { watchFetchArtist, watchFetchArtistAlbums, watchFetchArtistImages } from "./artist";
-// import { watchFetchTrack } from "./track";
-// import { watchFetchRecommendations, watchFetchMovieCredits, watchFetchMovieVideos, watchFetchMovieImages, watchFetchPopularMovies, watchFetchMovie } from "core/sagas/movie";
-// import { watchFetchPopularPeople, watchFetchPerson, watchFetchPersonCredits, watchFetchPersonImages } from "./person";
-// import { watchFetchCurrentUser, watchFetchAuthUser } from "./user";
-// import { } from "core/sagas/post";
+// import { watchFetchAlbum, watchFetchLikeAlbum } from './album';
+// import { watchFetchArtist, watchFetchArtistAlbums, watchFetchArtistImages } from './artist';
+// import { watchFetchTrack } from './track';
+// import { watchFetchRecommendations, watchFetchMovieCredits, watchFetchMovieVideos, watchFetchMovieImages, watchFetchPopularMovies, watchFetchMovie } from 'core/sagas/movie';
+// import { watchFetchPopularPeople, watchFetchPerson, watchFetchPersonCredits, watchFetchPersonImages } from './person';
+// import { watchFetchCurrentUser, watchFetchAuthUser } from './user';
+// import { } from 'core/sagas/post';
 
 import {
   watchAudioEnded,
@@ -18,16 +18,16 @@ import {
   watchInitApp,
   watchPlaySelectedTrack,
 } from './player';
-import * as service from "../services/UserService";
+import * as service from '../services/UserService';
 
-import { normalize } from "normalizr";
-import { selectors } from "core/reducers/index";
-import axios from "axios";
+import { normalize } from 'normalizr';
+import { selectors } from 'core/reducers/index';
+import axios from 'axios';
 import { getReq, getHeaders, getState } from 'store';
 
-import history  from "core/services/history";
+import history  from 'core/services/history';
 
-import { postAxiosReq, getAxiosReq } from "core/api/rest-helper";
+import { postAxiosReq, getAxiosReq } from 'core/api/rest-helper';
 
 const CancelToken = axios.CancelToken;
 

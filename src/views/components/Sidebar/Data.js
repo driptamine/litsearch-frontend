@@ -12,7 +12,7 @@ import {
   AuthIcon,
   WizardIcon,
   ModalIcon,
-} from "./Icons";
+} from './Icons';
 
 export const SIDEBAR_DATA = [
   {

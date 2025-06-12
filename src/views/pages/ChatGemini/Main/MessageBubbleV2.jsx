@@ -1,8 +1,8 @@
-import React from "react";
-import styled from "styled-components";
-import { marked } from "marked";
-import DOMPurify from "dompurify";
-import hljs from "highlight.js";
+import React from 'react';
+import styled from 'styled-components';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
+import hljs from 'highlight.js';
 import "highlight.js/styles/atom-one-dark.css"; // You can change theme
 
 // Custom tokenizer for ==highlight==

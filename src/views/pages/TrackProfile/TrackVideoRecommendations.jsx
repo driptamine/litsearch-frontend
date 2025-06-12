@@ -1,16 +1,16 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 
-// import { useTheme } from "@mui/material/styles";
+// import { useTheme } from '@mui/material/styles';
 
-import MovieCard from "views/components/MovieCard";
-import VideoCard from "./VideoCard";
-// import VideoItem from "./VideoItem";
-import BaseGridList from "views/components/BaseGridList";
+import MovieCard from 'views/components/MovieCard';
+import VideoCard from './VideoCard';
+// import VideoItem from './VideoItem';
+import BaseGridList from 'views/components/BaseGridList';
 
-import { fetchVideoRecommendations } from "core/actions";
-import { selectors } from "core/reducers/index";
+import { fetchVideoRecommendations } from 'core/actions';
+import { selectors } from 'core/reducers/index';
 
 function renderItem(recommendationId) {
   return (

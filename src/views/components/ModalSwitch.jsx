@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useReducer, useState, useCallback, useMemo } from 'react';
-import { Switch, Route, Redirect, withRouter, useLocation, useHistory } from "react-router-dom";
+import { Switch, Route, Redirect, withRouter, useLocation, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 // CHAT
 import ChatList from 'views/pages/ChatV3/Left/ChatList';
@@ -12,75 +12,83 @@ import ChatWindowGemini from 'views/pages/ChatGemini/Main/ChatWindow';
 import chatsData from 'views/pages/ChatV3/chatsV2.json';
 import emojiData from 'views/pages/ChatV3/emoji.json';
 // UPLOAD
-import LargeFileUpload from "views/components/upload/LargeFileUpload";
-import ChunkUpload from "views/components/upload/ChunkUpload";
-import UploadGPTaxios from "views/components/upload/UploadToEC2GPTaxios";
-// import VideoUploaderGPT from "views/components/upload/VideoUploaderGPT";
-// import VideoUploaderGPT from "views/components/upload/VideoUploaderGPTV2";
-// import VideoUploaderGPT from "views/components/upload/VideoUploaderGPTV3";
-// import VideoUploaderGPT from "views/components/upload/VideoUploaderGPTV4";
-// import VideoUploaderGPT from "views/components/upload/VideoUploaderGPTV4Multi";
-import VideoUploaderGPT from "views/components/upload/VideoUploaderGPTV4MultiUX";
-// import VideoUploaderGPT from "views/components/upload/VideoUploaderGPTV4MultiUXPostCreator";
-import PostCreator from "views/components/upload/PostCreator";
+import ChunkUpload from 'views/components/upload/ChunkUpload';
+import UploadGPTaxios from 'views/components/upload/UploadToEC2GPTaxios';
+// import VideoUploaderGPT from 'views/components/upload/VideoUploaderGPT';
+// import VideoUploaderGPT from 'views/components/upload/VideoUploaderGPTV2';
+// import VideoUploaderGPT from 'views/components/upload/VideoUploaderGPTV3';
+// import VideoUploaderGPT from 'views/components/upload/VideoUploaderGPTV4';
+// import VideoUploaderGPT from 'views/components/upload/VideoUploaderGPTV4Multi';
+// import VideoUploaderGPT from 'views/components/upload/VideoUploaderGPTV4MultiUX';
+import MediaUploader from 'views/components/upload/MediaUploader';
+// import VideoUploaderGPT from 'views/components/upload/VideoUploaderGPTV4MultiUXPostCreator';
 
-import ModalCustom from "views/components/ModalCustom";
-import ModalRoute from "views/components/ModalRoute";
-import ModalMovie from "views/components/ModalMovie";
-import ModalMovies from "views/components/ModalMovies";
-import ModalPosts from "views/pages/PopularPosts/ModalPosts";
-import TrackListLoopV2 from "views/pages/PopularMusic/indexV2";
-import TrackListLoopV1 from "views/pages/PopularMusic/index";
-import ModalPeople from "views/components/ModalPeople";
-import ModalMagazines from "views/components/ModalMagazines";
-// import ModalPhotos from "views/components/ModalPhotos";
-import ModalAlbums from "views/components/ModalAlbums";
-import MovieCard from "views/components/MovieCard";
-
-// import PopularMovies from "views/pages/PopularMovies";
-import MovieProfile from "views/pages/MovieProfile";
-import VideoProfile from "views/pages/VideoProfile";
+// import PostCreator from 'views/components/upload/PostCreator';
+import PostCreator from 'views/components/upload/uploader/posts/PostCreator.jsx'
 
 
-import SearchResults from "views/pages/SearchResults";
-import SearchesResults from "views/pages/SearchResults";
+import ModalCustom from 'views/components/ModalCustom';
+import ModalRoute from 'views/components/ModalRoute';
+import ModalMovie from 'views/components/ModalMovie';
+import ModalMovies from 'views/components/ModalMovies';
+import ModalPosts from 'views/pages/PopularPosts/ModalPosts';
+import TrackListLoopV2 from 'views/pages/PopularMusic/indexV2';
+import TrackListLoopV1 from 'views/pages/PopularMusic/index';
+import ModalPeople from 'views/components/ModalPeople';
+import ModalMagazines from 'views/components/ModalMagazines';
+// import ModalPhotos from 'views/components/ModalPhotos';
+import ModalAlbums from 'views/components/ModalAlbums';
+import MovieCard from 'views/components/MovieCard';
+
+// import PopularMovies from 'views/pages/PopularMovies';
+import MovieProfile from 'views/pages/MovieProfile';
+import { VideoFeedProfile } from 'views/pages/VideoFeedProfile';
+import { VideoFeed } from 'views/pages/VideoFeedProfile/VideoFeed';
+import { VideoFeedV2 } from 'views/pages/VideoFeedProfile/VideoFeedV2';
+import { PhotosPage } from 'views/pages/PhotosPage/PhotosPage';
+import { PhotosPageUnsplash } from 'views/pages/PhotosPage/PhotosPageUnsplash';
+import VideoProfile from 'views/pages/VideoProfile';
 
 
-import PersonProfile from "views/pages/PersonProfile";
-import ArtistProfile from "views/pages/ArtistProfile";
-import AlbumProfile from "views/pages/AlbumProfile";
-import PlaylistProfile from "views/pages/PlaylistProfile";
-import TrackProfile from "views/pages/TrackProfile";
-import LinksProfile from "views/pages/LinksProfile";
-
-// import LoginPage from "views/pages/LoginPage/index";
-import LoginPage from "views/pages/LoginPage/indexV2";
+import SearchResults from 'views/pages/SearchResults';
+import SearchesResults from 'views/pages/SearchResults';
 
 
-import SignUpPage from "views/pages/SignUpPage";
+import PersonProfile from 'views/pages/PersonProfile';
+import ArtistProfile from 'views/pages/ArtistProfile';
+import AlbumProfile from 'views/pages/AlbumProfile';
+import PlaylistProfile from 'views/pages/PlaylistProfile';
+import TrackProfile from 'views/pages/TrackProfile';
+import LinksProfile from 'views/pages/LinksProfile';
 
-// import MainSearch from "views/pages/MainSearch";
-import SearchApp from "views/pages/MainSearch/searchbar/App";
-import SearchAppp from "views/pages/MainSearch/StartPage/App";
-
-
-import GoogleCallback from "views/pages/LoginPage/oauth/GoogleCallback";
-import OAuthCallback from "views/pages/LoginPage/oauth/OAuthCallback";
-import OAuthPopup from "views/pages/LoginPage/pocket/oauth2popup";
-
-import TwitchAuthCallback from "views/pages/Auth/TwitchAuthCallback";
-import GoogleAuthCallback from "views/pages/Auth/GoogleAuthCallback";
-// import SpotifyAuthCallback from "views/pages/Auth/SpotifyAuthCallback";
-// import UnsplashCallback from "views/pages/LoginPage/UnsplashCallback";
+// import LoginPage from 'views/pages/LoginPage/index';
+import LoginPage from 'views/pages/LoginPage/indexV2';
 
 
-// import LoginPageOauth from "views/pages/LoginPage";
+import SignUpPage from 'views/pages/SignUpPage';
+
+// import MainSearch from 'views/pages/MainSearch';
+import SearchApp from 'views/pages/MainSearch/searchbar/App';
+import SearchAppp from 'views/pages/MainSearch/StartPage/App';
+
+
+import GoogleCallback from 'views/pages/LoginPage/oauth/GoogleCallback';
+import OAuthCallback from 'views/pages/LoginPage/oauth/OAuthCallback';
+import OAuthPopup from 'views/pages/LoginPage/pocket/oauth2popup';
+
+import TwitchAuthCallback from 'views/pages/Auth/TwitchAuthCallback';
+import GoogleAuthCallback from 'views/pages/Auth/GoogleAuthCallback';
+// import SpotifyAuthCallback from 'views/pages/Auth/SpotifyAuthCallback';
+// import UnsplashCallback from 'views/pages/LoginPage/UnsplashCallback';
+
+
+// import LoginPageOauth from 'views/pages/LoginPage';
 
 // import Main from '/views/pages/Chat/Main/Main.async';
 
 // CORE
-import useScrollRestoration from "core/hooks/useScrollRestoration";
-import useScrollMemory from "core/hooks/useScrollMemory";
+import useScrollRestoration from 'core/hooks/useScrollRestoration';
+import useScrollMemory from 'core/hooks/useScrollMemory';
 
 import { getState } from 'core/store';
 
@@ -406,11 +414,13 @@ function ModalSwitch({  children, renderModal, stopSong, pauseSong, resumeSong, 
         {/*<Route exact path="/fu" component={FileUpload} />*/}
         {/*<Route exact path="/upload" component={FineUploader} />*/}
         {/*<Route exact path="/uploader" component={GalleryFineUploader} />*/}
-        <Route exact path="/lu" component={LargeFileUpload} />
+        {/*<Route exact path="/lu" component={LargeFileUpload} />*/}
         <Route exact path="/cu" component={ChunkUpload} />
 
-        <Route exact path="/ax" component={UploadGPTaxios} />
-        <Route exact path="/s3upload" component={VideoUploaderGPT} />
+        {/*<Route exact path="/ax" component={UploadGPTaxios} />*/}
+        <Route exact path="/ax" component={PostCreator} />
+        <Route exact path="/s3upload" component={MediaUploader} />
+
 
         <Route exact path="/create" component={PostCreator} />
 
@@ -500,6 +510,19 @@ function ModalSwitch({  children, renderModal, stopSong, pauseSong, resumeSong, 
         <Route path="/video/:videoId">
           <VideoProfile />
         </Route>
+
+        <Route path="/videos">
+          <VideoFeedV2 />
+        </Route>
+
+        <Route path="/videofeed">
+          <VideoFeedProfile />
+        </Route>
+
+        <Route path="/photos">
+          <PhotosPageUnsplash />
+        </Route>
+
         <Route path="/vine/:videoId">
           <VideoProfile />
         </Route>

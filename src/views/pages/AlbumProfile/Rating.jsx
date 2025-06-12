@@ -1,5 +1,5 @@
-import React from "react";
-// import { CircularProgress, Avatar, makeStyles, colors } from "@mui/material";
+import React from 'react';
+// import { CircularProgress, Avatar, makeStyles, colors } from '@mui/material';
 import { StyledCircularProgress, StyledAvatar } from 'views/styledComponents';
 
 // const useStyles = makeStyles(theme => ({

@@ -1,8 +1,8 @@
 // REFERENCE: https://github.com/dejwid/mern-chunked-upload/blob/master/client/src/App.js
 
 
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 // import './App.css';
 
 const chunkSize = 10 * 1024;

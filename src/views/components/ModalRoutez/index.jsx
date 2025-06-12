@@ -1,60 +1,60 @@
 import React, { useEffect, useRef, useReducer, useState, useCallback, useMemo } from 'react';
-import { Routes, Route, Redirect, withRouter, useLocation, useHistory } from "react-router-dom";
+import { Routes, Route, Redirect, withRouter, useLocation, useHistory } from 'react-router-dom';
 
-// import ModalMui from "./ModalMui";
-// import ModalRoute from "./ModalRoute";
-// import ModalMovie from "./ModalMovie";
+// import ModalMui from './ModalMui';
+// import ModalRoute from './ModalRoute';
+// import ModalMovie from './ModalMovie';
 
-// import PopularMovies from "../pages/PopularMovies";
-// import AddData from "views/components/upload/addData";
-import FileUpload from "views/components/upload/FileUpload";
-import FineUploader from "views/components/upload/FineUploader";
-import GalleryFineUploader from "views/components/upload/GalleryFineUploader";
-import LargeFileUpload from "views/components/upload/LargeFileUpload";
-import ChunkUpload from "views/components/upload/ChunkUpload";
+// import PopularMovies from '../pages/PopularMovies';
+// import AddData from 'views/components/upload/addData';
+import FileUpload from 'views/components/upload/FileUpload';
+import FineUploader from 'views/components/upload/FineUploader';
+import GalleryFineUploader from 'views/components/upload/GalleryFineUploader';
 
-import ModalCustom from "views/components/ModalCustom";
-import ModalRoute from "views/components/ModalRoute";
-import ModalMovie from "views/components/ModalMovie";
-import ModalMovies from "views/components/ModalMovies";
-import ModalPeople from "views/components/ModalPeople";
-// import ModalPhotos from "views/components/ModalPhotos";
-import ModalAlbums from "views/components/ModalAlbums";
-import MovieCard from "views/components/MovieCard";
+import ChunkUpload from 'views/components/upload/ChunkUpload';
 
-// import PopularMovies from "views/pages/PopularMovies";
-import MovieProfile from "views/pages/MovieProfile";
-import VideoProfile from "views/pages/VideoProfile";
+import ModalCustom from 'views/components/ModalCustom';
+import ModalRoute from 'views/components/ModalRoute';
+import ModalMovie from 'views/components/ModalMovie';
+import ModalMovies from 'views/components/ModalMovies';
+import ModalPeople from 'views/components/ModalPeople';
+// import ModalPhotos from 'views/components/ModalPhotos';
+import ModalAlbums from 'views/components/ModalAlbums';
+import MovieCard from 'views/components/MovieCard';
 
-
-import SearchResults from "views/pages/SearchResults";
-import SearchesResults from "views/pages/SearchResults";
+// import PopularMovies from 'views/pages/PopularMovies';
+import MovieProfile from 'views/pages/MovieProfile';
+import VideoProfile from 'views/pages/VideoProfile';
 
 
-import PersonProfile from "views/pages/PersonProfile";
-import ArtistProfile from "views/pages/ArtistProfile";
-import AlbumProfile from "views/pages/AlbumProfile";
-import PlaylistProfile from "views/pages/PlaylistProfile";
-import TrackProfile from "views/pages/TrackProfile";
-
-import LoginPage from "views/pages/LoginPage";
-import GoogleCallback from "views/pages/LoginPage/oauth/GoogleCallback";
-import OAuthCallback from "views/pages/LoginPage/oauth/OAuthCallback";
-import OAuthPopup from "views/pages/LoginPage/pocket/oauth2popup";
-
-import TwitchAuthCallback from "views/pages/Auth/TwitchAuthCallback";
-import GoogleAuthCallback from "views/pages/Auth/GoogleAuthCallback";
-import SpotifyAuthCallback from "views/pages/Auth/SpotifyAuthCallback";
-// import UnsplashCallback from "views/pages/LoginPage/UnsplashCallback";
+import SearchResults from 'views/pages/SearchResults';
+import SearchesResults from 'views/pages/SearchResults';
 
 
-// import LoginPageOauth from "views/pages/LoginPage";
+import PersonProfile from 'views/pages/PersonProfile';
+import ArtistProfile from 'views/pages/ArtistProfile';
+import AlbumProfile from 'views/pages/AlbumProfile';
+import PlaylistProfile from 'views/pages/PlaylistProfile';
+import TrackProfile from 'views/pages/TrackProfile';
+
+import LoginPage from 'views/pages/LoginPage';
+import GoogleCallback from 'views/pages/LoginPage/oauth/GoogleCallback';
+import OAuthCallback from 'views/pages/LoginPage/oauth/OAuthCallback';
+import OAuthPopup from 'views/pages/LoginPage/pocket/oauth2popup';
+
+import TwitchAuthCallback from 'views/pages/Auth/TwitchAuthCallback';
+import GoogleAuthCallback from 'views/pages/Auth/GoogleAuthCallback';
+import SpotifyAuthCallback from 'views/pages/Auth/SpotifyAuthCallback';
+// import UnsplashCallback from 'views/pages/LoginPage/UnsplashCallback';
+
+
+// import LoginPageOauth from 'views/pages/LoginPage';
 
 // import Main from '/views/pages/Chat/Main/Main.async';
 
 // CORE
-import useScrollRestoration from "core/hooks/useScrollRestoration";
-import useScrollMemory from "core/hooks/useScrollMemory";
+import useScrollRestoration from 'core/hooks/useScrollRestoration';
+import useScrollMemory from 'core/hooks/useScrollMemory';
 
 import { getState } from 'core/store';
 
@@ -355,7 +355,7 @@ function ModalSwitch({  children, renderModal, stopSong, pauseSong, resumeSong, 
         <Route exact path="/fu" element={<FileUpload />} />
         <Route exact path="/upload" element={<FineUploader />} />
         <Route exact path="/uploader" element={<GalleryFineUploader />} />
-        <Route exact path="/lu" element={<LargeFileUpload />} />
+
         <Route exact path="/cu" element={<ChunkUpload />} />
 
         <Route exact path="/movies" element={<ModalMovies />} />

@@ -1,10 +1,10 @@
 // REFERENCE https://www.youtube.com/watch?v=sqpg1qzJCGQ&t=654s
 import React, { useState, useRef, useEffect } from 'react'
-import styles from "./AudioPlayer.module.css";
-import { BsArrowLeftShort } from "react-icons/bs"
-import { BsArrowRightShort } from "react-icons/bs"
-import { FaPlay } from "react-icons/fa"
-import { FaPause } from "react-icons/fa"
+import styles from './AudioPlayer.module.css';
+import { BsArrowLeftShort } from 'react-icons/bs'
+import { BsArrowRightShort } from 'react-icons/bs'
+import { FaPlay } from 'react-icons/fa'
+import { FaPause } from 'react-icons/fa'
 import styled from 'styled-components';
 
 const Wrapper = styled.div`

@@ -1,6 +1,6 @@
 // REFERENCE https://github.com/zainbinfurqan/custom-video-player-contorl-panel/blob/main/MediaPlayer
 
-import React from "react";
+import React from 'react';
 import "./style.css";
 
 function CustomVideoPlayerControlPanel(props) {

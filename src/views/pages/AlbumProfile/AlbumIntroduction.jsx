@@ -1,19 +1,19 @@
-import React from "react";
-import { connect, useSelector } from "react-redux";
-import { Link, withRouter } from "react-router-dom";
+import React from 'react';
+import { connect, useSelector } from 'react-redux';
+import { Link, withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 
 // MATERIAL DONE
-// import { Typography, Box, Grid, makeStyles } from "@mui/material";
+// import { Typography, Box, Grid, makeStyles } from '@mui/material';
 import { StyledTypography, StyledBox, StyledGrid } from 'views/styledComponents';
-// import { Typography, makeStyles, Box, Grid, Link } from "@mui/material";
-// import { makeStyles, Box, Typography } from "@mui/material";
+// import { Typography, makeStyles, Box, Grid, Link } from '@mui/material';
+// import { makeStyles, Box, Typography } from '@mui/material';
 
-import Rating from "./Rating";
-import Introduktion from "views/components/Introduktion";
-// import ImdbLogo from "views/components/ImdbLogo";
-import AlbumGenreChip from "./AlbumGenreChip";
-import BaseImage from "views/components/BaseImage";
+import Rating from './Rating';
+import Introduktion from 'views/components/Introduktion';
+// import ImdbLogo from 'views/components/ImdbLogo';
+import AlbumGenreChip from './AlbumGenreChip';
+import BaseImage from 'views/components/BaseImage';
 import Button from 'views/components/Button';
 import LikeIcon from 'views/components/LikeIcon';
 import Comment from './Comment';
@@ -21,22 +21,22 @@ import CommentV2 from './CommentV2';
 import CommentV3 from './CommentV3';
 import CommentV4 from './CommentV4';
 
-// import useDocumentTitle from "views/components/useDocumentTitle"
+// import useDocumentTitle from 'views/components/useDocumentTitle'
 
-import { getAspectRatioString } from "views/components/AspectRatio";
-import { useConfiguration } from "views/components/ConfigurationProvider";
+import { getAspectRatioString } from 'views/components/AspectRatio';
+import { useConfiguration } from 'views/components/ConfigurationProvider';
 
-import { screenLargerThan } from "views/style/util"
+import { screenLargerThan } from 'views/style/util'
 import { primaryColor1, white, likeColor, greenColor, } from 'views/style/colors';
 
 // CORE
-import { selectors } from "core/reducers/index";
+import { selectors } from 'core/reducers/index';
 // import { likePhoto, unLikePhoto } from '../../actions/photo';
-import useDocumentTitle from "core/hooks2/useDocumentTitle"
-import { fetchLikeAlbum, fetchUnLikeAlbum } from "core/actions";
+import useDocumentTitle from 'core/hooks2/useDocumentTitle'
+import { fetchLikeAlbum, fetchUnLikeAlbum } from 'core/actions';
 
 
-// import { getAlbumReleaseYear, getImdbProfileUrl } from "core/utils";
+// import { getAlbumReleaseYear, getImdbProfileUrl } from 'core/utils';
 
 
 // const useStyles = makeStyles(theme => ({

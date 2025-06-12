@@ -1,20 +1,20 @@
-import React, { useState, useContext, useEffect, useCallback, useMemo, } from "react";
-import { withRouter } from "react-router-dom";
-import { connect } from "react-redux";
-import { Requester } from "../components/requester";
-import { addColorTheme } from "../store/actions";
-import styled, { withTheme } from "styled-components";
+import React, { useState, useContext, useEffect, useCallback, useMemo, } from 'react';
+import { withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { Requester } from '../components/requester';
+import { addColorTheme } from '../store/actions';
+import styled, { withTheme } from 'styled-components';
 
-import Icon from "../components/icon";
-import Button from "../components/button";
-import { SpinnerPage } from "../components/spinner";
-import Dropdown from "../components/dropdown";
-import { ProgressUnderline } from "../components/progress-bar";
-import genTheme from "../style/gen-theme";
-import ReactTooltip from "react-tooltip";
-import Post from "./post";
-import Error from "../components/error";
-// import { map } from "./settings";
+import Icon from '../components/icon';
+import Button from '../components/button';
+import { SpinnerPage } from '../components/spinner';
+import Dropdown from '../components/dropdown';
+import { ProgressUnderline } from '../components/progress-bar';
+import genTheme from '../style/gen-theme';
+import ReactTooltip from 'react-tooltip';
+import Post from './post';
+import Error from '../components/error';
+// import { map } from './settings';
 
 const Thread = ({ search, history, themesByColor, addColorTheme, path, hideSelf, }) => {
   const r = useContext(Requester);

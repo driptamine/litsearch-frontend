@@ -1,7 +1,7 @@
 // REFERENCE https://github.com/zainbinfurqan/custom-video-player-contorl-panel/blob/main/MediaPlayer
 
-import ReactPlayer from "react-player";
-import React, { useState } from "react";
+import ReactPlayer from 'react-player';
+import React, { useState } from 'react';
 
 const MediaPlayer = () => {
   const [currentSeek, setCurrentSeek] = useState(0);

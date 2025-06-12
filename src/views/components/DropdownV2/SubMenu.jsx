@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   OptionRow,
   Label,
   SvgTest,
   DropDownWrapper
-} from "./DropDownNew.styles";
-import styled from "styled-components";
+} from './DropDownNew.styles';
+import styled from 'styled-components';
 
 function SubMenu(props, {className}) {
   const [isShown, setIsShown] = useState(true);

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { useSetRecoilState } from 'recoil';
-import styled from "styled-components";
+import styled from 'styled-components';
 import axios from 'axios';
 
 import { AddCookie, getCookie } from 'views/utils';

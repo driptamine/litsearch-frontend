@@ -1,11 +1,11 @@
-import { all, call, put, takeLatest, takeEvery } from "redux-saga/effects";
-import { getFetchTypes, verifyCachedData, createUrl, createAPIUrl, createAuthUrl, bingAPIurl } from "core/utils";
+import { all, call, put, takeLatest, takeEvery } from 'redux-saga/effects';
+import { getFetchTypes, verifyCachedData, createUrl, createAPIUrl, createAuthUrl, bingAPIurl } from 'core/utils';
 
-import * as actions from "core/actions";
-import { callAPIWithHeader } from "./apiSaga";
-import * as schemas from "core/schemas";
+import * as actions from 'core/actions';
+import { callAPIWithHeader } from './apiSaga';
+import * as schemas from 'core/schemas';
 
-import { fetcherAPISaga } from "./fetcherAPISaga";
+import { fetcherAPISaga } from './fetcherAPISaga';
 
 function* fetchSearchSaga(action) {
   yield put({ type: actions.fetchSearch.request });

@@ -1,6 +1,6 @@
-import queryString from "query-string";
-import { useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import queryString from 'query-string';
+import { useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 
 function useQueryString() {
   const location = useLocation();

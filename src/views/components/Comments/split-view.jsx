@@ -1,19 +1,19 @@
-import React, { useState, useEffect, useContext } from "react";
-import { connect } from "react-redux";
-import { Requester } from "../components/requester";
+import React, { useState, useEffect, useContext } from 'react';
+import { connect } from 'react-redux';
+import { Requester } from '../components/requester';
 import {
   addSubreddit,
   addSubredditTheme,
   addColorTheme,
-} from "../store/actions";
-import { withRouter } from "react-router";
-import Listing from "./uni-listing";
-import Thread from "./thread";
-import ReactTooltip from "react-tooltip";
-import Column from "./column";
-import SubredditThemeProvider from "../style/sub-theme-provider";
-import genTheme from "../style/gen-theme";
-import SubredditBanner from "../components/subreddit-banner";
+} from '../store/actions';
+import { withRouter } from 'react-router';
+import Listing from './uni-listing';
+import Thread from './thread';
+import ReactTooltip from 'react-tooltip';
+import Column from './column';
+import SubredditThemeProvider from '../style/sub-theme-provider';
+import genTheme from '../style/gen-theme';
+import SubredditBanner from '../components/subreddit-banner';
 
 const SplitView = ({
   match: { params: path } = {},

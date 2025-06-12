@@ -1,12 +1,12 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 
 // MATERIAL DONE
-// import { List } from "@mui/material";
+// import { List } from '@mui/material';
 import { StyledList } from 'views/styledComponents';
 
 // VIEWS
-import LoadingIndicator from "./LoadingIndicator";
+import LoadingIndicator from './LoadingIndicator';
 
 
 function BaseList({

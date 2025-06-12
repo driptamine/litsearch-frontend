@@ -1,24 +1,24 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector, connect } from "react-redux";
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector, connect } from 'react-redux';
 
 import { createSelector } from 'reselect';
 
-import { fetchPlaylistTracks } from "core/actions";
-import { selectors } from "core/reducers/index";
-import BaseList from "views/components/BaseList";
-import TrackCard from "views/components/TrackCard";
-import InfiniteList from "views/components/InfiniteList";
-import InfiniteGridList from "views/components/InfiniteGridList";
-import LoadingIndicator from "views/components/LoadingIndicator";
+import { fetchPlaylistTracks } from 'core/actions';
+import { selectors } from 'core/reducers/index';
+import BaseList from 'views/components/BaseList';
+import TrackCard from 'views/components/TrackCard';
+import InfiniteList from 'views/components/InfiniteList';
+import InfiniteGridList from 'views/components/InfiniteGridList';
+import LoadingIndicator from 'views/components/LoadingIndicator';
 
-// import PlaylistTrackListItem from "./PlaylistTrackListItem";
-// import PlaylistTrackListItemVK from "./PlaylistTrackListItemVK";
-import PlaylistTrackListItemMinified from "./PlaylistTrackListItemMinified";
+// import PlaylistTrackListItem from './PlaylistTrackListItem';
+// import PlaylistTrackListItemVK from './PlaylistTrackListItemVK';
+import PlaylistTrackListItemMinified from './PlaylistTrackListItemMinified';
 
 // import { audio, getPlayerIsPlaying, getPlayerTrackId, playerActions } from 'core/player';
 // import { getCurrentTracklist, getTracksForCurrentTracklist, tracklistActions } from 'core/tracklists';
 
-// import MovieVideoPlayerModal from "./MovieVideoPlayerModal";
+// import MovieVideoPlayerModal from './MovieVideoPlayerModal';
 
 // function renderItem(playlistTrackId) {
 //   return (

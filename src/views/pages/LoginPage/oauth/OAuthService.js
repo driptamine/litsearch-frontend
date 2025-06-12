@@ -1,8 +1,8 @@
 // indian code
 // Reference: https://betterprogramming.pub/building-secure-login-flow-with-oauth-2-openid-in-react-apps-ce6e8e29630a
 
-import { OAuthConfig } from "src/shared/config";
-import { apiUtil } from "@dp-ui/utils";
+import { OAuthConfig } from 'src/shared/config';
+import { apiUtil } from '@dp-ui/utils';
 
 const POPUP_WIDTH = 400;
 const POPUP_HEIGHT = 426;

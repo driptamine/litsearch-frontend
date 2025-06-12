@@ -1,27 +1,27 @@
-import React, { useEffect, useRef } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { useLocation } from "react-router-dom";
-import styled from "styled-components";
+import React, { useEffect, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useLocation } from 'react-router-dom';
+import styled from 'styled-components';
 
 // MATERIAL DONE
-// import { Drawer, List } from "@mui/material";
-// import { makeStyles } from "@mui/material/styles";
-// import MovieIcon from "@mui/icons-material/LocalMovies";
-// import PersonIcon from "@mui/icons-material/RecentActors";
+// import { Drawer, List } from '@mui/material';
+// import { makeStyles } from '@mui/material/styles';
+// import MovieIcon from '@mui/icons-material/LocalMovies';
+// import PersonIcon from '@mui/icons-material/RecentActors';
 // import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 // import FavoriteIcon from '@mui/icons-material/Favorite';
-// import { ListItemIcon, ListItemText, ListItem } from "@mui/material";
+// import { ListItemIcon, ListItemText, ListItem } from '@mui/material';
 import { StyledList, StyledListItem, StyledListItemIcon, StyledListItemText,  } from 'views/styledComponents';
 
-import { selectors } from "core/reducers/index";
-import { toggleDrawer, fetchLogout } from "core/actions";
-import useSelectAuthUser from "core/hooks/useSelectAuthUser";
+import { selectors } from 'core/reducers/index';
+import { toggleDrawer, fetchLogout } from 'core/actions';
+import useSelectAuthUser from 'core/hooks/useSelectAuthUser';
 import { getState } from 'core/store';
 
 
 
-import AppDrawerItem from "views/components/AppDrawerItem";
-import RouterLink from "views/components/RouterLink";
+import AppDrawerItem from 'views/components/AppDrawerItem';
+import RouterLink from 'views/components/RouterLink';
 
 // const useStyles = makeStyles(theme => ({
 //   drawerPaper: {

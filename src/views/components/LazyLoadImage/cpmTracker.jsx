@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import Observer from "@researchgate/react-intersection-observer";
+import React, { Component } from 'react';
+import Observer from '@researchgate/react-intersection-observer';
 
 class ImpressionClickTrackerHOC extends Component {
   handleChange = (event, unobserve) => {

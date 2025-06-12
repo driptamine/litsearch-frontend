@@ -1,5 +1,5 @@
-import { DEFAULT_FIRST_PAGE } from "core/reducers/higherOrderReducers/createPagination";
-import { createAction } from "@reduxjs/toolkit";
+import { DEFAULT_FIRST_PAGE } from 'core/reducers/higherOrderReducers/createPagination';
+import { createAction } from '@reduxjs/toolkit';
 
 export const toggleDrawer = createAction("drawer/toggle");
 

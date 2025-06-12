@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import styled from "styled-components";
-import { marked } from "marked";
-import DOMPurify from "dompurify";
-import { getHighlighter } from "shiki";
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
+import { getHighlighter } from 'shiki';
 
 const MessageBubble = ({ content, from }) => {
   const [html, setHtml] = useState("");

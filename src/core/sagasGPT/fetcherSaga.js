@@ -1,6 +1,6 @@
-import { call, put } from "redux-saga/effects";
-import { getFetchTypes, verifyCachedData } from "core/utils";
-import { callAPIWithHeader, callAPI } from "./apiSaga";
+import { call, put } from 'redux-saga/effects';
+import { getFetchTypes, verifyCachedData } from 'core/utils';
+import { callAPIWithHeader, callAPI } from './apiSaga';
 
 /**
  * Generic fetcherSaga for making API requests with caching and normalization.

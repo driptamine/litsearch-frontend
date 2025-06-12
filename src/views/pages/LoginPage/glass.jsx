@@ -1,5 +1,5 @@
 // REFERENCE: https://dev.to/koolkishan/create-responsive-glassmorphism-login-form-using-react-and-styled-components-5ga1
-import styled from "styled-components";
+import styled from 'styled-components';
 
 const MainContainer = styled.div`
   display: flex;

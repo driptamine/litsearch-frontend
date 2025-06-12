@@ -1,10 +1,10 @@
-import React from "react";
+import React from 'react';
 import {
   CardsContainer,
   Card,
   CardTitle,
   CardBody,
-} from "./styles/Cards.styled";
+} from './styles/Cards.styled';
 
 const Quotes = () => {
   return (

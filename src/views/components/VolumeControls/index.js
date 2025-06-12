@@ -1,6 +1,6 @@
-import VolumeControls from "./VolumeControls";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
+import VolumeControls from './VolumeControls';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { updateVolume } from 'core/actions/index';
 
 const mapStateToProps = (state) => {

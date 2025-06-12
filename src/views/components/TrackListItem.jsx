@@ -1,7 +1,7 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import { selectors } from "core/reducers/index";
-import ListItemWithAvatarFromSpotify from "views/components/ListItemWithAvatarFromSpotify";
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { selectors } from 'core/reducers/index';
+import ListItemWithAvatarFromSpotify from 'views/components/ListItemWithAvatarFromSpotify';
 
 function TrackListItem({ trackId, ...props }) {
   const track = useSelector(state => selectors.selectTrack(state, trackId));

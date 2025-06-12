@@ -1,25 +1,25 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
 
 // MATERIAL DONE
-// import { Typography } from "@mui/material";
-import { StyledTypography } from "views/styledComponents";
+// import { Typography } from '@mui/material';
+import { StyledTypography } from 'views/styledComponents';
 
 // VIEWS
-import Profile from "views/components/Profile";
-import MovieIntroduction from "./MovieIntroduction";
-import MovieIntroductionV2 from "./MovieIntroductionV2";
-// import MovieImageGridList from "./MovieImageGridList";
-// import MovieVideoList from "./MovieVideoList";
-import MovieCastGridList from "./MovieCastGridList";
-import Recommendations from "./Recommendations";
-import Skeleton from "views/skeletons/HomeSkeleton";
+import Profile from 'views/components/Profile';
+import MovieIntroduction from './MovieIntroduction';
+import MovieIntroductionV2 from './MovieIntroductionV2';
+// import MovieImageGridList from './MovieImageGridList';
+// import MovieVideoList from './MovieVideoList';
+import MovieCastGridList from './MovieCastGridList';
+import Recommendations from './Recommendations';
+import Skeleton from 'views/skeletons/HomeSkeleton';
 
 
-import { fetchMovie } from "core/actions";
-import { selectors } from "core/reducers/index";
-import { verifyCachedData } from "core/utils";
+import { fetchMovie } from 'core/actions';
+import { selectors } from 'core/reducers/index';
+import { verifyCachedData } from 'core/utils';
 
 const REQUIRED_FIELDS = ["tagline"];
 

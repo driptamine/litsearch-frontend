@@ -1,9 +1,9 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import { selectors } from "core/reducers/index";
-import { ListItem, ListItemText } from "@mui/material";
-import { useLocation } from "react-router-dom";
-import RouterLink from "views/components/RouterLink";
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { selectors } from 'core/reducers/index';
+import { ListItem, ListItemText } from '@mui/material';
+import { useLocation } from 'react-router-dom';
+import RouterLink from 'views/components/RouterLink';
 
 function MovieVideoListItem({ videoId }) {
   const { pathname } = useLocation();

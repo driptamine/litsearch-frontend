@@ -1,22 +1,22 @@
-import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { Link, useParams, useLocation } from "react-router-dom";
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { Link, useParams, useLocation } from 'react-router-dom';
 
 import styled from 'styled-components';
 // MATERIAL UNDONE
-// import { Tabs, Tab, Box } from "@mui/material";
+// import { Tabs, Tab, Box } from '@mui/material';
 import { StyledTabs, StyledTab, StyledBox } from 'views/styledComponents';
 
-import SearchResultsHeader from "./SearchResultsHeader";
-import WebsiteSearchResults from "./WebsiteSearchResults";
-import ImageSearchResultsBing from "./ImageSearchResultsBing";
-import ImageSearchResultsBrave from "./ImageSearchResultsBrave";
-import MovieSearchResults from "./MovieSearchResults";
-import PersonSearchResults from "./PersonSearchResults";
-import ArtistSearchResults from "./ArtistSearchResults";
-import AlbumSearchResults from "./AlbumSearchResults";
-import TrackSearchResults from "./TrackSearchResults";
-import { PicIcon } from "views/components/Sidebar/Icons";
+import SearchResultsHeader from './SearchResultsHeader';
+import WebsiteSearchResults from './WebsiteSearchResults';
+import ImageSearchResultsBing from './ImageSearchResultsBing';
+import ImageSearchResultsBrave from './ImageSearchResultsBrave';
+import MovieSearchResults from './MovieSearchResults';
+import PersonSearchResults from './PersonSearchResults';
+import ArtistSearchResults from './ArtistSearchResults';
+import AlbumSearchResults from './AlbumSearchResults';
+import TrackSearchResults from './TrackSearchResults';
+import { PicIcon } from 'views/components/Sidebar/Icons';
 import {
   fetchWebsiteSearch,
   fetchImageSearch,
@@ -24,11 +24,11 @@ import {
   fetchPersonSearch,
   fetchArtistSearch,
   fetchTrackSearch,
-  fetchAlbumSearch } from "core/actions";
-import { DEFAULT_FIRST_PAGE } from "core/reducers/higherOrderReducers/createPagination";
-import { selectors } from "core/reducers/index";
-import useHistoryPush from "core/hooks/useHistoryPush";
-import useQueryString from "core/hooks/useQueryString";
+  fetchAlbumSearch } from 'core/actions';
+import { DEFAULT_FIRST_PAGE } from 'core/reducers/higherOrderReducers/createPagination';
+import { selectors } from 'core/reducers/index';
+import useHistoryPush from 'core/hooks/useHistoryPush';
+import useQueryString from 'core/hooks/useQueryString';
 
 const ReStyledLink = styled(Link)`
   text-decoration: none;

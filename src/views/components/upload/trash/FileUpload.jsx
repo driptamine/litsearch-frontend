@@ -1,29 +1,29 @@
-// import React from "react";
-// import { useDropzone } from "react-dropzone";
-// import clsx from "clsx";
-// import axios from "axios";
+// import React from 'react';
+// import { useDropzone } from 'react-dropzone';
+// import clsx from 'clsx';
+// import axios from 'axios';
 //
-// import AppBar from "@mui/material/AppBar";
-// import Toolbar from "@mui/material/Toolbar";
-// import Typography from "@mui/material/Typography";
-// import CssBaseline from "@mui/material/CssBaseline";
-// import Container from "@mui/material/Container";
-// import Paper from "@mui/material/Paper";
-// import Grid from "@mui/material/Grid";
-// import Divider from "@mui/material/Divider";
-// // import RootRef from "@mui/material/RootRef";
-// import { makeStyles } from "@mui/material/styles";
-// import CircularProgress from "@mui/material/CircularProgress";
-// import { green } from "@mui/material/colors";
-// import Button from "@mui/material/Button";
-// import Fab from "@mui/material/Fab";
-// import CheckIcon from "@mui/icons-material/Check";
-// import CloudUpload from "@mui/icons-material/CloudUpload";
-// import { LinearProgress } from "@mui/material";
+// import AppBar from '@mui/material/AppBar';
+// import Toolbar from '@mui/material/Toolbar';
+// import Typography from '@mui/material/Typography';
+// import CssBaseline from '@mui/material/CssBaseline';
+// import Container from '@mui/material/Container';
+// import Paper from '@mui/material/Paper';
+// import Grid from '@mui/material/Grid';
+// import Divider from '@mui/material/Divider';
+// // import RootRef from '@mui/material/RootRef';
+// import { makeStyles } from '@mui/material/styles';
+// import CircularProgress from '@mui/material/CircularProgress';
+// import { green } from '@mui/material/colors';
+// import Button from '@mui/material/Button';
+// import Fab from '@mui/material/Fab';
+// import CheckIcon from '@mui/icons-material/Check';
+// import CloudUpload from '@mui/icons-material/CloudUpload';
+// import { LinearProgress } from '@mui/material';
 //
 //
 //
-// // import CropImage from "./CropImage";
+// // import CropImage from './CropImage';
 // axios.defaults.xsrfCookieName = 'csrftoken'
 // axios.defaults.xsrfHeaderName = 'X-CSRFToken'
 //

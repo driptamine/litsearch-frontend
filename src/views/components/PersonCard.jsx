@@ -1,21 +1,21 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import styled from "styled-components";
+import React from 'react';
+import { useSelector } from 'react-redux';
+import styled from 'styled-components';
 
 // MATERIAL DONE
-// import { makeStyles } from "@mui/material/styles";
+// import { makeStyles } from '@mui/material/styles';
 
-import BaseImage from "views/components/BaseImage";
-import BaseCard from "views/components/BaseCard";
-import RouterLink from "views/components/RouterLink";
-import ModalLink from "views/components/ModalLink";
+import BaseImage from 'views/components/BaseImage';
+import BaseCard from 'views/components/BaseCard';
+import RouterLink from 'views/components/RouterLink';
+import ModalLink from 'views/components/ModalLink';
 
-import BaseCardHeader from "views/components/BaseCardHeader";
+import BaseCardHeader from 'views/components/BaseCardHeader';
 
-import { getAspectRatioString } from "./AspectRatio";
-import { useConfiguration } from "./ConfigurationProvider";
+import { getAspectRatioString } from './AspectRatio';
+import { useConfiguration } from './ConfigurationProvider';
 
-import { selectors } from "core/reducers/index";
+import { selectors } from 'core/reducers/index';
 
 // const useStyles = makeStyles(theme => ({
 //   link: {

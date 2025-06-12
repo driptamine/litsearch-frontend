@@ -1,29 +1,29 @@
-import React, { useEffect, useContext, useCallback, useState } from "react";
+import React, { useEffect, useContext, useCallback, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { bindActionCreators } from 'redux';
 import { Route, useLocation } from 'react-router-dom';
-import { connect, useDispatch, useSelector } from "react-redux";
+import { connect, useDispatch, useSelector } from 'react-redux';
 import { RecoilRoot } from 'recoil';
 import styled, { ThemeProvider } from 'styled-components';
-import { useThemeMode } from "views/components/Toggle/useThemeMode"
+import { useThemeMode } from 'views/components/Toggle/useThemeMode'
 
 import useKeyboardShortcut from 'use-keyboard-shortcut';
-import './index.css';
+import 'views/components/app/index.css';
 // VIEWS
-import LoginPage from "views/pages/LoginPage";
-import Container from "views/styles/Container";
-import SidebarContainer from "views/styles/SidebarContainer";
+import LoginPage from 'views/pages/LoginPage';
+import Container from 'views/styles/Container';
+import SidebarContainer from 'views/styles/SidebarContainer';
 
-import LegacyRoutes from "views/components/Routes/legacy";
-import ModalRoutes from "views/components/ModalRoutes";
+import LegacyRoutes from 'views/components/Routes/legacy';
+import ModalRoutes from 'views/components/ModalRoutes';
 
-import LoadingIndicator from "views/components/LoadingIndicator";
-import AppHeader from "views/components/AppHeader";
-import AppDrawer from "views/components/AppDrawer";
-// import BackToTopButton from "views/components/BackToTopButton";
-// import Player from "views/components/player/Player";
-import SideMenu from "views/components/SideMenu";
-import UserPlaylists from "views/components/UserPlaylists";
+import LoadingIndicator from 'views/components/LoadingIndicator';
+import AppHeader from 'views/components/AppHeader';
+import AppDrawer from 'views/components/AppDrawer';
+// import BackToTopButton from 'views/components/BackToTopButton';
+// import Player from 'views/components/player/Player';
+import SideMenu from 'views/components/SideMenu';
+import UserPlaylists from 'views/components/UserPlaylists';
 import Footer from 'views/components/footer/Footer';
 import { maxWidthContent } from 'views/style/util';
 
@@ -32,21 +32,21 @@ import GlobalStyleThemeMode from 'views/styles/GlobalStyleThemeMode';
 import Toggle from 'views/components/Toggle/Toggler';
 // import GlobalStyleThemeMode from 'views/components/Toggle/GlobalStyleThemeMode';
 
-import { lightTheme, darkTheme } from "views/components/Toggle/Themes"
+import { lightTheme, darkTheme } from 'views/components/Toggle/Themes'
 
 // import { stopSongz, pauseSongz, resumeSongz, audioControlz } from './control';
 
-import TwitchAuthCallback from "views/pages/Auth/TwitchAuthCallback";
+import TwitchAuthCallback from 'views/pages/Auth/TwitchAuthCallback';
 
 // YouTube-Clone
-import Sidebar from "views/components/Sidebar";
-// import Navbar from "views/components/Navbar";
+import Sidebar from 'views/components/Sidebar';
+// import Navbar from 'views/components/Navbar';
 
 // CORE
 import { playSong, stopSong, pauseSong, resumeSong, } from 'core/actions/index';
-import { fetchGenres, fetchOAuthUser } from "core/actions";
-import { selectors } from "core/reducers/index";
-import history  from "core/services/history";
+import { fetchGenres, fetchOAuthUser } from 'core/actions';
+import { selectors } from 'core/reducers/index';
+import history  from 'core/services/history';
 
 // CONTEXT PRO
 // import { AccountContextProvider } from 'views/pages/account/AccountContext';
@@ -60,44 +60,6 @@ import { YoutubeContext, YoutubeProvider } from 'views/pages/Auth/youtube/useTok
 import useEventListenerMemo from 'core/hooks2/useEventListenerMemo';
 
 
-const Wrapper = styled.div`
-  height: 100%;
-`;
-
-const Wrapperz = styled.div`
-  /* position: fixed; */
-`;
-
-const Main = styled.div`
-  max-width: ${maxWidthContent}px;
-  background: #0f0f0f;
-  margin: 0 auto;
-  width: 100%;
-  /* height: 100%; */
-  top: 0;
-`;
-
-const Content = styled.div`
-  margin-top: 15px;
-  margin-top: -15px;
-  padding: 0px 16px;
-`;
-
-const LeftSide = styled.div`
-  width: 20%;
-  /* position: relative; */
-  /* position: fixed; */
-  top: 10px;
-  left: 10px;
-  bottom: 10px;
-  width: 180px;
-  overflow-y: auto;
-  display: table;
-`;
-
-const StyledWrapper = styled.div`
-
-`;
 
 const ModalContext = React.createContext();
 
@@ -257,6 +219,21 @@ const App = () => {
       document.body.style.overflow = "";
     };
   }, [isModalVisible]);
+
+  useEffect(() => {
+    const preventDefault = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    window.addEventListener("dragover", preventDefault);
+    window.addEventListener("drop", preventDefault);
+
+    return () => {
+      window.removeEventListener("dragover", preventDefault);
+      window.removeEventListener("drop", preventDefault);
+    };
+  }, []);
 
   const handleKeyboardShortcut = useCallback(keys => { setIsModalVisible(currentShowImage => !currentShowImage)}, [setIsModalVisible])
   useKeyboardShortcut(
@@ -541,6 +518,46 @@ const App = () => {
 //   mapDispatchToProps
 // )(App);
 // export default App;
+
+
+const Wrapper = styled.div`
+  height: 100%;
+`;
+
+const Wrapperz = styled.div`
+  /* position: fixed; */
+`;
+
+const Main = styled.div`
+  max-width: ${maxWidthContent}px;
+  background: #0f0f0f;
+  margin: 0 auto;
+  width: 100%;
+  /* height: 100%; */
+  top: 0;
+`;
+
+const Content = styled.div`
+  margin-top: 15px;
+  margin-top: -15px;
+  padding: 0px 16px;
+`;
+
+const LeftSide = styled.div`
+  width: 20%;
+  /* position: relative; */
+  /* position: fixed; */
+  top: 10px;
+  left: 10px;
+  bottom: 10px;
+  width: 180px;
+  overflow-y: auto;
+  display: table;
+`;
+
+const StyledWrapper = styled.div`
+
+`;
 
 export default AppRoutesContainer;
 // export default App;

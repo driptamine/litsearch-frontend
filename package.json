@@ -5,7 +5,7 @@
   "private": true,
   "dependencies": {
     "@reduxjs/toolkit": "^1.2.3",
-    "@vitejs/plugin-react-swc": "^3.7.1",
+    "@vitejs/plugin-react-swc": "^3.10.0",
     "axios": "^1.2.1",
     "classnames": "^2.2.5",
     "dompurify": "^3.2.6",
@@ -76,8 +76,6 @@
   },
   "devDependencies": {
     "@originjs/vite-plugin-commonjs": "^1.0.3",
-    "@vitejs/plugin-react": "^3.1.0",
-    "babel-plugin-styled-components": "^2.1.4",
     "node-sass": "^9.0.0",
     "rollup-plugin-visualizer": "^5.14.0",
     "sass": "^1.64.1",

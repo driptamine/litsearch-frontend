@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo, useCallback, useContext } from "react";
-import axios from "axios";
+import React, { useState, useEffect, useMemo, useCallback, useContext } from 'react';
+import axios from 'axios';
 
-import LoadingIndicator from "./LoadingIndicator";
-import placeholderPng from "views/assets/placeholder.png";
-import { createUrl, createAPIUrl, createAPIUrlFromSpotify } from "core/utils";
+import LoadingIndicator from './LoadingIndicator';
+import placeholderPng from 'views/assets/placeholder.png';
+import { createUrl, createAPIUrl, createAPIUrlFromSpotify } from 'core/utils';
 
 const ConfigurationContext = React.createContext();
 

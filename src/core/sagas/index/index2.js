@@ -1,9 +1,9 @@
-import { put, delay, fork, all, call, select, takeEvery, takeLatest, cancelled} from "redux-saga/effects";
-import { normalize } from "normalizr";
-import axios from "axios";
-import { getFetchTypes, verifyCachedData, createUrl, createAPIUrl, createAuthUrl } from "core/utils";
-import * as schemas from "core/schemas";
-import * as actions from "core/actions";
+import { put, delay, fork, all, call, select, takeEvery, takeLatest, cancelled} from 'redux-saga/effects';
+import { normalize } from 'normalizr';
+import axios from 'axios';
+import { getFetchTypes, verifyCachedData, createUrl, createAPIUrl, createAuthUrl } from 'core/utils';
+import * as schemas from 'core/schemas';
+import * as actions from 'core/actions';
 
 import { watchFetchAlbum, watchFetchLikeAlbum } from './album';
 import { watchFetchArtist, watchFetchArtistAlbums, watchFetchArtistImages } from './artist';
@@ -13,14 +13,14 @@ import { watchFetchPopularPeople, watchFetchPerson, watchFetchPersonCredits, wat
 import { watchFetchCurrentUser, watchFetchAuthUser,  } from './user';
 import { watchFetchSearch, watchFetchMovieSearch, watchFetchPersonSearch, watchFetchArtistSearch, watchFetchAlbumSearch, watchFetchTrackSearch } from './search';
 import { watchFetchGenres } from './genre';
-// import {watchFetchNewReleases } from "core/sagas/post";
+// import {watchFetchNewReleases } from 'core/sagas/post';
 
-import * as service from "../services/UserService";
+import * as service from '../services/UserService';
 
-import { selectors } from "core/reducers/index";
+import { selectors } from 'core/reducers/index';
 import { getReq, getHeaders, getState } from 'store';
-import history  from "core/services/history";
-import { postAxiosReq, getAxiosReq } from "core/api/rest-helper";
+import history  from 'core/services/history';
+import { postAxiosReq, getAxiosReq } from 'core/api/rest-helper';
 
 const CancelToken = axios.CancelToken;
 

@@ -1,6 +1,6 @@
 // import React from 'react';
-// import ModalPhotoList from "views/components/ModalPhotoList";
-// import PopularPhotos from "views/pages/PopularPhotos";
+// import ModalPhotoList from 'views/components/ModalPhotoList';
+// import PopularPhotos from 'views/pages/PopularPhotos';
 // import { getAllPhotos } from 'core/data';
 //
 // const ModalPhotos = () => {

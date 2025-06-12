@@ -1,9 +1,9 @@
-import React from "react";
+import React from 'react';
 import styled from 'styled-components';
 
-import LoadingIndicator from "views/components/LoadingIndicator";
-import { StyledTypography } from "views/styledComponents";
-import Skeleton from "views/skeletons/HomeSkeleton";
+import LoadingIndicator from 'views/components/LoadingIndicator';
+import { StyledTypography } from 'views/styledComponents';
+import Skeleton from 'views/skeletons/HomeSkeleton';
 
 const DEFAULT_ITEMS = [];
 

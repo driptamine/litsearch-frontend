@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import styled from "styled-components";
+import styled from 'styled-components';
 import moment from 'moment';
 
 // MATERIAL DONE
-// import { ListItem, ListItemText, ListItemAvatar, Avatar, makeStyles } from "@mui/material";
+// import { ListItem, ListItemText, ListItemAvatar, Avatar, makeStyles } from '@mui/material';
 import { StyledListItem, StyledListItemText, StyledListItemAvatar, StyledAvatar } from 'views/styledComponents';
 
 // VIEWS

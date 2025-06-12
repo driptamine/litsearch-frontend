@@ -1,9 +1,9 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchPersonSearch } from "core/actions";
-import { selectors } from "core/reducers/index";
-import InfiniteGridList from "views/components/InfiniteGridList";
-import PersonCard from "views/components/PersonCard";
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchPersonSearch } from 'core/actions';
+import { selectors } from 'core/reducers/index';
+import InfiniteGridList from 'views/components/InfiniteGridList';
+import PersonCard from 'views/components/PersonCard';
 
 function renderItem(personId) {
   return (

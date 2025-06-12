@@ -1,6 +1,6 @@
-import React from "react";
-import BaseGridList from "./BaseGridList";
-import ImageGridListItem from "./ImageGridListItem";
+import React from 'react';
+import BaseGridList from './BaseGridList';
+import ImageGridListItem from './ImageGridListItem';
 
 function ImageGridList({
   filePaths,

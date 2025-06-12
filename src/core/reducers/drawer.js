@@ -1,5 +1,5 @@
-import * as actions from "core/actions";
-import { createReducer } from "@reduxjs/toolkit";
+import * as actions from 'core/actions';
+import { createReducer } from '@reduxjs/toolkit';
 
 const initialState = {
   isOpen: false

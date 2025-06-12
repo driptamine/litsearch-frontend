@@ -6,15 +6,15 @@ import styled from 'styled-components';
 import {
   twitchSignInAction, googleSignInAction, appleSignInAction,
   spotifySignInAction, unsplashSignInAction, deezerSignInAction, instagramSignInAction
-} from "views/pages/LoginPage/action";
+} from 'views/pages/LoginPage/action';
 import { TwitchContext } from 'views/pages/Auth/twitch/useToken';
 import { YoutubeContext } from 'views/pages/Auth/youtube/useToken';
 import { GoogleContext } from 'views/pages/Auth/google/useToken';
 import { SpotifyContext } from 'views/pages/Auth/spotify/useToken';
 
-import litloopLogo from "views/assets/litloopLogo3.png";
+import litloopLogo from 'views/assets/litloopLogo3.png';
 import { fetchAuthUser } from 'core/actions';
-import { selectors } from "core/reducers/index";
+import { selectors } from 'core/reducers/index';
 import useEventListenerMemo from 'core/hooks2/useEventListenerMemo';
 import ReAuthenticateButton from 'views/pages/Auth/ReAuthenticateButton';
 import { FaSpotify, FaApple } from 'react-icons/fa';

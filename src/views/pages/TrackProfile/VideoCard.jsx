@@ -1,12 +1,12 @@
-// import React, { useState, useRef, useEffect } from "react";
-// import { findDOMNode } from "react-dom";
-// import ReactPlayer from "react-player";
-// import screenful from "screenfull";
-// import styled from "styled-components";
+// import React, { useState, useRef, useEffect } from 'react';
+// import { findDOMNode } from 'react-dom';
+// import ReactPlayer from 'react-player';
+// import screenful from 'screenfull';
+// import styled from 'styled-components';
 //
 
 // // VIEWS
-// import Controls from "./Controls";
+// import Controls from './Controls';
 // import { INITIAL_STATE, reducer } from 'views/components/video-player/reducer.js';
 // // ICONS
 // import { MdRemoveRedEye } from 'react-icons/md';

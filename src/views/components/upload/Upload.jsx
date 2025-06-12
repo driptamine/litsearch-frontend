@@ -1,6 +1,6 @@
 // https://dev.to/shingaiz/optimizing-file-processing-in-react-with-multipart-uploads-and-downloads-2n8p
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from 'react';
 
 function Upload() {
   const [file, setFile] = useState(null); // The file that I uploaded locally

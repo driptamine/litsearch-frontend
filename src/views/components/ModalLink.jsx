@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import useModalGallery from "core/hooks/useModalGallery";
+import useModalGallery from 'core/hooks/useModalGallery';
 
 export function splitPathnameAndQueryString(path) {
   const [pathname, search] = path.split('?');

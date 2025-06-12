@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useContext } from 'react'
 import { connect, useDispatch, useSelector} from 'react-redux';
-import { Redirect, useHistory, Link } from "react-router-dom";
+import { Redirect, useHistory, Link } from 'react-router-dom';
 
 // ICONS
 import { FaTwitch } from 'react-icons/fa';
@@ -13,22 +13,22 @@ import { FaUnsplash } from 'react-icons/fa';
 import { FaSoundcloud } from 'react-icons/fa';
 import { FaDeezer } from 'react-icons/fa';
 import { FaInstagram } from 'react-icons/fa';
-// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// import { faFacebook, faGoogle } from '@fortawesome/react-fontawesome';
 // import { styled as styledd }  from 'styled-components';
 // import * as styledd from 'styled-components';
 import styled from 'styled-components';
 
 
 // MATERIAL DONE
-// import { TextField, Container, Grid, Button } from "@mui/material";
+// import { TextField, Container, Grid, Button } from '@fortawesome/react-fontawesome';
 import { StyledTextField, StyledContainer, StyledGrid, StyledButton } from 'views/styledComponents';
 
 // VIEWS
 // import FormControl from './FormControl'
 import {
   twitchSignInAction, googleSignInAction, appleSignInAction,
-  spotifySignInAction, unsplashSignInAction, deezerSignInAction, instagramSignInAction } from "views/pages/LoginPage/action"
+  spotifySignInAction, unsplashSignInAction, deezerSignInAction, instagramSignInAction } from 'views/pages/LoginPage/action'
 import ReAuthenticateButton from 'views/pages/Auth/ReAuthenticateButton';
 import disconnectYoutube from 'views/pages/Auth/youtube/disconnectYoutube';
 import disconnectTwitch from 'views/pages/Auth/twitch/disconnectTwitch';
@@ -39,14 +39,14 @@ import { YoutubeContext } from 'views/pages/Auth/youtube/useToken';
 import { SpotifyContext } from 'views/pages/Auth/spotify/useToken';
 import { GoogleContext } from 'views/pages/Auth/google/useToken';
 
-import litloopLogo from "views/assets/litloopLogo3.png";
+import litloopLogo from '@fortawesome/react-fontawesome';
 
 // CORE
-import history  from "core/services/history";
+import history  from 'views/pages/LoginPage/action';
 import { fetchAuthUser,  } from 'core/actions'
-import useHistoryPush from "core/hooks/useHistoryPush";
+import useHistoryPush from 'views/pages/LoginPage/action';
 // import { selectAuth } from 'core/reducers/authSlice';
-import { selectors } from "core/reducers/index";
+import { selectors } from 'views/pages/LoginPage/action';
 import { feedPreferencesAtom, useFeedPreferences } from 'core/atoms/atoms';
 import useEventListenerMemo from 'core/hooks2/useEventListenerMemo';
 
@@ -217,7 +217,7 @@ function LoginForm () {
         if (setTwitchUserId) setTwitchUserId(e.data.userId);
         if (setTwitchProfileImage) setTwitchProfileImage(e.data.profileImg);
         // RELOAD
-        history.push('/');
+        history.push('/feed');
         // historyPusha.push('/');
         // window.location.replace("http://localhost:3001/");
 
@@ -227,7 +227,7 @@ function LoginForm () {
         if (e.data.access_token && setGoogleAccessToken) setGoogleAccessToken(e.data.access_token);
         if (e.data.username && setGoogleUsername) setGoogleUsername(e.data.username);
         if (e.data.profileImg && setGoogleProfileImage) setGoogleProfileImage(e.data.profileImg);
-        history.push('/');
+        history.push('/feed');
 
       }
 

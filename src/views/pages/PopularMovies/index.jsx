@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
-import { fetchPopularMovies } from "core/actions";
-import { selectors } from "core/reducers/index";
-import MovieFeedCard from "views/components/MovieFeedCard";
-import MovieCard from "views/components/MovieCard";
-import InfiniteGridList from "views/components/InfiniteGridList";
-import InfiniteList from "views/components/InfiniteList";
+import { fetchPopularMovies } from 'core/actions';
+import { selectors } from 'core/reducers/index';
+import MovieFeedCard from 'views/components/MovieFeedCard';
+import MovieCard from 'views/components/MovieCard';
+import InfiniteGridList from 'views/components/InfiniteGridList';
+import InfiniteList from 'views/components/InfiniteList';
 
-import Skeleton from "views/skeletons/HomeSkeleton";
+import Skeleton from 'views/skeletons/HomeSkeleton';
 
 
 // function renderItem(movieId) {

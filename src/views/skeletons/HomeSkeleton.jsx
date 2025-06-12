@@ -1,7 +1,7 @@
-import React from "react";
-// import { StyledHome } from "../pages/Home";
-import VideoGrid from "views/styles/VideoGrid";
-import { SkeletonLine, VideoCardSkeleton } from "views/styles/Skeleton";
+import React from 'react';
+// import { StyledHome } from '../pages/Home';
+import VideoGrid from 'views/styles/VideoGrid';
+import { SkeletonLine, VideoCardSkeleton } from 'views/styles/Skeleton';
 
 const HomeSkeleton = ({ title }) => {
   return (

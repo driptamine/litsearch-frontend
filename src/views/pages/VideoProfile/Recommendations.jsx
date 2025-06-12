@@ -1,14 +1,14 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 // MATERIAL DONE
-// import { useTheme } from "@mui/material/styles";
-import MovieCard from "views/components/MovieCard";
-import BaseGridList from "views/components/BaseGridList";
+// import { useTheme } from '@mui/material/styles';
+import MovieCard from 'views/components/MovieCard';
+import BaseGridList from 'views/components/BaseGridList';
 
 // CORE
-import { fetchRecommendations } from "core/actions";
-import { selectors } from "core/reducers/index";
+import { fetchRecommendations } from 'core/actions';
+import { selectors } from 'core/reducers/index';
 
 function renderItem(recommendationId) {
   return (

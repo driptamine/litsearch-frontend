@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
-import styled from "styled-components";
-import { fetchQuerySearch } from "core/actions";
-import { selectors } from "core/reducers/index";
+import styled from 'styled-components';
+import { fetchQuerySearch } from 'core/actions';
+import { selectors } from 'core/reducers/index';
 
 // import "./App.css";
 import Autocomplete from 'views/pages/MainSearch/AppHeader/Autocomplete'

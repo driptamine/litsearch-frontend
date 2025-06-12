@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
-import { fetchPopularMovies, fetchPopularAlbums } from "core/actions";
-import { selectors } from "core/reducers/index";
-import MovieCard from "views/components/MovieCard";
-import AlbumItem from "views/components/AlbumItem";
-import InfiniteGridList from "views/components/InfiniteGridList";
-import InfiniteList from "views/components/InfiniteList";
+import { fetchPopularMovies, fetchPopularAlbums } from 'core/actions';
+import { selectors } from 'core/reducers/index';
+import MovieCard from 'views/components/MovieCard';
+import AlbumItem from 'views/components/AlbumItem';
+import InfiniteGridList from 'views/components/InfiniteGridList';
+import InfiniteList from 'views/components/InfiniteList';
 
 const StyledLi = styled.li`
   width: 550px;

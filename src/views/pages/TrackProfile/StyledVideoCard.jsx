@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect, useReducer } from "react";
-import { findDOMNode } from "react-dom";
-import ReactPlayer, { ReactPlayerProps } from "react-player";
-import screenful from "screenfull";
-import styled from "styled-components";
+import React, { useState, useRef, useEffect, useReducer } from 'react';
+import { findDOMNode } from 'react-dom';
+import ReactPlayer, { ReactPlayerProps } from 'react-player';
+import screenful from 'screenfull';
+import styled from 'styled-components';
 
 import {
   // StyledTypography,
@@ -25,7 +25,7 @@ import {
 
 // VIEWS
 // React-netflix-player
-// import Controls from "./Controls";
+// import Controls from './Controls';
 import PlayerControls from 'views/components/video-player/PlayerControls';
 import PlayerOverlay from 'views/components/video-player/PlayerOverlay';
 import { INITIAL_STATE, reducer } from 'views/components/video-player/reducer';

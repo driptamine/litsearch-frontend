@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Link, useLocation, withRouter } from "react-router-dom";
-import styled from "styled-components";
+import { Link, useLocation, withRouter } from 'react-router-dom';
+import styled from 'styled-components';
 import { FiPlay } from 'react-icons/fi';
 import { FiPause } from 'react-icons/fi';
 
@@ -8,15 +8,15 @@ import { StyledCardActionArea, StyledListItem, StyledListItemText, StyledListIte
 import "views/components/track-card/track-card.css"
 
 import tracks from './music.json'; // Import the JSON
-import AudioPlayer from "views/components/video-player/web/AudioPlayer";
-import FormattedTime from "views/components/formatted-time/FormattedTime";
-import AudioProvider from "views/pages/PopularMusic/AudioContext";
-// import AudioProvider from "views/pages/PopularMusic/AudioContextV2";
-// import AudioProvider from "views/pages/PopularMusic/AudioContextV3";
-import CustomAudioPlayer from "views/pages/PopularMusic/CustomAudioPlayer";
-import CustomAudioPlayerV3 from "views/pages/PopularMusic/CustomAudioPlayerV3";
-import CustomAudioPlayerV4 from "views/pages/PopularMusic/CustomAudioPlayerV4";
-import CustomAudioPlayerV5 from "views/pages/PopularMusic/CustomAudioPlayerV5";
+import AudioPlayer from 'views/components/video-player/web/AudioPlayer';
+import FormattedTime from 'views/components/formatted-time/FormattedTime';
+import AudioProvider from 'views/pages/PopularMusic/AudioContext';
+// import AudioProvider from 'views/pages/PopularMusic/AudioContextV2';
+// import AudioProvider from 'views/pages/PopularMusic/AudioContextV3';
+import CustomAudioPlayer from 'views/pages/PopularMusic/CustomAudioPlayer';
+import CustomAudioPlayerV3 from 'views/pages/PopularMusic/CustomAudioPlayerV3';
+import CustomAudioPlayerV4 from 'views/pages/PopularMusic/CustomAudioPlayerV4';
+import CustomAudioPlayerV5 from 'views/pages/PopularMusic/CustomAudioPlayerV5';
 
 // import { AudioProvider, useAudio } from 'views/pages/PopularMusic/AudioContext'; // adjust path
 // import { useAudio } from 'views/pages/PopularMusic/AudioContextV2'; // adjust path

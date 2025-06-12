@@ -1,8 +1,8 @@
-import { call, put, cancelled } from "redux-saga/effects";
-import axios from "axios";
-import { normalize } from "normalizr";
-import { getFetchTypes, verifyCachedData, createAPIUrl } from "core/utils";
-import { getHeaders } from "core/store";
+import { call, put, cancelled } from 'redux-saga/effects';
+import axios from 'axios';
+import { normalize } from 'normalizr';
+import { getFetchTypes, verifyCachedData, createAPIUrl } from 'core/utils';
+import { getHeaders } from 'core/store';
 
 const CancelToken = axios.CancelToken;
 

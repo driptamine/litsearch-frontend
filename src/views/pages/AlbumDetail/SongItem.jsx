@@ -1,9 +1,9 @@
-import React from "react";
-import NowPlaying from "../../../assets/AlbumDetail/NowPlaying.gif";
-import Play from "../../../assets/NowPlayingBar/Play";
-import Pause from "../../../assets/NowPlayingBar/Pause";
-import { millisToMinutesAndSeconds } from "../../../utils";
-import style from "./SongItem.module.css";
+import React from 'react';
+import NowPlaying from '../../../assets/AlbumDetail/NowPlaying.gif';
+import Play from '../../../assets/NowPlayingBar/Play';
+import Pause from '../../../assets/NowPlayingBar/Pause';
+import { millisToMinutesAndSeconds } from '../../../utils';
+import style from './SongItem.module.css';
 
 
 export const SongItem = ({

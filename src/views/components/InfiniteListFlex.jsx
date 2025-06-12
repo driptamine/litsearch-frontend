@@ -1,6 +1,6 @@
-import React from "react";
-import InfiniteScrollWrapper from "views/components/InfiniteScrollWrapper";
-import BaseListFlex from "./BaseListFlex";
+import React from 'react';
+import InfiniteScrollWrapper from 'views/components/InfiniteScrollWrapper';
+import BaseListFlex from './BaseListFlex';
 
 function InfiniteListFlex({
   items,

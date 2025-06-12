@@ -1,13 +1,13 @@
 import { eventChannel } from 'redux-saga';
 import { call, fork, put, select, take } from 'redux-saga/effects';
 // import { appActions } from 'core/app';
-import { PLAYER_INITIAL_VOLUME } from "core/constants/spotify";
-import { playerActions } from "core/actions/player";
-import { audio, initAudio, setVolume } from "core/services/audio-service";
+import { PLAYER_INITIAL_VOLUME } from 'core/constants/spotify';
+import { playerActions } from 'core/actions/player';
+import { audio, initAudio, setVolume } from 'core/services/audio-service';
 import {
   getPlayerTrack,
   // getPlayerTracklistCursor
-} from "core/reducers/selectors";
+} from 'core/reducers/selectors';
 // import { playerStorage } from './storage';
 
 

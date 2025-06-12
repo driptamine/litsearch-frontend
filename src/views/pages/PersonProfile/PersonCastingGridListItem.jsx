@@ -1,7 +1,7 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import { selectors } from "core/reducers/index";
-import MovieCard from "views/components/MovieCard";
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { selectors } from 'core/reducers/index';
+import MovieCard from 'views/components/MovieCard';
 
 function PersonCastingGridListItem({ castCreditId }) {
   const cast = useSelector(state =>

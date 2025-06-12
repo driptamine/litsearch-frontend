@@ -1,11 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useContext } from 'react';
 // import { Route } from 'react-router-dom';
 import { Route, useLocation, useHistory } from 'react-router-dom';
 // import propTypes from 'prop-types';
-import useModalGallery from "core/hooks/useModalGallery";
+import useModalGallery from 'core/hooks/useModalGallery';
+
+import { ModalRouteContext } from 'views/hooks/ModalSwitch'; // Import the context from ModalSwitch
 
 function ModalRouteContent({ defaultParentPath, children, ...rest }) {
-  const { backgroundLocation } = useModalGallery();
+  // const { backgroundLocation } = useModalGallery();
+  const { backgroundLocation } = useContext(ModalRouteContext); // Directly destructuring from context
 
   // const { location, history } = rest;
   const location = useLocation();
@@ -39,10 +42,14 @@ function ModalRouteContent({ defaultParentPath, children, ...rest }) {
     }
   }, [location, defaultParentPath, reRenderRoute, history]);
 
+  // return !reRenderRoute
+  //   ? children({
+  //       ...rest
+  //     })
+  //   : null;
+
   return !reRenderRoute
-    ? children({
-        ...rest
-      })
+    ? children
     : null;
 }
 

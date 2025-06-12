@@ -1,7 +1,7 @@
 // REFERENCE https://codesandbox.io/u/gasper94
 
-import React, { useState, useRef, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import React, { useState, useRef, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import {
   DropDownWrapper,
   DropDownButton,
@@ -10,11 +10,11 @@ import {
   OptionRow,
   SvgTest,
   Label
-} from "./DropDownNew.styles";
-import SubMenu from "./SubMenu";
-import styled from "styled-components";
+} from './DropDownNew.styles';
+import SubMenu from './SubMenu';
+import styled from 'styled-components';
 
-import { fetchLogout } from "core/actions";
+import { fetchLogout } from 'core/actions';
 
 const ReDropDownButton = styled(DropDownButton)`
   cursor: pointer;

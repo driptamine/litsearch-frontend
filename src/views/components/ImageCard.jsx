@@ -1,17 +1,17 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import styled from "styled-components";
+import React from 'react';
+import { useSelector } from 'react-redux';
+import styled from 'styled-components';
 
-import BaseImage from "views/components/BaseImage";
-import BaseCard from "views/components/BaseCard";
-import RouterLink from "views/components/RouterLink";
-import ModalLink from "views/components/ModalLink";
-import BaseCardHeader from "views/components/BaseCardHeader";
-// import ImageRatingTag from "./ImageRatingTag";
-import { getAspectRatioString } from "./AspectRatio";
-import { useConfiguration } from "./ConfigurationProvider";
+import BaseImage from 'views/components/BaseImage';
+import BaseCard from 'views/components/BaseCard';
+import RouterLink from 'views/components/RouterLink';
+import ModalLink from 'views/components/ModalLink';
+import BaseCardHeader from 'views/components/BaseCardHeader';
+// import ImageRatingTag from './ImageRatingTag';
+import { getAspectRatioString } from './AspectRatio';
+import { useConfiguration } from './ConfigurationProvider';
 
-import { selectors } from "core/reducers/index";
+import { selectors } from 'core/reducers/index';
 
 
 function ImageCard({ imageId }) {

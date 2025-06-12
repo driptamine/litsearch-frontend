@@ -1,9 +1,9 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchArtistSearch } from "core/actions";
-import { selectors } from "core/reducers/index";
-import InfiniteGridList from "views/components/InfiniteGridList";
-import ArtistCard from "views/components/ArtistCard";
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchArtistSearch } from 'core/actions';
+import { selectors } from 'core/reducers/index';
+import InfiniteGridList from 'views/components/InfiniteGridList';
+import ArtistCard from 'views/components/ArtistCard';
 
 function renderItem(artistId) {
   return (

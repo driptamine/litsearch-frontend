@@ -1,5 +1,5 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 // MATERIAL UNDONE
 // import {
 //   ListItem,
@@ -7,14 +7,14 @@ import styled from "styled-components";
 //   Avatar,
 //   ListItemText,
 //   makeStyles
-// } from "@mui/material";
+// } from '@mui/material';
 import {
   StyledListItem,
   StyledListItemAvatar,
   StyledAvatar,
   StyledListItemText,
 } from 'views/styledComponents'
-import { useConfiguration } from "./ConfigurationProvider";
+import { useConfiguration } from './ConfigurationProvider';
 
 // const useStyles = makeStyles(theme => ({
 //   secondaryText: {

@@ -1,6 +1,6 @@
 // REFERENCE https://codesandbox.io/s/rough-currying-uqlle?file=/src/App.js:0-2458
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 
 import * as SC from 'views/styledComponents';
 // import { StyledSlider } from 'views/styledComponents';

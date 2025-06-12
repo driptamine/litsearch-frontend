@@ -1,5 +1,5 @@
-import React from "react";
-import AspectRatio, { getAspectRatioString } from "./AspectRatio";
+import React from 'react';
+import AspectRatio, { getAspectRatioString } from './AspectRatio';
 
 function YouTubePlayer({ youTubeId }) {
   return (

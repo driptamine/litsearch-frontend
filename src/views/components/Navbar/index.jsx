@@ -1,12 +1,12 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import styled from "styled-components";
-import { Link } from "react-router-dom";
-import Search from "./Search";
-import UploadVideo from "./UploadVideo";
-import Avatar from "../styles/Avatar";
-import { HamburgerIcon, NotificationIcon } from "./Icons";
-import { openSidebar, closeSidebar } from "../reducers/sidebar";
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import styled from 'styled-components';
+import { Link } from 'react-router-dom';
+import Search from './Search';
+import UploadVideo from './UploadVideo';
+import Avatar from '../styles/Avatar';
+import { HamburgerIcon, NotificationIcon } from './Icons';
+import { openSidebar, closeSidebar } from '../reducers/sidebar';
 
 const Wrapper = styled.div`
   position: fixed;

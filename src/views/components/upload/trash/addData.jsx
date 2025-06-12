@@ -1,10 +1,10 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
-// import { addData } from "../../../actions";
-// import { addData } from "core/api/upload";
-import ProgressBarUi from "views/components/upload/ProgressBarUI";
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+// import { addData } from '../../../actions';
+// import { addData } from 'core/api/upload';
+import ProgressBarUi from 'views/components/upload/ProgressBarUI';
 
-import axios from "axios";
+import axios from 'axios';
 
 const getProgress = (taskId) => {
   return (dispatch) => {

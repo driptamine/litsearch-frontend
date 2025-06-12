@@ -1,13 +1,13 @@
 // REFERENCE: https://dieudonneawa7.medium.com/complete-guide-on-how-to-implement-a-video-player-in-react-js-afd07576d50a
 
-import { Button, Flex, Spinner } from "@chakra-ui/react"
-import styled from "@emotion/styled"
-import React, { useEffect, useRef, useState } from "react"
+import { Button, Flex, Spinner } from '@chakra-ui/react'
+import styled from '@emotion/styled'
+import React, { useEffect, useRef, useState } from 'react'
 
-import PlayIcon from "./PlayIcon"
-import PauseIcon from "./PauseIcon"
-import ElapsedTimeTracker from "./ElapsedTimeTracker"
-import PlaybackRate from "./PlaybackRate"
+import PlayIcon from './PlayIcon'
+import PauseIcon from './PauseIcon'
+import ElapsedTimeTracker from './ElapsedTimeTracker'
+import PlaybackRate from './PlaybackRate'
 
 const Video = styled.video`
   flex-shrink: 1;

@@ -1,5 +1,5 @@
-import produce from "immer";
-import merge from "lodash/merge";
+import produce from 'immer';
+import merge from 'lodash/merge';
 
 const initialState = {
   websites: {},

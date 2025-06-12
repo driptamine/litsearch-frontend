@@ -1,5 +1,5 @@
-import { setAccessToken } from "core/actions";
-import { useDispatch } from "react-redux";
+import { setAccessToken } from 'core/actions';
+import { useDispatch } from 'react-redux';
 
 let windowObjectReference = null;
 let previousUrl = null;

@@ -1,22 +1,22 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import Button from 'views/components/Button';
-import BaseImage from "views/components/BaseImage";
-import BaseCard from "views/components/BaseCard";
-import RouterLink from "views/components/RouterLink";
-import ModalLink from "views/components/ModalLink";
-import BaseCardHeader from "views/components/BaseCardHeader";
+import BaseImage from 'views/components/BaseImage';
+import BaseCard from 'views/components/BaseCard';
+import RouterLink from 'views/components/RouterLink';
+import ModalLink from 'views/components/ModalLink';
+import BaseCardHeader from 'views/components/BaseCardHeader';
 import LikeIcon from 'views/components/LikeIcon';
 // import HideUrlPrefix from 'views/components/WebsiteCard/HideUrlPrefix';
-// import { getAspectRatioString } from "./AspectRatio";
-// import { useConfiguration } from "./ConfigurationProvider";
+// import { getAspectRatioString } from './AspectRatio';
+// import { useConfiguration } from './ConfigurationProvider';
 
-import { screenLargerThan } from "views/style/util"
+import { screenLargerThan } from 'views/style/util'
 import { primaryColor1, white, likeColor, greenColor, } from 'views/style/colors';
 
-import { selectors } from "core/reducers/index";
+import { selectors } from 'core/reducers/index';
 
 
 function WebsiteCard({ websiteId }) {

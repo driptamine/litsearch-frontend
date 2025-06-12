@@ -1,16 +1,16 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React from 'react';
+import { useSelector } from 'react-redux';
 
 
 // MATERIAL DONE
-// import { Typography, Box, Grid, Link, makeStyles } from "@mui/material";
+// import { Typography, Box, Grid, Link, makeStyles } from '@mui/material';
 import { StyledTypography, StyledBox, StyledGrid, StyledLink } from 'views/styledComponents';
 
-import Introduction from "views/components/Introduction";
-import ImdbLogo from "views/components/ImdbLogo";
+import Introduction from 'views/components/Introduction';
+import ImdbLogo from 'views/components/ImdbLogo';
 
-import { selectors } from "core/reducers/index";
-import { getImdbProfileUrl } from "core/utils";
+import { selectors } from 'core/reducers/index';
+import { getImdbProfileUrl } from 'core/utils';
 
 // const useStyles = makeStyles(theme => ({
 //   biography: {

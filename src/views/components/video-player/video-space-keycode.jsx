@@ -1,6 +1,6 @@
 // REFERENCE: https://github.com/fragaria/karmen-web/blob/master/src/components/video.js
 // keyCode === 32
-import React, { useState, useRef, useEffect } from "react"
+import React, { useState, useRef, useEffect } from 'react'
 
 const VideoPlayer = props => {
   const [playing, setPlaying] = useState(false)

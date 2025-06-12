@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { debounce } from 'lodash';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import debounce from 'lodash/debounce';
 
-import styled from "styled-components";
+import styled from 'react-redux';
 
-import litNightLogo from "views/assets/viewsLogos/purple-views-logo.png";
-import litloopLogo from "views/assets/viewsLogos/purple-views-logo.png";
-import litLightLogo from "views/assets/viewsLogos/views-logo-official.png";
+import litNightLogo from 'views/assets/viewsLogos/purple-views-logo.png';
+import litloopLogo from 'views/assets/viewsLogos/purple-views-logo.png';
+import litLightLogo from 'views/assets/viewsLogos/purple-views-logo.png';
 
-import { fetchQuerySearch } from "core/actions";
-import { selectors } from "core/reducers/index";
+import { fetchQuerySearch } from 'core/actions';
+import { selectors } from 'core/actions';
 // import "./App.css";
 import Autocomplete from './Autocomplete';
 
@@ -117,7 +117,7 @@ function SearchApp() {
       <LitLoopLogo src={ litloopLogo } />
       {/*<LitLoopLogo src={ props.theme === 'light'  ? litNightLogo : litLightLogo } />*/}
 
-      
+
       {/*<LogoStyled>LitLook</LogoStyled>*/}
       {/*<div>Cursor Position: {cursorPosition}</div>*/}
       <Autocomplete

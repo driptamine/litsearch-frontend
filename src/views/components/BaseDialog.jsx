@@ -1,11 +1,11 @@
-import React, { useMemo } from "react";
-import styled from "styled-components";
+import React, { useMemo } from 'react';
+import styled from 'styled-components';
 
 // MATERIAL DONE
-// import { makeStyles } from "@mui/material/styles";
-// import { Dialog, DialogContent, Box } from "@mui/material";
-// import CloseIcon from "@mui/icons-material/Close";
-import BaseDialogTitle from "./BaseDialogTitle";
+// import { makeStyles } from '@mui/material/styles';
+// import { Dialog, DialogContent, Box } from '@mui/material';
+// import CloseIcon from '@mui/icons-material/Close';
+import BaseDialogTitle from './BaseDialogTitle';
 
 const DEFAULT_CONTENT_PADDING_Y = 1;
 const DEFAULT_CONTENT_PADDING_X = 3;

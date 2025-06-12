@@ -1,8 +1,8 @@
-import React from "react";
+import React from 'react';
 
-// import SongControls from "views/components/SongControls/index";
-import VolumeControls from "views/components/VolumeControls/index";
-import AudioPlayer from "views/components/slider/AudioPlayer";
+// import SongControls from 'views/components/SongControls/index';
+import VolumeControls from 'views/components/VolumeControls/index';
+import AudioPlayer from 'views/components/slider/AudioPlayer';
 import "./Footer.css";
 // import PlayerContext from '';
 

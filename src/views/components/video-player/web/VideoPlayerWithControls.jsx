@@ -1,11 +1,11 @@
-import Hls from "hls.js"
+import Hls from 'hls.js'
 import React, {
   forwardRef,
   useCallback,
   useEffect,
   useRef,
   useState
-} from "react"
+} from 'react'
 
 // import "plyr/dist/plyr.css"
 // import "./video-player.css"

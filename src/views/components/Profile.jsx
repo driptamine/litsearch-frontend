@@ -1,10 +1,10 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 
 // MATERIAL DONE
-// import { Box, makeStyles } from "@mui/material";
+// import { Box, makeStyles } from '@mui/material';
 import { StyledBox } from 'views/styledComponents';
-import LoadingIndicator from "./LoadingIndicator";
+import LoadingIndicator from './LoadingIndicator';
 
 // const useStyles = makeStyles(theme => ({
 //   flexType: {

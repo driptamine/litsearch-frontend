@@ -1,12 +1,12 @@
 // JPF REDDIT
 
-import React, { useContext, useMemo, useEffect } from "react";
-import { ThemeProvider, withTheme } from "styled-components";
-import { connect } from "react-redux";
-import { Requester } from "../components/requester";
-import themes from "./themes";
-import buildColorTheme from "./build-color-theme";
-import { setUserPrefs, setThemePrefs } from "../store/actions";
+import React, { useContext, useMemo, useEffect } from 'react';
+import { ThemeProvider, withTheme } from 'styled-components';
+import { connect } from 'react-redux';
+import { Requester } from '../components/requester';
+import themes from './themes';
+import buildColorTheme from './build-color-theme';
+import { setUserPrefs, setThemePrefs } from '../store/actions';
 
 const GlobalThemeProvider = ({
   themePrefs,

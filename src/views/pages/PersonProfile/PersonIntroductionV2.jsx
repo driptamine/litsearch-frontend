@@ -1,23 +1,23 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React from 'react';
+import { useSelector } from 'react-redux';
 
 
 // MATERIAL DONE
-// import { Typography, Box, Grid, Link, makeStyles } from "@mui/material";
+// import { Typography, Box, Grid, Link, makeStyles } from '@mui/material';
 import { StyledTypography, StyledBox, StyledGrid, StyledLink } from 'views/styledComponents';
 
-import BaseImageV2 from "views/components/BaseImageV2";
-import BaseCard from "views/components/BaseCard";
+import BaseImageV2 from 'views/components/BaseImageV2';
+import BaseCard from 'views/components/BaseCard';
 
-// import Rating from "./Rating";
-import Introduction from "views/components/Introduction";
-import ImdbLogo from "views/components/ImdbLogo";
-// import PersonGenreChip from "./PersonGenreChip";
+// import Rating from './Rating';
+import Introduction from 'views/components/Introduction';
+import ImdbLogo from 'views/components/ImdbLogo';
+// import PersonGenreChip from './PersonGenreChip';
 
-import { selectors } from "core/reducers/index";
-import {  getImdbProfileUrl } from "core/utils";
-import { getAspectRatioString } from "views/components/AspectRatio";
-import { useConfiguration } from "views/components/ConfigurationProvider";
+import { selectors } from 'core/reducers/index';
+import {  getImdbProfileUrl } from 'core/utils';
+import { getAspectRatioString } from 'views/components/AspectRatio';
+import { useConfiguration } from 'views/components/ConfigurationProvider';
 
 
 function PersonIntroductionV2({ personId }) {

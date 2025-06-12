@@ -1,8 +1,8 @@
-import React from "react";
-import styled from "styled-components"
+import React from 'react';
+import styled from 'styled-components'
 
 // MATERIAL DONE
-// import { makeStyles } from "@mui/material";
+// import { makeStyles } from '@mui/material';
 
 export const getAspectRatioString = (width, height) => `${width}:${height}`;
 

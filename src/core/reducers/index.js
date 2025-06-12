@@ -1,24 +1,24 @@
-import { combineReducers } from "redux";
+import { combineReducers } from 'redux';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
-import bindSelectors from "./utils/bindSelectors";
+import bindSelectors from './utils/bindSelectors';
 
-import entities, * as fromEntities from "./entities";
+import entities, * as fromEntities from './entities';
 
-import users, * as fromUsers from "./users";
-import items, * as fromItems from "./items";
-import sidebar, * as fromSidebar from "./sidebar";
+import users, * as fromUsers from './users';
+import items, * as fromItems from './items';
+import sidebar, * as fromSidebar from './sidebar';
 
-import pagination, * as fromPagination from "./pagination";
-import isFetching, * as fromIsFetching from "./isFetching";
-import drawer, * as fromDrawer from "./drawer";
+import pagination, * as fromPagination from './pagination';
+import isFetching, * as fromIsFetching from './isFetching';
+import drawer, * as fromDrawer from './drawer';
 
-// import playerReducer, * as fromPlayerReducer from "core/reducers/playerReducer";
-// import { tracksReducer } from "core/tracks";
-// import {playerTimesReducer} from "core/tracks";
-// import { tracklistsReducer } from "core/tracklists";
-// import { playerTimesReducer } from "core/player";
+// import playerReducer, * as fromPlayerReducer from 'core/reducers/playerReducer';
+// import { tracksReducer } from 'core/tracks';
+// import { playerTimesReducer } from 'core/tracks';
+// import { tracklistsReducer } from 'core/tracklists';
+// import { playerTimesReducer } from 'core/player';
 
 
 
@@ -42,6 +42,7 @@ const appReducer = combineReducers({
   sidebar: sidebar,
   // soundReducer,
   users: persistReducer(persistConfig, users)
+  // users:  users
 });
 
 // Default export is the "reducer".

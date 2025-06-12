@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 import {
   StyledListItem,
@@ -6,7 +6,7 @@ import {
   StyledAvatar,
   StyledListItemText,
 } from 'views/styledComponents';
-import { useConfiguration } from "./ConfigurationProvider";
+import { useConfiguration } from './ConfigurationProvider';
 
 
 

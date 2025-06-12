@@ -2,7 +2,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useAudio } from './AudioContext'; // adjust path
-import { FaPlay, FaPause } from "react-icons/fa";
+import { FaPlay, FaPause } from 'react-icons/fa';
 
 const CustomAudioPlayerV4 = ({ src, title, artistName }) => {
   const audioRef = React.useRef(null);

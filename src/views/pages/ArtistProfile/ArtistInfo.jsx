@@ -1,13 +1,13 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React from 'react';
+import { useSelector } from 'react-redux';
 
 // MATERIAL DONE
-// import { Typography } from "@mui/material";
+// import { Typography } from '@mui/material';
 import { StyledTypography } from 'views/styledComponents';
 
-import TextWithLabel from "views/components/TextWithLabel";
+import TextWithLabel from 'views/components/TextWithLabel';
 
-import { selectors } from "core/reducers/index";
+import { selectors } from 'core/reducers/index';
 
 function ArtistInfo({ artistId }) {
   const artist = useSelector(state => selectors.selectArtist(state, artistId));

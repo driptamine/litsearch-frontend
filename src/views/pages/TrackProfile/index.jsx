@@ -1,38 +1,38 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
 
-import styled from "styled-components"
+import styled from 'styled-components'
 
 // MATERIAL UNDONE
-// import { Typography } from "@mui/material";
+// import { Typography } from '@mui/material';
 import { StyledTypography } from 'views/styledComponents';
 
 // VIEWS
-import Profile from "views/components/Profile";
-import TrackIntroduction from "./TrackIntroduction";
-// import TrackImageGridList from "./TrackImageGridList";
-// import TrackVideoList from "./TrackVideoList";
-// import TrackVideoRecommendations from "./TrackVideoRecommendations";
-import StyledVideoCard from "./StyledVideoCard";
-// import StyledVideoCard from "./StyledVideoCardV2";
-// import VideoCard from "./VideoCard";
+import Profile from 'views/components/Profile';
+import TrackIntroduction from './TrackIntroduction';
+// import TrackImageGridList from './TrackImageGridList';
+// import TrackVideoList from './TrackVideoList';
+// import TrackVideoRecommendations from './TrackVideoRecommendations';
+import StyledVideoCard from './StyledVideoCard';
+// import StyledVideoCard from './StyledVideoCardV2';
+// import VideoCard from './VideoCard';
 
-import VideoPlayer from "views/components/video-player/chatgpt/VideoPlayer"
-import VideoPlayerV2 from "views/components/video-player/chatgpt/VideoPlayerV2"
-import CustomPlayer from "views/components/video-player/web/CustomPlayer"
-import CustomPlayerV2 from "views/components/video-player/web/CustomPlayerV2"
-import CustomPlayerV3 from "views/components/video-player/web/CustomPlayerV3"
-import CustomPlayerV4 from "views/components/video-player/web/CustomPlayerV4"
-import CustomBardPlayer from "views/components/video-player/bard/CustomBardPlayer"
-// import TrackCastGridList from "./TrackCastGridList";
-import SimilarTracks from "./SimilarTracks";
+import VideoPlayer from 'views/components/video-player/chatgpt/VideoPlayer'
+import VideoPlayerV2 from 'views/components/video-player/chatgpt/VideoPlayerV2'
+import CustomPlayer from 'views/components/video-player/web/CustomPlayer'
+import CustomPlayerV2 from 'views/components/video-player/web/CustomPlayerV2'
+import CustomPlayerV3 from 'views/components/video-player/web/CustomPlayerV3'
+import CustomPlayerV4 from 'views/components/video-player/web/CustomPlayerV4'
+import CustomBardPlayer from 'views/components/video-player/bard/CustomBardPlayer'
+// import TrackCastGridList from './TrackCastGridList';
+import SimilarTracks from './SimilarTracks';
 
 
 // CORE
-import { fetchTrack } from "core/actions";
-import { selectors } from "core/reducers/index";
-import { verifyCachedData } from "core/utils";
+import { fetchTrack } from 'core/actions';
+import { selectors } from 'core/reducers/index';
+import { verifyCachedData } from 'core/utils';
 
 
 // STYLING

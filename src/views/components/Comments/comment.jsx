@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import styled from "styled-components";
+import React, { useState } from 'react';
+import styled from 'styled-components';
 
-import Flair from "../components/flair";
-import Votes from "../components/votes";
-import { Timestamp } from "../components/timestamp";
-import Tag from "../components/tags";
-import Button from "../components/button";
-import { Author } from "../components/author";
-import { formatNumber } from "./../utils/format-number";
-import Reply from "./../components/reply";
+import Flair from '../components/flair';
+import Votes from '../components/votes';
+import { Timestamp } from '../components/timestamp';
+import Tag from '../components/tags';
+import Button from '../components/button';
+import { Author } from '../components/author';
+import { formatNumber } from './../utils/format-number';
+import Reply from './../components/reply';
 
 
 const Comment = ({

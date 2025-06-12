@@ -1,8 +1,8 @@
-import rootReducer from "core/reducers/index";
-import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
-import createSagaMiddleware from "redux-saga";
+import rootReducer from 'core/reducers/index';
+import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
+import createSagaMiddleware from 'redux-saga';
 import { persistStore } from 'redux-persist';
-import axios from "axios";
+import axios from 'axios';
 
 export const sagaMiddleware = createSagaMiddleware();
 

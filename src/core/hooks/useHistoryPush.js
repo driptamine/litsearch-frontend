@@ -1,4 +1,4 @@
-import { useHistory } from "react-router-dom";
+import { useHistory } from 'react-router-dom';
 
 function splitPathnameAndQueryString(path) {
   const [pathname, search] = path.split("?");

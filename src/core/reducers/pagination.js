@@ -1,12 +1,12 @@
-import { combineReducers } from "redux";
+import { combineReducers } from 'redux';
 import createPagination, {
   selectors as paginationSelectors
-} from "./higherOrderReducers/createPagination";
+} from './higherOrderReducers/createPagination';
 import createOffsetPagination, {
   selectors as offsetPaginationSelectors
-} from "./higherOrderReducers/createOffsetPagination";
-import * as actions from "core/actions";
-import createByKey from "./higherOrderReducers/createByKey";
+} from './higherOrderReducers/createOffsetPagination';
+import * as actions from 'core/actions';
+import createByKey from './higherOrderReducers/createByKey';
 
 const pagination = combineReducers({
   popularMovies: createPagination(actions.fetchPopularMovies),

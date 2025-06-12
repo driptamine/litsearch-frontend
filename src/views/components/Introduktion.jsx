@@ -1,14 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 // MATERIAL DONE
-// import { Box, Typography, makeStyles } from "@mui/material";
+// import { Box, Typography, makeStyles } from '@mui/material';
 import { StyledBox, StyledTypography } from 'views/styledComponents';
 
 
-import BaseImage from "views/components/BaseImage";
-import AudioPlayer from "views/components/video-player/web/AudioPlayer";
-import { getAspectRatioString } from "./AspectRatio";
-import { useConfiguration } from "./ConfigurationProvider";
+import BaseImage from 'views/components/BaseImage';
+import AudioPlayer from 'views/components/video-player/web/AudioPlayer';
+import { getAspectRatioString } from './AspectRatio';
+import { useConfiguration } from './ConfigurationProvider';
 
 // const useStyles = makeStyles(theme => ({
 //   backdrop: {

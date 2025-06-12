@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useAudio } from './AudioContext'; // adjust path
-import { FaPlay } from "react-icons/fa";
-import { FaPause } from "react-icons/fa";
+import { FaPlay } from 'react-icons/fa';
+import { FaPause } from 'react-icons/fa';
 
 const CustomAudioPlayerV3 = ({ src, title, artistName }) => {
   const audioRef = React.useRef(null);

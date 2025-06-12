@@ -1,6 +1,6 @@
 import React from 'react';
-// import ModalMovieList from "views/components/ModalMovieList";
-import PopularMagazines from "views/pages/PopularMagazines";
+// import ModalMovieList from 'views/components/ModalMovieList';
+import PopularMagazines from 'views/pages/PopularMagazines';
 
 // import { getAllMagazines } from 'core/data';
 

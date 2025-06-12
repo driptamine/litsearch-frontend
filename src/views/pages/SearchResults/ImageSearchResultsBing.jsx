@@ -1,12 +1,12 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchImageSearch } from "core/actions";
-import { selectors } from "core/reducers/index";
-import InfiniteGridList from "views/components/InfiniteGridList";
-import InfiniteList from "views/components/InfiniteList";
-import InfiniteListFlex from "views/components/InfiniteListFlex";
-import ImageCard from "views/components/ImageCard";
-import ImageCardBing from "views/components/ImageCardBing";
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchImageSearch } from 'core/actions';
+import { selectors } from 'core/reducers/index';
+import InfiniteGridList from 'views/components/InfiniteGridList';
+import InfiniteList from 'views/components/InfiniteList';
+import InfiniteListFlex from 'views/components/InfiniteListFlex';
+import ImageCard from 'views/components/ImageCard';
+import ImageCardBing from 'views/components/ImageCardBing';
 
 function renderItem(imageId) {
   return (

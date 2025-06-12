@@ -1,5 +1,5 @@
-import React from "react";
-import  useInfiniteScroll  from "react-infinite-scroll-hook";
+import React from 'react';
+import  useInfiniteScroll  from 'react-infinite-scroll-hook';
 
 function InfiniteScrollWrapper({ hasNextPage, loading, onLoadMore, children }) {
 

@@ -1,49 +1,49 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from 'react';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import styled, { css, keyframes } from 'styled-components';
 
 
-import { fetchQuerySearch } from "core/actions";
-import { selectors } from "core/reducers/index";
+import { fetchQuerySearch } from 'core/actions';
+import { selectors } from 'core/reducers/index';
 
 import { FaUpload } from 'react-icons/fa';
-import { FaCloudUploadAlt } from "react-icons/fa";
+import { FaCloudUploadAlt } from 'react-icons/fa';
 
 import { ImContrast } from 'react-icons/im';
-// import { useDarkMode } from "./components/useDarkMode"
+// import { useDarkMode } from './components/useDarkMode'
 
 // VIEWS
-// import SearchApp from "views/pages/MainSearch/searchbar/App";
-// import Autocomplete from "views/pages/MainSearch/autocomplete/Autocomplete";
-import Autocomplete from "views/pages/MainSearch/AppHeader/Autocomplete";
-import { SearchBar } from "views/pages/MainSearch/searchbar/SearchBar";
-import { SearchResultsList } from "views/pages/MainSearch/searchbar/SearchResultsList";
+// import SearchApp from 'views/pages/MainSearch/searchbar/App';
+// import Autocomplete from 'views/pages/MainSearch/autocomplete/Autocomplete';
+import Autocomplete from 'views/pages/MainSearch/AppHeader/Autocomplete';
+import { SearchBar } from 'views/pages/MainSearch/searchbar/SearchBar';
+import { SearchResultsList } from 'views/pages/MainSearch/searchbar/SearchResultsList';
 
 
-import RouterLink from "./RouterLink";
-import ModalLink from "views/components/ModalLink";
-import MovieAndPersonAutoSearch from "views/components/MovieAndPersonAutoSearch";
-import DrawerToggleButton from "views/components/DrawerToggleButton";
-import AvatarHover from "views/components/AvatarHover";
-// import litloopLogo from "views/assets/litloopLogo3.png";
-// import litLightLogo from "views/assets/viewsLogos/purple-views-logo.png";
-import litLightLogo from "views/assets/viewsLogos/purple-views-logo-light.png";
-import litNightLogo from "views/assets/viewsLogos/views-logo-official.png";
+import RouterLink from './RouterLink';
+import ModalLink from 'views/components/ModalLink';
+import MovieAndPersonAutoSearch from 'views/components/MovieAndPersonAutoSearch';
+import DrawerToggleButton from 'views/components/DrawerToggleButton';
+import AvatarHover from 'views/components/AvatarHover';
+// import litloopLogo from 'views/assets/litloopLogo3.png';
+// import litLightLogo from 'views/assets/viewsLogos/purple-views-logo.png';
+import litLightLogo from 'views/assets/viewsLogos/purple-views-logo-light.png';
+import litNightLogo from 'views/assets/viewsLogos/views-logo-official.png';
 
-import Dropdown from "views/components/Dropdown/Dropdown";
-import DropdownV2 from "views/components/Dropdown/DropdownV2";
-import DropdownPortal from "views/components/Dropdown/DropdownPortal";
-import DropDown from "views/components/DropdownV2/DropDown";
+import Dropdown from 'views/components/Dropdown/Dropdown';
+import DropdownV2 from 'views/components/Dropdown/DropdownV2';
+import DropdownPortal from 'views/components/Dropdown/DropdownPortal';
+import DropDownNew from 'views/components/DropdownV2/DropDown';
 
 
-import Toggle from "views/components/Toggle/Toggler";
-import { useThemeMode } from "views/components/Toggle/useThemeMode"
+import Toggle from 'views/components/Toggle/Toggler';
+import { useThemeMode } from 'views/components/Toggle/useThemeMode'
 
 import { TwitchContext, TwitchProvider } from 'views/pages/Auth/twitch/useToken';
 
 // CORE
-import useDetectMobile from "core/hooks/useDetectMobile";
-import HideOnScroll from "./HideOnScroll";
+import useDetectMobile from 'core/hooks/useDetectMobile';
+import HideOnScroll from './HideOnScroll';
 import { getState } from 'core/store';
 
 const authUser = getState().users;
@@ -130,6 +130,7 @@ const AppHeader = React.forwardRef((props, ref) => {
 
   const is_authorized = () => {
 
+    console.log(user);
     console.log(oauthed);
     console.log(authed);
     if (oauthed) {
@@ -149,6 +150,60 @@ const AppHeader = React.forwardRef((props, ref) => {
     }
   }
   const is_oauthorized = () => {
+
+    console.log(oauthed);
+    console.log(authed);
+    if (oauthed) {
+      <DropDown
+        options={['Profile', 'Switch Accounts', 'Liked', 'Settings']}
+        defaultText={<AvatarHover avatarUrl={getState().users.avatar} />}
+        changeOptionName={changeState}
+      />
+    } else if (authed) {
+      <DropDown
+        options={['Profile', 'Switch Accounts', 'Liked', 'Settings']}
+        defaultText={<AvatarHover avatarUrl={getState().users.avatar} />}
+        changeOptionName={changeState}
+      />
+    } else {
+      <LoginWrapper>
+        <LoginBtn
+          // color="secondary"
+          variant="contained"
+          to="/login"
+          // onClick={()=> {fetchAuthUser(data)}}
+          >Log In
+        </LoginBtn>
+      </LoginWrapper>
+    }
+  }
+
+  // console.log(user.google_oauth);
+  const is_authorized_v2 = () => {
+
+    console.log(user);
+    // console.log(oauthed);
+    // console.log(authed);
+    console.log(user.google_oauth.oauthed);
+    console.log(user.google_oauth.service);
+
+    if (user.google_oauth.oauthed) {
+      <AvatarHover avatarUrl={user.google_oauth.profileImg} />
+    } else if (authed) {
+      <AvatarHover avatarUrl={user.avatar} />
+    } else {
+      <LoginWrapper>
+        <LoginBtn
+          // color="secondary"
+          variant="contained"
+          to="/login"
+          // onClick={()=> {fetchAuthUser(data)}}
+          >Log In
+        </LoginBtn>
+      </LoginWrapper>
+    }
+  }
+  const is_oauthorized_v2 = () => {
 
     console.log(oauthed);
     console.log(authed);
@@ -213,45 +268,6 @@ const AppHeader = React.forwardRef((props, ref) => {
         <StyledToolbar
           // className={classes.toolbar}
         >
-          {/*<BurgerMenu>
-            <svg
-              width="24"
-              height="24"
-              className="BurgerIcon"
-              viewBox="0 0 24 24"
-              version="1.1"
-              aria-hidden="false">
-              <desc lang="en-US">navigation menu</desc>
-              <path d="M3 16h18v2H3v-2ZM3 6v2h18V6H3Zm0 7h18v-2H3v2Z"></path>
-            </svg>
-          </BurgerMenu>*/}
-
-          {/*<BurgerMenu>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="100%"
-              height="100%"
-              viewBox="0 0 24 24"
-              fit=""
-              preserveAspectRatio="xMidYMid meet"
-              focusable="false">
-              <path d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
-            </svg>
-          </BurgerMenu>*/}
-          {/*<BentoMenu>
-            <div class="bento-menu">
-              <div class="bento-dot"></div>
-              <div class="bento-dot"></div>
-              <div class="bento-dot"></div>
-              <div class="bento-dot"></div>
-              <div class="bento-dot"></div>
-              <div class="bento-dot"></div>
-              <div class="bento-dot"></div>
-              <div class="bento-dot"></div>
-              <div class="bento-dot"></div>
-            </div>
-          </BentoMenu>*/}
 
           {(!isMobile || !isMobileSearch) && (
             <Logo>
@@ -349,7 +365,7 @@ const AppHeader = React.forwardRef((props, ref) => {
             ]}
           />*/}
 
-          {/*{is_authorized()}*/}
+          {is_authorized_v2()}
 
 
           {/*<ThemeSelector />*/}
@@ -364,13 +380,17 @@ const AppHeader = React.forwardRef((props, ref) => {
             <UploadButton />
           </RouterLink>
 
+          {/*<AvatarHover avatarUrl={user.google_oauth.profileImg} />*/}
+
 
 
 
           {/*{is_oauthorized()}*/}
-          <DropDown
+          <DropDownNew
             options={['Profile', 'Switch Accounts', 'Liked', 'Settings']}
-            defaultText={<AvatarHover avatarUrl={getState().users.avatar} />}
+            // defaultText={<AvatarHover avatarUrl={getState().users.avatar} />}
+            // defaultText={<AvatarHover avatarUrl={user.avatar} />}
+            defaultText={<AvatarHover avatarUrl={user.google_oauth.profileImg} />}
             changeOptionName={changeState}
           />
 
@@ -416,6 +436,7 @@ const StyledDiv = styled.div`
 
 `;
 const StyledAppBar = styled.div`
+  user-select: none;
   width: 100%;
   /* background: #0a0a0a; */
   /* background: white; */
@@ -544,11 +565,12 @@ const MyButton = styled(RouterLink)`
   text-decoration: none;
 `;
 const LoginBtn = styled(ModalLink)`
+  user-select: none;
   display: flex;
   font-family: Verdana;
   color: white;
-  /* background: linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%); */
-  background: linear-gradient(45deg, #673ab7 30%, #3f51b5 90%);
+  background: #686cb9;
+  /* background: linear-gradient(45deg, #673ab7 30%, #3f51b5 90%); */
 
 
   /* box-shadow: 0 3px 5px 2px rgba(255, 105, 135, .3); */

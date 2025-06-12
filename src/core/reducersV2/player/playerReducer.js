@@ -1,5 +1,5 @@
 // import { Record } from 'immutable';
-import { PLAYER_INITIAL_VOLUME, SESSION_TRACKLIST_ID } from "core/constants/spotify";
+import { PLAYER_INITIAL_VOLUME, SESSION_TRACKLIST_ID } from 'core/constants/spotify';
 import { playerActions } from 'core/actions/player';
 
 

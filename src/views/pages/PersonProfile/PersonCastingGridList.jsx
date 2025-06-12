@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { selectors } from "core/reducers/index";
-import { fetchPersonCredits } from "core/actions";
-import BaseGridList from "views/components/BaseGridList";
-import PersonCastingGridListItem from "./PersonCastingGridListItem";
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectors } from 'core/reducers/index';
+import { fetchPersonCredits } from 'core/actions';
+import BaseGridList from 'views/components/BaseGridList';
+import PersonCastingGridListItem from './PersonCastingGridListItem';
 
 function renderItem(castingId) {
   return <PersonCastingGridListItem castCreditId={castingId} />;

@@ -1,9 +1,9 @@
-import React from "react";
-import LoadingIndicator from "views/components/LoadingIndicator";
-import styled from "styled-components";
+import React from 'react';
+import LoadingIndicator from 'views/components/LoadingIndicator';
+import styled from 'styled-components';
 
 
-import { StyledTypography } from "views/styledComponents";
+import { StyledTypography } from 'views/styledComponents';
 
 const DEFAULT_ITEMS = [];
 

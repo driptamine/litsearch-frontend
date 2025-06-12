@@ -1,23 +1,23 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
 
 import styled from 'styled-components';
 
 // MATERIAL DONE
-// import { Typography, makeStyles } from "@mui/material";
+// import { Typography, makeStyles } from '@mui/material';
 import { StyledTypography } from 'views/styledComponents';
 
-import Profile from "views/components/Profile";
-// import PlaylistIntroduction from "./PlaylistIntroduction";
-// import PlaylistImageGridList from "./PlaylistImageGridList";
-import PlaylistTrackList from "./PlaylistTrackList";
-// import PlaylistCastGridList from "./PlaylistCastGridList";
-// import SimilarPlaylists from "./SimilarPlaylists";
+import Profile from 'views/components/Profile';
+// import PlaylistIntroduction from './PlaylistIntroduction';
+// import PlaylistImageGridList from './PlaylistImageGridList';
+import PlaylistTrackList from './PlaylistTrackList';
+// import PlaylistCastGridList from './PlaylistCastGridList';
+// import SimilarPlaylists from './SimilarPlaylists';
 
-import { selectors } from "core/reducers/index";
-import { fetchPlaylist, fetchPlaylistTracks } from "core/actions";
-import { verifyCachedData } from "core/utils";
+import { selectors } from 'core/reducers/index';
+import { fetchPlaylist, fetchPlaylistTracks } from 'core/actions';
+import { verifyCachedData } from 'core/utils';
 
 const REQUIRED_FIELDS = ["tagline"];
 

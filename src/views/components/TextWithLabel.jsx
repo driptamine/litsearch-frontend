@@ -1,9 +1,9 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 
 // MATERIAL DONE
-// import { Box, Typography, makeStyles } from "@mui/material";
-import { StyledBox, StyledTypography,   } from "views/styledComponents";
+// import { Box, Typography, makeStyles } from '@mui/material';
+import { StyledBox, StyledTypography,   } from 'views/styledComponents';
 
 // const useStyles = makeStyles(theme => ({
 //   bold: {

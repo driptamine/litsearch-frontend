@@ -1,7 +1,7 @@
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-import SideMenu from "./component";
+import SideMenu from './component';
 
 import { fetchSongs, fetchRecentlyPlayed, updateViewType } from '../actions-pau1fitz/songActions';
 import { fetchAlbums } from '../actions-pau1fitz/albumActions';

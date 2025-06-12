@@ -1,9 +1,9 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 
 // MATERIAL UNDONE
-// import useScrollTrigger from "@mui/material/useScrollTrigger";
-// import Slide from "@mui/material/Slide";
+// import useScrollTrigger from '@mui/material/useScrollTrigger';
+// import Slide from '@mui/material/Slide';
 
 
 const StyledSlide = styled.div`

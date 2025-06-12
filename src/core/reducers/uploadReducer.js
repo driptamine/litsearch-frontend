@@ -1,4 +1,4 @@
-import { ADD_DATA, PROGRESS_BAR } from "../actions/types";
+import { ADD_DATA, PROGRESS_BAR } from '../actions/types';
 
 const initialState = {
   progress: {},

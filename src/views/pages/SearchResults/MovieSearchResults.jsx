@@ -1,9 +1,9 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchMovieSearch } from "core/actions";
-import { selectors } from "core/reducers/index";
-import InfiniteGridList from "views/components/InfiniteGridList";
-import MovieCard from "views/components/MovieCard";
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchMovieSearch } from 'core/actions';
+import { selectors } from 'core/reducers/index';
+import InfiniteGridList from 'views/components/InfiniteGridList';
+import MovieCard from 'views/components/MovieCard';
 
 function renderItem(movieId) {
   return (

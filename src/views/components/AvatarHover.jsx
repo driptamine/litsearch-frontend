@@ -1,10 +1,11 @@
-import React, {useState} from "react";
-import { useDispatch } from "react-redux";
-import styled from "styled-components";
+import React, { useState } from 'react';
+import { connect, useDispatch, useSelector } from 'react-redux';
+
+import styled from 'styled-components';
 
 // MATERIAL DONE
 // import { withStyles } from '@mui/material/styles';
-// import { IconButton, Avatar, Button, Menu, MenuItem, ListItem, ListItemIcon, ListItemText } from "@mui/material";
+// import { IconButton, Avatar, Button, Menu, MenuItem, ListItem, ListItemIcon, ListItemText } from '@mui/material';
 import {
   StyledIconButton,
   StyledAvatar,
@@ -16,7 +17,7 @@ import {
   StyledListItemText
 } from 'views/styledComponents';
 
-// import MenuIcon from "@mui/icons-material/Menu";
+// import MenuIcon from '@mui/icons-material/Menu';
 // import InboxIcon from '@mui/icons-material/MoveToInbox';
 // import DraftsIcon from '@mui/icons-material/Drafts';
 // import SendIcon from '@mui/icons-material/Send';
@@ -24,15 +25,15 @@ import {
 import { StyledMenuIcon, StyledInboxIcon, StyledDraftsIcon, StyledSendIcon, StyledFavoriteIcon } from 'views/styledComponents/icons';
 
 // VIEWS
-import RouterLink from "views/components/RouterLink";
-import DropdownV2 from "views/components/Dropdown/DropdownV2";
-import ModalLink from "views/components/ModalLink";
+import RouterLink from 'views/components/RouterLink';
+import DropdownV2 from 'views/components/Dropdown/DropdownV2';
+import ModalLink from 'views/components/ModalLink';
 
 // CORE
-import { toggleDrawer } from "core/actions";
-import ListItemWithAvatarFromSpotify from "views/components/ListItemWithAvatarFromSpotify";
-import { getState } from "core/store";
-import { fetchLogout } from "core/actions";
+import { toggleDrawer } from 'core/actions';
+import ListItemWithAvatarFromSpotify from 'views/components/ListItemWithAvatarFromSpotify';
+import { getState } from 'core/store';
+import { fetchLogout } from 'core/actions';
 
 // const StyledMenuOld = withStyles({
 //   paper: {
@@ -89,8 +90,7 @@ const LoginBtn = styled(ModalLink)`
   display: flex;
   font-family: Verdana;
   color: white;
-  /* background: linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%); */
-  background: linear-gradient(45deg, #673ab7 30%, #3f51b5 90%);
+  background: #686cb9;
 
 
   /* box-shadow: 0 3px 5px 2px rgba(255, 105, 135, .3); */
@@ -104,6 +104,7 @@ const LoginBtn = styled(ModalLink)`
 
 function AvatarHover({avatarUrl}) {
   const [anchorEl, setAnchorEl] = useState(null);
+  const user = useSelector((state) => state.users);
   const dispatch = useDispatch();
 
 
@@ -111,6 +112,8 @@ function AvatarHover({avatarUrl}) {
   const oauthed = getState().users.google_oauth.profileImg;
   const oauthed_img = getState().users.profileImg;
 
+  // const oauthedProfileImg = getState().users.google_oauth?.profileImg;
+  const oauthedProfileImg = user.google_oauth?.profileImg;
 
   function handleClick() {
     dispatch(toggleDrawer());
@@ -145,6 +148,28 @@ function AvatarHover({avatarUrl}) {
       )
     }
   }
+
+  const renderAvatarOrLogin = () => {
+    if (oauthedProfileImg) { // Prioritize Google OAuth avatar
+      return <StyledImg src={oauthedProfileImg} alt="Google OAuth Avatar"/>;
+    } else if (avatarUrl) { // Fallback to avatarUrl prop (likely from Django backend)
+      // Assuming avatarUrl from Django might need base URL prepended
+      return <StyledAvatar src={`http://localhost:8000${avatarUrl}`} variant={"circular"} alt="Django Avatar" />;
+    } else if (authUser) { // If authed via Django but no avatarUrl prop, show default if needed or just login
+      return <StyledAvatar src={null} variant={"circular"} alt="Default Avatar" />; // Or a placeholder image
+    } else {
+      return (
+        <LoginWrapper>
+          <LoginBtn
+            variant="contained"
+            to="/login"
+            >Log In
+          </LoginBtn>
+        </LoginWrapper>
+      );
+    }
+  };
+
   return (
     <StyledFlex className="AvatarHoverz">
       {/*<Button onClick={handleClick}>
@@ -178,7 +203,12 @@ function AvatarHover({avatarUrl}) {
 
 
       {/*<StyledImg src={oauthed || null} />*/}
-      {is_oauth()}
+
+
+      {/*{is_oauth()}*/}
+      {renderAvatarOrLogin()}
+
+
       {/*<DropdownV2 />*/}
 
       {/*<StyledIconButton onClick={handleLogOut}>Logout</StyledIconButton>*/}

@@ -1,8 +1,8 @@
-import React from "react";
-import BaseImage from "./BaseImage";
-import RouterLink from "./RouterLink";
-import { useLocation } from "react-router-dom";
-import { useConfiguration } from "./ConfigurationProvider";
+import React from 'react';
+import BaseImage from './BaseImage';
+import RouterLink from './RouterLink';
+import { useLocation } from 'react-router-dom';
+import { useConfiguration } from './ConfigurationProvider';
 
 function ImageGridListItem({ filePath, aspectRatio }) {
   const location = useLocation();

@@ -1,8 +1,8 @@
-import React, { useState, useRef } from "react";
-import styled from "styled-components";
-import axios from "axios";
+import React, { useState, useRef } from 'react';
+import styled from 'styled-components';
+import axios from 'axios';
 
-import PostCreator from "views/components/upload/PostCreator";
+import PostCreator from 'views/components/upload/PostCreator';
 
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB

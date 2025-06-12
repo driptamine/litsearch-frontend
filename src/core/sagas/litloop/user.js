@@ -1,15 +1,15 @@
-import { put, delay, fork, all, call, select, take, takeEvery, takeLatest, cancelled } from "redux-saga/effects";
-import { getFetchTypes, verifyCachedData, createUrl, createAPIUrl, createAuthUrl } from "core/utils";
-import { setAccessToken } from "core/actions";
-import * as schemas from "core/schemas";
-import * as actions from "core/actions";
-import * as service from "core/services/UserService";
-import { normalize } from "normalizr";
-import { selectors } from "core/reducers/index";
-import history  from "core/services/history"
+import { put, delay, fork, all, call, select, take, takeEvery, takeLatest, cancelled } from 'redux-saga/effects';
+import { getFetchTypes, verifyCachedData, createUrl, createAPIUrl, createAuthUrl } from 'core/utils';
+import { setAccessToken } from 'core/actions';
+import * as schemas from 'core/schemas';
+import * as actions from 'core/actions';
+import * as service from 'core/services/UserService';
+import { normalize } from 'normalizr';
+import { selectors } from 'core/reducers/index';
+import history  from 'core/services/history'
 import { GET_ACCESS_TOKEN, LOGOUT, GE_USER_PROFILE, SET_ACCESS_TOKEN } from 'core/constants/action-types';
-import { fetcherAuthSaga, fetcherAPIwithHeaderSaga } from "core/sagas/index"
-import { fetcherPostAuthSaga, fetcherGetSaga } from "core/sagas/utils"
+import { fetcherAuthSaga, fetcherAPIwithHeaderSaga } from 'core/sagas/index'
+import { fetcherPostAuthSaga, fetcherGetSaga } from 'core/sagas/utils'
 
 
 

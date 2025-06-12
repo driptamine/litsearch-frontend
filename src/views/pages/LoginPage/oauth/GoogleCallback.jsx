@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { parse } from './utils';
-import { setAccessToken } from "core/actions";
+import { setAccessToken } from 'core/actions';
 
 const queryToObject = (query) => {
 	const parameters = new URLSearchParams(query);

@@ -12,7 +12,8 @@ import {
 } from 'react-icons/fa';
 import { BsArrowRepeat } from 'react-icons/bs';
 import styled from 'styled-components';
-import HLS from 'hls.js';
+// import HLS from 'hls.js';
+import HLS from 'hls.js/dist/hls.light.min.js';
 
 import './video-player.css';
 import Slider from './slider/Slider';

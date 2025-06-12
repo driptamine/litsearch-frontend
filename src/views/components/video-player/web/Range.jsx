@@ -1,6 +1,6 @@
 // REFERENCE https://codesandbox.io/s/suspicious-tereshkova-ujk45?file=/src/App.js https://stackoverflow.com/questions/63584569/input-type-range-styling-and-displaying-value-problem
 
-import React, { useEffect } from "react";
+import React, { useEffect } from 'react';
 
 function Range(props) {
   useEffect(() => {

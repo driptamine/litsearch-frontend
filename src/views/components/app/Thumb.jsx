@@ -1,7 +1,7 @@
 // REFERENCE https://codesandbox.io/s/input-range-custom-styled-components-x149y?file=/src/index.js
-import React from "react";
-import ReactDOM from "react-dom";
-import styled from "styled-components";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import styled from 'styled-components';
 // import "./styles.css";
 
 // excess height to improve interactive area / accessibility

@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
 export const StyledListItemText = styled.span`
   color: ${props => props.theme.text};

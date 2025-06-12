@@ -1,12 +1,12 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 
 // MATERIAL DONE
-// import { ListItem, ListItemText } from "@mui/material";
+// import { ListItem, ListItemText } from '@mui/material';
 import { StyledListItem, StyledListItemText } from 'views/styledComponents';
-import RouterLink from "views/components/RouterLink";
-import { selectors } from "core/reducers/index";
+import RouterLink from 'views/components/RouterLink';
+import { selectors } from 'core/reducers/index';
 
 function AlbumVideoListItem({ videoId }) {
   const { pathname } = useLocation();

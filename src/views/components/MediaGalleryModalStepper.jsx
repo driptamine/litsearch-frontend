@@ -1,13 +1,13 @@
-import React from "react";
-import styled, { css } from "styled-components";
+import React from 'react';
+import styled, { css } from 'styled-components';
 // MATERIAL UNDONE
-// import { Box, makeStyles } from "@mui/material";
-// import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-// import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+// import { Box, makeStyles } from '@mui/material';
+// import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+// import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 
-import { StyledBox } from "views/styledComponents";
-import { StyledChevronLeftIcon, StyledChevronRightIcon } from "views/styledComponents/icons";
+import { StyledBox } from 'views/styledComponents';
+import { StyledChevronLeftIcon, StyledChevronRightIcon } from 'views/styledComponents/icons';
 
 
 const SIZE = 60;

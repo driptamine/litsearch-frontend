@@ -1,9 +1,9 @@
-import { call, cancelled } from "redux-saga/effects";
-import axios from "axios";
-import { normalize } from "normalizr";
-import { createUrl, createAPIUrl, createAuthUrl, createAPIUrlPost } from "core/utils";
-import { getHeaders, getState } from "core/store";
-import { postAxiosReq, getAxiosReq } from "core/api/rest-helper";
+import { call, cancelled } from 'redux-saga/effects';
+import axios from 'axios';
+import { normalize } from 'normalizr';
+import { createUrl, createAPIUrl, createAuthUrl, createAPIUrlPost } from 'core/utils';
+import { getHeaders, getState } from 'core/store';
+import { postAxiosReq, getAxiosReq } from 'core/api/rest-helper';
 
 const CancelToken = axios.CancelToken;
 

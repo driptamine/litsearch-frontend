@@ -3,20 +3,20 @@ import React, {
   useCallback,
   useEffect,
   useState
-} from "../../lib/teact/teact"
-import { withGlobal } from "../../lib/teact/teactn"
+} from '../../lib/teact/teact'
+import { withGlobal } from '../../lib/teact/teactn'
 
-import { LeftColumnContent, SettingsScreens } from "../../types"
+import { LeftColumnContent, SettingsScreens } from '../../types'
 
-import { IS_MOBILE_SCREEN } from "../../util/environment"
-import captureEscKeyListener from "../../util/captureEscKeyListener"
-import { pick } from "../../util/iteratees"
+import { IS_MOBILE_SCREEN } from '../../util/environment'
+import captureEscKeyListener from '../../util/captureEscKeyListener'
+import { pick } from '../../util/iteratees'
 
-import Transition from "../ui/Transition"
-import LeftMain from "./main/LeftMain"
-import Settings from "./settings/Settings.async"
-import NewChat from "./newChat/NewChat.async"
-import ArchivedChats from "./ArchivedChats.async"
+import Transition from '../ui/Transition'
+import LeftMain from './main/LeftMain'
+import Settings from './settings/Settings.async'
+import NewChat from './newChat/NewChat.async'
+import ArchivedChats from './ArchivedChats.async'
 
 import "./LeftColumn.scss"
 

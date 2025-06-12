@@ -1,7 +1,7 @@
 import APIError from './api-error';
 import { getState } from 'core/store';
-import { UN_AVAILABLE, UNHANDLED } from "core/constants/api-error-codes";
-import axios from "axios";
+import { UN_AVAILABLE, UNHANDLED } from 'core/constants/api-error-codes';
+import axios from 'axios';
 
 // check status used in fetch promise
 function checkStatus(json, res){

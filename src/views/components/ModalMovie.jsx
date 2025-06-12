@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import BaseImage from "views/components/BaseImage";
+import BaseImage from 'views/components/BaseImage';
 import ModalMovieList from 'views/components/ModalMovieList';
 
 import { getDirectorByMovieId, getMovieById } from 'core/data';

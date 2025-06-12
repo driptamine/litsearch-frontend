@@ -1,22 +1,22 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import { Router } from "react-router-dom";
-import { Provider } from "react-redux";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Router } from 'react-router-dom';
+import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { ThemeProvider } from 'styled-components';
 
 // VIEWS
-import App from "views/components/app";
+import App from 'views/components/app';
 import GlobalStyle from 'views/style/global';
-import ConfigurationProvider from "views/components/ConfigurationProvider";
-import theme from "views/theme";
+import ConfigurationProvider from 'views/components/ConfigurationProvider';
+import theme from 'views/theme';
 import 'views/style/global';
-import * as serviceWorker from "./serviceWorker";
+import * as serviceWorker from './serviceWorker';
 
 // CORE
 import { store, persistor, sagaMiddleware } from 'core/store';
-import rootSaga from "core/sagas/SagaIndex";
-import history  from "core/services/history";
+import rootSaga from 'core/sagas/SagaIndex';
+import history  from 'core/services/history';
 
 
 // store.runSaga(rootSaga);

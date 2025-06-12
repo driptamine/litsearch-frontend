@@ -1,6 +1,6 @@
-import React from "react";
-import InfiniteScrollWrapper from "views/components/InfiniteScrollWrapper";
-import BaseAlterList from "./BaseAlterList";
+import React from 'react';
+import InfiniteScrollWrapper from 'views/components/InfiniteScrollWrapper';
+import BaseAlterList from './BaseAlterList';
 
 function InfiniteList({
   items,

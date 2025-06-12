@@ -1,9 +1,9 @@
-import { useState } from "react";
-import data from "./data.json";
-import styled from "styled-components";
-import { FaArrowDown } from "@react-icons/all-files/fa/FaArrowDown";
+import { useState } from 'react';
+import data from './data.json';
+import styled from 'styled-components';
+import { FaArrowDown } from '@react-icons/all-files/fa/FaArrowDown';
 
-import { AutoCompleteContainer, AutoCompleteIcon, Input, AutoCompleteItem, AutoCompleteItemButton } from "./styles";
+import { AutoCompleteContainer, AutoCompleteIcon, Input, AutoCompleteItem, AutoCompleteItemButton } from './styles';
 
 const Root = styled.div`
   position: relative;

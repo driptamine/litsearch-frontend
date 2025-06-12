@@ -1,5 +1,5 @@
-// import { useTheme } from "@mui/material/styles";
-// import useMediaQuery from "@mui/material/useMediaQuery";
+// import { useTheme } from '@mui/material/styles';
+// import useMediaQuery from '@mui/material/useMediaQuery';
 
 function useDetectMobile() {
   // const theme = useTheme();

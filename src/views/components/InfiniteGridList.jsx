@@ -1,6 +1,6 @@
-import React from "react";
-import InfiniteScrollWrapper from "views/components/InfiniteScrollWrapper";
-import BaseGridList from "./BaseGridList";
+import React from 'react';
+import InfiniteScrollWrapper from 'views/components/InfiniteScrollWrapper';
+import BaseGridList from './BaseGridList';
 
 function InfiniteGridList({
   items,

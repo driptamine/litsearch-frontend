@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { selectors } from "core/reducers/index";
-import AutoSearch from "views/components/AutoSearch";
-import { fetchSearch } from "core/actions";
-import PersonListItem from "./PersonListItem";
-import MovieListItem from "./MovieListItem";
-import TrackListItem from "./TrackListItem";
-import ArtistListItem from "./ArtistListItem";
-import AlbumListItem from "./AlbumListItem";
-import useHistoryPush from "core/hooks/useHistoryPush";
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectors } from 'core/reducers/index';
+import AutoSearch from 'views/components/AutoSearch';
+import { fetchSearch } from 'core/actions';
+import PersonListItem from './PersonListItem';
+import MovieListItem from './MovieListItem';
+import TrackListItem from './TrackListItem';
+import ArtistListItem from './ArtistListItem';
+import AlbumListItem from './AlbumListItem';
+import useHistoryPush from 'core/hooks/useHistoryPush';
 
 function MovieAndPersonAutoSearch({ className, autoFocus }) {
   const dispatch = useDispatch();

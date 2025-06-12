@@ -1,9 +1,9 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchPopularTracks } from "core/actions";
-import { selectors } from "core/reducers/index";
-import TrackCard from "views/components/TrackCard";
-import InfiniteGridList from "views/components/InfiniteGridList";
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchPopularTracks } from 'core/actions';
+import { selectors } from 'core/reducers/index';
+import TrackCard from 'views/components/TrackCard';
+import InfiniteGridList from 'views/components/InfiniteGridList';
 
 function renderItem(trackId) {
   return (

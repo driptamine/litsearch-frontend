@@ -1,22 +1,22 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useLocation } from "react-router-dom";
-import { FullScreen } from "react-full-screen";
-import { HotKeys } from "react-hotkeys";
+import React, { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
+import { FullScreen } from 'react-full-screen';
+import { HotKeys } from 'react-hotkeys';
 
 
 // MATERIAL UNDONE
-import { IconButton, Box, makeStyles } from "@mui/material";
-import FullscreenIcon from "@mui/icons-material/Fullscreen";
-import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
+import { IconButton, Box, makeStyles } from '@mui/material';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 
-import BaseDialog from "views/components/BaseDialog";
-import YouTubePlayer from "./YouTubePlayer";
-import MediaGalleryModalStepper from "./MediaGalleryModalStepper";
-import MediaGalleryModalImageViewer from "./MediaGalleryModalImageViewer";
+import BaseDialog from 'views/components/BaseDialog';
+import YouTubePlayer from './YouTubePlayer';
+import MediaGalleryModalStepper from './MediaGalleryModalStepper';
+import MediaGalleryModalImageViewer from './MediaGalleryModalImageViewer';
 
 // CORE
-import useHistoryPush from "core/hooks/useHistoryPush";
-import useQueryString from "core/hooks/useQueryString";
+import useHistoryPush from 'core/hooks/useHistoryPush';
+import useQueryString from 'core/hooks/useQueryString';
 
 const keyMap = {
   NEXT: ["right", "d"],

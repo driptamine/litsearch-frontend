@@ -21,6 +21,7 @@ export const lightTheme = {
     autoCompleteBackgroundColor: 'white',
     // titleColor: '#3f51b5',
     titleColor: '#686cb9',
+    urlColor: '#3d7e8f',
     imageTitleColor: '#474747',
     imageCardColor: "#f4f4f4",
 
@@ -56,6 +57,7 @@ export const darkTheme = {
     searchBarFocus: 'white',
     autoCompleteBackgroundColor: "#292929",
     titleColor: '#99c3ff',
+    urlColor: '#9c9c9c',
     imageTitleColor: 'white',
     imageCardColor: "#222222",
 

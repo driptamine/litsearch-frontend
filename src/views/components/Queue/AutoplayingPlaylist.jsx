@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from 'react';
 
 const AutoplayingPlaylist = () => {
   // State for playlist, current song index, and whether a song is playing

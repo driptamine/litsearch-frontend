@@ -1,25 +1,25 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useLocation } from "react-router-dom";
-import { HotKeys } from "react-hotkeys";
-import { FullScreen } from "react-full-screen";
-import styled from "styled-components";
+import React, { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
+import { HotKeys } from 'react-hotkeys';
+import { FullScreen } from 'react-full-screen';
+import styled from 'styled-components';
 
 
 // MATERIAL UNDONE
-// import { IconButton, Box, makeStyles } from "@mui/material";
-// import FullscreenIcon from "@mui/icons-material/Fullscreen";
-// import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
+// import { IconButton, Box, makeStyles } from '@mui/material';
+// import FullscreenIcon from '@mui/icons-material/Fullscreen';
+// import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 
 import { StyledIconButton, StyledBox } from 'views/styledComponents';
 import { StyledFullscreenIcon, StyledFullscreenExitIcon} from 'views/styledComponents/icons';
 
-import BaseDialog from "views/components/BaseDialog";
-import YouTubePlayer from "./YouTubePlayer";
-import MediaGalleryModalStepper from "./MediaGalleryModalStepper";
-import MediaGalleryModalImageViewer from "./MediaGalleryModalImageViewer";
+import BaseDialog from 'views/components/BaseDialog';
+import YouTubePlayer from './YouTubePlayer';
+import MediaGalleryModalStepper from './MediaGalleryModalStepper';
+import MediaGalleryModalImageViewer from './MediaGalleryModalImageViewer';
 
-import useHistoryPush from "core/hooks/useHistoryPush";
-import useQueryString from "core/hooks/useQueryString";
+import useHistoryPush from 'core/hooks/useHistoryPush';
+import useQueryString from 'core/hooks/useQueryString';
 
 
 const keyMap = {

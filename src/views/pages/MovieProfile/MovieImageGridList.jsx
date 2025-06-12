@@ -1,10 +1,10 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchMovieImages } from "core/actions";
-import { selectors } from "core/reducers/index";
-import ImageGridList from "views/components/ImageGridList";
-import ImageGalleryModal from "views/components/ImageGalleryModal";
-import { getAspectRatioString } from "views/components/AspectRatio";
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchMovieImages } from 'core/actions';
+import { selectors } from 'core/reducers/index';
+import ImageGridList from 'views/components/ImageGridList';
+import ImageGalleryModal from 'views/components/ImageGalleryModal';
+import { getAspectRatioString } from 'views/components/AspectRatio';
 
 function MovieImageGridList({ movieId }) {
   const dispatch = useDispatch();

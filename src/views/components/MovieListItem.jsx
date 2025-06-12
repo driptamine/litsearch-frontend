@@ -1,8 +1,8 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import { selectors } from "core/reducers/index";
-import ListItemWithAvatar from "views/components/ListItemWithAvatar";
-import { getMovieReleaseYear } from "core/utils";
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { selectors } from 'core/reducers/index';
+import ListItemWithAvatar from 'views/components/ListItemWithAvatar';
+import { getMovieReleaseYear } from 'core/utils';
 
 function MovieListItem({ movieId }) {
   const movie = useSelector(state => selectors.selectMovie(state, movieId));

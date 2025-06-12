@@ -1,5 +1,5 @@
-import React , { useState, useEffect }from "react";
-import { connect, useSelector } from "react-redux";
+import React , { useState, useEffect }from 'react';
+import { connect, useSelector } from 'react-redux';
 import { Link, withRouter} from 'react-router-dom';
 
 import styled from 'styled-components';
@@ -7,30 +7,30 @@ import styled from 'styled-components';
 
 
 // MATERIAL DONE
-// import { Typography, Box, Grid, makeStyles } from "@mui/material";
+// import { Typography, Box, Grid, makeStyles } from '@mui/material';
 import { StyledTypography, StyledBox, StyledGrid } from 'views/styledComponents';
 // import * as SC from 'views/styledComponents';
 
-// import Rating from "./Rating";
-// import { getTrackReleaseYear, getImdbProfileUrl } from "core/utils";
-import Introduktion from "views/components/Introduktion";
-import ImdbLogo from "views/components/ImdbLogo";
-import TrackGenreChip from "./TrackGenreChip";
+// import Rating from './Rating';
+// import { getTrackReleaseYear, getImdbProfileUrl } from 'core/utils';
+import Introduktion from 'views/components/Introduktion';
+import ImdbLogo from 'views/components/ImdbLogo';
+import TrackGenreChip from './TrackGenreChip';
 
-import BaseImage from "views/components/BaseImage";
-import { getAspectRatioString } from "views/components/AspectRatio";
-import { useConfiguration } from "views/components/ConfigurationProvider";
+import BaseImage from 'views/components/BaseImage';
+import { getAspectRatioString } from 'views/components/AspectRatio';
+import { useConfiguration } from 'views/components/ConfigurationProvider';
 
 
 import Button from 'views/components/Button';
 import LikeIcon from 'views/components/LikeIcon';
-import {screenLargerThan} from "views/style/util";
+import {screenLargerThan} from 'views/style/util';
 import { primaryColor1, white, likeColor, greenColor,} from 'views/style/colors';
 // import { likePhoto, unLikePhoto } from '../../actions/photo';
 
-import { fetchLikeTrack, fetchUnLikeTrack } from "core/actions";
-import { selectors } from "core/reducers/index";
-import useDocumentTitle from "core/hooks2/useDocumentTitle"
+import { fetchLikeTrack, fetchUnLikeTrack } from 'core/actions';
+import { selectors } from 'core/reducers/index';
+import useDocumentTitle from 'core/hooks2/useDocumentTitle'
 
 
 

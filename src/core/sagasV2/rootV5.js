@@ -1,5 +1,5 @@
-import { fork, all } from "redux-saga/effects";
-// import * as watchers from "core/watchers/watch";
+import { fork, all } from 'redux-saga/effects';
+// import * as watchers from 'core/watchers/watch';
 import { watchFetchAlbum, watchFetchPopularAlbums, watchFetchLikeAlbum, watchFetchUnLikeAlbum } from 'core/sagasV2/album/album';
 import { watchFetchArtist, watchFetchArtistAlbums, watchFetchArtistImages } from 'core/sagasV2/artist/artist';
 import { watchFetchMovie, watchFetchPopularMovies, watchFetchMovieExternalIds, watchFetchRecommendations, watchFetchMovieImages, watchFetchMovieCredits, watchFetchMovieVideos} from 'core/sagasV2/movie/movie';

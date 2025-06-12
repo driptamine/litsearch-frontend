@@ -10,7 +10,7 @@ import {
   white,
   borderInAvtiveColor,
   borderAvtiveColor,
-} from "views/style/colors";
+} from 'views/style/colors';
 
 const Btn = styled.button`
   display: inline-block;

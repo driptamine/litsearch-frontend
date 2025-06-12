@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
-import { connect } from "react-redux";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useRef, useState } from 'react';
+import { connect } from 'react-redux';
+import { useParams } from 'react-router-dom';
 
-import { findTotalDurationMillis, millisToEnglishWords } from "../../utils";
-import { getAlbumInformation } from "../../api"
-import { SongItem } from "./SongItem/SongItem";
-import FastAverageColor from "fast-average-color";
-import style from "./AlbumDetail.module.css";
-import Time from "../../assets/AlbumDetail/Time";
+import { findTotalDurationMillis, millisToEnglishWords } from '../../utils';
+import { getAlbumInformation } from '../../api'
+import { SongItem } from './SongItem/SongItem';
+import FastAverageColor from 'fast-average-color';
+import style from './AlbumDetail.module.css';
+import Time from '../../assets/AlbumDetail/Time';
 
 const AlbumDetail = ({ loadSong, currentSong }) => {
   const { id } = useParams();

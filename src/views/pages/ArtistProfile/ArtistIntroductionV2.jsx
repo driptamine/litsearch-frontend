@@ -1,20 +1,20 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import styled from "styled-components";
+import React from 'react';
+import { useSelector } from 'react-redux';
+import styled from 'styled-components';
 
 // MATERIAL DONE
-// import { Typography, Box, Grid, Link, makeStyles } from "@mui/material";
+// import { Typography, Box, Grid, Link, makeStyles } from '@mui/material';
 import { StyledTypography, StyledBox, StyledGrid, StyledLink } from 'views/styledComponents';
 
-import BaseImage from "views/components/BaseImage";
-import Introduktion from "views/components/Introduktion";
-import ImdbLogo from "views/components/ImdbLogo";
+import BaseImage from 'views/components/BaseImage';
+import Introduktion from 'views/components/Introduktion';
+import ImdbLogo from 'views/components/ImdbLogo';
 
-import { getAspectRatioString } from "views/components/AspectRatio";
-import { useConfiguration } from "views/components/ConfigurationProvider";
+import { getAspectRatioString } from 'views/components/AspectRatio';
+import { useConfiguration } from 'views/components/ConfigurationProvider';
 
-import { selectors } from "core/reducers/index";
-import { getImdbProfileUrl } from "core/utils";
+import { selectors } from 'core/reducers/index';
+import { getImdbProfileUrl } from 'core/utils';
 
 
 // const useStyles = makeStyles(theme => ({

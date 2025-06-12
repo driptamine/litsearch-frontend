@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FullScreenIcon } from "views/components/Sidebar/Icons";
+import { FullScreenIcon } from 'views/components/Sidebar/Icons';
 
 const Comment = ({ comment, depth = 0 }) => {
   const [showReplies, setShowReplies] = useState(true);

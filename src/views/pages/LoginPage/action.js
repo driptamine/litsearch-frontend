@@ -1,5 +1,5 @@
-import openSignInWindow from "views/pages/LoginPage/oauth_popup"
-import queryString from "query-string";
+import openSignInWindow from 'views/pages/LoginPage/oauth_popup'
+import queryString from 'query-string';
 
 const REACT_APP_SERVER_URL = "https://localhost:8000"
 

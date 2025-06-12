@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { debounce } from 'lodash';
+import debounce from 'lodash/debounce';
 
 import styles from './Autocomplete.module.css'
-import useHistoryPush from "core/hooks/useHistoryPush";
-import useDebounce from "views/pages/MainSearch/StartPage/useDebounce";
+import useHistoryPush from 'core/hooks/useHistoryPush';
+import useDebounce from 'core/hooks/useHistoryPush';
 
 const Autocomplete = ({ suggestions, recommendations, output, renderInput, clearIcon, onInputValueChange }) => {
   const dispatch = useDispatch();

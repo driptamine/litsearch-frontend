@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import VideoProgress from "views/components/upload/progressGPT";
+import VideoProgress from 'views/components/upload/progressGPT';
 
 const UploadGPTaxios = () => {
   const [file, setFile] = useState(null);

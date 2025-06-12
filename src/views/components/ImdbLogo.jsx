@@ -1,9 +1,9 @@
-import React from "react";
-import styled from "styled-components";
-import litloopLogo from "views/assets/litloopLogo3.png";
-import imdbLogoPng from "views/assets/imdb_logo.png";
-// import imdbLogo from "views/assets/imdbLogo.svg";
-// import { makeStyles } from "@mui/material";
+import React from 'react';
+import styled from 'styled-components';
+import litloopLogo from 'views/assets/litloopLogo3.png';
+import imdbLogoPng from 'views/assets/imdb_logo.png';
+// import imdbLogo from 'views/assets/imdbLogo.svg';
+// import { makeStyles } from '@mui/material';
 
 // const useStyles = makeStyles(theme => ({
 //   logo: {

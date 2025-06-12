@@ -1,13 +1,13 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import styled, { css } from "styled-components";
-import { Link } from "react-router-dom";
-// import Subscriptions from "./Subscriptions";
-import { HomeIcon, TrendingIcon, SubIcon, LibIcon, HistoryIcon, VidIcon, LikeIcon, EarthIcon } from "./Icons";
-import { closeSidebar } from "core/reducers/sidebar";
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import styled, { css } from 'styled-components';
+import { Link } from 'react-router-dom';
+// import Subscriptions from './Subscriptions';
+import { HomeIcon, TrendingIcon, SubIcon, LibIcon, HistoryIcon, VidIcon, LikeIcon, EarthIcon } from './Icons';
+import { closeSidebar } from 'core/reducers/sidebar';
 import { FiClock, FiBookmark, FiMessageCircle } from 'react-icons/fi';
-import { FaFilm } from "react-icons/fa";
-import { FaMusic } from "react-icons/fa";
+import { FaFilm } from 'react-icons/fa';
+import { FaMusic, FaImage } from 'react-icons/fa';
 
 import { TbMessageCircle2 } from 'react-icons/tb';
 import { FaHistory, FaWpexplorer } from 'react-icons/fa';
@@ -36,7 +36,7 @@ const Sidebar = () => {
             <span>Feed</span>
           </LinkStyled>
         </StyledLi>
-        <StyledLi id="Trending">
+        {/*<StyledLi id="Trending">
           <LinkStyled onClick={handleCloseSidebar} to="/feed/trending">
             <StyledDivIcon className="icon">
               <SCTrendingIcon />
@@ -44,7 +44,7 @@ const Sidebar = () => {
             </StyledDivIcon>
             <span>Trending</span>
           </LinkStyled>
-        </StyledLi>
+        </StyledLi>*/}
 
         <StyledLi id="Explore">
           <LinkStyled
@@ -146,7 +146,7 @@ const Sidebar = () => {
           </LinkStyled>
         </StyledLi>
 
-        <StyledLi id="Bookmarks">
+        <StyledLi id="Music">
           <LinkStyled
             onClick={handleCloseSidebar}
             to="/musicv2"
@@ -159,6 +159,21 @@ const Sidebar = () => {
 
             </StyledDivIcon>
             <span className="mymusic">Music</span>
+          </LinkStyled>
+        </StyledLi>
+        <StyledLi id="Photos">
+          <LinkStyled
+            onClick={handleCloseSidebar}
+            to="/photos"
+            // activeClassName="active"
+          >
+            <StyledDivIcon className="icon">
+              {/*<FiBookmark />*/}
+              {/*<FaHistory />*/}
+              <FaImage />
+
+            </StyledDivIcon>
+            <span className="mymusic">Photos</span>
           </LinkStyled>
         </StyledLi>
 

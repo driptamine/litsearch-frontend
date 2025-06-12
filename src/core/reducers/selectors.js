@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { TRACKS_PER_PAGE } from "core/constants/spotify";
+import { TRACKS_PER_PAGE } from 'core/constants/spotify';
 
 export function getTracklists(state) {
   return state.tracklists;

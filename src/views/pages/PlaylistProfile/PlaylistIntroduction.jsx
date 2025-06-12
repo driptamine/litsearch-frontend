@@ -1,6 +1,6 @@
-import React, { useEffect, } from "react";
-import { useSelector, connect } from "react-redux";
-import { Link, withRouter } from "react-router-dom";
+import React, { useEffect, } from 'react';
+import { useSelector, connect } from 'react-redux';
+import { Link, withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 
 
@@ -9,29 +9,29 @@ import { StyledTypography, StyledBox, StyledGrid } from 'views/styledComponents'
 
 
 // VIEWS
-import BaseImage from "views/components/BaseImage";
-import Introduktion from "views/components/Introduktion";
-import ImdbLogo from "views/components/ImdbLogo";
+import BaseImage from 'views/components/BaseImage';
+import Introduktion from 'views/components/Introduktion';
+import ImdbLogo from 'views/components/ImdbLogo';
 import Button from 'views/components/Button';
 import LikeIcon from 'views/components/LikeIcon';
-// import PlaylistGenreChip from "./PlaylistGenreChip";
-// import Rating from "./Rating";
-import SongRow from "./SongRow";
+// import PlaylistGenreChip from './PlaylistGenreChip';
+// import Rating from './Rating';
+import SongRow from './SongRow';
 
-import { useConfiguration } from "views/components/ConfigurationProvider";
-import { getAspectRatioString } from "views/components/AspectRatio";
+import { useConfiguration } from 'views/components/ConfigurationProvider';
+import { getAspectRatioString } from 'views/components/AspectRatio';
 import { primaryColor1, white, likeColor, greenColor, } from 'views/style/colors';
-import { screenLargerThan } from "views/style/util"
+import { screenLargerThan } from 'views/style/util'
 
-import useDocumentTitle from "views/components/useDocumentTitle"
+import useDocumentTitle from 'views/components/useDocumentTitle'
 
 
 
 // CORE
-import { selectors } from "core/reducers/index";
-// import { getPlaylistReleaseYear, getImdbProfileUrl } from "core/utils";
+import { selectors } from 'core/reducers/index';
+// import { getPlaylistReleaseYear, getImdbProfileUrl } from 'core/utils';
 // import { likePhoto, unLikePhoto } from '../../actions/photo';
-import { fetchLikePlaylist, fetchUnLikePlaylist } from "core/actions";
+import { fetchLikePlaylist, fetchUnLikePlaylist } from 'core/actions';
 
 
 

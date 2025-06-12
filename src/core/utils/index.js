@@ -1,5 +1,5 @@
-import { BASE_API_URL, TRACK_API_URL, TRACK_API_URL_SPOTIFY, BING_API_URL } from "core/constants/urls";
-import queryString from "query-string";
+import { BASE_API_URL, TRACK_API_URL, TRACK_API_URL_SPOTIFY, BING_API_URL } from 'core/constants/urls';
+import queryString from 'query-string';
 
 export { localStorageAdapter } from './local-storage';
 export { createShallowEqualSelector } from './selectors';

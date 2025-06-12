@@ -1,16 +1,16 @@
-import React from "react";
-import BaseImage from "views/components/BaseImage";
-import BaseCard from "views/components/BaseCard";
-import { useSelector } from "react-redux";
+import React from 'react';
+import BaseImage from 'views/components/BaseImage';
+import BaseCard from 'views/components/BaseCard';
+import { useSelector } from 'react-redux';
 
-import RouterLink from "views/components/RouterLink";
-import ModalLink from "views/components/ModalLink";
-import { makeStyles } from "@mui/material/styles";
-import { selectors } from "core/reducers/index";
-import BaseCardHeader from "views/components/BaseCardHeader";
-import MovieRatingTag from "./MovieRatingTag";
-import { getAspectRatioString } from "./AspectRatio";
-import { useConfiguration } from "./ConfigurationProvider";
+import RouterLink from 'views/components/RouterLink';
+import ModalLink from 'views/components/ModalLink';
+import { makeStyles } from '@mui/material/styles';
+import { selectors } from 'core/reducers/index';
+import BaseCardHeader from 'views/components/BaseCardHeader';
+import MovieRatingTag from './MovieRatingTag';
+import { getAspectRatioString } from './AspectRatio';
+import { useConfiguration } from './ConfigurationProvider';
 
 
 import { connect } from 'react-redux';
@@ -18,9 +18,9 @@ import styled from 'styled-components';
 import { withRouter} from 'react-router-dom';
 import Button from 'views/components/Button';
 import LikeIcon from 'views/components/LikeIcon';
-import {screenLargerThan} from "views/style/util"
+import {screenLargerThan} from 'views/style/util'
 // import { likePhoto, unLikePhoto } from '../../actions/photo';
-import { fetchLikeAlbum, fetchUnLikeAlbum } from "core/actions";
+import { fetchLikeAlbum, fetchUnLikeAlbum } from 'core/actions';
 import {
   primaryColor1,
   white,

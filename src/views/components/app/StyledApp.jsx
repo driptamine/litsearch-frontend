@@ -1,41 +1,41 @@
-import React, { useEffect, useContext, useLocation } from "react";
+import React, { useEffect, useContext, useLocation } from 'react';
 import { bindActionCreators } from 'redux';
 import { Route } from 'react-router-dom';
-import { connect, useDispatch, useSelector } from "react-redux";
+import { connect, useDispatch, useSelector } from 'react-redux';
 import { RecoilRoot } from 'recoil';
 import styled from 'styled-components';
 
 // MATERIAL DONE
-// import { Container } from "@mui/material";
-// import { makeStyles } from "@mui/material/styles";
+// import { Container } from '@mui/material';
+// import { makeStyles } from '@mui/material/styles';
 
 // VIEWS
-import LoginPage from "views/pages/LoginPage";
-import Container from "views/styles/Container";
-import Routes from "views/components/Routes";
-import ModalRoutes from "views/components/ModalRoutes";
-import LoadingIndicator from "views/components/LoadingIndicator";
-import AppHeader from "views/components/AppHeader";
-import AppDrawer from "views/components/AppDrawer";
-import BackToTopButton from "views/components/BackToTopButton";
-import Player from "views/components/player/Player";
-import SideMenu from "views/components/SideMenu";
-import UserPlaylists from "views/components/UserPlaylists";
+import LoginPage from 'views/pages/LoginPage';
+import Container from 'views/styles/Container';
+import Routes from 'views/components/Routes';
+import ModalRoutes from 'views/components/ModalRoutes';
+import LoadingIndicator from 'views/components/LoadingIndicator';
+import AppHeader from 'views/components/AppHeader';
+import AppDrawer from 'views/components/AppDrawer';
+import BackToTopButton from 'views/components/BackToTopButton';
+import Player from 'views/components/player/Player';
+import SideMenu from 'views/components/SideMenu';
+import UserPlaylists from 'views/components/UserPlaylists';
 import Footer from 'views/components/footer/Footer';
 import { maxWidthContent } from 'views/style/util';
 // import { stopSongz, pauseSongz, resumeSongz, audioControlz } from './control';
 
-import TwitchAuthCallback from "views/pages/Auth/TwitchAuthCallback";
+import TwitchAuthCallback from 'views/pages/Auth/TwitchAuthCallback';
 // YouTube-Clone
-import Sidebar from "views/components/Sidebar";
-// import Navbar from "views/components/Navbar";
+import Sidebar from 'views/components/Sidebar';
+// import Navbar from 'views/components/Navbar';
 
 
 // CORE
 import { playSong, stopSong, pauseSong, resumeSong, } from 'core/actions/index';
-import { fetchGenres } from "core/actions";
-import { selectors } from "core/reducers/index";
-import history  from "core/services/history";
+import { fetchGenres } from 'core/actions';
+import { selectors } from 'core/reducers/index';
+import history  from 'core/services/history';
 
 // CONTEXT PRO
 import { TwitchContext, TwitchProvider } from 'views/pages/Auth/twitch/useToken';

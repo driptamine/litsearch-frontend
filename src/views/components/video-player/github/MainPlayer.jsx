@@ -1,19 +1,19 @@
 // REFERENCE https://github.com/ld3nl/player/blob/60c0e0a2078d249321937aa2aca5a590037988dc/components/MainPlayer/MainPlayer.tsx#L9
 
-import { useEffect, useState, useRef, useContext } from "react"
-import Image from "next/image"
-import he from "he"
-import ReactSlider from "react-slider"
-import { GlobalContext } from "../../pages/_app"
-import useLockScroll from "../../lib/hooks"
-import Icon from "../Icon/Icon"
+import { useEffect, useState, useRef, useContext } from 'react'
+import Image from 'next/image'
+import he from 'he'
+import ReactSlider from 'react-slider'
+import { GlobalContext } from '../../pages/_app'
+import useLockScroll from '../../lib/hooks'
+import Icon from '../Icon/Icon'
 
-import ReactPlayer from "react-player"
+import ReactPlayer from 'react-player'
 
-import { Duration } from "./Duration"
+import { Duration } from './Duration'
 
-import css from "./MainPlayer.module.scss"
-import img from "@/public/P1080841.jpg"
+import css from './MainPlayer.module.scss'
+import img from '@/public/P1080841.jpg'
 
 // const imgArray = [
 //   "https://www.paullowe.org/wp-content/uploads/2017/06/P1080841.jpg",

@@ -1,18 +1,18 @@
-import { handleWithStopPropagation } from "lib/shared/events"
-import { useBoundingBox } from "lib/shared/hooks/useBoundingBox"
-import { toPercents } from "lib/shared/utils/toPercents"
-import { defaultTransition } from "lib/ui/animations/transitions"
-import { HSLA } from "lib/ui/colors/HSLA"
-import { centerContentCSS } from "lib/ui/utils/centerContentCSS"
-import { getCSSUnit } from "lib/ui/utils/getCSSUnit"
-import { getSameDimensionsCSS } from "lib/ui/utils/getSameDimensionsCSS"
-import { useEffect, useRef, useState } from "react"
-import styled, { useTheme } from "styled-components"
+import { handleWithStopPropagation } from 'lib/shared/events'
+import { useBoundingBox } from 'lib/shared/hooks/useBoundingBox'
+import { toPercents } from 'lib/shared/utils/toPercents'
+import { defaultTransition } from 'lib/ui/animations/transitions'
+import { HSLA } from 'lib/ui/colors/HSLA'
+import { centerContentCSS } from 'lib/ui/utils/centerContentCSS'
+import { getCSSUnit } from 'lib/ui/utils/getCSSUnit'
+import { getSameDimensionsCSS } from 'lib/ui/utils/getSameDimensionsCSS'
+import { useEffect, useRef, useState } from 'react'
+import styled, { useTheme } from 'styled-components'
 
 import {
   InvisibleHTMLSlider,
   InvisibleHTMLSliderProps,
-} from "./InvisibleHtmlSlider"
+} from './InvisibleHtmlSlider'
 
 type SliderSize = "m" | "l"
 

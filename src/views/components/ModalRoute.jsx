@@ -9,7 +9,8 @@ function ModalRoute({ defaultParentPath, component, ...rest }) {
       {...rest}
       render={props => (
         <ModalRouteContent {...{ ...props, defaultParentPath }}>
-          {component}
+          {/*{component}*/}
+          {React.createElement(component, props)}
         </ModalRouteContent>
       )}
     />

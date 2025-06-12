@@ -1,6 +1,6 @@
 import React from 'react';
-import ModalMovieList from "views/components/ModalMovieList";
-import PopularPeople from "views/pages/PopularPeople";
+import ModalMovieList from 'views/components/ModalMovieList';
+import PopularPeople from 'views/pages/PopularPeople';
 import { getAllMovies } from 'core/data';
 
 const ModalPeople = () => {

@@ -1,16 +1,16 @@
-import React, { useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from 'react';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   signInAction,
   selectAuth,
   googleSignInAction,
   fbSignInAction,
-} from "../../_store/reducers/authSlice";
-import * as EmailValidator from "email-validator";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
-import { useWithRouter } from "./useWithRouter";
+} from '../../_store/reducers/authSlice';
+import * as EmailValidator from 'email-validator';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFacebook, faGoogle } from '@fortawesome/free-brands-svg-icons';
+import { useWithRouter } from './useWithRouter';
 
 function Signin() {
   const dispatch = useDispatch();

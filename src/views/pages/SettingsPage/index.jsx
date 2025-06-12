@@ -2,8 +2,8 @@
  *  Component that shows allows user to change name, email, or password
  */
 
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   getProfile,
   changeNameAction,
@@ -12,8 +12,8 @@ import {
   deleteAccountAction,
   changeEmailAlert,
   selectAuth,
-} from "../../_store/reducers/authSlice";
-import * as EmailValidator from "email-validator";
+} from '../../_store/reducers/authSlice';
+import * as EmailValidator from 'email-validator';
 
 const Settings = () => {
   const dispatch = useDispatch();

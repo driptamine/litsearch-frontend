@@ -1,33 +1,34 @@
-import React from "react";
-import { Route, Redirect, useLocation } from "react-router-dom";
-import PopularMovies from "views/pages/PopularMovies";
-import MovieProfile  from "views/pages/MovieProfile";
+import React from 'react';
+import { Route, Redirect, useLocation } from 'react-router-dom';
+import PopularMovies from 'views/pages/PopularMovies';
+import MovieProfile  from 'views/pages/PopularMovies';
 
-import AlbumProfile  from "views/pages/AlbumProfile";
-import TrackProfile  from "views/pages/TrackProfile";
-import PlaylistProfile  from "views/pages/PlaylistProfile";
-import ArtistProfile  from "views/pages/ArtistProfile";
-import LinksProfile  from "views/pages/LinksProfile";
+import AlbumProfile  from 'views/pages/PopularMovies';
+import TrackProfile  from 'views/pages/PopularMovies';
+import PlaylistProfile  from 'views/pages/PopularMovies';
+import ArtistProfile  from 'views/pages/PopularMovies';
+import LinksProfile  from 'views/pages/PopularMovies';
 
-import PersonProfile from "views/pages/PersonProfile";
-import PopularPeople from "views/pages/PopularPeople";
-import SearchResults from "views/pages/SearchResults";
-import SwitchWithScrollRestoration from "views/components/SwitchWithScrollRestoration";
+import PersonProfile from 'views/pages/PopularMovies';
+import PopularPeople from 'views/pages/PopularMovies';
+import SearchResults from 'views/pages/PopularMovies';
+import SwitchWithScrollRestoration from 'views/pages/PopularMovies';
 
 // V5
-import ModalSwitch from "views/components/ModalSwitch";
+// import ModalSwitch from 'views/pages/PopularMovies';
+import ModalSwitch from 'views/pages/PopularMovies';
 
 // V6
-// import ModalSwitch from "views/components/ModalRoutez";
+// import ModalSwitch from 'views/pages/PopularMovies';
 
 
-import ModalCustom from "views/components/ModalCustom";
-import ModalRoute  from "views/components/ModalRoute";
-import ModalMovie  from "views/components/ModalMovie";
+import ModalCustom from 'views/pages/PopularMovies';
+import ModalRoute  from 'views/pages/PopularMovies';
+import ModalMovie  from 'views/pages/PopularMovies';
 
-import MovieCard  from "views/components/MovieCard";
+import MovieCard  from 'views/pages/PopularMovies';
 
-import LoginPage from "views/pages/LoginPage";
+import LoginPage from 'views/pages/PopularMovies';
 
 function ModalRoutes({ stopSong, pauseSong, resumeSong, audioControl }) {
   // const location = useLocation();

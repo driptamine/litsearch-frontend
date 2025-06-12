@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import './modal/portal.css';
-import styled from "styled-components";
+import styled from 'styled-components';
 
 
 // Modal Component

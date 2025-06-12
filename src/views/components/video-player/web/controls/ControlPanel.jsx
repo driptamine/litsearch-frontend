@@ -5,7 +5,7 @@ import  styled  from 'styled-components';
 
 import Button from 'views/components/video-player/web/controls/Button';
 import './control-panel.css'
-import { FullScreen, useFullScreenHandle  } from "react-full-screen";
+import { FullScreen, useFullScreenHandle  } from 'react-full-screen';
 
 
 function ControlPanel({ play, isPlaying, duration, currentTime, wrapperRef, audioRef }) {

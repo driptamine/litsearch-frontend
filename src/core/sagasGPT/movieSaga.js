@@ -1,9 +1,9 @@
-import { call, takeEvery, select } from "redux-saga/effects";
-import * as actions from "core/actions";
-import * as schemas from "core/schemas";
-import { selectors } from "core/reducers/index";
+import { call, takeEvery, select } from 'redux-saga/effects';
+import * as actions from 'core/actions';
+import * as schemas from 'core/schemas';
+import { selectors } from 'core/reducers/index';
 
-import { fetcherSaga } from "./fetcherSaga";
+import { fetcherSaga } from './fetcherSaga';
 
 function* fetchMovieSaga(action) {
   yield call(fetcherSaga, {

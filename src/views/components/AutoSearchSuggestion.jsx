@@ -1,8 +1,8 @@
-import React from "react";
+import React from 'react';
 import styled from 'styled-components';
 
-// import MenuItem from "@mui/material/MenuItem";
-// import { makeStyles } from "@mui/material";
+// import MenuItem from '@mui/material/MenuItem';
+// import { makeStyles } from '@mui/material';
 
 const StyledMenuItem = styled.div`
   background-color: ${props => props.theme.autoCompleteBackgroundColor};

@@ -1,7 +1,7 @@
 // https://chatgpt.com/c/67eade15-c244-800c-bf0a-2710a1ee3e75
-import React, { useEffect, useState } from "react";
-import styled from "styled-components";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
+import axios from 'axios';
 
 const Container = styled.div`
   width: 60px;

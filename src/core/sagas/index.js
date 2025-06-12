@@ -1,8 +1,8 @@
-import { put, delay, fork, all, call, select, takeEvery, takeLatest, cancelled} from "redux-saga/effects";
-import { getFetchTypes, verifyCachedData, createUrl, createAPIUrl, createAuthUrl, bingAPIurl } from "core/utils";
-import { setAccessToken } from "core/actions";
-import * as schemas from "core/schemas";
-import * as actions from "core/actions";
+import { put, delay, fork, all, call, select, takeEvery, takeLatest, cancelled} from 'redux-saga/effects';
+import { getFetchTypes, verifyCachedData, createUrl, createAPIUrl, createAuthUrl, bingAPIurl } from 'core/utils';
+import { setAccessToken } from 'core/actions';
+import * as schemas from 'core/schemas';
+import * as actions from 'core/actions';
 
 
 import {
@@ -11,16 +11,16 @@ import {
   // watchInitApp,
   watchPlaySelectedTrack
 } from './spotify/player';
-// import * as service from "../services/UserService";
+// import * as service from '../services/UserService';
 
-import { normalize } from "normalizr";
-import { selectors } from "core/reducers/index";
-import axios from "axios";
+import { normalize } from 'normalizr';
+import { selectors } from 'core/reducers/index';
+import axios from 'axios';
 import { getHeaders, getState } from 'core/store';
 
-import history  from "core/services/history";
+import history  from 'core/services/history';
 
-import { postAxiosReq, getAxiosReq } from "core/api/rest-helper";
+import { postAxiosReq, getAxiosReq } from 'core/api/rest-helper';
 
 const CancelToken = axios.CancelToken;
 
