@@ -1,9 +1,9 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
-import * as actions from 'redux-saga/effects';
+import * as actions from 'core/actions';
 import { callAPIWithHeader, callPostAPIWithHeader, getAccessToken } from './apiSaga';
-import * as schemas from 'redux-saga/effects';
-import { getFetchTypes, verifyCachedData, createUrl, createAPIUrl, createAuthUrl, bingAPIurl } from 'redux-saga/effects';
-import history  from 'redux-saga/effects';
+import * as schemas from 'core/schemas';
+import { getFetchTypes, verifyCachedData, createUrl, createAPIUrl, createAuthUrl, bingAPIurl } from 'core/utils';
+import history  from 'core/services/history';
 
 
 

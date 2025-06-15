@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import MessageBubbleV1 from './MessageBubbleV1';
+import MessageBubbleV2 from './MessageBubbleV2';
+import MessageBubbleV3 from './MessageBubbleV3';
+import { LITLOOP_API_URL } from 'core/constants/urls';
 
 
 const ChatWindow = () => {
@@ -16,7 +19,7 @@ const ChatWindow = () => {
     setInput("");
 
     try {
-      const res = await fetch(`http://localhost:8000/chats/gemini/?q=${encodeURIComponent(input)}`);
+      const res = await fetch(`${LITLOOP_API_URL}/chats/gemini/?q=${encodeURIComponent(input)}`);
       const data = await res.json();
 
       const botMessage = {
@@ -36,7 +39,7 @@ const ChatWindow = () => {
     <ChatContainer>
       <MessagesContainer>
         {messages.map((msg, idx) => (
-          <MessageBubbleV1 key={idx} from={msg.from} content={msg.content} />
+          <MessageBubbleV3 key={idx} from={msg.from} content={msg.content} />
         ))}
       </MessagesContainer>
       <InputContainer onSubmit={handleSubmit}>

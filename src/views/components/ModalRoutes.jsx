@@ -3,23 +3,23 @@ import { Route, Redirect, useLocation } from 'react-router-dom';
 import PopularMovies from 'views/pages/PopularMovies';
 import MovieProfile  from 'views/pages/PopularMovies';
 
-import AlbumProfile  from 'views/pages/PopularMovies';
-import TrackProfile  from 'views/pages/PopularMovies';
-import PlaylistProfile  from 'views/pages/PopularMovies';
-import ArtistProfile  from 'views/pages/PopularMovies';
-import LinksProfile  from 'views/pages/PopularMovies';
+import AlbumProfile  from 'views/pages/AlbumProfile';
+import TrackProfile  from 'views/pages/TrackProfile';
+import PlaylistProfile  from 'views/pages/PlaylistProfile';
+import ArtistProfile  from 'views/pages/ArtistProfile';
+import LinksProfile  from 'views/pages/LinksProfile';
 
-import PersonProfile from 'views/pages/PopularMovies';
-import PopularPeople from 'views/pages/PopularMovies';
-import SearchResults from 'views/pages/PopularMovies';
-import SwitchWithScrollRestoration from 'views/pages/PopularMovies';
+import PersonProfile from 'views/pages/PersonProfile';
+import PopularPeople from 'views/pages/PopularPeople';
+import SearchResults from 'views/pages/SearchResults';
+import SwitchWithScrollRestoration from 'views/components/SwitchWithScrollRestoration';
 
 // V5
 // import ModalSwitch from 'views/pages/PopularMovies';
-import ModalSwitch from 'views/pages/PopularMovies';
+// import ModalSwitch from 'views/components/ModalSwitch';
 
 // V6
-// import ModalSwitch from 'views/pages/PopularMovies';
+import ModalSwitch from 'views/hooks/ModalSwitch';
 
 
 import ModalCustom from 'views/pages/PopularMovies';

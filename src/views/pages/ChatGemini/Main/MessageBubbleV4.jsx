@@ -1,17 +1,17 @@
 import React from 'react';
-import "highlight.js/styles/atom-one-dark.css";
 import styled from 'styled-components';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import hljs from 'highlight.js';
- // You can change theme
+import "highlight.js/styles/atom-one-dark.css"; // Highlight.js theme
 
+// Add custom tokenizer and renderer for ==highlight==
 
 
 // Custom tokenizer for ==highlight==
 const tokenizer = {
   name: "highlight",
-  level: "inline",
+  level: "inline", // works inside text
   start(src) {
     return src.match(/==/)?.index;
   },
@@ -31,43 +31,49 @@ const tokenizer = {
   },
 };
 
-// Custom renderer to enable syntax highlighting with span tags
-const renderer = new marked.Renderer();
-
-renderer.code = (code, language) => {
-  const validLang = !!(language && hljs.getLanguage(language));
-  const highlighted = validLang
-    ? hljs.highlight(code, { language }).value
-    : hljs.highlightAuto(code).value;
-
-  const langClass = validLang ? `language-${language}` : '';
-  return `<pre><code class="hljs ${langClass}">${highlighted}</code></pre>`;
-};
-
-// Configure marked with custom renderer and tokenizer
+// Configure marked
 marked.use({
   extensions: [tokenizer],
-  renderer,
+  highlight: function (code, lang) {
+    return lang && hljs.getLanguage(lang)
+      ? hljs.highlight(code, { language: lang }).value
+      : hljs.highlightAuto(code).value;
+  },
   gfm: true,
   breaks: true,
 });
 
-const MessageBubbleV2 = ({ content, from }) => {
-  const rawHtml = marked(content); // Ensure code blocks use fenced syntax in `content`
-  const cleanHtml = DOMPurify.sanitize(rawHtml, {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'code', 'pre', 'span', 'p', 'ul', 'ol', 'li'],
-    ALLOWED_ATTR: ['class', 'href', 'name', 'target'],
-  });
+const MessageBubbleV1 = ({ content, from }) => {
+
+
+  // const html = hljs.highlightAuto(content).value;
+
+  const renderer = new marked.Renderer();
+
+  // Highlight code blocks
+  // marked.setOptions({
+  //   renderer,
+  //   highlight: function (code, lang) {
+  //     return lang && hljs.getLanguage(lang)
+  //       ? hljs.highlight(code, { language: lang }).value
+  //       : hljs.highlightAuto(code).value;
+  //   },
+  //   breaks: true,
+  //   gfm: true,
+  // });
+
+  const rawHtml = marked(content);
+  const cleanHtml = DOMPurify.sanitize(rawHtml);
 
   return <Bubble from={from} dangerouslySetInnerHTML={{ __html: cleanHtml }} />;
 };
 
 const Bubble = styled.div`
-  background-color: ${(props) =>
-    props.from === "user" ? "#e0f2fe" : "#f1f5f9"};
-  align-self: ${(props) =>
-    props.from === "user" ? "flex-end" : "flex-start"};
+  background-color: ${(props) => props.from === "user" ? "#e0f2fe" : "#f1f5f9"};
+  align-self: ${(props) => props.from === "user" ? "flex-end" : "flex-start"};
   margin: 8px 0;
+
+  margin-left: ${(props) => props.from === 'user' ? "18em": '0px'};
   padding: 12px;
   border-radius: 12px;
   max-width: 80%;
@@ -94,4 +100,4 @@ const Bubble = styled.div`
   }
 `;
 
-export default MessageBubbleV2;
+export default MessageBubbleV1;

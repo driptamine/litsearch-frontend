@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import debounce from 'lodash/debounce';
 
-import styled from 'react-redux';
+import styled from 'styled-components';
 
 import litNightLogo from 'views/assets/viewsLogos/purple-views-logo.png';
 import litloopLogo from 'views/assets/viewsLogos/purple-views-logo.png';
 import litLightLogo from 'views/assets/viewsLogos/purple-views-logo.png';
 
 import { fetchQuerySearch } from 'core/actions';
-import { selectors } from 'core/actions';
+import { selectors } from 'core/reducers/index';
 // import "./App.css";
 import Autocomplete from './Autocomplete';
 

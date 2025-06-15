@@ -5,6 +5,8 @@ import { Route, useLocation } from 'react-router-dom';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import { RecoilRoot } from 'recoil';
 import styled, { ThemeProvider } from 'styled-components';
+import { FRONTEND_CALLBACK_URL } from 'core/constants/urls';
+
 import { useThemeMode } from 'views/components/Toggle/useThemeMode'
 
 import useKeyboardShortcut from 'use-keyboard-shortcut';
@@ -280,7 +282,7 @@ const App = () => {
   // });
 
   function receiveMessage(e) {
-    if (e.origin.startsWith('http://localhost:3001') && e.data?.access_token && e.data?.service) {
+    if (e.origin.startsWith(`${FRONTEND_CALLBACK_URL}`) && e.data?.access_token && e.data?.service) {
       if (e.data.service === 'twitch') {
         console.log("Receive postMessage TOKEN");
         console.log(e.data);

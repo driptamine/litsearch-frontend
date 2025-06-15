@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
+import { FRONTEND_CALLBACK_URL } from 'core/constants/urls';
 
 import {
   twitchSignInAction, googleSignInAction, appleSignInAction,
@@ -14,9 +15,10 @@ import { SpotifyContext } from 'views/pages/Auth/spotify/useToken';
 
 import litloopLogo from 'views/assets/litloopLogo3.png';
 import { fetchAuthUser } from 'core/actions';
-import { selectors } from 'views/pages/LoginPage/action';
+import { selectors } from 'core/reducers/index';
 import useEventListenerMemo from 'core/hooks2/useEventListenerMemo';
-import history  from 'views/pages/LoginPage/action';
+// import history  from 'views/pages/LoginPage/action';
+import history  from 'core/services/history';
 
 import ReAuthenticateButton from 'views/pages/Auth/ReAuthenticateButton';
 import { FaSpotify, FaApple } from 'react-icons/fa';
@@ -49,7 +51,7 @@ const LoginForm = () => {
   };
 
   const receiveMessage = (e) => {
-    if (!e.origin.startsWith('http://localhost:3001')) return;
+    if (!e.origin.startsWith(`${FRONTEND_CALLBACK_URL}`)) return;
     const { access_token, refresh_token, username, userId, profileImg, service } = e.data;
     if (!access_token || !service) return;
 

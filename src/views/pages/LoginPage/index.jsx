@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { connect, useDispatch, useSelector} from 'react-redux';
 import { Redirect, useHistory, Link } from 'react-router-dom';
+import { FRONTEND_CALLBACK_URL } from 'core/constants/urls';
 
 // ICONS
 import { FaTwitch } from 'react-icons/fa';
@@ -39,14 +40,14 @@ import { YoutubeContext } from 'views/pages/Auth/youtube/useToken';
 import { SpotifyContext } from 'views/pages/Auth/spotify/useToken';
 import { GoogleContext } from 'views/pages/Auth/google/useToken';
 
-import litloopLogo from '@fortawesome/react-fontawesome';
+import litloopLogo from 'views/assets/litloopLogo3.png';
 
 // CORE
-import history  from 'views/pages/LoginPage/action';
+import history  from 'core/services/history'
 import { fetchAuthUser,  } from 'core/actions'
-import useHistoryPush from 'views/pages/LoginPage/action';
+import useHistoryPush from 'core/hooks/useHistoryPush';
 // import { selectAuth } from 'core/reducers/authSlice';
-import { selectors } from 'views/pages/LoginPage/action';
+import { selectors } from 'core/reducers/index';
 import { feedPreferencesAtom, useFeedPreferences } from 'core/atoms/atoms';
 import useEventListenerMemo from 'core/hooks2/useEventListenerMemo';
 
@@ -206,7 +207,7 @@ function LoginForm () {
 
 
   function receiveMessage(e) {
-    if (e.origin.startsWith('http://localhost:3001') && e.data?.access_token && e.data?.service) {
+    if (e.origin.startsWith(`${FRONTEND_CALLBACK_URL}`) && e.data?.access_token && e.data?.service) {
 
       if (e.data.service === 'twitch') {
         console.log("Receive postMessage TWITCH TOKEN");

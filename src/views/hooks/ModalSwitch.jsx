@@ -18,43 +18,82 @@ import chatsData from 'views/pages/ChatV3/chatsV2.json';
 import emojiData from 'views/pages/ChatV3/emoji.json';
 
 // UPLOAD
-import ChunkUpload from 'core/hooks/useScrollMemory';
-import MediaUploader from 'core/hooks/useScrollMemory';
-import PostCreator from 'core/hooks/useScrollMemory';
+// import ChunkUpload from 'core/hooks/useScrollMemory';
+// import MediaUploader from 'core/hooks/useScrollMemory';
+// import PostCreator from 'core/hooks/useScrollMemory';
 
 // MODALS (these are typically rendered by ModalRoute, not directly here)
-import ModalMovies from 'core/hooks/useScrollMemory';
-import ModalPosts from 'core/hooks/useScrollMemory';
-import ModalPeople from 'core/hooks/useScrollMemory';
-import ModalMagazines from 'core/hooks/useScrollMemory';
-import ModalAlbums from 'core/hooks/useScrollMemory';
+// import ModalMovies from 'core/hooks/useScrollMemory';
+// import ModalPosts from 'core/hooks/useScrollMemory';
+// import ModalPeople from 'core/hooks/useScrollMemory';
+// import ModalMagazines from 'core/hooks/useScrollMemory';
+// import ModalAlbums from 'core/hooks/useScrollMemory';
 
 // PAGES
-import LoginPage from 'core/hooks/useScrollMemory';
-// import LoginPage from 'core/hooks/useScrollMemory';
-import SignUpPage from 'core/hooks/useScrollMemory';
-import SearchAppp from 'core/hooks/useScrollMemory';
-import TwitchAuthCallback from 'core/hooks/useScrollMemory';
-import GoogleAuthCallback from 'core/hooks/useScrollMemory';
+// import LoginPage from 'views/pages/LoginPage/indexV2';
+// // import LoginPage from 'views/pages/LoginPage/index';
+// import SignUpPage from 'core/hooks/useScrollMemory';
+// import SearchAppp from 'core/hooks/useScrollMemory';
+// import TwitchAuthCallback from 'core/hooks/useScrollMemory';
+// import GoogleAuthCallback from 'core/hooks/useScrollMemory';
+//
+// import MovieProfile from 'core/hooks/useScrollMemory';
+// import PersonProfile from 'core/hooks/useScrollMemory';
+// import ArtistProfile from 'core/hooks/useScrollMemory';
+// import AlbumProfile from 'core/hooks/useScrollMemory';
+// import PlaylistProfile from 'core/hooks/useScrollMemory';
+// import TrackProfile from 'core/hooks/useScrollMemory';
+// import LinksProfile from 'core/hooks/useScrollMemory';
+// import SearchResults from 'core/hooks/useScrollMemory';
+//
+// import TrackListLoopV2 from 'core/hooks/useScrollMemory';
+// import TrackListLoopV1 from 'core/hooks/useScrollMemory';
+//
+// import { VideoFeedProfile } from 'core/hooks/useScrollMemory';
+// import { VideoFeed } from 'core/hooks/useScrollMemory';
+// import { VideoFeedV2 } from 'core/hooks/useScrollMemory';
+// import { PhotosPage } from 'src/views/pages/PhotosPage/PhotosPage';
+// import { PhotosPageUnsplash } from 'views/pages/PhotosPage/PhotosPageUnsplash';
+// import VideoProfile from 'core/hooks/useScrollMemory';
 
-import MovieProfile from 'core/hooks/useScrollMemory';
-import PersonProfile from 'core/hooks/useScrollMemory';
-import ArtistProfile from 'core/hooks/useScrollMemory';
-import AlbumProfile from 'core/hooks/useScrollMemory';
-import PlaylistProfile from 'core/hooks/useScrollMemory';
-import TrackProfile from 'core/hooks/useScrollMemory';
-import LinksProfile from 'core/hooks/useScrollMemory';
-import SearchResults from 'core/hooks/useScrollMemory';
+// UPLOAD - Restored original paths
+import ChunkUpload from 'views/components/upload/ChunkUpload'; // Changed to single quotes
+import MediaUploader from 'views/components/upload/MediaUploader'; // Changed to single quotes
+import PostCreator from 'views/components/upload/uploader/posts/PostCreator.jsx'; // Changed to single quotes
 
-import TrackListLoopV2 from 'core/hooks/useScrollMemory';
-import TrackListLoopV1 from 'core/hooks/useScrollMemory';
+// MODALS - Restored original paths (these are typically rendered by ModalRoute, but their imports are needed if directly used or passed down)
+import ModalMovies from 'views/components/ModalMovies'; // Changed to single quotes
+import ModalPosts from 'views/pages/PopularPosts/ModalPosts'; // Changed to single quotes
+import ModalPeople from 'views/components/ModalPeople'; // Changed to single quotes
+import ModalMagazines from 'views/components/ModalMagazines'; // Changed to single quotes
+import ModalAlbums from 'views/components/ModalAlbums'; // Changed to single quotes
 
-import { VideoFeedProfile } from 'core/hooks/useScrollMemory';
-import { VideoFeed } from 'core/hooks/useScrollMemory';
-import { VideoFeedV2 } from 'core/hooks/useScrollMemory';
-import { PhotosPage } from 'core/hooks/useScrollMemory';
-import { PhotosPageUnsplash } from 'core/hooks/useScrollMemory';
-import VideoProfile from 'core/hooks/useScrollMemory';
+// PAGES - Restored original paths
+import LoginPage from 'views/pages/LoginPage/indexV2'; // Changed to single quotes
+import SignUpPage from 'views/pages/SignUpPage'; // Changed to single quotes
+import SearchAppp from 'views/pages/MainSearch/StartPage/App'; // Changed to single quotes
+import TwitchAuthCallback from 'views/pages/Auth/TwitchAuthCallback'; // Changed to single quotes
+import GoogleAuthCallback from 'views/pages/Auth/GoogleAuthCallback'; // Changed to single quotes
+
+import MovieProfile from 'views/pages/MovieProfile'; // Changed to single quotes
+import PersonProfile from 'views/pages/PersonProfile'; // Changed to single quotes
+import ArtistProfile from 'views/pages/ArtistProfile'; // Changed to single quotes
+import AlbumProfile from 'views/pages/AlbumProfile'; // Changed to single quotes
+import PlaylistProfile from 'views/pages/PlaylistProfile'; // Changed to single quotes
+import TrackProfile from 'views/pages/TrackProfile'; // Changed to single quotes
+import LinksProfile from 'views/pages/LinksProfile'; // Changed to single quotes
+import SearchResults from 'views/pages/SearchResults'; // Changed to single quotes
+import SearchesResults from 'views/pages/SearchResults'; // Changed to single quotes
+
+import TrackListLoopV2 from 'views/pages/PopularMusic/indexV2'; // Changed to single quotes
+import TrackListLoopV1 from 'views/pages/PopularMusic/index'; // Changed to single quotes
+
+import { VideoFeedProfile } from 'views/pages/VideoFeedProfile'; // Changed to single quotes
+import { VideoFeed } from 'views/pages/VideoFeedProfile/VideoFeed'; // Changed to single quotes
+import { VideoFeedV2 } from 'views/pages/VideoFeedProfile/VideoFeedV2'; // Changed to single quotes
+import VideoProfile from 'views/pages/VideoProfile'; // Changed to single quotes
+import { PhotosPage } from 'src/views/pages/PhotosPage/PhotosPage';
+import { PhotosPageUnsplash } from 'views/pages/PhotosPage/PhotosPageUnsplash';
 
 export const ModalRouteContext = React.createContext();
 

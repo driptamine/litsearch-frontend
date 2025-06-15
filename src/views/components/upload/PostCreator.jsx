@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import axios from 'axios';
 import './modal/portal.css';
 import styled from 'styled-components';
+import { LITLOOP_API_URL } from 'core/constants/urls';
 
 import { FaFilm } from 'react-icons/fa';
 import { FaImage } from 'react-icons/fa';
@@ -19,8 +20,11 @@ const PostCreator = ({ mediaIds, showDropZone }) => {
   const [videoIds, setVideoIds] = useState([]);
   const [trackIds, setTrackIds] = useState([]);
 
+  // const handleChange = (e) => {
+  //   setPostText(e.target.value);
+  // };
   const handleChange = (e) => {
-    setPostText(e.target.value);
+    setDescription(e.target.value);
   };
 
   useEffect(() => {
@@ -34,8 +38,8 @@ const PostCreator = ({ mediaIds, showDropZone }) => {
   const handleSubmit = async (e) => {
     const url = `http://localhost:8000/posts/create`
     e.preventDefault();
-    if (postText.trim()) {
-      console.log(postText);
+    if (description.trim()) {
+      console.log(description);
       try {
         const postData = {
           // title,
@@ -46,7 +50,7 @@ const PostCreator = ({ mediaIds, showDropZone }) => {
           track_ids: trackIds,
         };
 
-        const response = await axios.post('http://localhost:8000/posts/create_post_api/', postData, {
+        const response = await axios.post(`${LITLOOP_API_URL}/posts/create_post_api/`, postData, {
           headers: {
             'Content-Type': 'application/json'
           }
@@ -82,7 +86,7 @@ const PostCreator = ({ mediaIds, showDropZone }) => {
           ref={textareaRef}
           onInput={handleInput}
 
-          value={postText}
+          value={description}
           onChange={handleChange}
           placeholder="Write your post here..."
           rows="6"
@@ -373,7 +377,7 @@ const FlexBoxAttachments = styled.div`
 
 `;
 const Attachments = styled.div`
-   
+
 
 `;
 

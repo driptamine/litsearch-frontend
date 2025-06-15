@@ -1,14 +1,11 @@
 import React from 'react';
-import "highlight.js/styles/atom-one-dark.css";
 import styled from 'styled-components';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import hljs from 'highlight.js';
- // You can change theme
+import "highlight.js/styles/atom-one-dark.css"; // Highlight.js theme
 
-
-
-// Custom tokenizer for ==highlight==
+// ==highlight== custom tokenizer
 const tokenizer = {
   name: "highlight",
   level: "inline",
@@ -31,20 +28,22 @@ const tokenizer = {
   },
 };
 
-// Custom renderer to enable syntax highlighting with span tags
+// Custom renderer for code blocks
 const renderer = new marked.Renderer();
 
 renderer.code = (code, language) => {
-  const validLang = !!(language && hljs.getLanguage(language));
+  const safeCode = typeof code === 'string' ? code : String(code ?? '');
+
+  const validLang = language && hljs.getLanguage(language);
   const highlighted = validLang
-    ? hljs.highlight(code, { language }).value
-    : hljs.highlightAuto(code).value;
+    ? hljs.highlight(safeCode, { language }).value
+    : hljs.highlightAuto(safeCode).value;
 
   const langClass = validLang ? `language-${language}` : '';
   return `<pre><code class="hljs ${langClass}">${highlighted}</code></pre>`;
 };
 
-// Configure marked with custom renderer and tokenizer
+// Configure marked
 marked.use({
   extensions: [tokenizer],
   renderer,
@@ -52,22 +51,27 @@ marked.use({
   breaks: true,
 });
 
-const MessageBubbleV2 = ({ content, from }) => {
-  const rawHtml = marked(content); // Ensure code blocks use fenced syntax in `content`
+const MessageBubbleV1 = ({ content, from }) => {
+  const safeContent = typeof content === 'string' ? content : JSON.stringify(content, null, 2);
+  const rawHtml = marked(safeContent);
+
   const cleanHtml = DOMPurify.sanitize(rawHtml, {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'code', 'pre', 'span', 'p', 'ul', 'ol', 'li'],
+    ALLOWED_TAGS: [
+      'b', 'i', 'em', 'strong', 'a',
+      'code', 'pre', 'span', 'p', 'ul', 'ol', 'li', 'blockquote'
+    ],
     ALLOWED_ATTR: ['class', 'href', 'name', 'target'],
   });
 
   return <Bubble from={from} dangerouslySetInnerHTML={{ __html: cleanHtml }} />;
 };
 
+
 const Bubble = styled.div`
-  background-color: ${(props) =>
-    props.from === "user" ? "#e0f2fe" : "#f1f5f9"};
-  align-self: ${(props) =>
-    props.from === "user" ? "flex-end" : "flex-start"};
+  background-color: ${(props) => props.from === "user" ? "#e0f2fe" : "#f1f5f9"};
+  align-self: ${(props) => props.from === "user" ? "flex-end" : "flex-start"};
   margin: 8px 0;
+  margin-left: ${(props) => props.from === 'user' ? "18em" : '0px'};
   padding: 12px;
   border-radius: 12px;
   max-width: 80%;
@@ -84,7 +88,6 @@ const Bubble = styled.div`
   code {
     font-family: "Fira Code", monospace;
     font-size: 0.95rem;
-
   }
 
   .highlight {
@@ -94,4 +97,4 @@ const Bubble = styled.div`
   }
 `;
 
-export default MessageBubbleV2;
+export default MessageBubbleV1;

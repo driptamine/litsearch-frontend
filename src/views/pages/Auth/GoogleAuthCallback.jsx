@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 import axios from 'axios';
+import { LITLOOP_API_URL } from 'core/constants/urls';
 
 import { AddCookie, getCookie } from 'views/utils';
 import LoadingIndicatorz from 'views/pages/LoadingIndicatorz';
@@ -25,7 +26,7 @@ const GoogleAuthCallback = () => {
       const authCode = url.searchParams.get('code');
       console.log(authCode);
       // const requestAccessToken = await litloopAPI.getGoogleAccessToken(authCode);
-      const res = await axios.put('http://localhost:8000/auth/google/token', { code: authCode });
+      const res = await axios.put(`${LITLOOP_API_URL}/auth/google/token`, { code: authCode });
 
       console.log(res)
       const accessToken = res.data.access_token;

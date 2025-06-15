@@ -2,6 +2,8 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 import uniqid from 'uniqid';
 
+import { FRONTEND_CALLBACK_URL } from 'core/constants/urls';
+
 import { FaTwitch, FaYoutube, FaSpotify, FaApple, FaTwitter, FaUnsplash, FaSoundcloud, FaDeezer, FaInstagram } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 
@@ -21,7 +23,7 @@ import ToolTip from 'views/pages/Auth/tooltip/ToolTip';
 
 const TwitchBaseAuthUrl = `https://id.twitch.tv/oauth2/authorize?client_id=ec5ywfa209khvmx6yqpsaytocmlzr3&redirect_uri=http://localhost:3001/auth/twitch/callback&scope=user:read:follows+clips:edit&response_type=code`;
 
-const GoogleBaseAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=570066117191-b0ob663u6klf2a7v80381h570jsagkqe.apps.googleusercontent.com&redirect_uri=http://localhost:3001/auth/google/callback&response_type=code&scope=profile email`;
+const GoogleBaseAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=570066117191-b0ob663u6klf2a7v80381h570jsagkqe.apps.googleusercontent.com&redirect_uri=${FRONTEND_CALLBACK_URL}/auth/google/callback&response_type=code&scope=profile email`;
 
 const SpotifyBaseAuthUrl = `https://accounts.spotify.com/authorize?client_id=c57cfe40c3a640449c4766ee61ec9d59&redirect_uri=http://localhost:3000/auth/spotify/callback&response_type=code&scope=&`;
 

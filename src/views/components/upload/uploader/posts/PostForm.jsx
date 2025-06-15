@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { LITLOOP_API_URL } from 'core/constants/urls';
 
 export const PostForm = ({ mediaIds }) => {
   const [title, setTitle] = useState('');
@@ -20,11 +21,9 @@ export const PostForm = ({ mediaIds }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const url = `http://localhost:8000/posts/create_post_api/`
+    const url = `${LITLOOP_API_URL}/posts/create_post_api/`;
     const postData = {
-      // title,
       description: description,
-
       photo_ids: photoIds,
       video_ids: videoIds,
       track_ids: trackIds,
@@ -37,17 +36,18 @@ export const PostForm = ({ mediaIds }) => {
         }
       });
 
-      const result = await response.data;
+      const result = response.data;
+      setMessage(`✅ Post created (ID: ${result.post_id})`);
 
-      if (response.ok) {
-        setMessage(`✅ Post created (ID: ${result.post_id})`);
-      } else {
-        setMessage(`❌ Error: ${result.error || 'Something went wrong'}`);
-      }
     } catch (err) {
-      setMessage(`❌ Error: ${err.message}`);
+      if (err.response && err.response.data && err.response.data.error) {
+        setMessage(`❌ Error: ${err.response.data.error}`);
+      } else {
+        setMessage(`❌ Error: ${err.message}`);
+      }
     }
   };
+
 
   return (
     <form onSubmit={handleSubmit} style={{ maxWidth: 600 }}>
@@ -71,7 +71,7 @@ export const PostForm = ({ mediaIds }) => {
         {videoIds.length > 0 && <>Videos: {videoIds.join(', ')}<br /></>}
         {trackIds.length > 0 && <>Tracks: {trackIds.join(', ')}<br /></>}
       </div>
-      <button type="submit">Submit Post</button>
+      <button onClick={handleSubmit}>Submit Post</button>
       {message && <p style={{ marginTop: 10 }}>{message}</p>}
     </form>
   );
