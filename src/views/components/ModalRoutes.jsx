@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, Redirect, useLocation } from 'react-router-dom';
 import PopularMovies from 'views/pages/PopularMovies';
-import MovieProfile  from 'views/pages/PopularMovies';
+import MovieProfile  from 'views/pages/MovieProfile';
 
 import AlbumProfile  from 'views/pages/AlbumProfile';
 import TrackProfile  from 'views/pages/TrackProfile';
@@ -22,13 +22,13 @@ import SwitchWithScrollRestoration from 'views/components/SwitchWithScrollRestor
 import ModalSwitch from 'views/hooks/ModalSwitch';
 
 
-import ModalCustom from 'views/pages/PopularMovies';
-import ModalRoute  from 'views/pages/PopularMovies';
-import ModalMovie  from 'views/pages/PopularMovies';
+import ModalCustom from 'views/components/ModalCustom';
+import ModalRoute  from 'views/components/ModalRoute';
+import ModalMovie  from 'views/components/ModalMovie';
 
-import MovieCard  from 'views/pages/PopularMovies';
+import MovieCard  from 'views/components/MovieCard';
 
-import LoginPage from 'views/pages/PopularMovies';
+import LoginPage from 'views/pages/LoginPage';
 
 function ModalRoutes({ stopSong, pauseSong, resumeSong, audioControl }) {
   // const location = useLocation();

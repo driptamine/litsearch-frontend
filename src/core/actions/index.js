@@ -467,6 +467,18 @@ export const fetchImageSearch = createAction(
     payload: { query, page }
   })
 );
+export const fetchBingImageSearch = createAction(
+  "bing/image/search",
+  (query, page) => ({
+    payload: { query, page }
+  })
+);
+export const fetchBraveImageSearch = createAction(
+  "brave/image/search",
+  (query, page) => ({
+    payload: { query, page }
+  })
+);
 export const fetchQuerySearch = createAction(
   "query/search",
   (query, cursorPosition) => ({

@@ -148,6 +148,28 @@ function* fetchBingImageSearchSaga(action) {
 
   });
 }
+function* fetchBraveImageSearchSaga(action) {
+  const { query, page } = action.payload;
+  yield call(
+    // fetcherSaga, {
+    // requestWithHeaderSaga, {
+    fetcherAPISaga, {
+    action,
+    // endpoint: `/search?q=${query}`,
+    endpoint: `/websites/brave/images/search`,
+    params: { q: query, page },
+    // schema: {
+    //   webPages: {
+    //     value: [schemas.webSchema]
+    //   }
+    // },
+    schema: {
+      results: [schemas.imagesSchemaBing]
+    },
+
+
+  });
+}
 
 export function* watchSearchSagas() {
   // yield takeLatest(actions.fetchSearch, fetchSearchSaga);
@@ -156,4 +178,5 @@ export function* watchSearchSagas() {
   yield takeEvery(actions.fetchWebsiteSearch, fetchBraveWebSearchSaga);
   // yield takeEvery(actions.fetchWebsiteSearch, fetchBingWebSearchSaga);
   yield takeEvery(actions.fetchImageSearch, fetchBingImageSearchSaga);
+  // yield takeEvery(actions.fetchImageSearch, fetchBraveImageSearchSaga);
 }
