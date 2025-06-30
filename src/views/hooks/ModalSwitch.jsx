@@ -94,6 +94,8 @@ import { VideoFeedV2 } from 'views/pages/VideoFeedProfile/VideoFeedV2'; // Chang
 import VideoProfile from 'views/pages/VideoProfile'; // Changed to single quotes
 import { PhotosPage } from 'src/views/pages/PhotosPage/PhotosPage';
 import { PhotosPageUnsplash } from 'views/pages/PhotosPage/PhotosPageUnsplash';
+import  NoteApp  from 'views/pages/NoteText/NoteApp';
+import  NoteTakingApp  from 'views/pages/NoteApp/NoteTakingApp';
 
 export const ModalRouteContext = React.createContext();
 
@@ -165,6 +167,8 @@ function ModalSwitch({ children, renderModal, stopSong, pauseSong, resumeSong, a
         <Route path="/videos" component={VideoFeedV2} />
         <Route path="/videofeed" component={VideoFeedProfile} /> {/* Assuming VideoFeedProfile is imported */}
         <Route path="/photos" component={PhotosPageUnsplash} />
+        {/*<Route path="/notes" component={NoteApp} />*/}
+        <Route path="/notes" component={NoteTakingApp} />
 
         {/* Catch-all for unhandled routes, consider if needed */}
         {/* <Route path="*"><Redirect to="/movies" /> </Route> */}

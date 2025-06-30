@@ -164,7 +164,7 @@ function* fetchBraveImageSearchSaga(action) {
     //   }
     // },
     schema: {
-      results: [schemas.imagesSchemaBing]
+      results: [schemas.imagesSchemaBrave]
     },
 
 
@@ -178,5 +178,6 @@ export function* watchSearchSagas() {
   yield takeEvery(actions.fetchWebsiteSearch, fetchBraveWebSearchSaga);
   // yield takeEvery(actions.fetchWebsiteSearch, fetchBingWebSearchSaga);
   yield takeEvery(actions.fetchImageSearch, fetchBingImageSearchSaga);
-  // yield takeEvery(actions.fetchImageSearch, fetchBraveImageSearchSaga);
+  yield takeEvery(actions.fetchBingImageSearch, fetchBingImageSearchSaga);
+  yield takeEvery(actions.fetchBraveImageSearch, fetchBraveImageSearchSaga);
 }

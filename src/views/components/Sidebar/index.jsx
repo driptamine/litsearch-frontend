@@ -13,6 +13,7 @@ import { TbMessageCircle2 } from 'react-icons/tb';
 import { FaHistory, FaWpexplorer } from 'react-icons/fa';
 import { MdVideoLibrary, MdAlbum } from 'react-icons/md';
 import { BsBook } from 'react-icons/bs';
+import { BsFillFileRichtextFill } from "react-icons/bs";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
@@ -131,7 +132,7 @@ const Sidebar = () => {
           </LinkStyled>
         </StyledLi>
 
-        <StyledLi id="Bookmarks">
+        <StyledLi id="VideosSidebar">
           <LinkStyled
             onClick={handleCloseSidebar}
             to="/videos"
@@ -174,6 +175,22 @@ const Sidebar = () => {
 
             </StyledDivIcon>
             <span className="mymusic">Photos</span>
+          </LinkStyled>
+        </StyledLi>
+        <StyledLi id="Notes">
+          <LinkStyled
+            onClick={handleCloseSidebar}
+            to="/notes"
+            // activeClassName="active"
+          >
+            <StyledDivIcon className="icon">
+              {/*<FiBookmark />*/}
+              {/*<FaHistory />*/}
+              <BsFillFileRichtextFill />
+
+
+            </StyledDivIcon>
+            <span className="mymusic">Notes</span>
           </LinkStyled>
         </StyledLi>
 

@@ -19,7 +19,11 @@ import TrackSearchResults from './TrackSearchResults';
 import { PicIcon } from 'views/components/Sidebar/Icons';
 import {
   fetchWebsiteSearch,
+
   fetchImageSearch,
+  fetchBingImageSearch,
+  fetchBraveImageSearch,
+
   fetchMovieSearch,
   fetchPersonSearch,
   fetchArtistSearch,
@@ -77,7 +81,11 @@ function SearchResults() {
       dispatch(fetchWebsiteSearch(query, DEFAULT_FIRST_PAGE));
     }
     if (searchType === 'bing') {
-      dispatch(fetchImageSearch(query, DEFAULT_FIRST_PAGE));
+      dispatch(fetchBingImageSearch(query, DEFAULT_FIRST_PAGE));
+      // dispatch(fetchImageSearch(query, DEFAULT_FIRST_PAGE));
+    }
+    if (searchType === 'brave') {
+      dispatch(fetchBraveImageSearch(query, DEFAULT_FIRST_PAGE));
     }
 
 

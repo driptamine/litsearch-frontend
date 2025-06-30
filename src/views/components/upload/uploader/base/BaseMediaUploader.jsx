@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { IoIosCloseCircle } from 'react-icons/io';
+import { LITLOOP_API_URL } from 'core/constants/urls';
 
 const CHUNK_SIZE = 5 * 1024 * 1024;
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
@@ -146,7 +147,7 @@ export const BaseMediaUploader = ({ mediaType, onUploadComplete, label }) => {
       try {
         const simulation = simulateInitialProgress();
 
-        const initRes = await axios.post("http://localhost:8000/videos/create_presigned_url/", {
+        const initRes = await axios.post(`${LITLOOP_API_URL}/videos/create_presigned_url/`, {
           filename: fileName,
           content_type: file.type,
           media_type: getMediaType(file.type),
@@ -161,7 +162,7 @@ export const BaseMediaUploader = ({ mediaType, onUploadComplete, label }) => {
           const end = Math.min(start + CHUNK_SIZE, file.size);
           const blob = file.slice(start, end);
 
-          const presignRes = await axios.post("http://localhost:8000/videos/get_presigned_url/", {
+          const presignRes = await axios.post(`${LITLOOP_API_URL}/videos/get_presigned_url/`, {
             upload_id,
             key,
             part_number: partNumber,
@@ -182,7 +183,7 @@ export const BaseMediaUploader = ({ mediaType, onUploadComplete, label }) => {
 
         await simulation;
 
-        const completeRes = await axios.post("http://localhost:8000/videos/complete_upload/", {
+        const completeRes = await axios.post(`${LITLOOP_API_URL}/videos/complete_upload/`, {
           upload_id,
           key,
           parts,

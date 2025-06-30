@@ -1,17 +1,18 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchImageSearch } from 'core/actions';
+import { fetchImageSearch, fetchBraveImageSearch } from 'core/actions';
 import { selectors } from 'core/reducers/index';
 import InfiniteGridList from 'views/components/InfiniteGridList';
 import InfiniteList from 'views/components/InfiniteList';
 import InfiniteListFlex from 'views/components/InfiniteListFlex';
 import ImageCard from 'views/components/ImageCard';
+import ImageCardBrave from 'views/components/ImageCardBrave';
 import ImageCardBing from 'views/components/ImageCardBing';
 
 function renderItem(imageId) {
   return (
 
-      <ImageCard imageId={imageId} />
+      <ImageCardBrave imageId={imageId} />
 
   );
 }
@@ -29,7 +30,7 @@ function ImageSearchResultsBrave({ query }) {
   );
 
   function handleLoadMore() {
-    dispatch(fetchImageSearch(query, nextPage));
+    dispatch(fetchBraveImageSearch(query, nextPage));
 
   }
 

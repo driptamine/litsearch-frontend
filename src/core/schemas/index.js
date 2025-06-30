@@ -46,6 +46,17 @@ export const imagesSchemaBing = new schema.Entity(
     idAttribute: (entity, parent) => `${entity.imageId}`
   }
 );
+
+export const imagesSchemaBrave = new schema.Entity(
+  "images",
+  {
+
+  },
+  {
+    idAttribute: (entity, parent) => `${entity.url}`
+  }
+);
+
 export const querySchema = new schema.Entity(
   "queries",
   {

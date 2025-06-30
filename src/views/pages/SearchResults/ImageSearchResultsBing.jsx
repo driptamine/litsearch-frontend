@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchImageSearch } from 'core/actions';
+import { fetchImageSearch, fetchBingImageSearch } from 'core/actions';
 import { selectors } from 'core/reducers/index';
 import InfiniteGridList from 'views/components/InfiniteGridList';
 import InfiniteList from 'views/components/InfiniteList';
@@ -30,6 +30,7 @@ function ImageSearchResultsBing({ query }) {
 
   function handleLoadMore() {
     dispatch(fetchImageSearch(query, nextPage));
+    // dispatch(fetchBingImageSearch(query, nextPage));
 
   }
 
