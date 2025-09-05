@@ -1,5 +1,6 @@
 {
   "name": "litloop-frontend",
+  "homepage": "https://driptamine.github.io/litsearch-frontend",
   "description": "LitLoop Frontend.",
   "version": "0.1.0",
   "private": true,
