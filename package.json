@@ -58,7 +58,7 @@
     "build": "vite build",
     "build:dev": " vite build --mode development",
     "build:prod": "vite build --mode production",
-    "predeploy": "npm ruin build:prod",
+    "predeploy": "npm run build:prod",
     "deploy": "gh-pages -d dist",
     "dev": "vite --host"
   },
