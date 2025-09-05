@@ -8,12 +8,12 @@ import { StyledTypography } from 'views/styledComponents';
 
 // VIEWS
 import Profile from 'views/components/Profile';
-import MovieIntroduction from './MovieIntroduction';
-import MovieIntroductionV2 from './MovieIntroductionV2';
-// import MovieImageGridList from './MovieImageGridList';
-// import MovieVideoList from './MovieVideoList';
-import MovieCastGridList from './MovieCastGridList';
-import Recommendations from './Recommendations';
+import MovieIntroduction from 'views/pages/MovieProfile/MovieIntroduction';
+import MovieIntroductionV2 from 'views/pages/MovieProfile/MovieIntroductionV2';
+// import MovieImageGridList from 'views/pages/MovieProfile/MovieImageGridList';
+// import MovieVideoList from 'views/pages/MovieProfile/MovieVideoList';
+import MovieCastGridList from 'views/pages/MovieProfile/MovieCastGridList';
+import Recommendations from 'views/pages/MovieProfile/Recommendations';
 import Skeleton from 'views/skeletons/HomeSkeleton';
 
 

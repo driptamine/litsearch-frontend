@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 
@@ -27,23 +27,27 @@ function MovieIntroductionV2({ movieId, obj }) {
   const { getImageUrl } = useConfiguration();
   const releaseYear = getMovieReleaseYear(movie);
 
+
+  useEffect(() => {
+    if (movie?.title) {
+      document.title = movie.title;
+    }
+  }, [movie?.title]); // ✅ updates title whenever the movie changes
+
   if (!movie) {
     return null;
   }
 
 
-  // useEffect(() => {
-  //   // obj && document.title = obj.title;
-  //   document.title = obj.title;
-  // }, [])
 
   return (
     <div>
+      {/*<title>{movie.title}</title>*/}
       <StyledTypography color="#00a0b0">{movie.title}</StyledTypography>
       {/*<img src={movie.poster_path} />*/}
       {/*<StyledBox display="flex">*/}
         <BaseImageV2
-          src={getImageUrl(movie.poster_path)}
+          src={getImageUrl(movie.poster_path, { size: 'w780' })}
           aspectRatio={getAspectRatioString(2, 3)}
           width={20}
         />
@@ -61,7 +65,7 @@ function MovieIntroductionV2({ movieId, obj }) {
           </StyledLink>
           {/*<Rating value={movie.vote_average * 10} />*/}
           <Rating value={movie.vote_average} />
-          <a target="_blank" href={`https://rezka.ag/search/?q=${movie.title}&do=search&subaction=search`}>rezka</a>
+          <a target="_blank" href={`https://rezka.si/search/?q=${movie.title}&do=search&subaction=search`}>rezka</a>
         </StyledBox>
       </StyledBox>
     </div>

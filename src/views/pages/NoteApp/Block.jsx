@@ -6,22 +6,31 @@ const Block = ({
   value,
   updateBlock,
   handleKeyDown,
+  handlePaste,
   refCallback,
   focusedIndex,
   setFocusedIndex,
 }) => {
+
   return (
     <BlockWrapper>
       <BlockTextarea
         ref={refCallback}
-        value={value}
-        onChange={(e) => updateBlock(index, e.target.value)}
+        // dangerouslySetInnerHTML={{ __html: value }}
+
+        contentEditable
+        suppressContentEditableWarning
+        onInput={(e) => updateBlock(index, e.currentTarget.textContent)}
         onKeyDown={(e) => handleKeyDown(e, index)}
-        placeholder={focusedIndex === index ? "Type '/' for commands" : ""}
-        rows={1}
+
+        onPaste={(e) => handlePaste(e, index)}
+
+        data-placeholder={focusedIndex === index ? "Type '/' for commands" : ""}
         onFocus={() => setFocusedIndex(index)}
         onBlur={() => setFocusedIndex(null)}
-      />
+      >
+      
+      </BlockTextarea>
     </BlockWrapper>
   );
 };

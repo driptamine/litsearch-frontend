@@ -15,21 +15,6 @@ import LoadingIndicator from 'views/components/LoadingIndicator';
 // import PlaylistTrackListItemVK from './PlaylistTrackListItemVK';
 import PlaylistTrackListItemMinified from './PlaylistTrackListItemMinified';
 
-// import { audio, getPlayerIsPlaying, getPlayerTrackId, playerActions } from 'core/player';
-// import { getCurrentTracklist, getTracksForCurrentTracklist, tracklistActions } from 'core/tracklists';
-
-// import MovieVideoPlayerModal from './MovieVideoPlayerModal';
-
-// function renderItem(playlistTrackId) {
-//   return (
-//
-//       <PlaylistTrackListItem
-//         playlistTrackId={playlistTrackId}
-//         // {...props}
-//       />
-//
-//   );
-// }
 
 function PlaylistTrackList({
   playlistId, stopSong, pauseSong, resumeSong, audioControl,
@@ -69,13 +54,7 @@ function PlaylistTrackList({
           audioControl={audioControl}
           index={index}
           key={playlistTrackId}
-          // isCompact={compactLayout || !isMediaLarge}
-          // isPlaying={isSelected && isPlaying}
-          // isSelected={isSelected}
-          // pause={pause}
-          // play={isSelected ? play : selectTrack.bind(null, playlistTrackId.track.id, tracklistId)}
-          // trackk={trackk}
-          // {...props}
+
         />
 
     );
@@ -92,38 +71,9 @@ function PlaylistTrackList({
   );
 }
 
-// export default PlaylistTrackList;
 
 
-// const mapStateToProps = createSelector(
-//   // getBrowserMedia,
-//   getPlayerIsPlaying,
-//   getPlayerTrackId,
-//   getCurrentTracklist,
-//   getTracksForCurrentTracklist,
-//   (
-//     // media,
-//     isPlaying,
-//     playerTrackId,
-//     tracklist,
-//     tracks
-//   ) => ({
-//     displayLoadingIndicator: tracklist.isPending || tracklist.hasNextPage,
-//     // isMediaLarge: !!media.large,
-//     isPlaying,
-//     pause: audio.pause,
-//     pauseInfiniteScroll: tracklist.isPending || !tracklist.hasNextPage,
-//     play: audio.play,
-//     selectedTrackId: playerTrackId,
-//     tracklistId: tracklist.id,
-//     tracks
-//   })
-// );
-//
-// const mapDispatchToProps = {
-//   loadNextTracks: tracklistActions.loadNextTracks,
-//   selectTrack: playerActions.playSelectedTrack
-// };
+
 
 export default connect(
   // mapStateToProps,

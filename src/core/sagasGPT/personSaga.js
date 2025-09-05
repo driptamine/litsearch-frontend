@@ -4,7 +4,11 @@ import { callAPIWithHeader } from './apiSaga';
 import * as schemas from 'core/schemas';
 
 function* fetchPersonSaga(action) {
-  yield call(callAPIWithHeader, `/person/${action.payload.personId}/`, null, schemas.personSchema);
+  yield call(callAPIWithHeader,
+    `/person/${action.payload.personId}/`,
+    null,
+    schemas.personSchema
+  );
 }
 
 export function* watchPersonSagas() {

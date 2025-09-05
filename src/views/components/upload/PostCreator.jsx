@@ -1,6 +1,7 @@
 // https://chatgpt.com/c/66f1ffb6-9578-800c-be4f-8b7bd1d2517e
 import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './modal/portal.css';
 import styled from 'styled-components';
@@ -58,7 +59,7 @@ const PostCreator = ({ mediaIds, showDropZone }) => {
 
         if (response.status === 201) {
           console.log(response.data);
-          setSubmittedPost(response.data.content);
+          setSubmittedPost(response.data);
 
           setPostText(''); // Clear the textarea after submission
         }
@@ -80,7 +81,6 @@ const PostCreator = ({ mediaIds, showDropZone }) => {
   const showAttachment = photoIds.length > 0 || videoIds.length > 0 ||  trackIds.length > 0
   return (
     <div>
-      {/*<form onSubmit={handleSubmit}>*/}
 
         <TextArea
           ref={textareaRef}
@@ -93,7 +93,6 @@ const PostCreator = ({ mediaIds, showDropZone }) => {
           style={{  }}
         />
 
-      {/*</form>*/}
       <FlexBoxWrapper>
         <FlexBoxAttachments>
           <PhotoAttachment />
@@ -119,13 +118,18 @@ const PostCreator = ({ mediaIds, showDropZone }) => {
         <div
           style={{
             marginTop: '20px',
-
             border: '1px solid #ccc',
             padding: '10px',
             whiteSpace: 'pre-wrap',
           }}
-          dangerouslySetInnerHTML={{ __html: submittedPost }}
-        />
+        >
+          <p>{submittedPost.message}</p>
+          <Link
+            to={`/posts/${submittedPost.post_id}`}
+             >
+            View Post
+          </Link>
+        </div>
       )}
 
       <Attachments
@@ -389,9 +393,6 @@ const FlexBoxWrapper = styled.div`
 
   background: ${props => props.theme.cardColor};
 `;
-// const Button = styled.button`
-//   cursor: pointer;
-// `
 
 const DropZone = styled.div`
   /* position: fixed; */

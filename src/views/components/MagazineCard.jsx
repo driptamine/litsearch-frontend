@@ -34,7 +34,7 @@ function MagazineCard({ magazineId, subheader }) {
 
         <BaseCard hasActionArea>
           <BaseImage
-            src={getImageUrl(magazine.poster_path, { original: true })}
+            src={getImageUrl(magazine.poster_path, { size: 'original' })}
             alt={magazine.title}
             // aspectRatio={getAspectRatioString(2, 3)}
             // aspectRatio={getAspectRatioString(3, 3)}

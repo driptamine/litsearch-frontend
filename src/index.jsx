@@ -23,7 +23,9 @@ import * as serviceWorker from './serviceWorker';
 // CORE
 // import { store, persistor, sagaMiddleware } from 'core/store';
 import {  persistor } from 'core/store';
+// import  store  from 'core/store/index';
 // import  store  from 'core/store/storeV1';
+// import  store  from 'core/store/storeV2';
 // import  store  from 'core/store/storeV3';
 // import  store  from 'core/store/storeV4';
 // import  store  from 'core/store/storeV5_GPT';

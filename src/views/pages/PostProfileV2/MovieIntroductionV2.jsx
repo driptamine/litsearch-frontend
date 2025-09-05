@@ -61,7 +61,7 @@ function MovieIntroductionV2({ movieId, obj }) {
           </StyledLink>
           {/*<Rating value={movie.vote_average * 10} />*/}
           <Rating value={movie.vote_average} />
-          <a target="_blank" href={`https://rezka.ag/search/?q=${movie.title}&do=search&subaction=search`}>rezka</a>
+          <a target="_blank" href={`https://rezka.si/search/?q=${movie.title}&do=search&subaction=search`}>rezka</a>
         </StyledBox>
       </StyledBox>
 

@@ -1,6 +1,6 @@
 import { call, put } from 'redux-saga/effects';
 import { getFetchTypes, verifyCachedData } from 'core/utils';
-import { callAPIWithHeader, callAPI } from './apiSaga';
+import { callAPIWithHeader, callAPI } from 'core/sagasGPT/apiSaga';
 
 /**
  * Generic fetcherSaga for making API requests with caching and normalization.
@@ -19,7 +19,7 @@ import { callAPIWithHeader, callAPI } from './apiSaga';
      // If there is a "verified" cached data, we don't fetch it again.
      // if (!verified) {
      yield put({ type: requestType, payload });
-     let data = yield call(callAPIwithHeader, endpoint, params, schema, processData);
+     let data = yield call(callAPIWithHeader, {endpoint, params, schema, processData});
      // let data = yield call(callTrackAPI, endpoint, params, schema, processData);
      // Dispatch success action.
      yield put({

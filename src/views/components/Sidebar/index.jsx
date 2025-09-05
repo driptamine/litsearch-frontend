@@ -9,11 +9,17 @@ import { FiClock, FiBookmark, FiMessageCircle } from 'react-icons/fi';
 import { FaFilm } from 'react-icons/fa';
 import { FaMusic, FaImage } from 'react-icons/fa';
 
-import { TbMessageCircle2 } from 'react-icons/tb';
+import { TbMessageCircle } from 'react-icons/tb';
 import { FaHistory, FaWpexplorer } from 'react-icons/fa';
 import { MdVideoLibrary, MdAlbum } from 'react-icons/md';
 import { BsBook } from 'react-icons/bs';
 import { BsFillFileRichtextFill } from "react-icons/bs";
+import { CiHashtag } from "react-icons/ci";
+import { FaHashtag } from "react-icons/fa";
+import { CiBoxList } from "react-icons/ci";
+import { BsUiChecks } from "react-icons/bs";
+import { LuLayoutList } from "react-icons/lu";
+
 
 const Sidebar = () => {
   const dispatch = useDispatch();
@@ -37,6 +43,44 @@ const Sidebar = () => {
             <span>Feed</span>
           </LinkStyled>
         </StyledLi>
+
+        <StyledLi id="WarpNode">
+          <LinkStyled
+            onClick={handleCloseSidebar}
+            to="/notes"
+            // activeClassName="active"
+          >
+            <StyledDivIcon className="icon">
+              {/*<FiBookmark />*/}
+              {/*<FaHistory />*/}
+              <BsFillFileRichtextFill />
+
+
+            </StyledDivIcon>
+            <span className="mymusic">NetNode</span>
+          </LinkStyled>
+        </StyledLi>
+
+
+
+        <StyledLi id="JustDoList">
+          <LinkStyled
+            onClick={handleCloseSidebar}
+            to="/todo"
+            // activeClassName="active"
+          >
+            <StyledDivIcon className="icon">
+              {/*<FiBookmark />*/}
+              {/*<FaHistory />*/}
+              {/*<CiBoxList />*/}
+              {/*<BsUiChecks />*/}
+              <LuLayoutList />
+
+            </StyledDivIcon>
+            <span className="mymusic">JustDoList</span>
+          </LinkStyled>
+        </StyledLi>
+
         {/*<StyledLi id="Trending">
           <LinkStyled onClick={handleCloseSidebar} to="/feed/trending">
             <StyledDivIcon className="icon">
@@ -47,27 +91,27 @@ const Sidebar = () => {
           </LinkStyled>
         </StyledLi>*/}
 
-        <StyledLi id="Explore">
+        {/*<StyledLi id="Explore">
           <LinkStyled
             onClick={handleCloseSidebar}
             to="/explore"
             // activeClassName="active"
           >
             <StyledDivIcon className="icon">
-              {/*<VidIcon />*/}
+              <VidIcon />
               <FaWpexplorer />
 
             </StyledDivIcon>
             <span>Explore</span>
           </LinkStyled>
-        </StyledLi>
+        </StyledLi>*/}
 
         <StyledLi id="Messages">
           <LinkStyled onClick={handleCloseSidebar} to="/chat/im">
             <StyledDivIcon className="icon">
               {/*<MessagesIcon />*/}
               {/*<FiMessageCircle />*/}
-              <TbMessageCircle2 />
+              <TbMessageCircle />
 
             </StyledDivIcon>
             <span>Messages</span>
@@ -117,7 +161,7 @@ const Sidebar = () => {
           </LinkStyled>
         </StyledLi>*/}
 
-        <StyledLi id="Bookmarks">
+        {/*<StyledLi id="Bookmarks">
           <LinkStyled
             onClick={handleCloseSidebar}
             to="/bookmarks"
@@ -125,12 +169,12 @@ const Sidebar = () => {
           >
             <StyledDivIcon className="icon">
               <FiBookmark />
-              {/*<FaHistory />*/}
+              <FaHistory />
 
             </StyledDivIcon>
             <span>Bookmarks</span>
           </LinkStyled>
-        </StyledLi>
+        </StyledLi>*/}
 
         <StyledLi id="VideosSidebar">
           <LinkStyled
@@ -177,20 +221,21 @@ const Sidebar = () => {
             <span className="mymusic">Photos</span>
           </LinkStyled>
         </StyledLi>
-        <StyledLi id="Notes">
+
+        <StyledLi id="LinkTag">
           <LinkStyled
             onClick={handleCloseSidebar}
-            to="/notes"
+            to="/linktag/all"
             // activeClassName="active"
           >
             <StyledDivIcon className="icon">
               {/*<FiBookmark />*/}
               {/*<FaHistory />*/}
-              <BsFillFileRichtextFill />
+              <FaHashtag />
 
 
             </StyledDivIcon>
-            <span className="mymusic">Notes</span>
+            <span className="mymusic">LinkTag</span>
           </LinkStyled>
         </StyledLi>
 
@@ -325,6 +370,7 @@ const StyledUl = styled.ul`
 `;
 
 const StyledLi = styled.li`
+  margin-top: 15px;
   &:hover {
     background-color: ${props => props.theme.sideBarHoverColor};
     border-radius: 12px;

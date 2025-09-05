@@ -15,7 +15,10 @@ import { selectors } from 'core/reducers/index';
 function renderItem(recommendationId) {
   return (
     <li>
-      <MovieCard movieId={recommendationId} />
+      <MovieCard
+        movieId={recommendationId}
+        
+        />
     </li>
   );
 }

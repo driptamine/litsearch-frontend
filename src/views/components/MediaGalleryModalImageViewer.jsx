@@ -11,9 +11,7 @@ function MediaGalleryModalImageViewer({ filePath }) {
       // Added this key to recreate the component when the "file_path" changes.
       // Without this, when user clicks the "next" or "previous" button, it wait image to load to rerender.
       key={filePath || "0"}
-      src={getImageUrl(filePath, {
-        original: true
-      })}
+      src={getImageUrl(filePath, { size: 'original' })}
       lazyLoad={false}
       aspectRatio={getAspectRatioString(16, 9)}
       objectFit="contain"

@@ -34,6 +34,7 @@ import Dropdown from 'views/components/Dropdown/Dropdown';
 import DropdownV2 from 'views/components/Dropdown/DropdownV2';
 import DropdownPortal from 'views/components/Dropdown/DropdownPortal';
 import DropDownNew from 'views/components/DropdownV2/DropDown';
+import DropdownApps from 'views/components/DropdownApps/DropdownApps';
 
 
 import Toggle from 'views/components/Toggle/Toggler';
@@ -376,10 +377,14 @@ const AppHeader = React.forwardRef((props, ref) => {
           <RouterLink to="/s3upload">
             <UploadButtonS3 />
           </RouterLink>
+
+
+
           <RouterLink to="/ax">
             <UploadButton />
           </RouterLink>
-
+          
+          <DropdownApps />
           {/*<AvatarHover avatarUrl={user.google_oauth.profileImg} />*/}
 
 

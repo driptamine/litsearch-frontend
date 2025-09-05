@@ -45,7 +45,7 @@ function ConfigurationProvider({ children }) {
     // fetchConfigurationz();
   }, []);
 
-  const getImageUrl = useCallback(
+  const getImageUrlLegacy = useCallback(
     (path, { original } = {}) => {
       if (!path || !configuration) {
         return placeholderPng;
@@ -54,8 +54,26 @@ function ConfigurationProvider({ children }) {
       const { images } = configuration;
       const { secure_base_url } = images;
 
-      return `${secure_base_url}/${original ? "original" : "w500"}${path}`;
+      return `${secure_base_url}/${original ? "original" : "w300"}${path}`;
       // return `${secure_base_url}/${original ? "original" : "original"}${path}`;
+    },
+    [configuration]
+  );
+
+  const getImageUrl = useCallback(
+    (path, { size = "w500" } = {}) => {
+      if (!path || !configuration) {
+        return placeholderPng;
+      }
+
+      const { images } = configuration;
+      const { secure_base_url } = images;
+
+      // Validate size option
+      const validSizes = ["original", "w500", "w300", "w780"];
+      const imageSize = validSizes.includes(size) ? size : "w300";
+
+      return `${secure_base_url}${imageSize}${path}`;
     },
     [configuration]
   );

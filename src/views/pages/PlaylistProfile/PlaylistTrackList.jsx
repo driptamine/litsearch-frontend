@@ -11,9 +11,9 @@ import InfiniteList from 'views/components/InfiniteList';
 import InfiniteGridList from 'views/components/InfiniteGridList';
 import LoadingIndicator from 'views/components/LoadingIndicator';
 
-import PlaylistTrackListItem from './PlaylistTrackListItem';
-import PlaylistTrackListItemVK from './PlaylistTrackListItemVK';
-import PlaylistTrackListItemMinified from './PlaylistTrackListItemMinified';
+import PlaylistTrackListItem from 'views/pages/PlaylistProfile/PlaylistTrackListItem';
+import PlaylistTrackListItemVK from 'views/pages/PlaylistProfile/PlaylistTrackListItemVK';
+import PlaylistTrackListItemMinified from 'views/pages/PlaylistProfile/PlaylistTrackListItemMinified';
 
 // import { audio, getPlayerIsPlaying, getPlayerTrackId, playerActions } from 'core/player';
 // import { getCurrentTracklist, getTracksForCurrentTracklist, tracklistActions } from 'core/tracklists';
@@ -42,7 +42,12 @@ function PlaylistTrackList({
   tracklistId,
  }) {
   const dispatch = useDispatch();
-  const playlistTracksIds = useSelector(state => selectors.selectPlaylistTrackIds(state, playlistId)) || [];
+
+  const playlistTracksIds = useSelector(
+    state => selectors.selectPlaylistTrackIds(state, playlistId)
+  ) || [];
+
+
   const isFetching = useSelector(state => selectors.selectIsFetchingPlaylistTracks(state, playlistId));
   const nextPage = useSelector(state => selectors.selectPlaylistTracksNextPage(state, playlistId));
   const nextOffset = useSelector(state => selectors.selectPlaylistTracksNextPage(state, playlistId));
@@ -60,9 +65,9 @@ function PlaylistTrackList({
     // let isSelected = playlistTrackId.track.id === selectedTrackId;
     return (
 
-        // <PlaylistTrackListItem
+        <PlaylistTrackListItem
         // <PlaylistTrackListItemVK
-        <PlaylistTrackListItemMinified
+        // <PlaylistTrackListItemMinified
           playlistTrackId={playlistTrackId}
           resumeSong={resumeSong}
           pauseSong={pauseSong}

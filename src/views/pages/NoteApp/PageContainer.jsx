@@ -9,6 +9,7 @@ const PageContainer = ({
   blocks,
   updateBlock,
   handleKeyDown,
+  handlePaste,
   refs,
   focusedIndex,
   setFocusedIndex,
@@ -24,6 +25,7 @@ const PageContainer = ({
           value={block}
           updateBlock={updateBlock}
           handleKeyDown={handleKeyDown}
+          handlePaste={handlePaste}
           refCallback={(el) => (refs.current[index] = el)}
           focusedIndex={focusedIndex}
           setFocusedIndex={setFocusedIndex}

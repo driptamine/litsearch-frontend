@@ -36,7 +36,7 @@ function MovieCard({ movieId, subheader }) {
           {/*{movie.title}*/}
 
           <BaseImage
-            src={getImageUrl(movie.poster_path, { original: true })}
+            src={getImageUrl(movie.poster_path, { size: "w300" })}
             alt={movie.title}
             // aspectRatio={getAspectRatioString(2, 3)}
             // aspectRatio={getAspectRatioString(3, 3)}

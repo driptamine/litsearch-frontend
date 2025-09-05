@@ -15,20 +15,7 @@ import MovieGenreChip from './MovieGenreChip';
 import { selectors } from 'core/reducers/index';
 import { getMovieReleaseYear, getImdbProfileUrl } from 'core/utils';
 
-// const useStyles = makeStyles(theme => ({
-//   year: {
-//     color: theme.palette.text.secondary
-//   },
-//   tagline: {
-//     fontStyle: "italic"
-//   },
-//   genreChip: {
-//     margin: theme.spacing(0.5)
-//   },
-//   overview: {
-//     whiteSpace: "pre-wrap"
-//   }
-// }));
+
 
 function MovieIntroduction({ movieId }) {
   const movie = useSelector(state => selectors.selectMovie(state, movieId));
@@ -40,26 +27,7 @@ function MovieIntroduction({ movieId }) {
     return null;
   }
 
-  // const linkList = album.artists.map((artist) => {
-  //   return (
-  //     // <li key={artist.id}>
-  //       <Link
-  //         // key={.id}
-  //         to={`/person/${artist.artist_uri}/`}
-  //         style={{
-  //           fontWeight: "bold",
-  //           color: '#FFF',
-  //           textDecoration: 'none',
-  //           "&:hover": {
-  //             textDecoration: "underline"
-  //           }
-  //         }}
-  //         >
-  //         {artist.name}, {'       '}
-  //       </Link>
-  //     // </li>
-  //   );
-  // });
+
 
   return (
     <Introduction
