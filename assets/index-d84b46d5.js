@@ -7472,4 +7472,18 @@ border: 1px solid black;
       border-radius: 10px;
     }
   }
-`;const Gje=!!(window.location.hostname==="localhost"||window.location.hostname==="[::1]"||window.location.hostname.match(/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/));function Hje(t){if({}.NODE_ENV==="production"&&"serviceWorker"in navigator){if(new URL({}.PUBLIC_URL,window.location.href).origin!==window.location.origin)return;window.addEventListener("load",()=>{const n=`${{}.PUBLIC_URL}/service-worker.js`;Gje?(Vje(n,t),navigator.serviceWorker.ready.then(()=>{console.log("This web app is being served cache-first by a service worker. To learn more, visit https://bit.ly/CRA-PWA")})):OK(n,t)})}}function OK(t,e){navigator.serviceWorker.register(t).then(n=>{n.onupdatefound=()=>{const r=n.installing;r!=null&&(r.onstatechange=()=>{r.state==="installed"&&(navigator.serviceWorker.controller?(console.log("New content is available and will be used when all tabs for this page are closed. See https://bit.ly/CRA-PWA."),e&&e.onUpdate&&e.onUpdate(n)):(console.log("Content is cached for offline use."),e&&e.onSuccess&&e.onSuccess(n)))})}}).catch(n=>{console.error("Error during service worker registration:",n)})}function Vje(t,e){fetch(t).then(n=>{const r=n.headers.get("content-type");n.status===404||r!=null&&r.indexOf("javascript")===-1?navigator.serviceWorker.ready.then(i=>{i.unregister().then(()=>{window.location.reload()})}):OK(t,e)}).catch(()=>{console.log("No internet connection found. App is running in offline mode.")})}const Yje=document.getElementById("root"),zje=UG(Yje);zje.render(h.jsx(xe.StrictMode,{children:h.jsx(lZ,{store:cE,children:h.jsx(h5,{loading:null,persistor:UOe,children:h.jsx(rPe,{children:h.jsx(hh,{history:zi,children:h.jsx(Mje,{})})})})})}));Hje()});export default jje();
+`;const Gje=!!(window.location.hostname==="localhost"||window.location.hostname==="[::1]"||window.location.hostname.match(/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/));function Hje(t){if({}.NODE_ENV==="production"&&"serviceWorker"in navigator){if(new URL({}.PUBLIC_URL,window.location.href).origin!==window.location.origin)return;window.addEventListener("load",()=>{const n=`${{}.PUBLIC_URL}/service-worker.js`;Gje?(Vje(n,t),navigator.serviceWorker.ready.then(()=>{console.log("This web app is being served cache-first by a service worker. To learn more, visit https://bit.ly/CRA-PWA")})):OK(n,t)})}}function OK(t,e){navigator.serviceWorker.register(t).then(n=>{n.onupdatefound=()=>{const r=n.installing;r!=null&&(r.onstatechange=()=>{r.state==="installed"&&(navigator.serviceWorker.controller?(console.log("New content is available and will be used when all tabs for this page are closed. See https://bit.ly/CRA-PWA."),e&&e.onUpdate&&e.onUpdate(n)):(console.log("Content is cached for offline use."),e&&e.onSuccess&&e.onSuccess(n)))})}}).catch(n=>{console.error("Error during service worker registration:",n)})}function Vje(t,e){fetch(t).then(n=>{const r=n.headers.get("content-type");n.status===404||r!=null&&r.indexOf("javascript")===-1?navigator.serviceWorker.ready.then(i=>{i.unregister().then(()=>{window.location.reload()})}):OK(t,e)}).catch(()=>{console.log("No internet connection found. App is running in offline mode.")})}w.button`
+  background-color: var(--card-color);
+  color: var(--text-color);
+  border: 1px solid var(--title-color);
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: var(--title-color);
+    color: white;
+  }
+`;const Yje=document.getElementById("root"),zje=UG(Yje);zje.render(h.jsx(xe.StrictMode,{children:h.jsx(lZ,{store:cE,children:h.jsx(h5,{loading:null,persistor:UOe,children:h.jsx(rPe,{children:h.jsx(hh,{history:zi,children:h.jsx(Mje,{})})})})})}));Hje()});export default jje();
