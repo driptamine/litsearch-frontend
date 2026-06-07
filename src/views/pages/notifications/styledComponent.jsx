@@ -1,4 +1,5 @@
-import styled, { css } from 'styled-components';
+import { styled } from '@linaria/react';
+import { css } from '@linaria/core';
 import Colors from '../../components/themes/Colors';
 
 export const NotificationListContainer = styled.div`

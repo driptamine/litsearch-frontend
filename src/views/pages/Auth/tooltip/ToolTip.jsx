@@ -1,7 +1,7 @@
 import React from 'react';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useRecoilValue } from 'recoil';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { feedVideoSizeAtom } from 'core/atoms/atoms';
 
 const ToolTipText = styled(Tooltip)`

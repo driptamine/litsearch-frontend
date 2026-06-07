@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter, NavLink } from 'react-router-dom';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { lighten } from 'polished';
 import AddToCollectionDialog from '../AddToCollectionDialog';
 import CollectionsSView from '../../components/CollectionsSView';
@@ -13,7 +13,7 @@ import { searchInPhotos } from '../../actions/photo';
 import { searchInCollections } from '../../actions/collection';
 import { clearItems } from '../../actions/items';
 import { setSearchValues } from '../../actions/app';
-import { API_ROOT } from '../../constants/service-info';
+import { LITLOOP_API_URL as API_ROOT } from 'core/constants/urls';
 import { linkColor, activeLinkColor, primaryColor1 } from '../../style/colors';
 import { media } from '../../style/util';
 
@@ -39,24 +39,30 @@ const Links = styled.div`
   `};
 `;
 
-const Nav = styled(NavLink).attrs({
-  activeStyle: {
-    color: primaryColor1,
-    textDecoration: 'underline',
-  },
-})`
+const navStyles = props => `
+  ${props.active ? `
+    text-decoration: underline;
+    color: ${activeLinkColor};
+  ` : ''}
+`;
+
+const _Nav = styled(NavLink)`
   color: ${lighten(0.1, linkColor)};
   &:hover {
     color: ${activeLinkColor};
   }
-  ${props =>
-    props.active
-      ? `
-    text-decoration: underline;
-    color: ${activeLinkColor};
-  `
-      : ``};
+  ${navStyles}
 `;
+
+const Nav = (props) => (
+  <_Nav
+    activeStyle={{
+      color: primaryColor1,
+      textDecoration: 'underline',
+    }}
+    {...props}
+  />
+);
 
 const Results = styled.div`
   margin-top: 24px;

@@ -1,7 +1,7 @@
 import React, { useEffect, } from 'react';
 import { useSelector, connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 
 // MATERIAL DONE
@@ -12,8 +12,7 @@ import { StyledTypography, StyledBox, StyledGrid } from 'views/styledComponents'
 import BaseImage from 'views/components/BaseImage';
 import Introduktion from 'views/components/Introduktion';
 import ImdbLogo from 'views/components/ImdbLogo';
-import Button from 'views/components/Button';
-import LikeIcon from 'views/components/LikeIcon';
+import LikeButton from 'views/components/LikeButton/LikeButton';
 // import PlaylistGenreChip from './PlaylistGenreChip';
 // import Rating from './Rating';
 import SongRow from './SongRow';
@@ -35,50 +34,12 @@ import { fetchLikePlaylist, fetchUnLikePlaylist } from 'core/actions';
 
 
 
-const LikedBtn = styled(Button)`
-  display: flex;
-  align-items: center;
-  margin: 0;
-  ${props =>
-    props.likedByUser &&
-    `
-    background-color: ${likeColor};
-    color: ${white};
-    &:hover {
-      color: ${white};
-      border-color: transparent !important;
-    }
-  `};
-  ${screenLargerThan.giant`
-    flex-direction: column;
-    height: auto;
-    border: none;
-    color: ${white} !important;
-    background-color: transparent !important;
-    svg {
-      fill: ${white};
-      color: ${white};
-    }
-    ${props =>
-      props.likedByUser &&
-      `
-        svg {
-          fill: ${likeColor};
-          color: ${white};
-        }
-      `};
-    &:hover {
-      color: ${white};
-    }
-  `};
-`;
-
-const LikesCounter = styled.span`
-  margin: 0px 6px;
+const reStyledTypographyStyles = props => `
+  color: ${props.theme.text};
 `;
 
 const ReStyledTypography = styled(StyledTypography)`
-  color: ${props => props.theme.text};
+  ${reStyledTypographyStyles}
 `;
 const ReBaseImage = styled.img`
   width: 10%;
@@ -199,21 +160,12 @@ function PlaylistIntroduction({ playlistId, handleLikePhoto, handleUnLikePhoto }
         </>
       }
       likeButton={
-        <>
-          <LikedBtn likedByUser={playlist.is_liked}
-            onClick={() =>
-              playlist.is_liked
-                ? handleUnLikePhoto(playlist)
-                : handleLikePhoto(playlist)
-            }>
-            <LikeIcon
-              size={18}
-              color={playlist.is_liked ? white : likeColor}
-              hoverColor={playlist.is_liked ? white : likeColor}
-            />
-            <LikesCounter>{playlist.total_likes}</LikesCounter>
-          </LikedBtn>
-        </>
+        <LikeButton 
+          isLiked={playlist.is_liked} 
+          likesCount={playlist.total_likes} 
+          onClick={() => playlist.is_liked ? handleUnLikePhoto(playlist) : handleLikePhoto(playlist)}
+          size={24}
+        />
       }
     />
   );

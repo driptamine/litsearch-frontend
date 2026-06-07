@@ -18,8 +18,7 @@ export default function VideoUploader() {
     setIsUploading(true);
 
     try {
-      // Step 1: request to create a presigned URL session
-      const createRes = await axios.post('/api/create_presigned_url/', {
+      const createRes = await axios.post('/api/gcs/create_presigned_url/', {
         filename: videoFile.name,
         content_type: videoFile.type,
       });
@@ -35,7 +34,7 @@ export default function VideoUploader() {
         const blobPart = videoFile.slice(i, i + part_size);
 
         // Get signed URL for this part
-        const { data } = await axios.post('/api/get_presigned_url/', {
+        const { data } = await axios.post('/api/gcs/get_presigned_url/', {
           upload_id,
           part_number: partNumber,
           s3_key,
@@ -52,7 +51,7 @@ export default function VideoUploader() {
 
         parts.push({
           PartNumber: partNumber,
-          ETagPromise: uploadPart.then((res) => res.headers.etag),
+          ETagPromise: uploadPart.then((res) => res.headers.etag || res.headers.ETag || ""),
         });
       }
 
@@ -67,7 +66,7 @@ export default function VideoUploader() {
       );
 
       // Step 4: complete upload and get Video ID
-      const completeRes = await axios.post('/api/complete_upload/', {
+      const completeRes = await axios.post('/api/gcs/complete_upload/', {
         upload_id,
         s3_key,
         parts: completedParts,

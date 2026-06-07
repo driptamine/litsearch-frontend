@@ -1,6 +1,6 @@
 import React, { useState, useRef, useReducer } from 'react';
 import ReactPlayer from 'react-player';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 import { FiPlay, FiPause } from 'react-icons/fi';
 import { FaVolumeUp } from 'react-icons/fa';

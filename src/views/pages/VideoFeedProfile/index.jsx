@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 import { StyledTypography } from 'views/styledComponents';
 import Profile from 'views/components/Profile';

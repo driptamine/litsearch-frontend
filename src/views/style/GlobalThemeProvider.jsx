@@ -1,7 +1,6 @@
 // JPF REDDIT
 
 import React, { useContext, useMemo, useEffect } from 'react';
-import { ThemeProvider, withTheme } from 'styled-components';
 import { connect } from 'react-redux';
 import { Requester } from '../components/requester';
 import themes from './themes';
@@ -11,7 +10,6 @@ import { setUserPrefs, setThemePrefs } from '../store/actions';
 const GlobalThemeProvider = ({
   themePrefs,
   subredditTheme,
-  theme: inheritedTheme,
   userPrefs,
   setUserPrefs,
   setThemePrefs,
@@ -42,16 +40,6 @@ const GlobalThemeProvider = ({
           ...themes[useDark ? darkTheme : lightTheme],
           ...buildColorTheme(colorTheme, useDark),
         };
-    // const base =
-    //   useSubredditThemes && subredditTheme
-    //     ? useDark
-    //       ? subredditTheme.dark
-    //       : subredditTheme.light
-    //     : themes[useDark ? darkTheme : lightTheme];
-    // return {
-    //   ...base,
-    //   ...buildColorTheme(colorTheme, useDark),
-    // };
   }, [themePrefs, userPrefs.nightmode, subredditTheme]);
 
   useEffect(() => {
@@ -72,11 +60,7 @@ const GlobalThemeProvider = ({
     };
   }, [r, themePrefs.syncSystemTheme, setThemePrefs, setUserPrefs]);
 
-  return <ThemeProvider theme={theme} {...props} />;
-};
-
-GlobalThemeProvider.defaultProps = {
-  theme: themes.light,
+  return <React.Fragment {...props} />;
 };
 
 export default connect(
@@ -89,4 +73,4 @@ export default connect(
         : null,
   }),
   { setUserPrefs, setThemePrefs }
-)(withTheme(GlobalThemeProvider));
+)(GlobalThemeProvider);

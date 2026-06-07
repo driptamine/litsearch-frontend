@@ -1,15 +1,17 @@
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
+
+const trackStyles = props => `
+  width: ${props.progress || 0}%;
+`;
 
 export const StyledTrack = styled.div`
   height: 4px;
-  /* width: 20%; */
-  /* width: ${props => props.value}%;  */
-  width: ${props => props.progress}%;
+  ${trackStyles}
   
-  border-bottom-left-radius 12px;
-  border-bottom-right-radius 12px;
-  border-top-left-radius 12px;
-  border-top-right-radius 12px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
 
 
   /* background-color: #5c48a2; purple */
@@ -23,7 +25,7 @@ export const StyledTrack = styled.div`
 
 
   -webkit-transition: width 0.9s ease;
-  -o-transition: width 0.9 ease;
-  transition: width 0.9 ease;
+  -o-transition: width 0.9s ease;
+  transition: width 0.9s ease;
 
 `;

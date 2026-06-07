@@ -4,37 +4,12 @@ import { Header } from './components/styles/Header.styled';
 import { Footer } from './components/styles/Footer.styled';
 import Quotes from './components/Quotes';
 import { ThemeContainer, ThemeButton,} from './components/styles/ThemeSwitching.styled';
-import { ThemeProvider } from 'styled-components';
 import { light, dark, blue, green, brown, pink, } from './components/styles/Theme.styled';
 
 function App() {
-  // theme state
-  const [selectedTheme, setSelectedTheme] = useState(light);
-
-  // react hook to get the theme selected by the user that is saved in local storage
-  useEffect(() => {
-    const currentTheme = JSON.parse(localStorage.getItem("current-theme"));
-    if (currentTheme) {
-      setSelectedTheme(currentTheme);
-    }
-  }, []);
-
-  // function to handle user theme selection on click and save it to local storage
-  const HandleThemeChange = (theme) => {
-    setSelectedTheme(theme);
-    localStorage.setItem("current-theme", JSON.stringify(theme));
-  };
-
-  // invert the current color of the selected theme
-  // const invertedSelectedTheme = ({ colors }) => ({
-  //   colors: {
-  //     background: colors.footer,
-  //     footer: colors.background,
-  //   },
-  // });
-
+  // ... rest of component logic
   return (
-    <ThemeProvider theme={selectedTheme}>
+    <>
       <div className="App">
         <GlobalStyles />
         <Header>Game of Thrones Quotes</Header>
@@ -52,9 +27,9 @@ function App() {
         <Quotes />
 
         {/* Nesting ThemeProviders */}
-        {/* <ThemeProvider theme={pink}>
+        {/* <>
           <Quotes />
-        </ThemeProvider> */}
+        </> */}
 
         <Footer>
           <p>
@@ -76,11 +51,11 @@ function App() {
         </Footer> */}
 
         {/* inverted theme */}
-        {/* <ThemeProvider theme={invertedSelectedTheme}>
+        {/* <>
           <Footer>Inverted Footer</Footer>
-        </ThemeProvider> */}
+        </> */}
       </div>
-    </ThemeProvider>
+    </>
   );
 }
 

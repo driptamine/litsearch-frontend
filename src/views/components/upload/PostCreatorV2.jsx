@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { LITLOOP_API_URL } from 'core/constants/urls';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 import PreviewPost from './PreviewPost';
 import VideoAttachment from './attachments/VideoAttachment';
@@ -57,6 +57,11 @@ const PostCreator = ({ mediaIds, showDropZone }) => {
         photo_ids: photoIds,
         video_ids: videoIds,
         track_ids: trackIds,
+        media_attachments: [
+          ...photoIds.map(id => ({ id, type: 'photo' })),
+          ...videoIds.map(id => ({ id, type: 'video' })),
+          ...trackIds.map(id => ({ id, type: 'track' }))
+        ]
       };
 
       const response = await axios.post(`${LITLOOP_API_URL}/posts/create_post_api/`, postData, {

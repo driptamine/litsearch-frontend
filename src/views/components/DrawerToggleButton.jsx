@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 // MATERIAL DONE
 // import { IconButton } from '@mui/material';

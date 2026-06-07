@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { useAudio } from './AudioContext'; // adjust the path if needed
 import { FaPlay } from 'react-icons/fa'
 import { FaPause } from 'react-icons/fa'
@@ -140,7 +140,7 @@ export default AudioProvider;
 
 import React, { useState } from 'react';
 import { Link, useLocation, withRouter } from 'react-router-dom';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { FiPlay } from 'react-icons/fi';
 import { FiPause } from 'react-icons/fi';
 
@@ -283,9 +283,13 @@ const ArtistsName = ({track }) => {
   )
 }
 
+const flexStyles = props => `
+  display: ${props.isFlex ? 'flex' : 'block'};
+  color: ${props.theme.text};
+`;
+
 export const Flex = styled.div`
-  display: ${(props) => (props.isFlex ? 'flex' : 'block')};
-  color: ${props => props.theme.text};
+  ${flexStyles}
   margin-top: auto;
   margin-bottom: auto;
   margin-left: 8px;
@@ -377,8 +381,12 @@ const TrackNumber = styled.div`
 const ReStyledAvatar = styled(StyledAvatar)`
   margin-right: 16px;
 `;
+const styledLinkStyles = props => `
+  color: ${props.theme.text};
+`;
+
 const StyledLink = styled(Link)`
-  color: ${props => props.theme.text};
+  ${styledLinkStyles}
   text-decoration: none;
   cursor: pointer;
   &:hover {

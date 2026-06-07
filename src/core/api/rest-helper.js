@@ -64,17 +64,23 @@ export const getHeaders = (jsonContentType = true) => {
     headers.append('Content-Type', 'application/json');
   }
   headers.append('Accept', 'application/json');
-  if (getState().users.access_token) {
+  
+  const users = getState().users || {};
+  const token = users.access_token || users.token?.access_token || (typeof users.token === 'string' ? users.token : users.token?.token);
+  
+  if (token) {
     headers.append(
       'Authorization',
-      `Bearer ${getState().users.access_token}`
+      `Bearer ${token}`
     );
   }
   return headers;
 };
 
 export function authHeader() {
-  const token = getState().users.access_token
+  const users = getState().users || {};
+  const token = users.access_token || users.token?.access_token || (typeof users.token === 'string' ? users.token : users.token?.token);
+  
   if (token) {
     return { Authorization: 'Bearer ' + token };
   } else {
@@ -83,10 +89,13 @@ export function authHeader() {
 }
 
 export function authHeaderMulti() {
-  const token = getState().users.access_token
+  const users = getState().users || {};
+  const token = users.access_token || users.token?.access_token || (typeof users.token === 'string' ? users.token : users.token?.token);
+  
   if (token) {
     return { Authorization: 'Bearer ' + token };
   }
+  return {};
 }
 
 
@@ -132,10 +141,15 @@ export const getAxiosReq = (endpoint, headers = getHeaders()) =>
  */
 export const getHeadersForMultiPart = () => {
   const headers = new Headers();
-  if (getState().user.isAuthorized) {
+  const state = getState();
+  const users = state.users || {};
+  const isAuthorized = users.isAuthorized || !!users.access_token;
+  const token = users.access_token || users.token?.access_token || (typeof users.token === 'string' ? users.token : users.token?.token);
+
+  if (isAuthorized && token) {
     headers.append(
       'Authorization',
-      `Bearer ${getState().user.token.access_token}`
+      `Bearer ${token}`
     );
   }
   return headers;

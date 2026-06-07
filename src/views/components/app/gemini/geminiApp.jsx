@@ -1,7 +1,7 @@
 import React, { useEffect, useContext, useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import styled, { ThemeProvider } from 'styled-components';
+import { styled } from '@linaria/react';
 import useKeyboardShortcut from 'use-keyboard-shortcut';
 
 // VIEWS
@@ -147,7 +147,7 @@ const App = () => {
   const isLoginPage = pathname === '/' || pathname === '/login' || pathname === '/signup';
 
   return (
-    <ThemeProvider theme={themeMode}>
+    <>
       <>
         <GlobalStyleThemeMode />
         <StyledWrapper>
@@ -198,7 +198,7 @@ const App = () => {
           )}
         </StyledWrapper>
       </>
-    </ThemeProvider>
+    </>
   );
 };
 

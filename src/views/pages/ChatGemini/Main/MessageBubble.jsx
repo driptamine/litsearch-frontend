@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { getHighlighter } from 'shiki';
@@ -63,11 +63,13 @@ const MessageBubble = ({ content, from }) => {
   return <Bubble from={from} dangerouslySetInnerHTML={{ __html: html }} />;
 };
 
+const bubbleStyles = props => `
+  background-color: ${props.from === "user" ? "#e0f2fe" : "#f1f5f9"};
+  align-self: ${props.from === "user" ? "flex-end" : "flex-start"};
+`;
+
 const Bubble = styled.div`
-  background-color: ${(props) =>
-    props.from === "user" ? "#e0f2fe" : "#f1f5f9"};
-  align-self: ${(props) =>
-    props.from === "user" ? "flex-end" : "flex-start"};
+  ${bubbleStyles}
   margin: 8px 0;
   padding: 12px;
   border-radius: 12px;

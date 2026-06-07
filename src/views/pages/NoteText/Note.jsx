@@ -1,6 +1,6 @@
 // Note.js
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 const NoteContainer = styled.div`
   background: #fff8c6;

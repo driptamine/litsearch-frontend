@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useParams, useLocation } from 'react-router-dom';
 
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 // MATERIAL UNDONE
 // import { Tabs, Tab, Box } from '@mui/material';
-import { StyledTabs, StyledTab, StyledBox } from 'views/styledComponents';
+import { StyledTabs, StyledBox } from 'views/styledComponents';
 
 import SearchResultsHeader from './SearchResultsHeader';
 import WebsiteSearchResults from './WebsiteSearchResults';
@@ -34,9 +34,52 @@ import { selectors } from 'core/reducers/index';
 import useHistoryPush from 'core/hooks/useHistoryPush';
 import useQueryString from 'core/hooks/useQueryString';
 
+const reStyledLinkStyles = props => `
+  color: ${props.theme?.textColor || 'black'};
+`;
+
 const ReStyledLink = styled(Link)`
   text-decoration: none;
-  color: black;
+  ${reStyledLinkStyles}
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 10px 15px;
+
+  @media screen and (max-width: 600px) {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+`;
+
+const styledTabStyles = props => props.active ? `
+  border-bottom: 2px solid #676abb;
+  font-weight: bold;
+` : '';
+
+const StyledTab = styled.div`
+  margin-left: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-family: arial, sans-serif;
+  font-size: 14px;
+  border-bottom: 2px solid transparent;
+
+  ${styledTabStyles}
+
+  &:first-child {
+    margin-left: 0;
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  @media screen and (max-width: 600px) {
+    margin-left: 5px;
+  }
 `;
 
 function SearchResults() {
@@ -49,8 +92,11 @@ function SearchResults() {
   const totalSerpCount = useSelector(state =>
     selectors.selectWebsiteSearchResultsTotalCount(state, query)
   );
-  const totalImagesCount = useSelector(state =>
-    selectors.selectImageSearchResultsTotalCount(state, query)
+  const totalBingImagesCount = useSelector(state =>
+    selectors.selectImageSearchResultsTotalCount(state, query, 'bing')
+  );
+  const totalBraveImagesCount = useSelector(state =>
+    selectors.selectImageSearchResultsTotalCount(state, query, 'brave')
   );
 
   const totalMovieCount = useSelector(state =>
@@ -75,35 +121,29 @@ function SearchResults() {
   }
 
   useEffect(() => {
-    // We are fetching movies and people to show total counts on tab labels.
-
     if (searchType === 'web') {
       dispatch(fetchWebsiteSearch(query, DEFAULT_FIRST_PAGE));
-    }
-    if (searchType === 'bing') {
+    } else if (searchType === 'bing') {
       dispatch(fetchBingImageSearch(query, DEFAULT_FIRST_PAGE));
-      // dispatch(fetchImageSearch(query, DEFAULT_FIRST_PAGE));
-    }
-    if (searchType === 'brave') {
+    } else if (searchType === 'brave') {
       dispatch(fetchBraveImageSearch(query, DEFAULT_FIRST_PAGE));
+    } else if (searchType === 'movie') {
+      dispatch(fetchMovieSearch(query, DEFAULT_FIRST_PAGE));
+    } else if (searchType === 'person') {
+      dispatch(fetchPersonSearch(query, DEFAULT_FIRST_PAGE));
+    } else if (searchType === 'artist') {
+      dispatch(fetchArtistSearch(query, DEFAULT_FIRST_PAGE));
+    } else if (searchType === 'album') {
+      dispatch(fetchAlbumSearch(query, DEFAULT_FIRST_PAGE));
+    } else if (searchType === 'track') {
+      dispatch(fetchTrackSearch(query, DEFAULT_FIRST_PAGE));
     }
-
-
-
-    // dispatch(fetchImageSearch(query, DEFAULT_FIRST_PAGE));
-    // dispatch(fetchQuerySearch(query));
-
-    // dispatch(fetchMovieSearch(query, DEFAULT_FIRST_PAGE));
-    // dispatch(fetchPersonSearch(query, DEFAULT_FIRST_PAGE));
-    // dispatch(fetchArtistSearch(query, DEFAULT_FIRST_PAGE));
-    // dispatch(fetchAlbumSearch(query, DEFAULT_FIRST_PAGE));
-    // dispatch(fetchTrackSearch(query, DEFAULT_FIRST_PAGE));
-
-  }, [dispatch, query]);
+  }, [dispatch, query, searchType]);
 
   const totalResults = {
-    website: totalSerpCount,
-    images: totalImagesCount,
+    web: totalSerpCount,
+    bing: totalBingImagesCount,
+    brave: totalBraveImagesCount,
     movie: totalMovieCount,
     person: totalPersonCount,
     artist: totalArtistCount,
@@ -112,68 +152,66 @@ function SearchResults() {
   };
 
   return (
-    <>
-      <StyledTabs value={searchType} onChange={handleChange}>
-        <StyledTab value="website" label={`Web (${totalSerpCount})`}>
-
+    <MainWrapper>
+      <StyledTabs>
+        <StyledTab active={searchType === 'web'}>
           <ReStyledLink to={`web?query=${encodeURIComponent(query).replace(/%20/g, "+")}`}>
-            All
+            All ({totalSerpCount})
           </ReStyledLink>
         </StyledTab>
 
-        <StyledTab value="bing" label={`Images (${totalMovieCount})`}>
-
+        <StyledTab active={searchType === 'bing'}>
           <ReStyledLink to={`bing?query=${encodeURIComponent(query).replace(/%20/g, "+")}`}>
             <StyledSpan>
               <PicIcon />
             </StyledSpan>
-            Images V1
+            Images V1 ({totalBingImagesCount})
           </ReStyledLink>
         </StyledTab>
 
-        <StyledTab value="brave" label={`Images (${totalMovieCount})`}>
-
+        <StyledTab active={searchType === 'brave'}>
           <ReStyledLink to={`brave?query=${encodeURIComponent(query).replace(/%20/g, "+")}`}>
             <StyledSpan>
               <PicIcon />
             </StyledSpan>
-            Images V2
+            Images V2 ({totalBraveImagesCount})
           </ReStyledLink>
         </StyledTab>
 
-        <StyledTab value="movie" label={`Movies (${totalMovieCount})`}>
-
+        <StyledTab active={searchType === 'movie'}>
           <ReStyledLink to={`movie?query=${encodeURIComponent(query).replace(/%20/g, "+")}`}>
-            movie {totalMovieCount}
+            Movies ({totalMovieCount})
           </ReStyledLink>
         </StyledTab>
 
-        <StyledTab value="person" label={`People (${totalPersonCount})`}>
+        <StyledTab active={searchType === 'person'}>
           <ReStyledLink to={`person?query=${encodeURIComponent(query).replace(/%20/g, "+")}`}>
-            person {totalPersonCount}
+            People ({totalPersonCount})
           </ReStyledLink>
         </StyledTab>
 
-        <StyledTab value="artist" label={`Artist (${totalArtistCount})`}>
+        <StyledTab active={searchType === 'artist'}>
           <ReStyledLink to={`artist?query=${encodeURIComponent(query).replace(/%20/g, "+")}`}>
-            artist {totalArtistCount}
+            Artists ({totalArtistCount})
           </ReStyledLink>
         </StyledTab>
 
-        <StyledTab value="album" label={`Album (${totalAlbumCount})`}>
+        <StyledTab active={searchType === 'album'}>
           <ReStyledLink to={`album?query=${encodeURIComponent(query).replace(/%20/g, "+")}`}>
-            album {totalAlbumCount}
+            Albums ({totalAlbumCount})
           </ReStyledLink>
         </StyledTab>
 
-        <StyledTab value="track" label={`Track (${totalTrackCount})`}>
+        <StyledTab active={searchType === 'track'}>
           <ReStyledLink to={`track?query=${encodeURIComponent(query).replace(/%20/g, "+")}`}>
-            track {totalTrackCount}
+            Tracks ({totalTrackCount})
           </ReStyledLink>
         </StyledTab>
 
       </StyledTabs>
-      <StyledBox marginTop={2}>
+
+      {/*<StyledBox marginTop={2}>*/}
+      <div marginTop={2}>
         <SearchResultsHeader
           query={query}
           totalResults={totalResults[searchType]}
@@ -188,10 +226,24 @@ function SearchResults() {
         {searchType === "artist" && <ArtistSearchResults query={query} searchType={searchType} />}
         {searchType === "album" && <AlbumSearchResults query={query} searchType={searchType} />}
         {searchType === "track" && <TrackSearchResults query={query} searchType={searchType} />}
-      </StyledBox>
-    </>
+      </div>
+      {/*</StyledBox>*/}
+
+    </MainWrapper>
   );
 }
+
+const MainWrapper = styled.div`
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+
+  @media screen and (max-width: 600px) {
+    padding: 10px;
+  }
+`;
 
 const StyledSpan = styled.span`
   height: 13px;

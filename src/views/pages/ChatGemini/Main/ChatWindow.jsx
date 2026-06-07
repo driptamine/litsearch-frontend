@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import MessageBubbleV1 from './MessageBubbleV1';
 import MessageBubbleV2 from './MessageBubbleV2';
 import MessageBubbleV3 from './MessageBubbleV3';

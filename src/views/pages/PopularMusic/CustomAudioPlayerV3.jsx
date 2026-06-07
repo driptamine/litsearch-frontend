@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { useAudio } from './AudioContext'; // adjust path
 import { FaPlay } from 'react-icons/fa';
 import { FaPause } from 'react-icons/fa';
@@ -101,8 +101,12 @@ const PlayButton = styled.button`
   }
 `;
 
+const songTitleStyles = props => `
+  color: ${props.theme.text};
+`;
+
 const SongTitle = styled.h3`
-  color: ${props => props.theme.text};
+  ${songTitleStyles}
   font-family: Verdana;
   font-size: 16px;
   margin: 0;

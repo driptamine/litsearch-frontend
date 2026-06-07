@@ -1,70 +1,73 @@
 // REFERENCE https://github.com/atahani/reactjs-unsplash
 
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { lighten, darken } from 'polished';
 import { inputBgColor, textColor2, errorColor, warnColor, successColor, } from 'views/style/colors';
 
+const inputStyles = props => `
+  width: ${props.fullWidth ? '100%' : '65%'};
+  border-radius: ${props.rounded ? '10px' : '3px'};
+  ${props.disabled ? 'opacity: 0.6;' : ''}
+  &:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px ${props.msgColor ? lighten(0.27, props.msgColor) : inputBgColor} inset;
+  }
+`;
+
 const Input = styled.input`
-  /* background-color: ${inputBgColor}; */
   border: none;
-  background-color: ${props => props.theme.searchBarColor};
-  /* background-color: ${props => props.msgColor ? lighten(0.27, props.msgColor) : inputBgColor};
-  border: ${props => props.msgColor ? `1px solid${darken(0.1, props.msgColor)}`: '1px solid transparent'}; */
+  background-color: var(--searchBarColor);
   box-shadow: none;
   position: relative;
   padding: 12px;
   height: 36px;
-  width: ${props => (props.fullWidth ? '100%' : '65%')};
-  /* width: ${props => (props.fullWidth ? '100%' : '810px')}; */
-  border-radius: ${props => (props.rounded ? '10px' : '3px')};
+  ${inputStyles}
   box-sizing: border-box;
   font-family: inherit;
   font-size: 14px;
   font-weight: normal;
   outline: none;
   line-height: 16px;
-  color: ${props => props.theme.text};
-  /* color: ${textColor2}; */
-  ${props => props.disabled ? `opacity: 0.6;` : ``} &:focus {
+  color: var(--text);
+  &:focus {
     border-color: ${darken(0.1, inputBgColor)};
     color: black;
-    /* background-color: ${props => props.msgColor ? lighten(0.27, props.msgColor) : lighten(0.07, inputBgColor)}; */
-
-    background-color: ${props => props.theme.searchBarFocus};
-
-    /* -webkit-box-shadow: 0 0 0 1000px ${props => props.msgColor ? lighten(0.27, props.msgColor) : lighten(0.07, inputBgColor)} inset !important; */
+    background-color: var(--searchBarFocus);
   }
-  &:-webkit-autofill {
-    -webkit-box-shadow: 0 0 0 1000px ${props => props.msgColor ? lighten(0.27, props.msgColor) : inputBgColor} inset;
-  }
+`;
+
+const areaInputStyles = props => `
+  background-color: ${props.msgColor ? lighten(0.27, props.msgColor) : inputBgColor};
+  width: ${props.fullWidth ? '100%' : 'none'};
+  border: ${props.msgColor ? `1px solid${darken(0.1, props.msgColor)}` : '0px'};
+  padding: ${props.multiLanguage ? '10px 10px 24px 10px' : '10px'};
+  ${props.disabled ? 'opacity: 0.6;' : ''}
 `;
 
 const AreaInput = styled.textarea`
   resize: none;
-  background-color: ${props => props.msgColor ? lighten(0.27, props.msgColor) : inputBgColor};
-  width: ${props => (props.fullWidth ? '100%' : 'none')};
-  border: ${props => props.msgColor ? `1px solid${darken(0.1, props.msgColor)}` : '0px'};
+  ${areaInputStyles}
   box-shadow: none;
   position: relative;
   border-radius: 3px;
-  padding: ${props => (props.multiLanguage ? '10px 10px 24px 10px' : '10px')};
   box-sizing: border-box;
   font-family: IRANSans, Helvetica, Verdana, sans-serif;
   font-size: 14px;
   font-weight: normal;
   outline: none;
   color: ${textColor2};
-  ${props => props.disabled ? `opacity: 0.6;` : ``} &:focus {
+  &:focus {
     outline: ${`${darken(0.35, inputBgColor)} auto 1px !important`};
-    /* background-color: ${props => props.msgColor ? `${props.msgColor} !important` : `${lighten(0.07, inputBgColor)} !important`}; */
-
-    background-color: ${props => props.theme.searchBarFocus};
+    background-color: var(--searchBarFocus);
   }
 `;
 
+const messgaeStyles = props => `
+  color: ${props.color};
+`;
+
 const Messgae = styled.p`
-  color: ${props => props.color};
+  ${messgaeStyles}
   font-size: 13px;
   padding: 6px 3px;
 `;

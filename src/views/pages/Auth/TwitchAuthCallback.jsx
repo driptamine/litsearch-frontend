@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { useSetRecoilState } from 'recoil';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import axios from 'axios';
 
 import { AddCookie, getCookie } from 'views/utils';
@@ -68,45 +68,17 @@ const TwitchAuthCallback = () => {
         //   refreshToken
         // );
         return {
-          // Username: user.login,
+          Username: user.login,
           ProfileImg: user.profile_image_url,
-          // userId: user.id,
+          userId: user.id,
         };
       });
-
-      // const MyTwitch = await TwitchAPI.getMe({ accessToken: accessToken }).then(async (res) => {
-      //   const user = res?.data?.data?.[0];
-      //   setTwitchUserId(user.id);
-      //   setTwitchUsername(user.login);
-      //   setTwitchProfileImage(user.profile_image_url);
-      //
-      //   // await litloopAPI.updateTwitchUserData(
-      //   //   {
-      //   //     Username: user.login,
-      //   //     Id: user.id,
-      //   //     Profile: user.profile_image_url,
-      //   //   },
-      //   //   accessToken,
-      //   //   refreshToken
-      //   // );
-      //
-      //   return {
-      //     Username: user.login,
-      //     ProfileImg: user.profile_image_url,
-      //     userId: user.id,
-      //   };
-      // });
 
       return {
         access_token: accessToken,
         refresh_token: refreshToken,
         ...MyTwitch
       };
-
-      // return {
-      //   access_token: accessToken,
-      //   refresh_token: refreshToken,
-      // };
     },
     [
       setTwitchAccessToken,
@@ -126,9 +98,9 @@ const TwitchAuthCallback = () => {
         service: 'twitch',
         access_token: res.access_token,
         refresh_token: res.refresh_token,
-        // username: res.Username,
+        username: res.Username,
         profileImg: res.ProfileImg,
-        // userId: res.userId,
+        userId: res.userId,
       },
       '*'
     );

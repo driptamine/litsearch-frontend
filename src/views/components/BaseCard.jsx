@@ -4,7 +4,7 @@ import React from 'react';
 // import { Card, CardActionArea, CardContent } from '@mui/material';
 // import { makeStyles } from '@mui/material/styles';
 
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 // import clsx from 'clsx';
 

@@ -6,7 +6,6 @@
   "private": true,
   "dependencies": {
     "@reduxjs/toolkit": "^1.2.3",
-    "@vitejs/plugin-react-swc": "^3.10.0",
     "axios": "^1.2.1",
     "classnames": "^2.2.5",
     "dompurify": "^3.2.6",
@@ -50,7 +49,8 @@
     "styled-components": "^5.3.6",
     "uniqid": "^5.4.0",
     "use-keyboard-shortcut": "^1.1.6",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "vite-plugin-gh-pages": "^1.0.1"
   },
   "scripts": {
     "vite": "vite",
@@ -59,7 +59,7 @@
     "build": "vite build",
     "build:dev": " vite build --mode development",
     "build:prod": "vite build --mode production",
-    "predeploy": "npm run build:prod",
+    "predeploy": "vite build --mode production --base=/litsearch-frontend/",
     "deploy": "gh-pages -d dist",
     "dev": "vite --host"
   },
@@ -79,7 +79,14 @@
     ]
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.29.7",
+    "@babel/preset-react": "^7.29.7",
+    "@linaria/core": "^7.0.0",
+    "@linaria/react": "^7.0.1",
     "@originjs/vite-plugin-commonjs": "^1.0.3",
+    "@vitejs/plugin-react-swc": "^4.3.1",
+    "@wyw-in-js/babel-preset": "^1.1.0",
+    "@wyw-in-js/vite": "^1.1.0",
     "node-sass": "^9.0.0",
     "rollup-plugin-visualizer": "^5.14.0",
     "sass": "^1.64.1",

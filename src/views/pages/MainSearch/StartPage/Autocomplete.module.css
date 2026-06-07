@@ -5,7 +5,8 @@
 
 .container {
   position: relative;
-  height: 200px;
+  width: 100%;
+  max-width: 584px;
 }
 
 .clear {

@@ -46,7 +46,7 @@ const VideoUploaderGPT = () => {
       // Step 1: Initiate multipart upload
       const initRes = await axios({
         method: "POST",
-        url: "http://localhost:8000/videos/create_presigned_url/",
+        url: "http://localhost:8000/gcs/create_presigned_url/",
         headers: { "Content-Type": "application/json" },
         data: {
           filename: fileName,
@@ -84,7 +84,7 @@ const VideoUploaderGPT = () => {
 
         const presignRes = await axios({
           method: "POST",
-          url: "http://localhost:8000/videos/get_presigned_url/",
+          url: "http://localhost:8000/gcs/get_presigned_url/",
           headers: { "Content-Type": "application/json" },
           data: {
             upload_id,
@@ -102,7 +102,7 @@ const VideoUploaderGPT = () => {
           headers: { "Content-Type": file.type },
         });
 
-        const etag = uploadRes.headers.etag.replace(/"/g, "");
+        const etag = (uploadRes.headers.etag || uploadRes.headers.ETag || "").replace(/"/g, "");
         parts.push({ PartNumber: partNumber, ETag: etag });
 
         // setProgress(Math.round((partNumber / totalParts) * 100));
@@ -115,7 +115,7 @@ const VideoUploaderGPT = () => {
       // Step 3: Complete multipart upload
       const response = await axios({
         method: "POST",
-        url: "http://localhost:8000/videos/complete_upload/",
+        url: "http://localhost:8000/gcs/complete_upload/",
         headers: { "Content-Type": "application/json" },
         data: {
           upload_id,

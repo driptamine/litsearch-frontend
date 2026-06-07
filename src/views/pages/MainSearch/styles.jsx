@@ -1,8 +1,10 @@
-import styled, { css } from 'styled-components';
+import { styled } from '@linaria/react';
+import { css } from '@linaria/core';
 
 export const Root = styled.div`
   position: relative;
-  width: 320px;
+  width: 100%;
+  max-width: 320px;
 `;
 
 export const baseButtonMixin = css`
@@ -22,6 +24,15 @@ export const ValueWrapper = styled.input`
   line-height: 32px;
 `;
 
+const autoCompleteIconStyles = props => `
+  transform: ${props.isOpen ? "rotate(0.5turn)" : "none"};
+`;
+
+const autoCompleteIconFocusStyles = props => `
+  color: ${props.color || "0063cc"};
+  fill: ${props.fill || "0063cc"};
+`;
+
 export const AutoCompleteIcon = styled.span`
   position: absolute;
   top: 0;
@@ -29,7 +40,7 @@ export const AutoCompleteIcon = styled.span`
   height: 32px;
   width: 32px;
   transition: all 150ms linear;
-  transform: ${(props) => (props.isOpen ? "rotate(0.5turn)" : "none")};
+  ${autoCompleteIconStyles}
   transform-origin: center;
   display: flex;
 
@@ -38,8 +49,7 @@ export const AutoCompleteIcon = styled.span`
   }
 
   ${ValueWrapper}:focus + & {
-    color: ${(props) => props.color || "0063cc"};
-    fill: ${(props) => props.fill || "0063cc"};
+    ${autoCompleteIconFocusStyles}
   }
 `;
 
@@ -47,7 +57,8 @@ export const AutoCompleteContainer = styled.ul`
   background: #fff;
   padding: 8px 0;
   list-style-type: none;
-  min-width: 320px;
+  width: 100%;
+  max-width: 320px;
   position: absolute;
   top: 100%;
   left: 0;
@@ -78,6 +89,11 @@ export const AutoCompleteItemButton = styled.button`
     color: #0076f5;
   }
 `;
+const inputFocusStyles = props => `
+  color: ${props.color || "0063cc"};
+  fill: ${props.fill || "0063cc"};
+`;
+
 export const Input = styled(ValueWrapper)`
   transition: border-color 150ms linear;
 
@@ -86,8 +102,7 @@ export const Input = styled(ValueWrapper)`
     outline: none;
 
     + ${AutoCompleteIcon} {
-      color: ${(props) => props.color || "0063cc"};
-      fill: ${(props) => props.fill || "0063cc"};
+      ${inputFocusStyles}
     }
   }
 `;

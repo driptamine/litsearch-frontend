@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 import { FaEye } from 'react-icons/fa';
 import { FaRegComment } from 'react-icons/fa';
@@ -134,42 +134,60 @@ const Line = styled.div`
 const Stats = styled.div`
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  @media screen and (max-width: 768px) {
+    justify-content: flex-start;
+  }
 `;
 
 const ViewsCounter = styled.div`
   display: flex;
   align-items: center;
 
-  padding: 10px;
+  padding: 8px;
   border-radius: 5px;
+
+  @media screen and (max-width: 768px) {
+    padding: 5px;
+  }
 
   &:hover {
     cursor: pointer;
-    background-color: ${props => props.theme.attachmentColor};
+    background-color: var(--attachmentColor);
   }
 `;
 const CommentsCounter = styled.div`
   display: flex;
   align-items: center;
 
-  padding: 10px;
+  padding: 8px;
   border-radius: 5px;
+
+  @media screen and (max-width: 768px) {
+    padding: 5px;
+  }
 
   &:hover {
     cursor: pointer;
-    background-color: ${props => props.theme.attachmentColor};
+    background-color: var(--attachmentColor);
   }
 `;
 const LikesCounter = styled.div`
   display: flex;
   align-items: center;
 
-  padding: 10px;
+  padding: 8px;
   border-radius: 5px;
+
+  @media screen and (max-width: 768px) {
+    padding: 5px;
+  }
 
   &:hover {
     cursor: pointer;
-    background-color: ${props => props.theme.attachmentColor};
+    background-color: var(--attachmentColor);
   }
 `;
 
@@ -177,24 +195,32 @@ const DislikesCounter = styled.div`
   display: flex;
   align-items: center;
 
-  padding: 10px;
+  padding: 8px;
   border-radius: 5px;
+
+  @media screen and (max-width: 768px) {
+    padding: 5px;
+  }
 
   &:hover {
     cursor: pointer;
-    background-color: ${props => props.theme.attachmentColor};
+    background-color: var(--attachmentColor);
   }
 `;
 const BookmarksCounter = styled.div`
   display: flex;
   align-items: center;
 
-  padding: 10px;
+  padding: 8px;
   border-radius: 5px;
+
+  @media screen and (max-width: 768px) {
+    padding: 5px;
+  }
 
   &:hover {
     cursor: pointer;
-    background-color: ${props => props.theme.attachmentColor};
+    background-color: var(--attachmentColor);
   }
 `;
 const WrapperCounter = styled.div`
@@ -206,14 +232,34 @@ const WrapperCounter = styled.div`
 
   &:hover {
     cursor: pointer;
-    background-color: ${props => props.theme.attachmentColor};
+    background-color: var(--attachmentColor);
   }
 `;
 const Count = styled.span`
   margin-left: 3px;
   user-select: none;
   font-family: Verdana;
-  /* font-size: 16px; */
+  font-size: 12px;
+`;
+
+const likedBtnStyles = props => `
+  ${props.likedByUser ? `
+    background-color: ${likeColor};
+    color: ${white};
+    &:hover {
+      color: ${white};
+      border-color: transparent !important;
+    }
+  ` : ''}
+`;
+
+const likedBtnGiantStyles = props => `
+  ${props.likedByUser ? `
+    svg {
+      fill: ${likeColor};
+      color: ${white};
+    }
+  ` : ''}
 `;
 
 const LikedBtn = styled(Button)`
@@ -221,14 +267,7 @@ const LikedBtn = styled(Button)`
   display: flex;
   align-items: center;
   margin: 0;
-  ${props => props.likedByUser && `
-    background-color: ${likeColor};
-    color: ${white};
-    &:hover {
-      color: ${white};
-      border-color: transparent !important;
-    }
-  `}
+  ${likedBtnStyles}
 
   ${screenLargerThan.giant`
     flex-direction: column;
@@ -240,14 +279,7 @@ const LikedBtn = styled(Button)`
       fill: ${white};
       color: ${white};
     }
-    ${props =>
-      props.likedByUser &&
-      `
-        svg {
-          fill: ${likeColor};
-          color: ${white};
-        }
-      `};
+    ${likedBtnGiantStyles}
     &:hover {
       color: ${white};
     }
@@ -258,10 +290,11 @@ const LikedBtn = styled(Button)`
 // `;
 const RatioIndicator = styled.div`
   display: flex;
-  margin: auto;
+  margin: 10px 0;
+  width: 100%;
 `;
 const UrlStyled = styled.div`
-  color: ${(props) => props.theme.urlColor};
+  color: var(--urlColor);
   font-family: arial,sans-serif;
 
   white-space: nowrap;
@@ -271,30 +304,50 @@ const UrlStyled = styled.div`
 `
 const Snippet = styled.div`
   font-family: arial,sans-serif;
-  font-size 14px;
-  word-break: break-all;
+  font-size: 14px;
+  word-break: break-word;
   white-space: pre-wrap;
+  line-height: 1.5;
+
+  @media screen and (max-width: 768px) {
+    font-size: 13px;
+    line-height: 1.4;
+  }
 `
 
 const Title = styled.div`
   font-family: arial,sans-serif;
-  color: ${(props) => props.theme.titleColor};
+  color: var(--titleColor);
+  font-size: 18px;
+  word-break: break-word;
+
   &:hover{
     text-decoration: underline;
-    text-decoration-color: ${(props) => props.theme.titleColor};
+    text-decoration-color: var(--titleColor);
   }
-`
+
+  @media screen and (max-width: 768px) {
+    font-size: 16px;
+  }
+`;
 const Card = styled.div`
-  width: 550px;
-  background-color: ${(props) => props.theme.inputBg};
+  width: 100%;
+  max-width: 550px;
+  background-color: var(--inputBg);
   border-radius: 11px;
   border: 1px solid black;
   margin-bottom: 1em;
   padding: 1em;
-`
+  box-sizing: border-box;
+
+  @media screen and (max-width: 768px) {
+    padding: 12px;
+    max-width: 100%;
+  }
+`;
 const Link = styled.a`
   text-decoration: none;
-  color: ${(props) => props.theme.titleColor};
-`
+  color: var(--titleColor);
+`;
 
 export default WebsiteCard;

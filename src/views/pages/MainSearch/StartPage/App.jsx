@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import debounce from 'lodash/debounce';
 
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
+import { themeVars } from 'views/styles/theme-vars';
 
 import litNightLogo from 'views/assets/viewsLogos/purple-views-logo.png';
 import litloopLogo from 'views/assets/viewsLogos/purple-views-logo.png';
@@ -40,18 +41,6 @@ const months = [
 
 function SearchApp() {
   const dispatch = useDispatch();
-  const [results, setResults] = useState([]);
-
-  // return (
-  //   <div className="App">
-  //     <div className="search-bar-container">
-  //       <StyledSearchBar setResults={setResults} />
-  //       {results && results.length > 0 && <StyledSearchResultsList results={results} />}
-  //     </div>
-  //   </div>
-  // );
-
-
   const [value, setValue] = useState('')
   const [searchValue, setSearchValue] = useState("");
   const [cursorPosition, setCursorPosition] = useState('');
@@ -69,163 +58,170 @@ function SearchApp() {
     ...queries.slice(0, 20).map(query => ({ ...query, suggestionType: "query" })),
   ];
 
-  // const inputRef = useRef(null);
-
-  const getCursorPosition = () => {
-    if (ref.current) {
-      // alert(ref.current.selectionStart)
-      return ref.current.selectionStart;
-
-    }
-    return -1; // Handle the case where the input is not yet focused
-  };
-
   useEffect(() => {
-
-    // const textarea = document.getElementById("textarea");
-    // const cursorPos = textarea.selectionStart;
-    // alert(cursorPos);
-
-    dispatch(fetchQuerySearch(searchValue, cursorPosition));
-  }, [dispatch, searchValue]);
+    if (searchValue) {
+      dispatch(fetchQuerySearch(searchValue, cursorPosition));
+    }
+  }, [dispatch, searchValue, cursorPosition]);
 
   function handleInputValueChange(inputValue) {
     setSearchValue(inputValue);
-    // setTimeOut
   }
-
-  // useEffect(() => {
-  //   // Focus the input element
-  //   ref.current.focus();
-  // }, []);
-
 
   const handleCursorPosition = (event) => {
     const position = event.target.selectionStart;
     setCursorPosition(position);
-    // dispatch(fetchQuerySearch(searchValue, position));
   };
 
   return (
-    <SearchContainer
-      // style={{ display: 'flex', justifyContent: 'center', marginTop: '300px' }}
-      // style={}
-    >
-      <Header>
-        {/*<Toggle theme={theme} toggleTheme={themeToggler} />*/}
-      </Header>
-      <LitLoopLogo src={ litloopLogo } />
-      {/*<LitLoopLogo src={ props.theme === 'light'  ? litNightLogo : litLightLogo } />*/}
-
-
-      {/*<LogoStyled>LitLook</LogoStyled>*/}
-      {/*<div>Cursor Position: {cursorPosition}</div>*/}
-      <Autocomplete
-        suggestions={suggestionz}
-        recommendations={months}
-        output={(e) => {
-          setValue(e)
-          // setTimeOut(()=>{
-          //   setValue(e)
-          // }, 2000)
-        }}
-        // output={debounce((e) => setValue(e), 5000)}
-
-        clearIcon={true}
-
-        renderInput={(params, ref) => (
-          <InputStyled
-            {...params}
-            id="textarea-input"
-            autoFocus
-            ref={ref}
-
-
-            placeholder={'Search '}
-            type='text'
-            // value={value}
-            value={searchValue || ''}
-
-            // onClick={handleCursorPosition}
-            // onKeyUp={handleCursorPosition}
-            onSelect={handleCursorPosition} // reference: https://chatgpt.com/c/0adb1d75-24f5-4791-96fb-744f4941c378
-
-            // cursorPoz={params.cursorPozz}
-          />
-        )}
-        onInputValueChange={handleInputValueChange}
-        // onInputValueChange={}
-      />
-      <PreFooterStyled/>
+    <SearchContainer>
+      <LogoSection>
+        <LitLoopLogo src={litloopLogo} alt="LitLoop Logo" />
+      </LogoSection>
+      
+      <SearchSection>
+        <Autocomplete
+          suggestions={suggestionz}
+          recommendations={months}
+          output={(e) => {
+            setValue(e)
+          }}
+          clearIcon={true}
+          renderInput={(params, ref) => (
+            <InputWrapper>
+              <SearchIcon>
+                <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+              </SearchIcon>
+              <InputStyled
+                {...params}
+                id="textarea-input"
+                autoFocus
+                autoComplete="off"
+                ref={ref}
+                placeholder='Search LitLoop'
+                type='text'
+                value={searchValue || ''}
+                onSelect={handleCursorPosition}
+              />
+            </InputWrapper>
+          )}
+          onInputValueChange={handleInputValueChange}
+        />
+      </SearchSection>
+      
+      <ButtonsSection>
+        <SearchButton>Lit Search</SearchButton>
+        <SearchButton>I'm Feeling Lit</SearchButton>
+      </ButtonsSection>
     </SearchContainer>
   )
 }
 
 
 const SearchContainer = styled.div`
-  // padding-top: 38vh;
-  width: 100%;
-  margin: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 200px;
-  height: 100%;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+  background-color: ${themeVars.body};
+  padding-bottom: 10vh; /* Push slightly up from center */
+  transition: background-color 0.3s ease;
 `;
-const Header = styled.div`
-  height: 40px;
-  /* height: 0px; */
-`;
-const LogoStyled = styled.div`
-  font-family: Helvetica-Bold;
-  font-size: xxx-large;
-  height: 150px;
-  /* height: 50px; */
-  display: flex;
-  align-items: center;
-`;
-const PreFooterStyled = styled.div`
-  height: 200px;
-`;
-const InputStyled = styled.input`
-  color: ${(props) => props.theme.inputTextColor};
-  width: 550px;
-  @media screen and (max-width: 1200px) {
-    width: 550px;
-  }
-  @media screen and (max-width: 800px) {
-    width: 550px;
-  }
-  @media screen and (max-width: 600px) {
-    width: 300px;
-  }
-  @media screen and (max-width: 450px) {
-    width: 300px;
 
-  }
-  border-radius: 10px;
-  height: 40px;
-  padding-left: 10px;
-  border: 1px solid #7c7c7c;
-  /* background: #ffffff; */
-  background-color: ${(props) => props.theme.inputBg};
-  margin-left: 0px;
+const LogoSection = styled.div`
+  margin-bottom: 25px;
 `;
 
 const LitLoopLogo = styled.img`
-  /* width: 48px; */
-  display: block;
+  height: 92px;
+  max-width: 100%;
+  object-fit: contain;
+`;
 
-  /* width: 30px; */
-  /* height: 20px; */
-  height: 50px;
-  margin-top: auto;
-  margin-bottom: auto;
-  padding-bottom: 40px;
+const SearchSection = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 0 20px;
+  box-sizing: border-box;
+`;
 
-  /* margin-left: auto; */
-  /* margin-right: auto; */
+const InputWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 584px;
+  height: 44px;
+  background: ${themeVars.inputBg};
+  border: 1px solid ${themeVars.inputBorderColor};
+  box-shadow: none;
+  border-radius: 24px;
+  padding: 0 15px;
+  transition: box-shadow 0.2s, background-color 0.3s ease;
 
+  &:hover, &:focus-within {
+    box-shadow: 0 1px 6px rgba(32,33,36,0.28);
+    border-color: rgba(223,225,229,0);
+  }
+`;
+
+const SearchIcon = styled.div`
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+  
+  svg {
+    fill: ${themeVars.text};
+    opacity: 0.7;
+    height: 20px;
+    width: 20px;
+  }
+`;
+
+const InputStyled = styled.input`
+  flex: 1;
+  background-color: transparent;
+  border: none;
+  margin: 0;
+  padding: 0;
+  color: ${themeVars.inputTextColor};
+  word-wrap: break-word;
+  outline: none;
+  display: flex;
+  font-size: 16px;
+  height: 34px;
+`;
+
+const ButtonsSection = styled.div`
+  margin-top: 25px;
+  display: flex;
+  gap: 12px;
+`;
+
+const SearchButton = styled.button`
+  background-color: ${themeVars.cardColor};
+  border: 1px solid ${themeVars.cardColor};
+  border-radius: 4px;
+  color: ${themeVars.text};
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  margin: 11px 4px;
+  padding: 0 16px;
+  line-height: 27px;
+  height: 36px;
+  min-width: 54px;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s, border-color 0.2s;
+
+  &:hover {
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    background-color: ${themeVars.sideBarHoverColor};
+    border: 1px solid #dadce0;
+  }
 `;
 
 export default SearchApp;

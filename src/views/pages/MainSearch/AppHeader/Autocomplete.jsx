@@ -3,7 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useLocation, useParams } from 'react-router-dom';
 import { matchPath } from 'react-router';
 
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
+import { themeVars } from 'views/styles/theme-vars';
 
 import styles from './Autocomplete.module.css'
 import useHistoryPush from 'core/hooks/useHistoryPush';
@@ -48,13 +49,8 @@ const Autocomplete = ({ suggestions, output, renderInput, clearIcon, onInputValu
 
   const handleClickSuggestion = (e) => {
     const input = e.currentTarget.innerText
-    if (pathname === '/feed') {
-      historyPush(`/search/web?query=${encodeURIComponent(input).replace(/%20/g, "+")}`);
-    } else if (pathname === '/search/images' || pathname === '/search/bing'){
-      historyPush(`${pathname}?query=${encodeURIComponent(input).replace(/%20/g, "+")}`);
-    } else {
-      historyPush(`/search/web?query=${encodeURIComponent(input).replace(/%20/g, "+")}`);
-    }
+    const searchPath = pathname.startsWith('/search/') ? pathname : '/search/web';
+    historyPush(`${searchPath}?query=${encodeURIComponent(input).replace(/%20/g, "+")}`);
 
     // historyPush(`/search/web?query=${input}`);
     stateChange(input, false, 0)
@@ -77,9 +73,9 @@ const Autocomplete = ({ suggestions, output, renderInput, clearIcon, onInputValu
   }
 
   const handleKeyDown = (e) => {
-    const keyCode = e.code
+    const key = e.key
 
-    switch (keyCode) {
+    switch (key) {
       case 'Enter':
         e.preventDefault()
         if (filtered.length !== 0) {
@@ -88,13 +84,8 @@ const Autocomplete = ({ suggestions, output, renderInput, clearIcon, onInputValu
         }
         setIsShow(false)
 
-        if (pathname === '/feed') {
-          historyPush(`/search/web?query=${encodeURIComponent(e.target.value).replace(/%20/g, "+")}`);
-        } else if (pathname === '/search/images' || pathname === '/search/bing' ){
-          historyPush(`${pathname}?query=${encodeURIComponent(e.target.value).replace(/%20/g, "+")}`);
-        } else {
-          historyPush(`/search/web?query=${encodeURIComponent(e.target.value).replace(/%20/g, "+")}`);
-        }
+        const searchPath = pathname.startsWith('/search/') ? pathname : '/search/web';
+        historyPush(`${searchPath}?query=${encodeURIComponent(e.target.value).replace(/%20/g, "+")}`);
 
         break
       case 'ArrowUp':
@@ -118,6 +109,14 @@ const Autocomplete = ({ suggestions, output, renderInput, clearIcon, onInputValu
     setActive(active)
     setIsShow(isShow)
     output(input)
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const inputVal = inputRef.current ? inputRef.current.value : '';
+    const searchPath = pathname.startsWith('/search/') ? pathname : '/search/web';
+    historyPush(`${searchPath}?query=${encodeURIComponent(inputVal).replace(/%20/g, "+")}`);
+    setIsShow(false);
   }
 
   const renderAutocomplete = () => {
@@ -193,6 +192,7 @@ const Autocomplete = ({ suggestions, output, renderInput, clearIcon, onInputValu
     onKeyDown: handleKeyDown,
     onClick: handleClick,
     value: query || '',
+    autoComplete: 'off',
     // onKeyPress: handleKeyPress,
   }
 
@@ -209,7 +209,9 @@ const Autocomplete = ({ suggestions, output, renderInput, clearIcon, onInputValu
 
   return (
     <div className={styles.container} ref={containerRef}>
-      {renderInput(params, inputRef)}
+      <form onSubmit={handleSubmit}>
+        {renderInput(params, inputRef)}
+      </form>
 
       {/*{clearIcon && (
         <span className={styles.clear} onClick={handleClear}>
@@ -226,7 +228,7 @@ const SuggestionPanel = styled.ul`
   padding-left: 0px;
   border: 1px solid black;
   border-radius: 0px;
-  background-color: ${(props) => props.theme.suggestionBg};
+  background-color: ${themeVars.suggestionBg};
   /* box-shadow: 0 9px 8px -3px #403c433d, 8px 0 8px -7px #403c433d, -8px 0 8px -7px #403c433d; */
 `;
 
@@ -237,7 +239,7 @@ const LiStyled = styled.li`
   .active,
   &:hover {
     /* background: #ebebeb; */
-    background: ${(props) => props.theme.suggestionHover};
+    background: ${themeVars.suggestionHover};
     /* background: #f7f8f9; */
     /* cursor: pointer; */
     cursor: default;

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 
 // import { useTheme } from '@mui/material/styles';
@@ -10,9 +10,12 @@ import BaseGridList from 'views/components/BaseGridList';
 import { fetchArtistAlbums } from 'core/actions';
 import { selectors } from 'core/reducers/index';
 
-const StyledBaseGridList = styled(BaseGridList)`
+const baseGridListStyles = props => `
+  min-item-width: ${props.minItemWidth};
+`;
 
-  min-item-width: ${props => props.minItemWidth};
+const StyledBaseGridList = styled(BaseGridList)`
+  ${baseGridListStyles}
 `;
 
 function renderItem(albumId) {

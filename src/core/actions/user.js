@@ -17,7 +17,7 @@ export const fetchCurrentUser = createAction(
 export const setUserProfile = createAction(
   "user/setUserProfile",
   (payload) => ({
-    ...payload
+    payload
   })
 );
 
@@ -38,9 +38,11 @@ export const fetchUserLoggedOut = createAction(
 
 export const fetchSignUpUser = createAction(
   "signup/fetch",
-  (email, username, password) => ({
+  (data) => ({
     payload: {
-      email, username, password
+      email: data.email,
+      username: data.username,
+      password: data.password
     }
   })
 )
@@ -51,3 +53,10 @@ export const getProfile = createAction(
 
   })
 )
+
+export const uploadAvatarAction = createAction(
+  'user/uploadAvatar',
+  (formData) => ({
+    payload: formData
+  })
+);

@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 // MATERIAL DONE
 // import { Box, Typography, makeStyles } from '@mui/material';
@@ -12,7 +12,7 @@ import { StyledBox, StyledTypography,   } from 'views/styledComponents';
 // }));
 
 const ReStyledTypography = styled(StyledTypography)`
-  font-weight: ${props => props.theme.typography.fontWeightBold};
+  font-weight: var(--fontWeightBold);
 `;
 
 

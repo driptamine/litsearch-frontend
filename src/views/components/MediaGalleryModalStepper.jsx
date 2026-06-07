@@ -1,5 +1,6 @@
 import React from 'react';
-import styled, { css } from 'styled-components';
+import { styled } from '@linaria/react';
+import { css } from '@linaria/core';
 // MATERIAL UNDONE
 // import { Box, makeStyles } from '@mui/material';
 // import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -30,6 +31,10 @@ const SIZE = 60;
 //   }
 // }));
 
+const reStyledBoxStyles = props => props.justifyContent === 'flex-start'
+  ? css`justify-content: flex-start;`
+  : css`justify-content: flex-end;`;
+
 const ReStyledBox = styled(StyledBox)`
   position: absolute;
   top: 50%;
@@ -41,11 +46,7 @@ const ReStyledBox = styled(StyledBox)`
   &:hover: {
     opacity: 0.7;
   }
-  ${props => props.justifyContent === 'flex-start' ? css`
-    justify-content: flex-start;
-  ` : css`
-    justify-content: flex-end;
-  `}
+  ${reStyledBoxStyles}
 `;
 function MediaGalleryModalStepper({ onClickPrevious, onClickNext }) {
   // const classes = useStyles();

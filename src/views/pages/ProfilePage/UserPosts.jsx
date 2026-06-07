@@ -1,0 +1,540 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import axios from 'axios';
+import { styled } from '@linaria/react';
+import { LITLOOP_API_URL } from 'core/constants/urls';
+import { Link } from 'react-router-dom';
+import LikeButton from 'views/components/LikeButton/LikeButton';
+import PostCard from 'views/components/PostCard';
+import TrackRow from 'views/components/TrackRow';
+
+const DEFAULT_AVATAR = 'https://www.gravatar.com/avatar/0?d=mp&f=y';
+
+const UserPosts = ({ username, newPosts = [] }) => {
+  const [posts, setPosts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [viewMode, setViewMode] = useState('feed'); // 'grid', 'feed', 'gallery'
+
+  useEffect(() => {
+    const fetchUserPosts = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(`${LITLOOP_API_URL}/posts/user/${username}/`);
+        setPosts(response.data.results || response.data);
+      } catch (err) {
+        console.error('Error fetching user posts:', err);
+        setError('Failed to load posts.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (username) {
+      fetchUserPosts();
+    }
+  }, [username]);
+
+  const getFullUrl = (url) => {
+    if (!url) return DEFAULT_AVATAR;
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('//')) {
+      return url.startsWith('//') ? `https:${url}` : url;
+    }
+    return `${LITLOOP_API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
+  const handleLike = async (postId) => {
+    // Optimistic UI update
+    setPosts(prevPosts => prevPosts.map(post => {
+      if ((post.id || post.post_id) === postId) {
+        const isLiked = !post.is_liked;
+        return {
+          ...post,
+          is_liked: isLiked,
+          likes_count: (post.likes_count || 0) + (isLiked ? 1 : -1)
+        };
+      }
+      return post;
+    }));
+
+    try {
+      await axios.post(`${LITLOOP_API_URL}/posts/${postId}/like/`);
+    } catch (err) {
+      console.error('Error liking post:', err);
+    }
+  };
+
+  const allPosts = useMemo(() => {
+    const fetchedPosts = Array.isArray(posts) ? posts : [];
+    const localNewPosts = Array.isArray(newPosts) ? newPosts : [];
+    const postIds = new Set(fetchedPosts.map(p => p.id || p.post_id));
+    const uniqueNewPosts = localNewPosts.filter(p => !postIds.has(p.id || p.post_id));
+    return [...uniqueNewPosts, ...fetchedPosts];
+  }, [posts, newPosts]);
+
+  if (isLoading) return <LoadingMessage>Loading posts...</LoadingMessage>;
+  if (error) return <ErrorMessage>{error}</ErrorMessage>;
+  if (!allPosts || allPosts.length === 0) return <NoPosts>No posts yet.</NoPosts>;
+
+  const formatPostTime = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+  };
+
+  const renderGrid = () => (
+    <PostsGrid>
+      {allPosts.map(post => {
+        const postId = post.id || post.post_id;
+        const timeStr = post.created_at || post.timestamp || post.date;
+        return (
+          <PostCard key={postId}>
+            <Link to={`/posts/${postId}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+              <MediaPreview>
+                {post.photos?.slice(0, 1).map(photo => (
+                  <PostThumbnail key={photo.id} src={photo.gcs_url} alt="Post content" />
+                ))}
+                {!post.photos?.length && post.videos?.slice(0, 1).map(video => (
+                  <VideoPreview key={video.id} src={video.gcs_url} />
+                ))}
+                {post.thumbnail && !post.photos?.length && !post.videos?.length && (
+                  <PostThumbnail src={post.thumbnail} alt={post.title} />
+                )}
+                {!post.thumbnail && !post.photos?.length && !post.videos?.length && (
+                   <Placeholder>No Media</Placeholder>
+                )}
+              </MediaPreview>
+            </Link>
+            
+            <PostContent>
+              <Link to={`/posts/${postId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <PostTitle>{post.title || (post.description ? (post.description.substring(0, 30) + (post.description.length > 30 ? '...' : '')) : 'Post')}</PostTitle>
+              </Link>
+              <PostDescription>{post.description?.substring(0, 100)}{post.description?.length > 100 ? '...' : ''}</PostDescription>
+              
+              <PostTime>{formatPostTime(timeStr)}</PostTime>
+
+              {post.tracks?.map((track, i) => (
+                <TrackRow key={track.id || i} track={track} index={i} />
+              ))}
+
+              <PostMeta>
+                <LikeButton 
+                  isLiked={post.is_liked} 
+                  likesCount={post.likes_count} 
+                  onClick={() => handleLike(postId)}
+                />
+                {post.photo_ids?.length > 0 && <span>📷 {post.photo_ids.length}</span>}
+                {post.video_ids?.length > 0 && <span>🎥 {post.video_ids.length}</span>}
+                {post.track_ids?.length > 0 && <span>🎵 {post.track_ids.length}</span>}
+              </PostMeta>
+            </PostContent>
+          </PostCard>
+        );
+      })}
+    </PostsGrid>
+  );
+
+  const renderFeed = () => (
+    <FeedContainer>
+      {allPosts.map(post => {
+        const postId = post.id || post.post_id;
+        const author = post.author || post.user;
+        const authorAvatar = getFullUrl(author?.avatar || author?.profile_img || author?.profileImg);
+        const authorName = author?.username || author?.name || username;
+        const timeStr = post.created_at || post.timestamp || post.date;
+
+        return (
+          <FeedPost key={postId} to={`/posts/${postId}`}>
+            <FeedAvatar src={authorAvatar} alt={authorName} />
+            <FeedMainContent>
+              <FeedHeader>
+                <FeedName>{authorName}</FeedName>
+                <FeedHandle>@{authorName}</FeedHandle>
+                <FeedTime to={`/posts/${postId}`}>· {formatPostTime(timeStr)}</FeedTime>
+              </FeedHeader>
+              <FeedBody>
+                <FeedText>{post.description}</FeedText>
+                <FeedMedia>
+                   {post.photos?.slice(0, 4).map(photo => (
+                     <FeedImage key={photo.id} src={photo.gcs_url} alt="Post content" />
+                   ))}
+                   {!post.photos?.length && post.videos?.slice(0, 1).map(video => (
+                     <FeedVideo key={video.id} src={video.gcs_url} controls />
+                   ))}
+                </FeedMedia>
+                {post.tracks?.map((track, i) => (
+                  <TrackRow key={track.id || i} track={track} index={i} />
+                ))}
+                <FeedActions>
+                   <LikeButton 
+                     isLiked={post.is_liked} 
+                     likesCount={post.likes_count} 
+                     onClick={() => handleLike(postId)}
+                   />
+                   {post.photo_ids?.length > 0 && <span>📷 {post.photo_ids.length}</span>}
+                   {post.video_ids?.length > 0 && <span>🎥 {post.video_ids.length}</span>}
+                   {post.track_ids?.length > 0 && <span>🎵 {post.track_ids.length}</span>}
+                </FeedActions>
+              </FeedBody>
+            </FeedMainContent>
+          </FeedPost>
+        );
+      })}
+    </FeedContainer>
+  );
+
+  const renderGallery = () => (
+    <GalleryGrid>
+      {allPosts.map(post => {
+        const postId = post.id || post.post_id;
+        return (
+          <GalleryCard key={postId} to={`/posts/${postId}`}>
+            <GalleryMedia>
+              {post.photos?.length > 0 ? (
+                <GalleryImage src={post.photos[0].gcs_url} alt="Post content" />
+              ) : post.videos?.length > 0 ? (
+                <GalleryVideo src={post.videos[0].gcs_url} />
+              ) : post.thumbnail ? (
+                <GalleryImage src={post.thumbnail} alt={post.title} />
+              ) : (
+                <Placeholder>No Media</Placeholder>
+              )}
+              <GalleryOverlay className="gallery-overlay">
+                <LikeButton 
+                  isLiked={post.is_liked} 
+                  likesCount={post.likes_count} 
+                  onClick={() => handleLike(postId)}
+                  activeColor="white"
+                  inactiveColor="white"
+                  hoverColor="#ddd"
+                />
+                <span>💬 0</span>
+              </GalleryOverlay>
+            </GalleryMedia>
+          </GalleryCard>
+        );
+      })}
+    </GalleryGrid>
+  );
+
+  return (
+    <Wrapper>
+      <ViewSwitcher>
+        <ViewButton active={viewMode === 'grid'} onClick={() => setViewMode('grid')}>Grid</ViewButton>
+        <ViewButton active={viewMode === 'feed'} onClick={() => setViewMode('feed')}>Feed</ViewButton>
+        <ViewButton active={viewMode === 'gallery'} onClick={() => setViewMode('gallery')}>Gallery</ViewButton>
+      </ViewSwitcher>
+      
+      {viewMode === 'grid' && renderGrid()}
+      {viewMode === 'feed' && renderFeed()}
+      {viewMode === 'gallery' && renderGallery()}
+    </Wrapper>
+  );
+};
+
+const Wrapper = styled.div`
+  width: 100%;
+`;
+
+const ViewSwitcher = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 15px;
+`;
+
+const viewButtonStyles = props => `
+  background: ${props.active ? '#0084ff' : 'transparent'};
+  color: ${props.active ? 'white' : '#888'};
+  border: 1px solid ${props.active ? '#0084ff' : '#444'};
+  &:hover {
+    background: ${props.active ? '#0084ff' : 'rgba(255, 255, 255, 0.05)'};
+    border-color: ${props.active ? '#0084ff' : '#666'};
+  }
+`;
+
+const ViewButton = styled.button`
+  ${viewButtonStyles}
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+`;
+
+const FeedContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 600px;
+  margin: 0 auto;
+  border-left: 1px solid #333;
+  border-right: 1px solid #333;
+`;
+
+const FeedPost = styled.div`
+  padding: 15px;
+  border-bottom: 1px solid #333;
+  display: flex;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+`;
+
+const FeedAvatar = styled.img`
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+`;
+
+const FeedMainContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-grow: 1;
+`;
+
+const FeedHeader = styled.div`
+  display: flex;
+  gap: 5px;
+  align-items: baseline;
+`;
+
+const FeedName = styled.span`
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+`;
+
+const FeedHandle = styled.span`
+  color: #71767b;
+  font-size: 0.9rem;
+`;
+
+const FeedTime = styled(Link)`
+  color: #71767b;
+  font-size: 0.8rem;
+  margin-left: 4px;
+`;
+
+const FeedBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const FeedText = styled.div`
+  color: #e7e9ea;
+  font-size: 1rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+`;
+
+const FeedMedia = styled.div`
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #333;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2px;
+`;
+
+const FeedImage = styled.img`
+  width: 100%;
+  height: auto;
+  max-height: 500px;
+  object-fit: cover;
+`;
+
+const FeedVideo = styled.video`
+  width: 100%;
+  border-radius: 16px;
+`;
+
+const FeedActions = styled.div`
+  display: flex;
+  justify-content: space-between;
+  max-width: 425px;
+  color: #71767b;
+  font-size: 0.85rem;
+  margin-top: 10px;
+`;
+
+const GalleryGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  width: 100%;
+  max-width: 935px;
+  margin: 0 auto;
+
+  @media (max-width: 768px) {
+    gap: 2px;
+  }
+`;
+
+const GalleryCard = styled(Link)`
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%;
+  background-color: #1a1a1a;
+  overflow: hidden;
+
+  &:hover .gallery-overlay {
+    opacity: 1;
+  }
+`;
+
+const GalleryMedia = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+`;
+
+const GalleryImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const GalleryVideo = styled.video`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const GalleryOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+`;
+
+const MediaPreview = styled.div`
+  width: 100%;
+  height: 200px;
+  background-color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+`;
+
+const VideoPreview = styled.video`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const Placeholder = styled.div`
+  color: #444;
+  font-size: 0.8rem;
+`;
+
+const PostsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  width: 100%;
+`;
+
+const PostThumbnail = styled.img`
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-bottom: 1px solid #333;
+`;
+
+const PostContent = styled.div`
+  padding: 15px;
+`;
+
+const PostTitle = styled.h4`
+  margin: 0 0 10px 0;
+  color: white;
+  font-size: 1.1rem;
+`;
+
+const PostDescription = styled.p`
+  margin: 0 0 15px 0;
+  color: #aaa;
+  font-size: 0.9rem;
+  line-height: 1.4;
+`;
+
+const PostTime = styled.span`
+  color: #666;
+  font-size: 0.8rem;
+  display: block;
+  margin-bottom: 10px;
+`;
+
+const PostMeta = styled.div`
+  display: flex;
+  gap: 15px;
+  color: #666;
+  font-size: 0.8rem;
+  align-items: center;
+`;
+
+const LoadingMessage = styled.div`
+  text-align: center;
+  padding: 20px;
+  color: #888;
+`;
+
+const ErrorMessage = styled.div`
+  text-align: center;
+  padding: 20px;
+  color: #ff4d4d;
+`;
+
+const NoPosts = styled.div`
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  background-color: #1a1a1a;
+  border-radius: 12px;
+  border: 1px dashed #444;
+  width: 100%;
+`;
+
+export default UserPosts;

@@ -1,6 +1,8 @@
-import { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import styled from 'styled-components';
+import { useLocation } from 'react-router-dom';
+import { styled } from '@linaria/react';
+import { themeVars } from 'views/styles/theme-vars';
 import debounce from 'lodash/debounce';
 
 import styles from './Autocomplete.module.css'
@@ -10,12 +12,16 @@ import useDebounce from 'core/hooks/useHistoryPush';
 const Autocomplete = ({ suggestions, recommendations, output, renderInput, clearIcon, onInputValueChange }) => {
   const dispatch = useDispatch();
   const historyPush = useHistoryPush();
+  const { pathname } = useLocation();
   const [isShow, setIsShow] = useState(false)
   const [isRecommendations, setIsRecommendations] = useState(false)
   const [active, setActive] = useState(0)
   const [filtered, setFiltered] = useState(suggestions)
   const inputRef = useRef(null)
-  const containerRef = useRef(null)
+
+  const getCurrentSearchPath = () => {
+    return pathname.startsWith('/search/') ? pathname : '/search/web';
+  };
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -56,7 +62,7 @@ const Autocomplete = ({ suggestions, recommendations, output, renderInput, clear
 
   const handleClickSuggestion = (e) => {
     const input = e.currentTarget.innerText
-    historyPush(`/search/web?query=${encodeURIComponent(input).replace(/%20/g, "+")}`);
+    historyPush(`${getCurrentSearchPath()}?query=${encodeURIComponent(input).replace(/%20/g, "+")}`);
     stateChange(input, false, 0)
   }
 
@@ -103,11 +109,11 @@ const Autocomplete = ({ suggestions, recommendations, output, renderInput, clear
   // }, [handleInputChange]);
 
   const handleKeyDown = (e) => {
-    const keyCode = e.code
-    switch (keyCode) {
+    const key = e.key
+    switch (key) {
       case 'Enter':
         e.preventDefault()
-        historyPush(`/search/web?query=${encodeURIComponent(e.target.value).replace(/%20/g, "+")}`);
+        historyPush(`${getCurrentSearchPath()}?query=${encodeURIComponent(e.target.value).replace(/%20/g, "+")}`);
         if (filtered.length !== 0) {
           const input = filtered[active]
           stateChange(input, false, 0)
@@ -134,6 +140,13 @@ const Autocomplete = ({ suggestions, recommendations, output, renderInput, clear
     setActive(active)
     setIsShow(isShow)
     output(input)
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const inputVal = inputRef.current ? inputRef.current.value : '';
+    historyPush(`${getCurrentSearchPath()}?query=${encodeURIComponent(inputVal).replace(/%20/g, "+")}`);
+    setIsShow(false);
   }
 
   const renderAutocomplete = () => {
@@ -244,15 +257,14 @@ const Autocomplete = ({ suggestions, recommendations, output, renderInput, clear
     // onChange: loadDataDebounced,
     onKeyDown: handleKeyDown,
     onClick: handleClick,
+    autoComplete: 'off',
   }
 
-  useLayoutEffect(() => {
-    containerRef.current.style.width = `${inputRef.current.offsetWidth}px`
-  }, [inputRef])
-
   return (
-    <div className={styles.container} ref={containerRef}>
-      {renderInput(params, inputRef)}
+    <div className={styles.container}>
+      <form onSubmit={handleSubmit}>
+        {renderInput(params, inputRef)}
+      </form>
 
       {/*{clearIcon && (
         <span className={styles.clear} onClick={handleClear}>
@@ -267,41 +279,35 @@ const Autocomplete = ({ suggestions, recommendations, output, renderInput, clear
 }
 
 const SuggestionPanel = styled.ul`
-  margin-top: 3px;
-  padding-left: 0px;
-  border: 1px solid black;
-  border-radius: 0px;
-  background-color: ${(props) => props.theme.suggestionBg};
-  /* box-shadow: 0 9px 8px -3px #403c433d, 8px 0 8px -7px #403c433d, -8px 0 8px -7px #403c433d; */
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 5px;
+  padding: 8px 0;
+  border: 1px solid ${themeVars.inputBorderColor};
+  border-radius: 8px;
+  background-color: ${themeVars.suggestionBg};
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  z-index: 1000;
+  list-style: none;
 `;
 
 const LiStyled = styled.li`
-  list-style: none;
-  padding-bottom: 5px;
-  padding-top: 5px;
-  .active,
-  &:hover {
-    /* background: #ebebeb; */
-    background: ${(props) => props.theme.suggestionHover};
-    /* background: #f7f8f9; */
-    cursor: default;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
 
+  &:hover, &.active {
+    background-color: ${themeVars.suggestionHover};
   }
-
 `;
+
 const SpanStyled = styled.span`
-  /* list-style: none; */
-  font-family: Verdana;
-  margin-left: 1em;
-  margin-top: 10em;
-
-  .active,
-  &:hover {
-    /* background: #ebebeb; */
-    /* background: #f7f8f9; */
-    /* cursor: pointer; */
-
-  }
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  color: ${themeVars.text};
 `;
 
 export default Autocomplete

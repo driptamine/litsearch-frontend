@@ -20,13 +20,13 @@ function renderItem(imageId) {
 function ImageSearchResultsBrave({ query }) {
   const dispatch = useDispatch();
   const imageIds = useSelector(state =>
-    selectors.selectImageSearchResultIds(state, query)
+    selectors.selectImageSearchResultIds(state, query, 'brave')
   );
   const isFetching = useSelector(state =>
     selectors.selectIsFetchingImageSearchResults(state)
   );
   const nextPage = useSelector(state =>
-    selectors.selectImageSearchResultsNextPage(state, query)
+    selectors.selectImageSearchResultsNextPage(state, query, 'brave')
   );
 
   function handleLoadMore() {

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useReducer, useState, useCallback, useMemo } from 'react';
 import { Switch, Route, Redirect, withRouter, useLocation, useHistory } from 'react-router-dom';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 // CHAT
 import ChatList from 'views/pages/ChatV3/Left/ChatList';
 import ChatWindow from 'views/pages/ChatV3/Main/ChatWindow';
@@ -9,7 +9,7 @@ import ChatWindowGemini from 'views/pages/ChatGemini/Main/ChatWindow';
 
 
 // import chatsData from 'views/pages/ChatV3/chats.json';
-import chatsData from 'views/pages/ChatV3/chatsV2.json';
+// import chatsData from 'views/pages/ChatV3/chatsV2.json';
 import emojiData from 'views/pages/ChatV3/emoji.json';
 // UPLOAD
 import ChunkUpload from 'views/components/upload/ChunkUpload';
@@ -60,6 +60,8 @@ import AlbumProfile from 'views/pages/AlbumProfile';
 import PlaylistProfile from 'views/pages/PlaylistProfile';
 import TrackProfile from 'views/pages/TrackProfile';
 import LinksProfile from 'views/pages/LinksProfile';
+import ProfilePage from 'views/pages/ProfilePage';
+import UsersPage from 'views/pages/UsersPage/UsersPage';
 
 // import LoginPage from 'views/pages/LoginPage/index';
 import LoginPage from 'views/pages/LoginPage/indexV2';
@@ -76,7 +78,6 @@ import GoogleCallback from 'views/pages/LoginPage/oauth/GoogleCallback';
 import OAuthCallback from 'views/pages/LoginPage/oauth/OAuthCallback';
 import OAuthPopup from 'views/pages/LoginPage/pocket/oauth2popup';
 
-import TwitchAuthCallback from 'views/pages/Auth/TwitchAuthCallback';
 import GoogleAuthCallback from 'views/pages/Auth/GoogleAuthCallback';
 // import SpotifyAuthCallback from 'views/pages/Auth/SpotifyAuthCallback';
 // import UnsplashCallback from 'views/pages/LoginPage/UnsplashCallback';
@@ -371,9 +372,10 @@ function ModalSwitch({  children, renderModal, stopSong, pauseSong, resumeSong, 
 
   // const auth = getState().users.id;
   const auth = getState().users.access_token;
-  // useScrollMemory();
-
-  const showChatList = location.pathname.startsWith('/chat');
+  const isMobile = window.innerWidth <= 768;
+  const isChatPath = location.pathname.startsWith('/chat');
+  const isSpecificChat = location.pathname !== '/chat/im' && isChatPath;
+  const showChatList = isChatPath && !(isMobile && isSpecificChat);
 
   return (
     <ModalRouteContext.Provider value={contextValue}>
@@ -386,7 +388,11 @@ function ModalSwitch({  children, renderModal, stopSong, pauseSong, resumeSong, 
       {/*<FlexDiv>*/}
 
       {/*{(pathname == '/chat/im' ? (<ChatList users={chatsData.users}/>) : null )}*/}
-      {showChatList && <ChatList users={chatsData.users} messages={chatsData.messages} emojiData={emojiData} />}
+      {showChatList && (
+        <ChatList 
+          emojiData={emojiData} 
+        />
+      )}
       <Switch location={switchLocation} back={location}>
         {/*{children}*/}
         {/*<Route exact path="/movies" component={PopularMovies} />*/}
@@ -394,8 +400,7 @@ function ModalSwitch({  children, renderModal, stopSong, pauseSong, resumeSong, 
         <Route path="/login" render={props => auth ? ( <Redirect to={{pathname: '/movies',}} /> ) : ( <LoginPage {...props} /> )} />
         <Route path="/signup" render={props => auth ? ( <Redirect to={{pathname: '/movies',}} /> ) : ( <SignUpPage {...props} /> )} />
         {/*<Route exact path="/login" component={LoginPage} />*/}
-        {/*<Route path="/auth/twitch/callback" element={<TwitchAuthCallback />} />*/}
-        <Route path="/auth/twitch/callback" component={TwitchAuthCallback} />
+        {/*<Route path="/auth/twitch/callback" component={TwitchAuthCallback} />*/}
 
         <Route path="/auth/google/callback" component={GoogleAuthCallback} />
         {/*<Route exact path="/auth/spotify/callback" component={SpotifyAuthCallback} />*/}
@@ -428,6 +433,7 @@ function ModalSwitch({  children, renderModal, stopSong, pauseSong, resumeSong, 
         <Route exact path="/feed" component={ModalMovies} />
         <Route exact path="/feedV2" component={ModalPosts} />
         <Route exact path="/people" component={ModalPeople} />
+        <Route exact path="/users" component={UsersPage} />
 
         <Route exact path="/magazines" component={ModalMagazines} />
 
@@ -463,9 +469,11 @@ function ModalSwitch({  children, renderModal, stopSong, pauseSong, resumeSong, 
         </Route>
 
 
-        {/*<Route exact path="/chat/im">
-          <ChatList users={chatsData.users} />
-        </Route>*/}
+        <Route exact path="/chat/im">
+          <ChatWindowContainer>
+            <h2>Select a chat to start messaging</h2>
+          </ChatWindowContainer>
+        </Route>
         <Route exact path="/chat/:userId" component={ChatWindow} />
         <Route exact path="/wow" component={ChatWindowGemini} />
 
@@ -547,9 +555,11 @@ function ModalSwitch({  children, renderModal, stopSong, pauseSong, resumeSong, 
         <Route path="/track/:trackId">
           <TrackProfile />
         </Route>
-        {/*<Route path="/post/:postId">
+        <Route path="/post/:postId">
           <PostProfile />
-        </Route>*/}
+        </Route>
+
+        <Route path="/:username" component={ProfilePage} />
 
         {/*<Route path="*"><Redirect to="/movies" /> </Route>*/}
       </Switch>
@@ -569,4 +579,16 @@ const ChatAppContainer = styled.div`
   height: 100vh;
   overflow: hidden;
 `
+
+const ChatWindowContainer = styled.div`
+  width: 70%;
+  background-color: var(--navBg);;
+
+  padding: 20px;
+  box-sizing: border-box;
+  padding-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+`;
 export default ModalSwitch;

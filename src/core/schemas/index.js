@@ -512,6 +512,8 @@ export const movieCreditSchema = new schema.Entity(
 
 export const videoSchema = new schema.Entity("videos");
 
+export const postSchema = new schema.Entity("posts");
+
 export const movieVideoSchema = new schema.Entity(
   "movieVideos",
   {

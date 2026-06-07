@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 const Comment = ({ comment, depth = 0 }) => {
   const [showReplies, setShowReplies] = useState(true);
@@ -29,11 +29,15 @@ const Comment = ({ comment, depth = 0 }) => {
   );
 };
 
+const commentContainerStyles = props => `
+  margin-left: ${props.depth > 0 ? 20 : 0}px;
+  padding: 10px 10px 10px ${props.depth > 0 ? 20 : 0}px;
+  border-left: ${props.depth > 0 ? '2px solid #ddd' : 'none'};
+`;
+
 const CommentContainer = styled.div`
   position: relative;
-  margin-left: ${(props) => (props.depth > 0 ? 20 : 0)}px;
-  padding: 10px 10px 10px ${(props) => (props.depth > 0 ? 20 : 0)}px;
-  border-left: ${(props) => (props.depth > 0 ? '2px solid #ddd' : 'none')};
+  ${commentContainerStyles}
 `;
 
 const CommentText = styled.p`

@@ -1,7 +1,8 @@
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
+import { themeVars } from 'views/styles/theme-vars';
 
 
 import useInput from '../hooks/useInput';
@@ -10,7 +11,7 @@ import { signup } from '../reducers/user';
 export const StyledAuth = styled.div`
   width: 385px;
   padding: 3rem 1.5rem;
-  background: ${(props) => props.theme.grey};
+  background: ${themeVars.grey};
   border-radius: 4px;
   margin: 8% auto;
 
@@ -33,10 +34,10 @@ export const StyledAuth = styled.div`
     border-radius: 3px;
     width: 100%;
     padding: 0.6rem 1.2rem;
-    background: ${(props) => props.theme.black};
-    border: 1px solid ${(props) => props.theme.black};
+    background: ${themeVars.black};
+    border: 1px solid ${themeVars.black};
     margin-bottom: 1.5rem;
-    color: ${(props) => props.theme.primaryColor};
+    color: ${themeVars.primaryColor};
   }
 
   .action {
@@ -45,9 +46,9 @@ export const StyledAuth = styled.div`
 
   button {
     padding: 0.4rem 1rem;
-    background: ${(props) => props.theme.red};
-    color: ${(props) => props.theme.white};
-    border: 1px solid ${(props) => props.theme.red};
+    background: ${themeVars.red};
+    color: ${themeVars.white};
+    border: 1px solid ${themeVars.red};
     border-radius: 3px;
     text-transform: uppercase;
     letter-spacing: 1.1px;
@@ -55,7 +56,7 @@ export const StyledAuth = styled.div`
 
   span {
     letter-spacing: 0.8px;
-    color: ${(props) => props.theme.secondaryColor};
+    color: ${themeVars.secondaryColor};
   }
 
   @media screen and (max-width: 430px) {

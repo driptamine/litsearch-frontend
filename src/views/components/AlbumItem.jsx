@@ -2,7 +2,7 @@ import React from 'react';
 import { withRouter} from 'react-router-dom';
 
 import { connect, useSelector } from 'react-redux';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 import BaseImage from 'views/components/BaseImage';
 import BaseCard from 'views/components/BaseCard';
@@ -31,20 +31,31 @@ import { primaryColor1, white, likeColor, greenColor, } from 'views/style/colors
 
 
 
-const LikedBtn = styled(Button)`
-  display: flex;
-  align-items: center;
-  margin: 0;
-  ${props =>
-    props.likedByUser &&
-    `
+const likedBtnStyles = props => `
+  ${props.likedByUser ? `
     background-color: ${likeColor};
     color: ${white};
     &:hover {
       color: ${white};
       border-color: transparent !important;
     }
-  `};
+  ` : ''}
+`;
+
+const likedBtnTabletStyles = props => `
+  ${props.likedByUser ? `
+    svg {
+      fill: ${likeColor};
+      color: ${white};
+    }
+  ` : ''}
+`;
+
+const LikedBtn = styled(Button)`
+  display: flex;
+  align-items: center;
+  margin: 0;
+  ${likedBtnStyles}
   ${screenLargerThan.tablet`
     flex-direction: column;
     height: auto;
@@ -55,14 +66,7 @@ const LikedBtn = styled(Button)`
       fill: ${white};
       color: ${white};
     }
-    ${props =>
-      props.likedByUser &&
-      `
-        svg {
-          fill: ${likeColor};
-          color: ${white};
-        }
-      `};
+    ${likedBtnTabletStyles}
     &:hover {
       color: ${white};
     }

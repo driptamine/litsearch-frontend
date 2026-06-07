@@ -1,14 +1,5 @@
-import styled, { keyframes } from 'styled-components';
-
-const pulse = keyframes`
-	0% {
-		background-position: 0% 0%;
-	}
-
-	100% {
-		background-position: -135% 0%;
-	}
-`;
+import { styled } from '@linaria/react';
+import { dimensions, spacing } from 'views/styles/shared-styles';
 
 const SkeletonPulse = styled.div`
   display: block;
@@ -16,16 +7,22 @@ const SkeletonPulse = styled.div`
   width: 100%;
   background: linear-gradient(-90deg, #121212 0%, #161616 50%, #121212 100%);
   background-size: 400% 400%;
-  animation: ${pulse} 1s linear;
+  animation: pulse 1s linear;
+
+  @keyframes pulse {
+    0% {
+      background-position: 0% 0%;
+    }
+
+    100% {
+      background-position: -135% 0%;
+    }
+  }
 `;
 
 export const SkeletonLine = styled(SkeletonPulse)`
-  margin-bottom: ${(props) => (props.mb ? props.mb : "")};
-  margin-top: ${(props) => (props.mt ? props.mt : "")};
-  margin-left: ${(props) => (props.ml ? props.ml : "")};
-  margin-right: ${(props) => (props.mr ? props.mr : "")};
-  width: ${(props) => props.width};
-  height: ${(props) => props.height};
+  ${spacing}
+  ${dimensions}
   border-radius: 4px;
 
   &::before {
@@ -34,9 +31,18 @@ export const SkeletonLine = styled(SkeletonPulse)`
 `;
 
 export const VideoCardSkeleton = styled(SkeletonLine)`
-	width: ${(props) => props.width};
-	height: ${(props) => props.height};
-	animation: ${pulse} 1s linear;
+	${dimensions}
+	animation: pulse 1s linear;
+
+  @keyframes pulse {
+    0% {
+      background-position: 0% 0%;
+    }
+
+    100% {
+      background-position: -135% 0%;
+    }
+  }
 	
   @media screen and (max-width: 600px) {
     height: 250px;
@@ -83,4 +89,5 @@ export const ChannelInfoSkeleton = styled(SkeletonLine)`
 		height: 50px;
 		position: relative;
 		top: -16px;
+  }
 `;

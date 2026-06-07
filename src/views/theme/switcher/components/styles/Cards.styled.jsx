@@ -1,12 +1,12 @@
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 export const CardsContainer = styled.section`
   margin: 50px;
 `;
 
 export const Card = styled.div`
-  background-color: ${({ theme }) => theme.colors.quoteBgc};
-  border: 1px solid ${({ theme }) => theme.colors.quoteBorder};
+  background-color: var(--quoteBgc);
+  border: 1px solid var(--quoteBorder);
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 20px;
@@ -15,14 +15,14 @@ export const Card = styled.div`
 `;
 
 export const CardTitle = styled.div`
-  color: ${({ theme }) => theme.colors.quoteTitle};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.quoteBorder};
+  color: var(--quoteTitle);
+  border-bottom: 1px solid var(--quoteBorder);
   text-align: center;
   padding: 10px;
   font-weight: bold;
 `;
 
 export const CardBody = styled.div`
-  color: ${({ theme }) => theme.colors.quoteBody};
+  color: var(--quoteBody);
   padding: 10px;
 `;

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 // MATERIAL DONE
 // import { Box, Typography, makeStyles } from '@mui/material';
 import { StyledBox, StyledTypography } from 'views/styledComponents';

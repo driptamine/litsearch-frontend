@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { LITLOOP_API_URL } from 'core/constants/urls';
+import { authHeader } from 'core/api/rest-helper';
 
-export const PostForm = ({ mediaIds }) => {
-  const [title, setTitle] = useState('');
+export const PostForm = ({ mediaIds, onPostSuccess }) => {
   const [description, setDescription] = useState('');
   const [photoIds, setPhotoIds] = useState([]);
   const [videoIds, setVideoIds] = useState([]);
   const [trackIds, setTrackIds] = useState([]);
   const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (mediaIds) {
@@ -21,30 +22,38 @@ export const PostForm = ({ mediaIds }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const url = `${LITLOOP_API_URL}/posts/create_post_api/`;
+    setIsLoading(true);
+    setMessage('');
+
+    const url = `${LITLOOP_API_URL}/posts/create/`;
     const postData = {
       description: description,
       photo_ids: photoIds,
       video_ids: videoIds,
-      track_ids: trackIds,
+      track_ids: trackIds
     };
 
     try {
       const response = await axios.post(url, postData, {
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...authHeader()
         }
       });
 
       const result = response.data;
-      setMessage(`✅ Post created (ID: ${result.post_id})`);
-
+      setMessage(`✅ Post created (ID: ${result.id || result.post_id})`);
+      setDescription('');
+      if (onPostSuccess) onPostSuccess(result);
+      
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
         setMessage(`❌ Error: ${err.response.data.error}`);
       } else {
         setMessage(`❌ Error: ${err.message}`);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -56,23 +65,44 @@ export const PostForm = ({ mediaIds }) => {
       <textarea
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        placeholder="Body"
+        placeholder="Description"
         required
         style={{
           width: '100%',
+          height: '100px',
           marginBottom: 10,
-          // background: `${props => props.theme.cardColor}`,
-          // background: `black`
+          padding: '8px',
+          borderRadius: '4px',
+          border: '1px solid #333',
+          background: '#222',
+          color: 'white',
+          resize: 'vertical'
         }}
       />
-      <div style={{ marginBottom: 10 }}>
-        <strong>Attached:</strong><br />
-        {photoIds.length > 0 && <>Photos: {photoIds.join(', ')}<br /></>}
-        {videoIds.length > 0 && <>Videos: {videoIds.join(', ')}<br /></>}
-        {trackIds.length > 0 && <>Tracks: {trackIds.join(', ')}<br /></>}
-      </div>
-      <button onClick={handleSubmit}>Submit Post</button>
-      {message && <p style={{ marginTop: 10 }}>{message}</p>}
+      {(photoIds.length > 0 || videoIds.length > 0 || trackIds.length > 0) && (
+        <div style={{ marginBottom: 10, color: '#aaa', fontSize: '0.9rem' }}>
+          <strong>Attached Media:</strong><br />
+          {photoIds.length > 0 && <>Photos: {photoIds.join(', ')}<br /></>}
+          {videoIds.length > 0 && <>Videos: {videoIds.join(', ')}<br /></>}
+          {trackIds.length > 0 && <>Tracks: {trackIds.join(', ')}<br /></>}
+        </div>
+      )}
+      <button 
+        type="submit" 
+        disabled={isLoading}
+        style={{
+          padding: '10px 20px',
+          borderRadius: '4px',
+          border: 'none',
+          background: isLoading ? '#555' : '#0084ff',
+          color: 'white',
+          fontWeight: 'bold',
+          cursor: isLoading ? 'not-allowed' : 'pointer'
+        }}
+      >
+        {isLoading ? 'Creating...' : 'Submit Post'}
+      </button>
+      {message && <p style={{ marginTop: 10, color: message.startsWith('✅') ? '#4caf50' : '#f44336' }}>{message}</p>}
     </form>
   );
 }

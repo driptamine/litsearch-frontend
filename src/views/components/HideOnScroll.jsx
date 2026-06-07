@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 // MATERIAL UNDONE
 // import useScrollTrigger from '@mui/material/useScrollTrigger';

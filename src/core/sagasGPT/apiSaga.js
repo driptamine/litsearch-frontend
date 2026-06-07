@@ -18,7 +18,9 @@ export function* callTrackAPI(endpoint, params, schema, processData, config = {}
     //   cancelToken
     // });
     const response = yield call([axios, "get"], url, {
-
+      ...config,
+      headers: header,
+      cancelToken
     });
     let { data } = response;
     // Process the data if any additional info is required for reducers or normalization.
@@ -65,15 +67,22 @@ export function* getAccessToken(endpoint, body, schema, processData, config = {}
   }
 }
 
+export function* likeAlbumHeader(endpoint, body, schema, processData, config = {}) {
+  try {
+    const url = yield call(createAuthUrl, endpoint);
+    const response = yield call(axios.put, url, body, {headers: authHeader()});
+    let { data } = response;
+    return data;
+  } finally {
+    if (yield cancelled()) {
+      // source.cancel();
+    }
+  }
+}
+
 export function* callPostAPIWithHeader({endpoint, params, schema, processData}) {
   try {
-    const url = yield call(createAPIUrlPost, endpoint);
-    console.log("urlzzz:", url);
-    // const url = yield call('http:localhost:8000', endpoint);
-    const response = yield call(getAccessToken, url, params, schema, processData);
-    // let { data } = response;
-    // return schema ? normalize(data, schema) : data;
-
+    const response = yield call(getAccessToken, endpoint, params, schema, processData);
     return response
   } finally {
     if (yield cancelled()) console.log("API call cancelled");

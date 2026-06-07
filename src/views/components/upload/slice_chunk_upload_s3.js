@@ -23,7 +23,7 @@ export const uploadVideoParts = async (
       res = await API_STORAGE.put(url, body);
       percentageComplete = Math.round(100 * idx / (numParts - 1));
       progressCallback(videoId, percentageComplete)
-      parts.push({ etag: res.headers.etag, part_number: idx + 1 });
+      parts.push({ etag: res.headers.etag || res.headers.ETag || "", part_number: idx + 1 });
     } catch (err) {
       handleError(err);
       markUploadAsFailedCallback(videoId);

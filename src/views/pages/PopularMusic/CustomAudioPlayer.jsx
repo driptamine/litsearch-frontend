@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { useAudio } from './AudioContext'; // adjust the path if needed
 import { FaPlay } from 'react-icons/fa';
 import { FaPause } from 'react-icons/fa';

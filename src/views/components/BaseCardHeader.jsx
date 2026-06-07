@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 // import { CardHeader } from '@mui/material';
 // import { makeStyles } from '@mui/material/styles';
@@ -15,7 +15,7 @@ import styled from 'styled-components';
 // }));
 
 const StyledCardHeader = styled.div`
-  padding: ${props => props.theme.spacing}
+  padding: var(--spacing)
 `;
 
 

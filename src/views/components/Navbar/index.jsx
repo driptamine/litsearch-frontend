@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { Link } from 'react-router-dom';
 import Search from './Search';
 import UploadVideo from './UploadVideo';
@@ -16,7 +16,7 @@ const Wrapper = styled.div`
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  background: ${(props) => props.theme.grey};
+  background: var(--grey);
   z-index: 99;
   padding: 0.7rem 1.5rem;
 

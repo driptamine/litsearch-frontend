@@ -1,7 +1,7 @@
 // import React from 'react';
 // import { Helmet } from 'react-helmet';
 // import { Route, Switch } from 'react-router-dom';
-// import styled from 'styled-components';
+// import { styled } from '@linaria/react';
 // // import PrivateRoute from '../../components/PrivateRoute';
 // // import App from '../App';
 // // import LoginContainers from '../Login';

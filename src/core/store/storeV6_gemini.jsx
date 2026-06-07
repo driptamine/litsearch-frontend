@@ -44,8 +44,7 @@ sagaMiddleware.run(rootSaga);
 // Export persistor along with the store
 export const persistor = persistStore(store);
 
+export const getState = () => store.getState();
+
 // Export the store (as a named export, since persistor is also named)
 export default store;
-
-// If you have a global getState, ensure it looks like this:
-// export const getState = () => store.getState();

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { Link, useLocation, withRouter } from 'react-router-dom';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 // MATERIAL UNDONE
 // import { CardActionArea, ListItem, ListItemText, ListItemAvatar, Avatar, makeStyles } from '@mui/material';
@@ -70,8 +70,12 @@ const TrackNumber = styled.div`
 const ReStyledAvatar = styled(StyledAvatar)`
   margin-right: 16px;
 `;
+const styledLinkStyles = props => `
+  color: ${props.theme.text};
+`;
+
 const StyledLink = styled(Link)`
-  color: ${props => props.theme.text};
+  ${styledLinkStyles}
   text-decoration: none;
   cursor: pointer;
   &:hover {

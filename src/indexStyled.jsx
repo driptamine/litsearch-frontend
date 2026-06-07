@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import { Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-import { ThemeProvider } from 'styled-components';
 
 // VIEWS
 import App from 'views/components/app';
@@ -26,13 +25,13 @@ const renderApp = () =>
   ReactDOM.render(
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <ThemeProvider theme={theme}>
+        <React.Fragment>
           <ConfigurationProvider>
             <Router history={history}>
               <App />
             </Router>
           </ConfigurationProvider>
-        </ThemeProvider>
+        </React.Fragment>
       </PersistGate>
     </Provider>,
     document.getElementById("root")

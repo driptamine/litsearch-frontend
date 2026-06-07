@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import axios from 'axios';
 
 import { FaEye, FaRegHeart, FaRegComment } from 'react-icons/fa';
@@ -137,7 +137,7 @@ const ProfileText = styled.div`
   }
 `;
 const HeaderText = styled.div`
-  color: ${props => props.theme.text};
+  color: var(--text);
   cursor: pointer;
   font-family: Georgia, "Courier New", "system-ui" ;
   font-weight: 400;
@@ -156,7 +156,7 @@ const ShowMore = styled.div`
 const Stats = styled.div`
   display: flex;
   margin-top: 10px;
-  color: ${props => props.theme.text};
+  color: var(--text);
   column-gap: 8px;
   justify-content: space-between;
 `;
@@ -206,31 +206,18 @@ const StyledAiFillEye = styled(AiFillEye)`
   margin-right: 6px;
 `;
 const Card = styled.div`
-  padding-top: 1em;
-  padding-right: 1em;
+  padding: 1em;
   padding-bottom: 4em;
-  padding-left: 1em;
-  margin-top: 1em;
+  margin: 1em auto;
 
-  width: 550px;
-  margin-left: 18%;
+  width: 95%;
+  max-width: 550px;
   border: 1.6px solid #383838;
-  /* background: #1b1e22; */
-
-  /* background: #222222; */
-
-  background: ${props => props.theme.cardColor};
-  /* padding-top: 5em;
-  padding-right: 1em;
-  padding-bottom: 4em;
-  padding-left: 1em;
-  margin-top: 1em; */
+  background: var(--cardColor);
   border-radius: 10px;
 
   @media screen and (max-width: 425px) {
-    width: 250px;
-    margin-left: auto;
-    margin-right: auto;
+    padding-bottom: 3em;
   }
 `;
 

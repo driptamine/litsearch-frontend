@@ -5,7 +5,7 @@ import { callAPIWithHeader, callAPI } from './apiSaga';
 /**
  * Generic fetcherSaga for making API requests with caching and normalization.
  */
-export function* fetcherSaga({ action, endpoint, params, schema, processData, cachedData }) {
+export function* fetcherSaga({ action, endpoint, params, schema, processData, cachedData, apiCaller = callAPI }) {
   const { type, payload = {} } = action;
   const { requestType, successType, errorType } = getFetchTypes(type);
 
@@ -17,7 +17,7 @@ export function* fetcherSaga({ action, endpoint, params, schema, processData, ca
 
       // Fetch data from API
       // const data = yield call(callAPIWithHeader, endpoint, params, schema, processData);
-      const data = yield call(callAPI, endpoint, params, schema, processData);
+      const data = yield call(apiCaller, endpoint, params, schema, processData);
 
       // Dispatch success action with the fetched data
       yield put({

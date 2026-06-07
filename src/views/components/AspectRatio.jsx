@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components'
+import { styled } from '@linaria/react'
 
 // MATERIAL DONE
 // import { makeStyles } from '@mui/material';
@@ -22,11 +22,15 @@ export const getAspectRatioString = (width, height) => `${width}:${height}`;
 //   }
 // }));
 
+const styledDivStyles = props => `
+  height: ${props.paddingTop ? 0 : undefined};
+  padding-top: ${props.paddingTop};
+`;
+
 const StyledDiv = styled.div`
   overflow: hidden;
   position: relative;
-  height: ${(props) => (props.paddingTop ? 0 : undefined)};
-  padding-top: ${(props) => (props.paddingTop)};
+  ${styledDivStyles}
   & > * : {
     position: absolute;
     top: 0;

@@ -1,6 +1,6 @@
 // indexV2.jsx or TrackList.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import tracks from './music.json'; // Make sure this has { tracks: [...] }
 import { Link } from 'react-router-dom';
 import { FiPlay } from 'react-icons/fi';
@@ -251,9 +251,13 @@ const PauseButton = () => (
 
 
 
+const newStyles = props => `
+  flex-direction: ${props.isPlaying ? 'column' : 'row'};
+`;
+
 const New = styled.div`
   display: flex;
-  flex-direction: ${props => (props.isPlaying ? 'column' : 'row')};
+  ${newStyles}
 `
 const PlayPauseButton = styled.div`
   user-select: none;
@@ -302,22 +306,22 @@ const ProgressWrapper = styled.div`
 //     border-radius: 50%;
 //     cursor: pointer;
 //   }
-// `;
+const progressBarStyles = ({ progress }) => `
+  background: linear-gradient(
+    to right,
+    #686cb9 0%,
+    #686cb9 ${progress}%,
+    #333 ${progress}%,
+    #333 100%
+  );
+`;
 
-const ProgressBar = styled.input.attrs({ type: 'range' })`
+const _ProgressBar = styled.input`
   width: 400px;
   height: 6px;
   appearance: none;
   border-radius: 5px;
-  background: ${({ progress }) => `
-    linear-gradient(
-      to right,
-      #686cb9 0%,
-      #686cb9 ${progress}%,
-      #333 ${progress}%,
-      #333 100%
-    )
-  `};
+  ${progressBarStyles}
   outline: none;
   cursor: pointer;
 
@@ -356,6 +360,8 @@ const ProgressBar = styled.input.attrs({ type: 'range' })`
   }
 `;
 
+const ProgressBar = (props) => <_ProgressBar type="range" {...props} />;
+
 
 
 const ListContainer = styled.div`
@@ -383,9 +389,13 @@ const TrackNumber = styled.span`
   width: 30px;
 `;
 
+const trackInfoStyles = props => `
+  flex-direction: ${props.isPlaying ? 'row' : 'column'};
+`;
+
 const TrackInfo = styled.div`
   display: flex;
-  flex-direction: ${props => (props.isPlaying ? 'row' : 'column')};
+  ${trackInfoStyles}
 `;
 
 const TrackTitle = styled.span`
@@ -394,10 +404,13 @@ const TrackTitle = styled.span`
   color: white;
 `;
 
+const trackArtistStyles = props => `
+  font-size: ${props.isPlaying ? '14px' : '16px'};
+`;
+
 const TrackArtist = styled.span`
   font-family: Verdana;
-
-  font-size: ${props => (props.isPlaying ? '14px' : '16px')};
+  ${trackArtistStyles}
   color: gray;
 `;
 

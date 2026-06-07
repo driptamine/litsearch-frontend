@@ -1,6 +1,7 @@
 // https://stackoverflow.com/questions/47921532/style-a-slider-thumb-with-styled-components/47932710#47932710
+import { styled } from '@linaria/react';
 
-const ScrollContainer = styled.div`
+export const ScrollContainer = styled.div`
   width: 100%;
   height: 500px;
   overflow-y: auto;
@@ -11,7 +12,7 @@ const ScrollContainer = styled.div`
   }
 `;
 
-const FaderInput = styled.input`
+export const FaderInput = styled.input`
 
   &::-webkit-slider-thumb {
     -webkit-appearance: none;

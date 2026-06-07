@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import { Route, useLocation } from 'react-router-dom';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import { RecoilRoot } from 'recoil';
-import styled, { ThemeProvider } from 'styled-components';
+import { styled } from '@linaria/react';
 import { FRONTEND_CALLBACK_URL } from 'core/constants/urls';
 
 import { useThemeMode } from 'views/components/Toggle/useThemeMode'
@@ -178,7 +178,7 @@ const App = () => {
 
   const showChatList = pathname.startsWith('/chat');
   return (
-    <ThemeProvider theme={themeMode}>
+    <>
       <>
       {/*<GlobalStyle />*/}
       <GlobalStyleThemeMode />
@@ -275,7 +275,7 @@ const App = () => {
         </div>
       )}
       </>
-    </ThemeProvider>
+    </>
   );
 }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect, useSelector } from 'react-redux';
 import { withRouter} from 'react-router-dom';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 
 import BaseImage from 'views/components/BaseImage';
@@ -130,21 +130,32 @@ function AlbumCard({ albumId, subheader, handleLikePhoto, handleUnLikePhoto }) {
 
 // export default AlbumCard;
 
-const LikedBtn = styled(Button)`
-  display: flex;
-  align-items: center;
-  margin: 0;
-  background-color: #ebebeb;
-  ${props =>
-    props.likedByUser &&
-    `
+const likedBtnStyles = props => `
+  ${props.likedByUser ? `
     background-color: ${likeColor};
     color: ${white};
     &:hover {
       color: ${white};
       border-color: transparent !important;
     }
-  `};
+  ` : ''}
+`;
+
+const likedBtnTabletStyles = props => `
+  ${props.likedByUser ? `
+    svg {
+      fill: ${likeColor};
+      color: ${white};
+    }
+  ` : ''}
+`;
+
+const LikedBtn = styled(Button)`
+  display: flex;
+  align-items: center;
+  margin: 0;
+  background-color: #ebebeb;
+  ${likedBtnStyles}
   ${screenLargerThan.tablet`
     flex-direction: column;
     height: auto;
@@ -155,14 +166,7 @@ const LikedBtn = styled(Button)`
       fill: ${white};
       color: ${white};
     }
-    ${props =>
-      props.likedByUser &&
-      `
-        svg {
-          fill: ${likeColor};
-          color: ${white};
-        }
-      `};
+    ${likedBtnTabletStyles}
     &:hover {
       color: ${white};
     }

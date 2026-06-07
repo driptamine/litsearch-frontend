@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { HotKeys } from 'react-hotkeys';
 import { FullScreen } from 'react-full-screen';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 
 // MATERIAL UNDONE
@@ -37,8 +37,8 @@ const keyMap = {
 // }));
 const ReStyledIconButton = styled(StyledIconButton)`
   position: absolute;
-  top: ${props => props.theme.spacing}
-  right: ${props => props.theme.spacing}
+  top: var(--spacing)
+  right: var(--spacing)
 `;
 function MediaGalleryModal({
   title,

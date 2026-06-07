@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import litloopLogo from 'views/assets/litloopLogo3.png';
 import imdbLogoPng from 'views/assets/imdb_logo.png';
 // import imdbLogo from 'views/assets/imdbLogo.svg';

@@ -11,7 +11,7 @@ import {
   FaVolumeMute,
 } from 'react-icons/fa';
 import { BsArrowRepeat } from 'react-icons/bs';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import HLS from 'hls.js';
 
 import './video-player.css';

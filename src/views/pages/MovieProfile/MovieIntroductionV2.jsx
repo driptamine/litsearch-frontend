@@ -49,7 +49,7 @@ function MovieIntroductionV2({ movieId, obj }) {
         <BaseImageV2
           src={getImageUrl(movie.poster_path, { size: 'w780' })}
           aspectRatio={getAspectRatioString(2, 3)}
-          width={20}
+          width={300}
         />
         {/*<a target="_blank" href={`https://rezka.ag/search/?q=${movie.title}&do=search&subaction=search`}>rezka</a>*/}
       {/*</StyledBox>*/}

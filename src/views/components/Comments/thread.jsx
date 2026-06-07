@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Requester } from '../components/requester';
 import { addColorTheme } from '../store/actions';
-import styled, { withTheme } from 'styled-components';
+import { styled } from '@linaria/react';
 
 import Icon from '../components/icon';
 import Button from '../components/button';
@@ -161,7 +161,7 @@ const Placeholder = styled.div`
 // due to lightbox being open.
 const ScrollWrapper = styled.div`
   overflow-y: ${({ lightboxIsOpen }) => (lightboxIsOpen ? "scroll" : "show")};
-  color: ${({ theme }) => theme.text};
+  color: var(--text);
   height: 100%;
 `;
 
@@ -169,9 +169,9 @@ const ViewSettings = styled.div`
   width: 100%;
   position: sticky;
   top: 0rem;
-  border-bottom: 1px solid ${({ theme }) => theme.card.border};
-  background-color: ${({ theme }) => theme.card.bg};
-  color: ${({ theme }) => theme.text};
+  border-bottom: 1px solid var(--navBorderColor);
+  background-color: var(--navBg);
+  color: var(--text);
   padding: 0.25rem;
   z-index: 10;
 `;
@@ -188,4 +188,4 @@ export default connect(
   {
     addColorTheme,
   }
-)(withRouter(withTheme(Thread)));
+)(withRouter(Thread));

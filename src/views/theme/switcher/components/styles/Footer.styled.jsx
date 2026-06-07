@@ -1,12 +1,12 @@
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 export const Footer = styled.footer`
-  background-color: ${({ theme }) => theme.colors.footer};
-  color: ${({ theme }) => theme.colors.background};
+  background-color: var(--footer);
+  color: var(--background);
   padding: 40px 20px;
   text-align: center;
 
   a {
-    color: ${({ theme }) => theme.colors.background};
+    color: var(--background);
   }
 `;

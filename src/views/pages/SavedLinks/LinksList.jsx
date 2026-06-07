@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useHistory, useLocation } from 'react-router-dom';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import axios from 'axios';
 
 import { LITLOOP_API_URL } from 'core/constants/urls';
@@ -95,10 +95,16 @@ const LinksList = () => {
 
 
 const Container = styled.div`
+  width: 95%;
   max-width: 800px;
   margin: 2rem auto;
   padding: 1rem;
   font-family: Arial, sans-serif;
+
+  @media screen and (max-width: 480px) {
+    padding: 0.5rem;
+    margin: 1rem auto;
+  }
 `;
 const StyledLink = styled(Link)`
   text-decoration: none;
@@ -114,12 +120,15 @@ const LinkCard = styled.div`
   padding: 1rem;
   margin-bottom: 1rem;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  overflow-wrap: break-word;
 `;
 
 const URL = styled.a`
   color: #0077cc;
   font-weight: bold;
   text-decoration: none;
+  overflow-wrap: break-word;
+  word-break: break-all;
 
   &:hover {
     text-decoration: underline;

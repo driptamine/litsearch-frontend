@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import axios from 'axios';
 import PostCreator from 'views/components/upload/PostCreator';
 
@@ -94,7 +94,7 @@ const VideoUploaderGPT = () => {
         const simulation = simulateInitialProgress();
 
         const initRes = await axios.post(
-          "http://localhost:8000/videos/create_presigned_url/",
+          "http://localhost:8000/gcs/create_presigned_url/",
           {
             filename: fileName,
             content_type: file.type
@@ -112,7 +112,7 @@ const VideoUploaderGPT = () => {
           const blob = file.slice(start, end);
 
           const presignRes = await axios.post(
-            "http://localhost:8000/videos/get_presigned_url/",
+            "http://localhost:8000/gcs/get_presigned_url/",
             {
               upload_id,
               key,
@@ -127,7 +127,7 @@ const VideoUploaderGPT = () => {
             headers: { "Content-Type": file.type },
           });
 
-          const etag = uploadRes.headers.etag.replace(/"/g, "");
+          const etag = (uploadRes.headers.etag || uploadRes.headers.ETag || "").replace(/"/g, "");
           parts.push({ PartNumber: partNumber, ETag: etag });
 
           const realProgress = Math.round((partNumber / totalParts) * 40) + 60;
@@ -139,7 +139,7 @@ const VideoUploaderGPT = () => {
         await simulation;
 
         const completeRes = await axios.post(
-          "http://localhost:8000/videos/complete_upload/",
+          "http://localhost:8000/gcs/complete_upload/",
           {
             upload_id,
             key,

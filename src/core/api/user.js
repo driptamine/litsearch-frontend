@@ -1,14 +1,14 @@
 //@flow
 
-import type { RESTAPIResponse } from '../types/data';
-import { postReq, getHeaders, getReq } from './rest-helper';
-import {
-  ROOT_URL,
-  CLIENT_ID,
-  CLIENT_SECRET,
-  REDIRECT_URI,
-  API_ROOT,
-} from '../constants/service-info';
+import { postReq, getHeaders, getReq, postReqFormData } from './rest-helper';
+import { LITLOOP_API_URL } from '../constants/urls';
+
+// Note: service-info.js is missing. Providing placeholders for OAuth constants.
+export const API_ROOT = LITLOOP_API_URL;
+export const ROOT_URL = LITLOOP_API_URL;
+export const CLIENT_ID = '';
+export const CLIENT_SECRET = '';
+export const REDIRECT_URI = '';
 
 
 export const getAccessToken = (code) =>
@@ -30,7 +30,7 @@ const GOOGLE_TOKEN_TWO = "https://accounts.google.com/o/oauth2";
 
 export const getGoogleAccessToken = (code) =>
   postReq(
-    `${GOOGLE_TOKEN}/token`,
+    `${GOOGLE_TOKEN_ONE}/token`,
     {
       client_id: CLIENT_ID,
       client_secret: "AIzaSyBtOSg6OOJc8F_LWPiVUdQjeKb5XKF3UWk",
@@ -43,3 +43,6 @@ export const getGoogleAccessToken = (code) =>
 
 export const getUserProfile = () =>
   getReq(`${API_ROOT}/me`);
+
+export const uploadAvatar = (formData) =>
+  postReqFormData(`${LITLOOP_API_URL}/users/me/avatar/`, formData);

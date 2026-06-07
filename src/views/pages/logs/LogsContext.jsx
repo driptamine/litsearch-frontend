@@ -7,7 +7,7 @@ import { BsCollectionFill } from 'react-icons/bs';
 import { FaTwitch, FaYoutube, FaTwitter } from 'react-icons/fa';
 
 
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 
 import useSyncedLocalState from 'core/hooks2/useSyncedLocalState';

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, withRouter } from 'react-router-dom';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
+import themeVars from 'views/styles/theme-vars';
 import { FiPlay } from 'react-icons/fi';
 import { FiPause } from 'react-icons/fi';
 
@@ -129,9 +130,13 @@ const ArtistsName = ({track }) => {
   )
 }
 
+const flexStyles = props => `
+  display: ${props.isFlex ? 'flex' : 'block'};
+`;
+
 export const Flex = styled.div`
-  display: ${(props) => (props.isFlex ? 'flex' : 'block')};
-  color: ${props => props.theme.text};
+  ${flexStyles}
+  color: ${themeVars.text};
   margin-top: auto;
   margin-bottom: auto;
   margin-left: 8px;
@@ -189,7 +194,7 @@ const HideIndexItem = styled.div`
   grid-gap: 16px;
 
   &:hover {
-     background-color: ${props => props.theme.sideBarHoverColor};
+     background-color: ${themeVars.sideBarHoverColor};
 
   }
 
@@ -219,13 +224,13 @@ const HideIndexItem = styled.div`
   border-radius: 4px;
 `;
 const TrackNumber = styled.div`
-  color: ${props => props.theme.text};
+  color: ${themeVars.text};
 `;
 const ReStyledAvatar = styled(StyledAvatar)`
   margin-right: 16px;
 `;
 const StyledLink = styled(Link)`
-  color: ${props => props.theme.text};
+  color: ${themeVars.text};
   text-decoration: none;
   cursor: pointer;
   &:hover {

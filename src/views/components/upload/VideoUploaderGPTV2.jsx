@@ -1,6 +1,6 @@
 // https://chatgpt.com/c/6806b14f-2990-800c-9d8d-9fd25f20630a
 import React, { useState, useRef } from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import axios from 'axios';
 
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
@@ -70,7 +70,7 @@ const VideoUploaderGPT = () => {
     try {
       // Step 1: Initiate multipart upload
       const initRes = await axios.post(
-        "http://localhost:8000/videos/create_presigned_url/",
+        "http://localhost:8000/gcs/create_presigned_url/",
         {
           filename: fileName,
           content_type: file.type,
@@ -110,7 +110,7 @@ const VideoUploaderGPT = () => {
         const blob = file.slice(start, end);
 
         const presignRes = await axios.post(
-          "http://localhost:8000/videos/get_presigned_url/",
+          "http://localhost:8000/gcs/get_presigned_url/",
           {
             upload_id,
             key,
@@ -125,7 +125,7 @@ const VideoUploaderGPT = () => {
           headers: { "Content-Type": file.type },
         });
 
-        const etag = uploadRes.headers.etag.replace(/"/g, "");
+        const etag = (uploadRes.headers.etag || uploadRes.headers.ETag || "").replace(/"/g, "");
         parts.push({ PartNumber: partNumber, ETag: etag });
 
         const realProgress = Math.round((partNumber / totalParts) * 100);
@@ -138,7 +138,7 @@ const VideoUploaderGPT = () => {
 
       // Step 3: Complete multipart upload
       const response = await axios.post(
-        "http://localhost:8000/videos/complete_upload/",
+        "http://localhost:8000/gcs/complete_upload/",
         {
           upload_id,
           key,

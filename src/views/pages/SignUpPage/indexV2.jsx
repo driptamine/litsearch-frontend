@@ -1,30 +1,25 @@
 import React, { useState, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useHistory } from 'react-router-dom';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 import {
-  twitchSignInAction, googleSignInAction, appleSignInAction,
-  spotifySignInAction, unsplashSignInAction, deezerSignInAction, instagramSignInAction
+  googleSignInAction, unsplashSignInAction, deezerSignInAction, instagramSignInAction
 } from 'views/pages/LoginPage/action';
-import { TwitchContext } from 'views/pages/Auth/twitch/useToken';
 import { YoutubeContext } from 'views/pages/Auth/youtube/useToken';
 import { GoogleContext } from 'views/pages/Auth/google/useToken';
-import { SpotifyContext } from 'views/pages/Auth/spotify/useToken';
 
 import litloopLogo from 'views/assets/litloopLogo3.png';
 import { fetchAuthUser } from 'core/actions';
 import { selectors } from 'core/reducers/index';
 import useEventListenerMemo from 'core/hooks2/useEventListenerMemo';
 import ReAuthenticateButton from 'views/pages/Auth/ReAuthenticateButton';
-import { FaSpotify, FaApple } from 'react-icons/fa';
 
 import { StyledGrid as Grid } from 'views/styledComponents';
 
 const SignUpForm = () => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const { setTwitchAccessToken, setTwitchRefreshToken, setTwitchUsername, setTwitchUserId, setTwitchProfileImage } = useContext(TwitchContext) || {};
   const { setGoogleAccessToken, setGoogleUsername, setGoogleProfileImage } = useContext(GoogleContext) || {};
 
   const [email, setEmail] = useState("");
@@ -51,13 +46,7 @@ const SignUpForm = () => {
     const { access_token, refresh_token, username, userId, profileImg, service } = e.data;
     if (!access_token || !service) return;
 
-    if (service === 'twitch') {
-      setTwitchAccessToken(access_token);
-      setTwitchRefreshToken(refresh_token);
-      setTwitchUsername(username);
-      setTwitchUserId(userId);
-      setTwitchProfileImage(profileImg);
-    } else if (service === 'google') {
+    if (service === 'google') {
       setGoogleAccessToken(access_token);
       setGoogleUsername(username);
       setGoogleProfileImage(profileImg);
@@ -100,9 +89,7 @@ const SignUpForm = () => {
       </Form>
 
       <OAuthWrapper>
-        <ReAuthenticateButton serviceName='Google' />
-        <OAuthButton onClick={handleSocialClick(spotifySignInAction)}><FaSpotify /> Sign in with Spotify</OAuthButton>
-        <OAuthButton onClick={handleSocialClick(appleSignInAction)}><FaApple /> Sign in with Apple</OAuthButton>
+        <ReAuthenticateButton serviceName='Google' title="Sign up with Google" />
       </OAuthWrapper>
     </Container>
   );

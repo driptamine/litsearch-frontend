@@ -1,5 +1,6 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react-swc';
+import wyw from '@wyw-in-js/vite';
 import { visualizer } from 'rollup-plugin-visualizer'
 import { ghPages } from 'vite-plugin-gh-pages'
 
@@ -10,49 +11,44 @@ import dns from 'dns'
 
 dns.setDefaultResultOrder('verbatim')
 
-export default defineConfig({
-  plugins: [
-    react({
-      babel: {
-        plugins: [
-          [
-            'babel-plugin-styled-components',
-            {
-              displayName: true,
-              fileName: false
-            }
-          ]
-        ]
-      }
-    }),
-    ghPages(),
-    visualizer({
-      open: true, // Automatically opens the visualizer in your browser
-    }),
-  ],
-  resolve: {
-    alias: {
-      src: "/src",
-      views: "/src/views",
-      core: "/src/core",
+export default defineConfig(({ command, mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  return {
+    base: '/',
+    plugins: [
+      {
+        ...wyw({
+          babelOptions: {
+            presets: [
+              "@babel/preset-env",
+              "@babel/preset-react",
+              "@wyw-in-js/babel-preset",
+            ],
+          },
+        }),
+        enforce: 'pre',
+      },
+      react(),
+      ghPages(),
+      visualizer({
+        open: true, // Automatically opens the visualizer in your browser
+      }),
+    ],
+    resolve: {
+      alias: {
+        src: "/src",
+        views: "/src/views",
+        core: "/src/core",
+      },
     },
-
-    // alias: [
-    //   {
-    //     find: "common",
-    //     replacement: resolve(__dirname, "src/common"),
-    //   },
-    // ],
-    mainfield: [],
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      plugins: [esbuildCommonjs(['react-moment'])],
+    optimizeDeps: {
+      esbuildOptions: {
+        plugins: [esbuildCommonjs(['react-moment'])],
+      },
     },
-  },
-  server: {
-    host: true,
-    // open: '/',
-    port: 3001,
-  },
+    server: {
+      host: true,
+      port: 3001,
+    },
+  }
 });

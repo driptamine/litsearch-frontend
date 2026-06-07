@@ -1,0 +1,185 @@
+# Styled-Components Migration Tracker
+
+The following files still contain `styled-components` imports and should be migrated to Linaria.
+
+## Total Files: 177
+
+### Migration List
+
+- [ ] src/views/components/Comments/thread.jsx (complex)
+- [ ] src/views/components/Toggle/GlobalStyleThemeMode.jsx (complex)
+- [x] src/views/components/player/NetflixPlayer.jsx
+- [x] src/views/components/video-player/PlayerControls.jsx
+- [x] src/views/components/video-player/web/controls/ControlPanel.jsx
+- [x] src/views/hooks/ModalSwitch.jsx
+- [x] src/views/pages/AlbumProfile/AlbumIntroduction.jsx
+- [x] src/views/pages/AlbumProfile/Comment.jsx
+- [x] src/views/pages/AlbumProfile/CommentV2.jsx
+- [x] src/views/pages/AlbumProfile/CommentV3.jsx
+- [x] src/views/pages/AlbumProfile/CommentV4.jsx
+- [x] src/views/pages/AlbumProfile/CommentV5.jsx
+- [x] src/views/pages/AlbumProfile/SimilarAlbums.jsx
+- [x] src/views/pages/AlbumProfile/Tree/CommentTreeView.jsx
+- [x] src/views/pages/AlbumProfile/Tree/TreeView.jsx
+- [x] src/views/pages/Alert/index.jsx
+- [x] src/views/pages/ArtistProfile/ArtistAlbums.jsx
+- [x] src/views/pages/ArtistProfile/ArtistIntroduction.jsx
+- [x] src/views/pages/ArtistProfile/ArtistIntroductionV2.jsx
+- [x] src/views/pages/ArtistProfile/index.jsx
+- [x] src/views/pages/Auth/GoogleAuthCallback.jsx
+- [x] src/views/pages/Auth/ReAuthenticateButton.jsx
+- [x] src/views/pages/Auth/SpotifyAuthCallback.jsx
+- [x] src/views/pages/Auth/StyledComponents.jsx
+- [x] src/views/pages/Auth/TwitchAuthCallback.jsx
+- [x] src/views/pages/Auth/tooltip/ToolTip.jsx
+- [x] src/views/pages/ChatGemini/Left/ChatList.jsx
+- [x] src/views/pages/ChatGemini/Main/ChatInput.jsx
+- [x] src/views/pages/ChatGemini/Main/ChatWindow.jsx
+- [x] src/views/pages/ChatGemini/Main/InputBar.jsx
+- [x] src/views/pages/ChatGemini/Main/MessageBubble.jsx
+- [x] src/views/pages/ChatGemini/Main/MessageBubbleV1.jsx
+- [x] src/views/pages/ChatGemini/Main/MessageBubbleV2.jsx
+- [x] src/views/pages/ChatGemini/Main/MessageBubbleV3.jsx
+- [x] src/views/pages/ChatGemini/Main/MessageBubbleV4.jsx
+- [x] src/views/pages/ChatV3/Left/ChatList.jsx
+- [x] src/views/pages/ChatV3/Main/ChatInput.jsx
+- [x] src/views/pages/ChatV3/Main/ChatWindow.jsx
+- [x] src/views/pages/JustDoList/JustDoListV1.jsx
+- [x] src/views/pages/JustDoList/JustDoListV2.jsx
+- [x] src/views/pages/JustDoList/components/AddTodo.jsx
+- [x] src/views/pages/JustDoList/components/Sidebar.jsx
+- [x] src/views/pages/JustDoList/components/TodoItem.jsx
+- [x] src/views/pages/JustDoList/styledComponents.js
+- [x] src/views/pages/LinksProfile/PlaylistTrackListItemMinified.jsx
+- [x] src/views/pages/LinksProfile/index.jsx
+- [x] src/views/pages/LoadingIndicatorz/index.jsx
+- [x] src/views/pages/LoginPage/MainApp.jsx
+- [x] src/views/pages/LoginPage/glass.jsx
+- [x] src/views/pages/LoginPage/index.jsx
+- [ ] src/views/pages/LoginPage/indexV2.jsx
+- [ ] src/views/pages/MainSearch/AppHeader/App.jsx
+- [ ] src/views/pages/MainSearch/AppHeader/Autocomplete.jsx
+- [ ] src/views/pages/MainSearch/SearchBar.jsx
+- [ ] src/views/pages/MainSearch/StartPage/App.jsx
+- [ ] src/views/pages/MainSearch/StartPage/Autocomplete.jsx
+- [ ] src/views/pages/MainSearch/index.jsx
+- [ ] src/views/pages/MainSearch/searchbar/App.jsx
+- [ ] src/views/pages/MainSearch/searchbar/SearchResult.jsx
+- [ ] src/views/pages/MainSearch/styles.jsx
+- [ ] src/views/pages/MovieProfile/Rating.jsx
+- [ ] src/views/pages/NoteApp/styledComponents.js
+- [ ] src/views/pages/NoteText/AddNoteForm.jsx
+- [ ] src/views/pages/NoteText/Note.jsx
+- [ ] src/views/pages/NoteText/NoteApp.jsx
+- [ ] src/views/pages/NoteText/NoteList.jsx
+- [ ] src/views/pages/PhotosPage/PhotoCard.jsx
+- [ ] src/views/pages/PhotosPage/PhotoCardUnsplash.jsx
+- [ ] src/views/pages/PhotosPage/PhotosPage.jsx
+- [ ] src/views/pages/PhotosPage/PhotosPageUnsplash.jsx
+- [ ] src/views/pages/PlaylistProfile/PlaylistIntroduction.jsx
+- [ ] src/views/pages/PlaylistProfile/PlaylistTrackListItem.jsx
+- [ ] src/views/pages/PlaylistProfile/PlaylistTrackListItemMinified.jsx
+- [ ] src/views/pages/PlaylistProfile/PlaylistTrackListItemVK.jsx
+- [ ] src/views/pages/PlaylistProfile/index.jsx
+- [ ] src/views/pages/PopularAlbums/index.jsx
+- [ ] src/views/pages/PopularMagazines/index.jsx
+- [ ] src/views/pages/PopularMovies/index.jsx
+- [ ] src/views/pages/PopularMusic/CustomAudioPlayer.jsx
+- [ ] src/views/pages/PopularMusic/CustomAudioPlayerV3.jsx
+- [ ] src/views/pages/PopularMusic/CustomAudioPlayerV4.jsx
+- [ ] src/views/pages/PopularMusic/CustomAudioPlayerV5.jsx
+- [ ] src/views/pages/PopularMusic/chatgpt.jsx
+- [ ] src/views/pages/PopularMusic/index.jsx
+- [ ] src/views/pages/PopularMusic/indexV2.jsx
+- [ ] src/views/pages/PopularPosts/indexV2.jsx
+- [ ] src/views/pages/PostProfileV2/Rating.jsx
+- [ ] src/views/pages/ProfilePage/UserPosts.jsx
+- [ ] src/views/pages/ProfilePage/index.jsx
+- [ ] src/views/pages/SavedLinks/LinkListByTag.jsx
+- [ ] src/views/pages/SavedLinks/LinksList.jsx
+- [ ] src/views/pages/SavedLinks/SearchByTag.jsx
+- [ ] src/views/pages/SearchResults/index.jsx
+- [ ] src/views/pages/SearchesResults/index.jsx
+- [ ] src/views/pages/SignPage/index.jsx
+- [ ] src/views/pages/SignUpPage/index.jsx
+- [ ] src/views/pages/SignUpPage/indexV2.jsx
+- [ ] src/views/pages/TrackProfile/Controls.jsx
+- [ ] src/views/pages/TrackProfile/StyledVideoCard.jsx
+- [ ] src/views/pages/TrackProfile/StyledVideoCardV2.jsx
+- [ ] src/views/pages/TrackProfile/TrackIntroduction.jsx
+- [ ] src/views/pages/TrackProfile/VideoCard.jsx
+- [ ] src/views/pages/TrackProfile/VideoItem.jsx
+- [ ] src/views/pages/TrackProfile/index.jsx
+- [ ] src/views/pages/UsersPage/UsersPage.jsx
+- [ ] src/views/pages/VideoFeedProfile/VideoCard.jsx
+- [ ] src/views/pages/VideoFeedProfile/VideoCardV2.jsx
+- [ ] src/views/pages/VideoFeedProfile/VideoFeed.jsx
+- [ ] src/views/pages/VideoFeedProfile/VideoFeedV2.jsx
+- [ ] src/views/pages/VideoFeedProfile/index.jsx
+- [ ] src/views/pages/VideoProfile/index.jsx
+- [ ] src/views/pages/logs/LogsContext.jsx
+- [ ] src/views/pages/notifications/styledComponent.jsx
+- [ ] src/views/style/GlobalThemeProvider.jsx
+- [ ] src/views/style/global.js
+- [ ] src/views/styledComponents/Avatar.jsx
+- [ ] src/views/styledComponents/Box.jsx
+- [ ] src/views/styledComponents/Button.jsx
+- [ ] src/views/styledComponents/Card.jsx
+- [ ] src/views/styledComponents/CardActionArea.jsx
+- [ ] src/views/styledComponents/CardContent.jsx
+- [ ] src/views/styledComponents/Chip.jsx
+- [ ] src/views/styledComponents/CircularProgress.jsx
+- [ ] src/views/styledComponents/Container.jsx
+- [ ] src/views/styledComponents/Dialog.jsx
+- [ ] src/views/styledComponents/DialogContent.jsx
+- [ ] src/views/styledComponents/DialogTitle.jsx
+- [ ] src/views/styledComponents/Fade.jsx
+- [ ] src/views/styledComponents/Grid.jsx
+- [ ] src/views/styledComponents/IconButton.jsx
+- [ ] src/views/styledComponents/Link.jsx
+- [ ] src/views/styledComponents/List.jsx
+- [ ] src/views/styledComponents/ListItem.jsx
+- [ ] src/views/styledComponents/ListItemAvatar.jsx
+- [ ] src/views/styledComponents/ListItemIcon.jsx
+- [ ] src/views/styledComponents/ListItemText.jsx
+- [ ] src/views/styledComponents/Menu.jsx
+- [ ] src/views/styledComponents/MenuItem.jsx
+- [ ] src/views/styledComponents/Slide.jsx
+- [ ] src/views/styledComponents/Slider.jsx
+- [ ] src/views/styledComponents/Stack.jsx
+- [ ] src/views/styledComponents/Tab.jsx
+- [ ] src/views/styledComponents/Tabs.jsx
+- [ ] src/views/styledComponents/TextField.jsx
+- [ ] src/views/styledComponents/Typography.jsx
+- [ ] src/views/styledComponents/VideoPlayer/Rail.jsx
+- [ ] src/views/styledComponents/VideoPlayer/Slider.jsx
+- [ ] src/views/styledComponents/VideoPlayer/Thumb.jsx
+- [ ] src/views/styledComponents/VideoPlayer/ThumbWrapper.jsx
+- [ ] src/views/styledComponents/VideoPlayer/Track.jsx
+- [ ] src/views/styledComponents/elements/Title.jsx
+- [ ] src/views/styledComponents/elements/h1.jsx
+- [ ] src/views/styledComponents/elements/h2.jsx
+- [ ] src/views/styledComponents/elements/h3.jsx
+- [ ] src/views/styledComponents/icons/ChevronLeftIcon.jsx
+- [ ] src/views/styledComponents/icons/ChevronRightIcon.jsx
+- [ ] src/views/styledComponents/icons/CloseIcon.jsx
+- [ ] src/views/styledComponents/icons/DraftsIcon.jsx
+- [ ] src/views/styledComponents/icons/FavoriteIcon.jsx
+- [ ] src/views/styledComponents/icons/FullscreenExitIcon.jsx
+- [ ] src/views/styledComponents/icons/FullscreenIcon.jsx
+- [ ] src/views/styledComponents/icons/InboxIcon.jsx
+- [ ] src/views/styledComponents/icons/MenuIcon.jsx
+- [ ] src/views/styledComponents/icons/PauseIcon.jsx
+- [ ] src/views/styledComponents/icons/PlayArrowIcon.jsx
+- [ ] src/views/styledComponents/icons/SendIcon.jsx
+- [ ] src/views/styledComponents/icons/VolumeDown.jsx
+- [ ] src/views/styledComponents/icons/VolumeUp.jsx
+- [ ] src/views/styles/GlobalStyle.js
+- [ ] src/views/styles/GlobalStyleThemeMode.js
+- [ ] src/views/styles/GlobalStyle_old.js
+- [ ] src/views/theme/ThemeContext.jsx
+- [ ] src/views/theme/index.jsx
+- [ ] src/views/theme/switcher/App.jsx
+- [ ] src/views/theme/switcher/components/styles/Global.js
+- [ ] src/views/theme/switcher/components/styles/Header.styled.jsx
+- [ ] src/views/theme/switcher/components/styles/ThemeSwitching.styled.jsx

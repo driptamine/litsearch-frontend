@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { IoMdClose } from 'react-icons/io';
 import { FiAlertCircle } from 'react-icons/fi';
 import { MdOutlineDangerous } from 'react-icons/md';
@@ -121,7 +121,7 @@ const Message = styled.p`
   font-size: 0.95em;
 `;
 
-const Wrapper = styled.div.attrs({ className: 'Alert' })`
+const _Wrapper = styled.div`
   font-size: 1rem;
   position: relative;
   display: flex;
@@ -150,6 +150,10 @@ const Wrapper = styled.div.attrs({ className: 'Alert' })`
     border-top: 8px solid ${({ type }) => type.bg};
   }
 `;
+
+const Wrapper = ({ className, ...props }) => (
+  <_Wrapper className={className ? `Alert ${className}` : 'Alert'} {...props} />
+);
 
 const IconWrapper = styled.div`
   position: absolute;

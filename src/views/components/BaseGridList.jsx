@@ -1,6 +1,6 @@
 import React from 'react';
 import LoadingIndicator from 'views/components/LoadingIndicator';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 
 import { StyledTypography } from 'views/styledComponents';
@@ -16,9 +16,8 @@ const StyledFlexList = styled.div`
   list-style: none;
   padding: 0;
   display: grid;
-  grid-gap: ${(props) => props.theme.spacing};
-  /* grid-template-columns: 1fr 1.5fr 1fr; */
-  grid-template-columns: ${(props) => `repeat(auto-fill, minmax(${props.minItemWidth}px, 1fr))`}
+  grid-gap: var(--spacing);
+  grid-template-columns: ${({ minItemWidth }) => `repeat(auto-fill, minmax(${minItemWidth}px, 1fr))`};
 `;
 
 function BaseGridList({
@@ -49,9 +48,7 @@ function BaseGridList({
   return (
     <React.Fragment>
       <StyledFlexList
-        // spacing={}
-        minItemWidth={189}
-        // minItemWidth={160}
+        minItemWidth={minItemWidth}
       >
         {items.map((item, index) => (
           <React.Fragment key={extractItemKey(item, index)}>

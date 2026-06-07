@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { IoAppsOutline } from "react-icons/io5";
 
 

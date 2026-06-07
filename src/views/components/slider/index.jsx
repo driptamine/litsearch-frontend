@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import { styled } from '@linaria/react'
 // import Slider, { Tracks } from 'react-compound-slider'
 
 const StyledSlider = styled.span`

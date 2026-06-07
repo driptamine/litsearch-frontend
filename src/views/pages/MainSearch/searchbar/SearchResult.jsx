@@ -1,5 +1,5 @@
 import "./SearchResult.css";
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { Link } from 'react-router-dom';
 
 import useHistoryPush from 'core/hooks/useHistoryPush';
@@ -7,10 +7,14 @@ import useHistoryPush from 'core/hooks/useHistoryPush';
 const StyledSpan = styled.span`
   cursor: default;
 `;
+const linkStyledStyles = props => `
+  color: ${props.theme.text};
+`;
+
 const LinkStyled = styled(Link)`
   cursor: default;
   align-items: center;
-  color: ${props => props.theme.text};
+  ${linkStyledStyles}
   text-decoration: none;
   &:hover: {
     text-decoration: underline;

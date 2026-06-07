@@ -4,7 +4,7 @@ import { Portal } from 'react-portal';
 import { FaRegWindowRestore } from 'react-icons/fa';
 import { CSSTransition } from 'react-transition-group';
 
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 
 import { TransparentButton } from '../styledComponents';

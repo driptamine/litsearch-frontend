@@ -2,19 +2,20 @@
 
 //$FlowFixMe we should import Node as type but the eslint doesn't happy
 import React, { Component, Node } from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { iconColor } from 'views/style/colors';
+
+const svgStyles = props => `
+  color: ${props.color};
+  height: ${props.size}px;
+  width: ${props.size}px;
+  ${props.fillFromParent ? '' : `fill: ${props.hovered ? props.hoverColor : props.color};`}
+`;
 
 const Svg = styled.svg`
   display: 'inline-block';
-  color: ${props => props.color};
-  height: ${props => `${props.size}px`};
-  width: ${props => `${props.size}px`};
+  ${svgStyles}
   user-select: 'none';
-  ${props =>
-    props.fillFromParent
-      ? ``
-      : `fill: ${props.hovered ? props.hoverColor : props.color};`};
 `;
 
 // type Props = {

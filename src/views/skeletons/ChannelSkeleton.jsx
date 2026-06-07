@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { SkeletonLine, VideoCardSkeleton } from '../styles/Skeleton';
 
 const Wrapper = styled.div`

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 import BaseImage from 'views/components/BaseImage';
 import BaseCard from 'views/components/BaseCard';
@@ -110,7 +110,7 @@ const Wrapper = styled.div`
   /* padding: 1em; */
   padding-bottom: 1em;
   margin: 1em;
-  background: ${props => props.theme.imageCardColor} ;
+  background: var(--imageCardColor) ;
 
   border-radius: 7px;
   display: flex;
@@ -122,7 +122,7 @@ const Wrapper = styled.div`
 
 `;
 const TextWrapper = styled.div`
-  color: ${props => props.theme.imageTitleColor} ;
+  color: var(--imageTitleColor) ;
   font-family: Verdana;
   max-width: 200px;
 `;
@@ -144,7 +144,7 @@ const Favicon = styled.img`
 `;
 
 const StyledLink = styled.a`
-  color: ${props => props.theme.imageTitleColor} ;
+  color: var(--imageTitleColor) ;
   text-decoration: none;
   cursor: pointer;
 

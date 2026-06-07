@@ -2,7 +2,7 @@
 // import { findDOMNode } from 'react-dom';
 // import ReactPlayer from 'react-player';
 // import screenful from 'screenfull';
-// import styled from 'styled-components';
+import { styled } from '@linaria/react';
 //
 
 // // VIEWS

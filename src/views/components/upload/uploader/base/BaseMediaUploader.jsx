@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import styled from 'styled-components';
+import React, { useState, useRef, useEffect, useImperativeHandle, forwardRef } from 'react';
+import { styled } from '@linaria/react';
 import axios from 'axios';
 import { IoIosCloseCircle } from 'react-icons/io';
 import { LITLOOP_API_URL } from 'core/constants/urls';
@@ -7,7 +7,7 @@ import { LITLOOP_API_URL } from 'core/constants/urls';
 const CHUNK_SIZE = 5 * 1024 * 1024;
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
 
-export const BaseMediaUploader = ({ mediaType, onUploadComplete, label }) => {
+export const BaseMediaUploader = forwardRef(({ mediaType, onUploadComplete, label, droppedFiles, hideUI = false, autoUpload = false }, ref) => {
   const [files, setFiles] = useState([]);
   const [progressMap, setProgressMap] = useState({});
   const [fileLinks, setFileLinks] = useState({});
@@ -16,7 +16,35 @@ export const BaseMediaUploader = ({ mediaType, onUploadComplete, label }) => {
   const dragCounter = useRef(0);
   const inputRef = useRef();
 
+  useImperativeHandle(ref, () => ({
+    triggerFileInput: () => {
+      inputRef.current?.click();
+    }
+  }));
+
   const allowedMediaTypes = Array.isArray(mediaType) ? mediaType : [mediaType];
+
+  useEffect(() => {
+    if (droppedFiles && droppedFiles.length > 0) {
+      handleExternalFiles(droppedFiles);
+    }
+  }, [droppedFiles]);
+
+  useEffect(() => {
+    if (autoUpload && files.length > 0 && !isUploading) {
+      // Check if there are any files that haven't started uploading yet
+      const filesToUpload = files.filter(file => !fileLinks[file.name] && progressMap[file.name] === undefined);
+      if (filesToUpload.length > 0) {
+        handleUpload();
+      }
+    }
+  }, [files, autoUpload, isUploading, fileLinks, progressMap]);
+
+  const handleExternalFiles = async (fileList) => {
+    const filteredByVideo = await filterValidVideos(Array.from(fileList));
+    const validFiles = filterAllowedMedia(filteredByVideo);
+    setFiles(prev => [...prev, ...validFiles]);
+  };
 
   const getMediaType = (mimeType) => {
     if (mimeType.startsWith("video/")) return "video";
@@ -146,11 +174,13 @@ export const BaseMediaUploader = ({ mediaType, onUploadComplete, label }) => {
 
       try {
         const simulation = simulateInitialProgress();
+        const mType = getMediaType(file.type);
+        const apiPrefix = mType === 'track' ? 'tracks' : mType === 'photo' ? 'photos' : 'videos';
 
-        const initRes = await axios.post(`${LITLOOP_API_URL}/videos/create_presigned_url/`, {
+        const initRes = await axios.post(`${LITLOOP_API_URL}/${apiPrefix}/gcs/create_presigned_url/`, {
           filename: fileName,
           content_type: file.type,
-          media_type: getMediaType(file.type),
+          media_type: mType,
         }, { headers: { "Content-Type": "application/json" } });
 
         const { upload_id, key } = initRes.data;
@@ -162,7 +192,7 @@ export const BaseMediaUploader = ({ mediaType, onUploadComplete, label }) => {
           const end = Math.min(start + CHUNK_SIZE, file.size);
           const blob = file.slice(start, end);
 
-          const presignRes = await axios.post(`${LITLOOP_API_URL}/videos/get_presigned_url/`, {
+          const presignRes = await axios.post(`${LITLOOP_API_URL}/${apiPrefix}/gcs/get_presigned_url/`, {
             upload_id,
             key,
             part_number: partNumber,
@@ -174,7 +204,7 @@ export const BaseMediaUploader = ({ mediaType, onUploadComplete, label }) => {
             headers: { "Content-Type": file.type },
           });
 
-          const etag = uploadRes.headers.etag.replace(/"/g, "");
+          const etag = (uploadRes.headers.etag || uploadRes.headers.ETag || "").replace(/"/g, "");
           parts.push({ PartNumber: partNumber, ETag: etag });
 
           const realProgress = Math.round((partNumber / totalParts) * 40) + 60;
@@ -183,16 +213,16 @@ export const BaseMediaUploader = ({ mediaType, onUploadComplete, label }) => {
 
         await simulation;
 
-        const completeRes = await axios.post(`${LITLOOP_API_URL}/videos/complete_upload/`, {
+        const completeRes = await axios.post(`${LITLOOP_API_URL}/${apiPrefix}/gcs/complete_upload/`, {
           upload_id,
           key,
           parts,
-          media_type: getMediaType(file.type),
+          media_type: mType,
         }, { headers: { "Content-Type": "application/json" } });
 
         const { id, location } = completeRes.data;
         setFileLinks(prev => ({ ...prev, [file.name]: location }));
-        onUploadComplete?.(id);
+        onUploadComplete?.(id, getMediaType(file.type));
 
       } catch (err) {
         console.error(`Upload failed for ${file.name}:`, err);
@@ -220,36 +250,42 @@ export const BaseMediaUploader = ({ mediaType, onUploadComplete, label }) => {
 
   const renderMediaPreview = (fileName, url, type) => {
     if (type.startsWith("image/")) {
-      return <img src={url} alt={fileName} style={{ maxWidth: "300px", maxHeight: "300px" }} />;
+      return <img src={url} alt={fileName} style={{ maxWidth: "100%", maxHeight: "300px" }} />;
     }
     if (type.startsWith("audio/")) {
-      return <audio controls src={url} style={{ width: "300px" }} />;
+      return <audio controls src={url} style={{ width: "100%", maxWidth: "300px" }} />;
     }
     if (type.startsWith("video/")) {
-      return <video controls src={url} width="auto" height="300" />;
+      return <video controls src={url} width="100%" height="auto" style={{ maxWidth: "400px" }} />;
     }
     return <p>Unsupported media type</p>;
   };
 
   return (
     <div>
-      <Wrapper
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-      >
-        {label} Here
-        {showDropZone && (
-          <DropZone onClick={() => inputRef.current.click()}>
-            <p>Drop files to upload</p>
-          </DropZone>
-        )}
-      </Wrapper>
+      {!hideUI && (
+        <Wrapper
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
+          {label} Here
+          {showDropZone && (
+            <DropZone onClick={() => inputRef.current.click()}>
+              <p>Drop files to upload</p>
+            </DropZone>
+          )}
+        </Wrapper>
+      )}
+
+      {(!hideUI || (!autoUpload && files.length > 0)) && (
+        <UploadButton onClick={handleUpload} disabled={files.length === 0 || isUploading}>
+          {isUploading ? "Uploading..." : (hideUI ? "Start Upload" : "Upload All")}
+        </UploadButton>
+      )}
+
       <HiddenInput type="file" ref={inputRef} onChange={handleFileChange} multiple />
-      <UploadButton onClick={handleUpload} disabled={files.length === 0 || isUploading}>
-        {isUploading ? "Uploading..." : "Upload All"}
-      </UploadButton>
 
       <PreviewFiles>
         {files.map((file) => (
@@ -277,18 +313,20 @@ export const BaseMediaUploader = ({ mediaType, onUploadComplete, label }) => {
       </PreviewFiles>
     </div>
   );
-};
+});
 
 // Styled Components
 const Wrapper = styled.div`
   border: 1px solid black;
-  width: 600px;
+  width: 100%;
+  max-width: 600px;
   height: 100px;
 `;
 
 const DropZone = styled.div`
   position: fixed;
-  width: 300px;
+  width: 90%;
+  max-width: 300px;
   background: rgba(240, 248, 255, 0.85);
   border: 2px dashed #4a90e2;
   z-index: 1000;
@@ -299,6 +337,10 @@ const DropZone = styled.div`
   color: #333;
   pointer-events: all;
   transition: all 0.2s ease;
+
+  @media screen and (max-width: 480px) {
+    font-size: 16px;
+  }
 `;
 
 const HiddenInput = styled.input`

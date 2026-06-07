@@ -27,7 +27,7 @@ export const GoogleProvider = ({ children }) => {
   const [googleUserId, setGoogleUserId] = useCookieState('Google-userId');
   const [googleEmail, setGoogleEmail] = useCookieState('Google-email');
 
-  const [googleUsername, setGoogleUsername] = useCookieState('Google-username') || {};
+  const [googleUsername, setGoogleUsername] = useCookieState('Google-username');
   const [googleProfileImage, setGoogleProfileImage] = useCookieState('Google-profileImg');
 
   const [updateNotischannels, setUpdateNotischannels] = useSyncedLocalState(

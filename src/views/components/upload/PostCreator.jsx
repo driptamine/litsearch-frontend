@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './modal/portal.css';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 
 import { FaFilm } from 'react-icons/fa';
@@ -12,7 +12,7 @@ import { FaImage } from 'react-icons/fa';
 import { FaMusic } from 'react-icons/fa';
 
 
-const PostCreator = ({ mediaIds, showDropZone }) => {
+const PostCreator = ({ mediaIds, showDropZone, onAttachClick, onPostSuccess }) => {
   const [postText, setPostText] = useState('');
   const [submittedPost, setSubmittedPost] = useState('');
 
@@ -21,9 +21,8 @@ const PostCreator = ({ mediaIds, showDropZone }) => {
   const [videoIds, setVideoIds] = useState([]);
   const [trackIds, setTrackIds] = useState([]);
 
-  // const handleChange = (e) => {
-  //   setPostText(e.target.value);
-  // };
+  // ... rest of state ...
+
   const handleChange = (e) => {
     setDescription(e.target.value);
   };
@@ -37,18 +36,19 @@ const PostCreator = ({ mediaIds, showDropZone }) => {
   }, [mediaIds]);
 
   const handleSubmit = async (e) => {
-    const url = `http://localhost:8000/posts/create`
     e.preventDefault();
     if (description.trim()) {
-      console.log(description);
       try {
         const postData = {
-          // title,
           description: description,
-
           photo_ids: photoIds,
           video_ids: videoIds,
           track_ids: trackIds,
+          media_attachments: [
+            ...photoIds.map(id => ({ id, type: 'photo' })),
+            ...videoIds.map(id => ({ id, type: 'video' })),
+            ...trackIds.map(id => ({ id, type: 'track' }))
+          ]
         };
 
         const response = await axios.post(`${LITLOOP_API_URL}/posts/create_post_api/`, postData, {
@@ -58,10 +58,12 @@ const PostCreator = ({ mediaIds, showDropZone }) => {
         });
 
         if (response.status === 201) {
-          console.log(response.data);
           setSubmittedPost(response.data);
-
-          setPostText(''); // Clear the textarea after submission
+          setDescription('');
+          setPhotoIds([]);
+          setVideoIds([]);
+          setTrackIds([]);
+          if (onPostSuccess) onPostSuccess(response.data);
         }
       } catch (error) {
         console.error('There was an error creating the post:', error);
@@ -74,45 +76,51 @@ const PostCreator = ({ mediaIds, showDropZone }) => {
   const handleInput = () => {
     const textarea = textareaRef.current;
     if (textarea) {
-      textarea.style.height = 'auto'; // Reset height
-      textarea.style.height = `${textarea.scrollHeight}px`; // Set to scroll height
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
     }
   };
-  const showAttachment = photoIds.length > 0 || videoIds.length > 0 ||  trackIds.length > 0
+
+  const showAttachment = photoIds.length > 0 || videoIds.length > 0 || trackIds.length > 0;
+
   return (
     <div>
-
-        <TextArea
-          ref={textareaRef}
-          onInput={handleInput}
-
-          value={description}
-          onChange={handleChange}
-          placeholder="Write your post here..."
-          rows="6"
-          style={{  }}
-        />
+      <TextArea
+        ref={textareaRef}
+        onInput={handleInput}
+        value={description}
+        onChange={handleChange}
+        placeholder="Write your post here..."
+        rows="6"
+      />
 
       <FlexBoxWrapper>
         <FlexBoxAttachments>
-          <PhotoAttachment />
-          <TrackAttachment />
-          <VideoAttachment />
-
+          <WrapperContent>
+            <Button onClick={onAttachClick}>
+              <FaImage />
+            </Button>
+          </WrapperContent>
+          <WrapperContent>
+            <Button onClick={onAttachClick}>
+              <FaMusic />
+            </Button>
+          </WrapperContent>
+          <WrapperContent>
+            <Button onClick={onAttachClick}>
+              <FaFilm />
+            </Button>
+          </WrapperContent>
         </FlexBoxAttachments>
 
         <CreatePostButton onClick={handleSubmit}>Create Post</CreatePostButton>
       </FlexBoxWrapper>
 
       {showDropZone && (
-        <DropZone onClick={() => inputRef.current.click()}>
+        <DropZone>
           <p>Drop files to upload</p>
         </DropZone>
       )}
-
-      {/*<PreviewPost
-        postText={postText}
-      />*/}
 
       {submittedPost && (
         <div
@@ -124,257 +132,25 @@ const PostCreator = ({ mediaIds, showDropZone }) => {
           }}
         >
           <p>{submittedPost.message}</p>
-          <Link
-            to={`/posts/${submittedPost.post_id}`}
-             >
+          <Link to={`/posts/${submittedPost.post_id}`}>
             View Post
           </Link>
         </div>
       )}
 
-      <Attachments
-        className="attachments"
-        >
+      <Attachments className="attachments">
         {showAttachment && (
           <>
-          <strong>Attached:</strong><br />
+            <strong>Attached:</strong><br />
           </>
         )}
-
         {photoIds.length > 0 && <>Photos: {photoIds.join(', ')}<br /></>}
         {videoIds.length > 0 && <>Videos: {videoIds.join(', ')}<br /></>}
         {trackIds.length > 0 && <>Tracks: {trackIds.join(', ')}<br /></>}
       </Attachments>
-
     </div>
   );
 };
-
-const ModalOverlay = ({ isOpen, onClose, onUploadSuccess }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [userVideos, setUserVideos] = useState([]);
-  const [videoFile, setVideoFile] = useState(null);
-
-  // Fetch user's videos (mock function, replace with real API call)
-  const fetchUserVideos = async () => {
-    try {
-      const response = await axios.get('/api/user/videos');
-      setUserVideos(response.data);
-    } catch (error) {
-      console.error('Error fetching videos:', error);
-    }
-  };
-
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const handleVideoSelect = (video) => {
-    // Do something when user selects a video from their library
-    console.log('Selected video:', video);
-  };
-
-  const handleVideoUpload = async () => {
-    if (!videoFile) return;
-
-    const CHUNK_SIZE = 1 * 1024 * 1024; // 1MB chunk size
-    const totalChunks = Math.ceil(videoFile.size / CHUNK_SIZE);
-    let uploadedChunks = 0;
-
-    for (let i = 0; i < totalChunks; i++) {
-      const start = i * CHUNK_SIZE;
-      const end = Math.min(start + CHUNK_SIZE, videoFile.size);
-      const blob = videoFile.slice(start, end);
-
-      const formData = new FormData();
-      formData.append('chunk', blob);
-      formData.append('fileName', videoFile.name);
-      formData.append('chunkNumber', i + 1);
-      formData.append('totalChunks', totalChunks);
-
-      try {
-        await axios.post('/api/upload/chunk', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        uploadedChunks++;
-      } catch (error) {
-        console.error('Chunk upload failed:', error);
-        break;
-      }
-    }
-
-    if (uploadedChunks === totalChunks) {
-      console.log('File uploaded successfully');
-      onUploadSuccess();
-    }
-  };
-
-  const modalRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
-  return ReactDOM.createPortal(
-    <div className="modal-overlay">
-      <div className="modal-content" ref={modalRef}>
-
-        {/* File Upload */}
-        <input className="UploadInput" type="file" accept="video/*" onChange={(e) => setVideoFile(e.target.files[0])} />
-        <button onClick={handleVideoUpload}>Upload Video</button>
-
-        {/* Search Bar */}
-        <input
-          className="SearchInput"
-          type="text"
-          placeholder="Search videos..."
-          value={searchTerm}
-          onChange={handleSearch}
-        />
-
-        {/* User's Video Library */}
-        <div className="video-library">
-          {userVideos
-            .filter((video) => video.title.toLowerCase().includes(searchTerm.toLowerCase()))
-            .map((video) => (
-              <div key={video.id} onClick={() => handleVideoSelect(video)}>
-                <video width="200" controls>
-                  <source src={video.url} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-                <p>{video.title}</p>
-              </div>
-            ))}
-        </div>
-
-
-      </div>
-    </div>,
-    document.getElementById("modal-root") // Using portal to render modal outside root div
-  );
-};
-
-
-const VideoAttachment = () => {
-  const [isModalOpen, setModalOpen] = useState(false);
-
-  const openModal = () => setModalOpen(true);
-  const closeModal = () => setModalOpen(false);
-
-  const handleUploadSuccess = () => {
-    // Refetch videos after successful upload or take another action
-    console.log('Upload successful');
-    closeModal();
-  };
-
-  return (
-    <WrapperContent>
-
-      <Button onClick={openModal}>
-        <FaFilm />
-      </Button>
-      <ModalOverlay
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        onUploadSuccess={handleUploadSuccess}
-      />
-
-    </WrapperContent>
-  );
-};
-
-const PhotoAttachment = () => {
-  const [isModalOpen, setModalOpen] = useState(false);
-
-  const openModal = () => setModalOpen(true);
-  const closeModal = () => setModalOpen(false);
-
-  const handleUploadSuccess = () => {
-    // Refetch videos after successful upload or take another action
-    console.log('Upload successful');
-    closeModal();
-  };
-
-  return (
-    <WrapperContent>
-
-      <Button onClick={openModal}>
-        <FaImage />
-      </Button>
-      <ModalOverlay
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        onUploadSuccess={handleUploadSuccess}
-      />
-
-    </WrapperContent>
-  );
-};
-
-const TrackAttachment = () => {
-  const [isModalOpen, setModalOpen] = useState(false);
-
-  const openModal = () => setModalOpen(true);
-  const closeModal = () => setModalOpen(false);
-
-  const handleUploadSuccess = () => {
-    // Refetch videos after successful upload or take another action
-    console.log('Upload successful');
-    closeModal();
-  };
-
-  return (
-    <WrapperContent>
-
-      <Button onClick={openModal}>
-        <FaMusic />
-      </Button>
-      <ModalOverlay
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        onUploadSuccess={handleUploadSuccess}
-      />
-
-    </WrapperContent>
-  );
-};
-
-const PreviewPost = ({postText}) => {
- //  const handlePhotoChange = (e) => {
- //   const files = Array.from(e.target.files);
- //   setPhotos(files);
- //
- //   // Generate previews
- //   const urls = files.map(file => URL.createObjectURL(file));
- //   setPreviewUrls(urls);
- // };
- //
-  return (
-    <>
-      {postText && (
-        <div style={{ whiteSpace: 'pre-wrap', marginTop: '20px', border: '1px solid #ccc', padding: '10px' }}>
-          {postText}
-        </div>
-      )}
-
-
-    </>
-  )
-}
 
 const FlexBoxAttachments = styled.div`
   display: flex;
@@ -391,7 +167,7 @@ const FlexBoxWrapper = styled.div`
   justify-content: space-between;
   width: 600px;
 
-  background: ${props => props.theme.cardColor};
+  background: var(--cardColor);
 `;
 
 const DropZone = styled.div`
@@ -449,7 +225,7 @@ const WrapperContent = styled.div`
 
   &:hover {
 
-    background-color: ${props => props.theme.attachmentColor};
+    background-color: var(--attachmentColor);
   }
 
 `;
@@ -462,15 +238,15 @@ const WrapperVideo = styled.div`
 
   &:hover {
 
-    background-color: ${props => props.theme.attachmentColor};
+    background-color: var(--attachmentColor);
   }
 `;
 
 const TextArea = styled.textarea`
   box-sizing: border-box;
   display: block;
-  background: ${props => props.theme.cardColor};
-  color: ${props => props.theme.text};
+  background: var(--cardColor);
+  color: var(--text);
 
   width: 100%;
 
@@ -480,7 +256,7 @@ const TextArea = styled.textarea`
   resize: none;
 
   outline: none;
-  border-bottom: 1px solid ${props => props.theme.textareaBorderColor};
+  border-bottom: 1px solid var(--textareaBorderColor);
 
   border-left: none;
   border-top: none;
@@ -488,7 +264,7 @@ const TextArea = styled.textarea`
 
   &:focus {
     outline: none;
-    border-bottom: 1px solid ${props => props.theme.textareaBorderColor};
+    border-bottom: 1px solid var(--textareaBorderColor);
 
     border-left: none;
     border-top: none;

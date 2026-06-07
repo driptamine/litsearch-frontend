@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 // MATERIAL DONE
 // import { makeStyles } from '@mui/material/styles';
@@ -23,8 +23,8 @@ const StyledBox = styled.div`
 `;
 const StyledCloseIcon = styled.div`
   position: fixed;
-  top: ${props => props.theme.spacing};
-  right: ${props => props.theme.spacing};
+  top: var(--spacing);
+  right: var(--spacing);
   cursor: pointer;
 `;
 // const useStyles = makeStyles(theme => ({

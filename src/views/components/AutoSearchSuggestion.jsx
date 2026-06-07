@@ -1,14 +1,18 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 // import MenuItem from '@mui/material/MenuItem';
 // import { makeStyles } from '@mui/material';
 
+const styledMenuItemStyles = props => `
+  font-weight: ${props.isSelected ? 600 : 400};
+`;
+
 const StyledMenuItem = styled.div`
-  background-color: ${props => props.theme.autoCompleteBackgroundColor};
-  font-weight: ${props => props.isSelected ? 600: 400 };
+  background-color: var(--autoCompleteBackgroundColor);
+  ${styledMenuItemStyles}
   padding: 0;
-  font-color: ${props => props.theme.text};
+  font-color: var(--text);
 `;
 
 // const useStyles = makeStyles(theme => ({

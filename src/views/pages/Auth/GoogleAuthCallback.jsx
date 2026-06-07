@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { useSetRecoilState } from 'recoil';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import axios from 'axios';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 
@@ -25,56 +25,17 @@ const GoogleAuthCallback = () => {
     async (url) => {
       const authCode = url.searchParams.get('code');
       console.log(authCode);
-      // const requestAccessToken = await litloopAPI.getGoogleAccessToken(authCode);
-      const res = await axios.put(`${LITLOOP_API_URL}/auth/google/token`, { code: authCode });
+      const res = await axios.post(`${LITLOOP_API_URL}/auth/google/token/`, { code: authCode });
 
       console.log(res)
-      const accessToken = res.data.access_token;
-      const refreshToken = res.data.id_token;
-      // if (setGoogleAccessToken) setGoogleAccessToken(accessToken);
-      // if (setGoogleRefreshToken) setGoogleRefreshToken(refreshToken);
+      const accessToken = res.data.access;
+      const refreshToken = res.data.refresh;
+      const user = res.data.user;
 
-      const config = {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          // 'Client-ID': GOOGLE_CLIENT_ID
-        }
-      };
-
-      const MyGoogle = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', config).then(async (res) => {
-        // const user = res?.data?.data?.[0];
-        const user = res?.data;
-        console.log(res.data);
-
-
-        // setGoogleUsername(user.givenName);
-        // setGoogleProfileImage(user.picture);
-        // setGoogleUserId(user.sub);
-        // setGoogleEmail(user.email);
-
-        // await litloopAPI.updateGoogleUserData(
-        //   {
-        //     Username: user.login,
-        //     Id: user.id,
-        //     Profile: user.profile_image_url,
-        //   },
-        //   accessToken,
-        //   refreshToken
-        // );
-
-        return {
-          Email: user.email,
-          // Username: user.givenName,
-          picture: user.picture,
-          userId: user.sub,
-        };
-      });
-
-      // return { access_token: accessToken, refresh_token: refreshToken, ...MyGoogle };
       return {
         access_token: accessToken,
         refresh_token: refreshToken,
-        ...MyGoogle
+        user: user,
       };
     },
     [
@@ -89,15 +50,17 @@ const GoogleAuthCallback = () => {
   const handleRes = (res) => {
     console.log('successfully authenticated to Google.');
     if (res.access_token) AddCookie('Google-access_token', res.access_token);
+    if (res.refresh_token) AddCookie('Google-refresh_token', res.refresh_token);
 
     window.opener.postMessage(
       {
         service: 'google',
         access_token: res.access_token,
-        // refresh_token: res.refresh_token,
-        // username: res.Username,
-        profileImg: res.picture,
-        // userId: res.userId,
+        refresh_token: res.refresh_token,
+        username: res.user?.username,
+        avatar: res.user?.avatar,
+        email: res.user?.email,
+        userId: res.user?.id,
       },
       '*'
     );

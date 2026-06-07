@@ -7,7 +7,7 @@ import { centerContentCSS } from 'lib/ui/utils/centerContentCSS'
 import { getCSSUnit } from 'lib/ui/utils/getCSSUnit'
 import { getSameDimensionsCSS } from 'lib/ui/utils/getSameDimensionsCSS'
 import { useEffect, useRef, useState } from 'react'
-import styled, { useTheme } from 'styled-components'
+import { styled } from '@linaria/react';
 
 import {
   InvisibleHTMLSlider,
@@ -55,7 +55,7 @@ const Line = styled.div`
   width: 100%;
 
   overflow: hidden;
-  background-color: ${({ theme }) => theme.colors.backgroundGlass.toCssValue()};
+  background-color: var(--backgroundGlass, rgba(255, 255, 255, 0.1));
   border-radius: 1000px;
 `
 
@@ -86,8 +86,7 @@ export const Slider = ({
   color: optionalColor,
   height = 40,
 }) => {
-  const theme = useTheme()
-  const color = optionalColor ?? theme.colors.text
+  const color = optionalColor ?? new HSLA(0, 0, 1, 1) // Default to white HSLA if theme missing
   const [container, setContainer] = useState(null)
   const box = useBoundingBox(container)
   const isActive = useRef(false)

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { Link, useLocation, withRouter } from 'react-router-dom';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 // MATERIAL UNDONE
 // import { CardActionArea, ListItem, ListItemText, ListItemAvatar, Avatar, makeStyles } from '@mui/material';

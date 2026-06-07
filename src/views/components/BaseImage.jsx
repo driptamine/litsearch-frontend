@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTrackVisibility } from 'react-intersection-observer-hook';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 
 // MATERIAL DONE
@@ -97,21 +97,15 @@ function BaseImage({
   );
 }
 
+const styledImgStyles = props => `
+  border-radius: ${props.border ? `${props.border}px` : '0px'};
+  object-fit: ${props.objectFit}
+`;
+
 const StyledImg = styled.img`
-  /* width: ${(props) => props.width}; */
-
-  /* width: ${(props) => (props.width ? `${props.width} px` : `100%`)}; */
-  border-radius: ${(props) => (props.border)}px;
-  border-radius: ${(props) => (props.border ? `${props.border} px` : `0px`)};
-
+  ${styledImgStyles}
   width: 100%;
   height: 100%;
-
-
-  /* width: 20%;
-  height: 100% */
-
-  object-fit: ${(props) => props.objectFit}
 `;
 
 export default BaseImage;

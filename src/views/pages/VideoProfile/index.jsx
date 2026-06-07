@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 // MATERIAL DONE
 // import { Typography } from '@mui/material';
@@ -109,16 +109,8 @@ function VideoProfile() {
 
   return (
     <>
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-evenly'
-      }}
-
-    >
-      <div
-        style={{width: '100%'}}
-      >
+    <LayoutContainer>
+      <MainContent>
         <VideoIntroduction
           videoId={videoId}
           // url={api_data[5].url}
@@ -133,11 +125,9 @@ function VideoProfile() {
 
         {/*<App/>*/}
         {/*<RedditApp/>*/}
-      </div>
+      </MainContent>
 
-      <VideoWrapper
-        style={{width: '490px'}}
-      >
+      <VideoWrapper>
         {api_dataV2.map((item, index) =>
             // <StyledVideoCard
             // <VideoCard
@@ -163,7 +153,7 @@ function VideoProfile() {
       {/*<Section>*/}
 
       {/*</Section>*/}
-    </div>
+    </LayoutContainer>
 
     </>
   );
@@ -171,14 +161,33 @@ function VideoProfile() {
 
 }
 
-const VideoWrapper = styled.div`
+const LayoutContainer = styled.div`
+  display: flex;
+  justify-content: space-evenly;
 
-  /* display: flex; */
+  @media screen and (max-width: 900px) {
+    flex-direction: column;
+  }
+`;
+
+const MainContent = styled.div`
+  width: 100%;
+  max-width: 800px;
+`;
+
+const VideoWrapper = styled.div`
+  width: 490px;
   padding-left: 1em;
   display: grid;
   grid-gap: 1em;
   grid-template-columns: repeat(3, 152px);
-  /* grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); */
+
+  @media screen and (max-width: 900px) {
+    width: 100%;
+    margin-top: 2em;
+    padding-left: 0;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
 `;
 
 export default VideoProfile;

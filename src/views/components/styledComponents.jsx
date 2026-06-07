@@ -1,4 +1,6 @@
-import styled, { css, keyframes } from 'styled-components';
+import { styled } from '@linaria/react';
+import { css } from '@linaria/core';
+import { styled as linariaStyled } from '@linaria/react';
 import { Button, Form } from 'react-bootstrap';
 
 export const TransparentButton = styled.button`
@@ -203,26 +205,26 @@ export const HeaderTitle = styled.div`
   }
 `;
 
-const InfinitSpinnig = keyframes`
-0% {transform: rotate(0deg);}
-100% {transform: rotate(360deg);}
-`;
-
-const countdown = keyframes`
-from {
-  stroke-dashoffset: 0px;
-}
-to {
-  stroke-dashoffset: 67.8px;
-}
-`;
-
 const spinnigAnimation = () => css`
-  ${InfinitSpinnig} ${'1s infinite'};
+  animation: InfinitSpinnig 1s infinite;
+
+  @keyframes InfinitSpinnig {
+    0% {transform: rotate(0deg);}
+    100% {transform: rotate(360deg);}
+  }
 `;
 
 const countdownAnimation = () => css`
-  ${countdown} 25s linear 1 forwards;
+  animation: countdown 25s linear 1 forwards;
+
+  @keyframes countdown {
+    from {
+      stroke-dashoffset: 0px;
+    }
+    to {
+      stroke-dashoffset: 67.8px;
+    }
+  }
 `;
 
 export const StyledCountdownCircle = styled.div`
@@ -290,7 +292,7 @@ export const ButtonGroup = styled.div`
   justify-content: ${({ justifyContent }) => justifyContent};
 `;
 
-export const StyledButton = styled(Button).attrs(({ type }) => ({ type: type || 'submit', variant: 'secondary', }))`
+const _StyledButton = styled(Button)`
   &&& {
     border: none;
     box-shadow: none;
@@ -310,3 +312,7 @@ export const StyledButton = styled(Button).attrs(({ type }) => ({ type: type || 
     background: rgba(50, 50, 50, 0.25);
   }
 `;
+
+export const StyledButton = ({ type, ...props }) => (
+  <_StyledButton type={type || 'submit'} variant="secondary" {...props} />
+);

@@ -1,5 +1,4 @@
 import React from 'react';
-import { ThemeProvider } from 'styled-components';
 import { RecoilRoot } from 'recoil';
 import GlobalStyleThemeMode from 'views/styles/GlobalStyleThemeMode';
 import { lightTheme, darkTheme } from 'views/components/Toggle/Themes';
@@ -11,10 +10,10 @@ const App = () => {
   const themeMode = theme === "light" ? lightTheme : darkTheme;
 
   return (
-    <ThemeProvider theme={themeMode}>
+    <>
       <GlobalStyleThemeMode />
       <AppWrapper theme={theme} themeToggler={themeToggler} />
-    </ThemeProvider>
+    </>
   );
 };
 

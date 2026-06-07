@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { StyledTrending } from '../pages/Trending';
 import { SkeletonLine, TrendingCardSkeleton } from '../styles/Skeleton';
 

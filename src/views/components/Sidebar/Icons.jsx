@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 export const PlayIcon = (props) => (
   <svg
@@ -45,7 +45,7 @@ export const SearchIcon = (props) => (
 
 );
 const StyledSVG = styled.svg`
-  fill: ${props => props.theme.text};
+  fill: var(--text);
 `;
 
 export const EarthIcon = (props) => (

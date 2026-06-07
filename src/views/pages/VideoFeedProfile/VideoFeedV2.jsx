@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import axios from 'axios';
 
 import { VideoCardUnsplash } from 'views/pages/VideoFeedProfile/VideoCardV2';

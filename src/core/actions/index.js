@@ -140,7 +140,7 @@ export const fetchCurrentUser = createAction(
 export const setUserProfile = createAction(
   "user/setUserProfile",
   (payload) => ({
-    ...payload
+    payload
   })
 );
 
@@ -181,6 +181,13 @@ export const fetchUserLoggedOut = createAction(
 
   })
 )
+
+export const uploadAvatarAction = createAction(
+  'user/uploadAvatar',
+  (formData) => ({
+    payload: formData
+  })
+);
 
 export const fetchPopularMovies = createAction(
   "movie/fetchPopular",
@@ -361,11 +368,11 @@ export const getAccessToken = createAction(
 
 export const fetchSignUpUser = createAction(
   "signup/fetch",
-  (email, username, password) => ({
+  (data) => ({
     payload: {
-      email,
-      username,
-      password
+      email: data.email,
+      username: data.username,
+      password: data.password
     }
   })
 )
@@ -470,13 +477,13 @@ export const fetchImageSearch = createAction(
 export const fetchBingImageSearch = createAction(
   "bing/image/search",
   (query, page) => ({
-    payload: { query, page }
+    payload: { query, page, searchType: 'bing' }
   })
 );
 export const fetchBraveImageSearch = createAction(
   "brave/image/search",
   (query, page) => ({
-    payload: { query, page }
+    payload: { query, page, searchType: 'brave' }
   })
 );
 export const fetchQuerySearch = createAction(
@@ -513,3 +520,5 @@ export const fetchPersonSearch = createAction(
     payload: { query, page }
   })
 );
+
+export * from './post';

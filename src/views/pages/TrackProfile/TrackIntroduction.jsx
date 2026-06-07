@@ -2,7 +2,7 @@ import React , { useState, useEffect }from 'react';
 import { connect, useSelector } from 'react-redux';
 import { Link, withRouter} from 'react-router-dom';
 
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 
 
@@ -23,10 +23,7 @@ import { useConfiguration } from 'views/components/ConfigurationProvider';
 
 
 import Button from 'views/components/Button';
-import LikeIcon from 'views/components/LikeIcon';
-import {screenLargerThan} from 'views/style/util';
-import { primaryColor1, white, likeColor, greenColor,} from 'views/style/colors';
-// import { likePhoto, unLikePhoto } from '../../actions/photo';
+import LikeButton from 'views/components/LikeButton/LikeButton';
 
 import { fetchLikeTrack, fetchUnLikeTrack } from 'core/actions';
 import { selectors } from 'core/reducers/index';
@@ -52,54 +49,19 @@ import useDocumentTitle from 'core/hooks2/useDocumentTitle'
 // }));
 
 
-const LikedBtn = styled(Button)`
-  display: flex;
-  align-items: center;
-  margin: 0;
-  ${props =>
-    props.likedByUser &&
-    `
-    background-color: ${likeColor};
-    color: ${white};
-    &:hover {
-      color: ${white};
-      border-color: transparent !important;
-    }
-  `};
-  ${screenLargerThan.giant`
-    flex-direction: column;
-    height: auto;
-    border: none;
-    color: ${white} !important;
-    background-color: transparent !important;
-    svg {
-      fill: ${white};
-      color: ${white};
-    }
-    ${props =>
-      props.likedByUser &&
-      `
-        svg {
-          fill: ${likeColor};
-          color: ${white};
-        }
-      `};
-    &:hover {
-      color: ${white};
-    }
-  `};
-`;
-
-const LikesCounter = styled.span`
-  margin: 0px 6px;
+const reStyledTypographyStyles = props => `
+  color: ${props.theme.text};
 `;
 
 const ReStyledTypography = styled(StyledTypography)`
-  color: ${props => props.theme.text};
+  ${reStyledTypographyStyles}
 `;
-const StyledLink = styled(Link)`
-  color: ${props => props.theme.text};
+const styledLinkStyles = props => `
+  color: ${props.theme.text};
+`;
 
+const StyledLink = styled(Link)`
+  ${styledLinkStyles}
   font-weight: bold;
   
   text-decoration: none;
@@ -221,21 +183,12 @@ function TrackIntroduction({ trackId, handleLikePhoto, handleUnLikePhoto }) {
         </>
       }
       likeButton={
-        <>
-          <LikedBtn likedByUser={track.is_liked}
-            onClick={() =>
-              track.is_liked
-                ? handleUnLikePhoto(track)
-                : handleLikePhoto(track)
-            }>
-            <LikeIcon
-              size={18}
-              color={track.is_liked ? white : likeColor}
-              hoverColor={track.is_liked ? white : likeColor}
-            />
-            <LikesCounter>{track.total_likes}</LikesCounter>
-          </LikedBtn>
-        </>
+        <LikeButton 
+          isLiked={track.is_liked} 
+          likesCount={track.total_likes} 
+          onClick={() => track.is_liked ? handleUnLikePhoto(track) : handleLikePhoto(track)}
+          size={24}
+        />
       }
 
     />

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
+import { themeVars } from 'views/styles/theme-vars';
 
 const conversationData = {
   conversation: [
@@ -105,19 +106,19 @@ const LinkStyled = styled(Link)`
   cursor: pointer;
   padding: 0.5625rem;
   &:hover {
-    background-color: ${(props) => props.theme.chatHoverText};
+    background-color: ${themeVars.chatHoverText};
     border-radius: 10px;
   }
 `;
 const HoverWrapper = styled.div`
   display: flex;
   &:hover {
-    background-color: ${(props) => props.theme.chatHoverText};
+    background-color: ${themeVars.chatHoverText};
   }
 `;
 const ChatListContainer = styled.div`
   width: 30%;
-  background-color: ${(props) => props.theme.navBg};
+  background-color: ${themeVars.navBg};
   border-right: 1px solid #404040;
   padding: 20px;
   box-sizing: border-box;
@@ -134,8 +135,8 @@ const User = styled.div`
   font-family: Arial;
   /* background-color: ${({ isActive }) => (isActive ? '#ddd' : '#f4f4f4')}; */
 
-  /* background-color: ${(props) => props.theme.navBg}; */
-  color: ${(props) => props.theme.text};
+  /* background-color: ${themeVars.navBg}; */
+  color: ${themeVars.text};
 
   cursor: pointer;
 

@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 export const FlexBoxAttachments = styled.div`
   display: flex;
@@ -11,7 +11,7 @@ export const FlexBoxWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 600px;
-  background: ${(props) => props.theme.cardColor};
+  background: var(--cardColor);
 `;
 
 export const DropZone = styled.div`
@@ -55,25 +55,25 @@ export const WrapperContent = styled.div`
   border-radius: 5px;
 
   &:hover {
-    background-color: ${(props) => props.theme.attachmentColor};
+    background-color: var(--attachmentColor);
   }
 `;
 
 export const TextArea = styled.textarea`
   box-sizing: border-box;
   display: block;
-  background: ${(props) => props.theme.cardColor};
-  color: ${(props) => props.theme.text};
+  background: var(--cardColor);
+  color: var(--text);
   width: 100%;
   padding: 10px;
   resize: none;
   outline: none;
-  border-bottom: 1px solid ${(props) => props.theme.textareaBorderColor};
+  border-bottom: 1px solid var(--textareaBorderColor);
   border-left: none;
   border-top: none;
   border-right: none;
 
   &:focus {
-    border-bottom: 1px solid ${(props) => props.theme.textareaBorderColor};
+    border-bottom: 1px solid var(--textareaBorderColor);
   }
 `;

@@ -1,7 +1,7 @@
 // BaseMediaUploader.jsx
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 const CHUNK_SIZE = 5 * 1024 * 1024;
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
@@ -25,8 +25,9 @@ const BaseMediaUploader = ({ mediaType, onUploadComplete, label = "Upload" }) =>
       if (file.size > MAX_FILE_SIZE) continue;
 
       const fileName = `${file.name}-${Date.now()}`;
+      const apiPrefix = mediaType === 'track' ? 'tracks' : mediaType === 'photo' ? 'photos' : 'videos';
 
-      const initRes = await axios.post("/videos/create_presigned_url/", {
+      const initRes = await axios.post(`/gcs/create_presigned_url/`, {
         filename: fileName,
         content_type: file.type,
         media_type: mediaType
@@ -41,7 +42,7 @@ const BaseMediaUploader = ({ mediaType, onUploadComplete, label = "Upload" }) =>
         const end = Math.min(start + CHUNK_SIZE, file.size);
         const blob = file.slice(start, end);
 
-        const presignRes = await axios.post("/videos/get_presigned_url/", {
+        const presignRes = await axios.post(`/gcs/get_presigned_url/`, {
           upload_id,
           key,
           part_number: partNumber,
@@ -53,13 +54,13 @@ const BaseMediaUploader = ({ mediaType, onUploadComplete, label = "Upload" }) =>
           headers: { "Content-Type": file.type },
         });
 
-        const etag = uploadRes.headers.etag.replace(/"/g, "");
+        const etag = (uploadRes.headers.etag || uploadRes.headers.ETag || "").replace(/"/g, "");
         parts.push({ PartNumber: partNumber, ETag: etag });
         const progress = Math.round((partNumber / totalParts) * 100);
         setProgressMap(prev => ({ ...prev, [file.name]: progress }));
       }
 
-      const completeRes = await axios.post("/videos/complete_upload/", {
+      const completeRes = await axios.post(`/gcs/complete_upload/`, {
         upload_id,
         key,
         parts,

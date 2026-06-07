@@ -1,5 +1,6 @@
 import React from 'react';
-import styled, { css } from 'styled-components';
+import { styled } from '@linaria/react';
+import { css } from '@linaria/core';
 
 
 const TodoItem = ({ todo, index, toggleTodo, deleteTodo }) => {
@@ -40,16 +41,14 @@ const Checkbox = styled.input`
   transform: scale(1.2);
 `;
 
-const Text = styled.span`
-
+const textStyles = props => props.completed ? css`
+  text-decoration: line-through;
   color: #595959;
-  ${(props) =>
-    props.completed &&
-    css`
-      text-decoration: line-through;
-      color: #595959;
-    `}
+` : '';
 
+const Text = styled.span`
+  color: #595959;
+  ${textStyles}
 `;
 
 const DeleteButton = styled.button`

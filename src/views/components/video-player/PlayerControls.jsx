@@ -3,7 +3,7 @@ import { ReactPlayerProps } from 'react-player';
 // import { format } from 'date-fns';
 import screenfull from 'screenfull';
 import { findDOMNode } from 'react-dom';
-import  styled  from 'styled-components';
+import { styled } from '@linaria/react';
 
 import { StyledIconButton, StyledSlider, StyledStack, StyledTypography } from 'views/styledComponents';
 import { StyledPauseIcon, StyledPlayArrowIcon, StyledVolumeUpIcon } from 'views/styledComponents/icons';

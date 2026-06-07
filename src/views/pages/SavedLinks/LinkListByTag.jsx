@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { Link, useParams, useHistory } from 'react-router-dom';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 
@@ -93,6 +93,8 @@ const Number = styled.span`
 
 const Metadata = styled.div`
   display: block;
+  overflow-wrap: break-word;
+  word-break: break-word;
 `;
 
 const StyledLink = styled(Link)`
@@ -104,13 +106,18 @@ const StyledLink = styled(Link)`
 `;
 
 const Container = styled.div`
+  width: 95%;
   max-width: 600px;
-  margin: 50px auto;
-  padding: 2rem;
-  margin-top: 0;
+  margin: 20px auto;
+  padding: 1.5rem;
   border-radius: 12px;
   background: #f9f9f9;
   box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+
+  @media screen and (max-width: 480px) {
+    padding: 1rem;
+    margin: 10px auto;
+  }
 `;
 
 const Title = styled.h1`

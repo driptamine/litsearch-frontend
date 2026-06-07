@@ -5,6 +5,7 @@ import MovieProfile  from 'views/pages/MovieProfile';
 
 import AlbumProfile  from 'views/pages/AlbumProfile';
 import TrackProfile  from 'views/pages/TrackProfile';
+import PostProfile  from 'views/pages/PostProfile';
 import PlaylistProfile  from 'views/pages/PlaylistProfile';
 import ArtistProfile  from 'views/pages/ArtistProfile';
 import LinksProfile  from 'views/pages/LinksProfile';
@@ -41,6 +42,7 @@ function ModalRoutes({ stopSong, pauseSong, resumeSong, audioControl }) {
           {/*<ModalRoute defaultParentPath="/movies" path="/movies/:movieId" component={MovieProfile}/>*/}
           <ModalRoute path="/login" component={LoginPage}/>
           <ModalRoute path="/movies/:movieId" component={MovieProfile}/>
+          <ModalRoute path="/posts/:postId" component={PostProfile}/>
           <ModalRoute path="/person/:personId" component={PersonProfile}/>
           <ModalRoute path="/album/:albumId" component={AlbumProfile}/>
           <ModalRoute path="/track/:trackId" component={TrackProfile}/>

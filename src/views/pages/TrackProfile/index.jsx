@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
-import styled from 'styled-components'
+import { styled } from '@linaria/react'
 
 // MATERIAL UNDONE
 // import { Typography } from '@mui/material';

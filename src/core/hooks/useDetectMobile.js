@@ -1,11 +1,17 @@
-// import { useTheme } from '@mui/material/styles';
-// import useMediaQuery from '@mui/material/useMediaQuery';
+import { useState, useEffect } from 'react';
 
 function useDetectMobile() {
-  // const theme = useTheme();
-  // const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [isMobile, setIsMobile] = useState(window.matchMedia("(max-width: 768px)").matches);
 
-  // return isMobile;
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 768px)");
+    const handler = (event) => setIsMobile(event.matches);
+
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
+
+  return isMobile;
 }
 
 export default useDetectMobile;

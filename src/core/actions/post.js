@@ -16,7 +16,7 @@ export const fetchPost = createAction(
   })
 );
 
-export const fetchPost = createAction(
+export const fetchCreatePost = createAction(
   "post/create",
   (postId, requiredFields) => ({
     payload: { postId, requiredFields }

@@ -1,16 +1,7 @@
 import React from 'react';
 import ReactLoading from 'react-loading';
 // import LoadingIndicator from 'views/components/LoadingIndicator';
-import styled, { keyframes } from 'styled-components';
-
-const breathing = keyframes`
-    from {
-      color: var(--textColor1);
-    }
-    to {
-      color: var(--textColor2);
-    }
-`;
+import { styled } from '@linaria/react';
 
 const StyledLoadingContainer = styled.div`
   display: grid;
@@ -21,10 +12,19 @@ const StyledLoadingContainer = styled.div`
   h1 {
     color: #dddddd;
     text-align: center;
-    animation: 2s infinite alternate ease-out ${breathing};
+    animation: 2s infinite alternate ease-out breathing;
   }
   p {
     color: var(--textColor2);
+  }
+
+  @keyframes breathing {
+    from {
+      color: var(--textColor1);
+    }
+    to {
+      color: var(--textColor2);
+    }
   }
 `;
 

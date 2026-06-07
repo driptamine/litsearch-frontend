@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import { Link } from 'react-router-dom'
-import styled, { keyframes, css } from 'styled-components';
+import { styled } from '@linaria/react';
+import { css } from '@linaria/core';
 
 export const PhotoCardUnsplash = ({ photo, loading }) => {
   // Removed const [data, setData] = useState([]); as it was unused
@@ -48,12 +49,6 @@ export const PhotoCardUnsplash = ({ photo, loading }) => {
   );
 };
 
-const pulse = keyframes`
-  0% { background-color: #e0e0e0; }
-  50% { background-color: #f0f0f0; }
-  100% { background-color: #e0e0e0; }
-`;
-
 const Card = styled.div`
   width: 100%;
   max-width: 320px;
@@ -61,8 +56,14 @@ const Card = styled.div`
 `;
 
 const SkeletonBox = styled.div`
-  animation: ${pulse} 1.5s infinite; /* Uncommented the animation */
+  animation: pulse 1.5s infinite; /* Uncommented the animation */
   border-radius: 4px;
+
+  @keyframes pulse {
+    0% { background-color: #e0e0e0; }
+    50% { background-color: #f0f0f0; }
+    100% { background-color: #e0e0e0; }
+  }
 `;
 
 // New styled component for the actual image thumbnail
@@ -119,8 +120,12 @@ const ChannelSkeleton = styled(SkeletonBox)`
   width: 60%;
 `;
 
+const styledLinkStyles = props => `
+  color: ${props.theme.text};
+`;
+
 const StyledLink = styled(Link)`
-  color: ${props => props.theme.text};
+  ${styledLinkStyles}
   text-decoration: none;
   cursor: pointer;
   &:hover {

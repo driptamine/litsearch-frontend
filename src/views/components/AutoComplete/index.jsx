@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import data from './data.json';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { FaArrowDown } from '@react-icons/all-files/fa/FaArrowDown';
 
 import { AutoCompleteContainer, AutoCompleteIcon, Input, AutoCompleteItem, AutoCompleteItemButton } from './styles';

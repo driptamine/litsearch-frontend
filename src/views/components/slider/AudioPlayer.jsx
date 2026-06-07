@@ -5,7 +5,7 @@ import { BsArrowLeftShort } from 'react-icons/bs'
 import { BsArrowRightShort } from 'react-icons/bs'
 import { FaPlay } from 'react-icons/fa'
 import { FaPause } from 'react-icons/fa'
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 const Wrapper = styled.div`
 

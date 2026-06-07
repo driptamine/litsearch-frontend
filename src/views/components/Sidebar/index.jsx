@@ -1,12 +1,11 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import styled, { css } from 'styled-components';
+import { useSelector } from 'react-redux';
+import { styled } from '@linaria/react';
 import { Link } from 'react-router-dom';
 // import Subscriptions from './Subscriptions';
 import { HomeIcon, TrendingIcon, SubIcon, LibIcon, HistoryIcon, VidIcon, LikeIcon, EarthIcon } from './Icons';
-import { closeSidebar } from 'core/reducers/sidebar';
 import { FiClock, FiBookmark, FiMessageCircle } from 'react-icons/fi';
-import { FaFilm } from 'react-icons/fa';
+import { FaFilm, FaUsers } from 'react-icons/fa';
 import { FaMusic, FaImage } from 'react-icons/fa';
 
 import { TbMessageCircle } from 'react-icons/tb';
@@ -22,20 +21,13 @@ import { LuLayoutList } from "react-icons/lu";
 
 
 const Sidebar = () => {
-  const dispatch = useDispatch();
-
-  // const { sidebar: open } = useSelector((state) => state.sidebar);
-  const open = useSelector((state) => state.sidebar);
-
-  const handleCloseSidebar = () => {
-    dispatch(closeSidebar());
-  };
+  const open = useSelector((state) => state.sidebar.sidebar);
 
   return (
     <SidebarWrapper open={open}>
       <StyledUl>
         <StyledLi id="Feed">
-          <LinkStyled onClick={handleCloseSidebar} to="/feed">
+          <LinkStyled  to="/feed">
             <StyledDivIcon className="icon">
               <SCEarthIcon />
 
@@ -46,7 +38,7 @@ const Sidebar = () => {
 
         <StyledLi id="WarpNode">
           <LinkStyled
-            onClick={handleCloseSidebar}
+            
             to="/notes"
             // activeClassName="active"
           >
@@ -65,7 +57,7 @@ const Sidebar = () => {
 
         <StyledLi id="JustDoList">
           <LinkStyled
-            onClick={handleCloseSidebar}
+            
             to="/todo"
             // activeClassName="active"
           >
@@ -82,7 +74,7 @@ const Sidebar = () => {
         </StyledLi>
 
         {/*<StyledLi id="Trending">
-          <LinkStyled onClick={handleCloseSidebar} to="/feed/trending">
+          <LinkStyled to="/feed/trending">
             <StyledDivIcon className="icon">
               <SCTrendingIcon />
 
@@ -93,7 +85,6 @@ const Sidebar = () => {
 
         {/*<StyledLi id="Explore">
           <LinkStyled
-            onClick={handleCloseSidebar}
             to="/explore"
             // activeClassName="active"
           >
@@ -107,7 +98,7 @@ const Sidebar = () => {
         </StyledLi>*/}
 
         <StyledLi id="Messages">
-          <LinkStyled onClick={handleCloseSidebar} to="/chat/im">
+          <LinkStyled  to="/chat/im">
             <StyledDivIcon className="icon">
               {/*<MessagesIcon />*/}
               {/*<FiMessageCircle />*/}
@@ -120,7 +111,6 @@ const Sidebar = () => {
         {/*<div className="ruler"></div>*/}
 
         {/*<LinkStyled
-          onClick={handleCloseSidebar}
           to="/feed/library"
           // activeClassName="active"
         >
@@ -133,7 +123,6 @@ const Sidebar = () => {
 
         {/*<StyledLi id="History">
           <LinkStyled
-            onClick={handleCloseSidebar}
             to="/feed/history"
             // activeClassName="active"
           >
@@ -149,7 +138,6 @@ const Sidebar = () => {
 
         {/*<StyledLi id="Albums">
           <LinkStyled
-            onClick={handleCloseSidebar}
             to="/albums"
           >
             <StyledDivIcon className="icon">
@@ -163,7 +151,6 @@ const Sidebar = () => {
 
         {/*<StyledLi id="Bookmarks">
           <LinkStyled
-            onClick={handleCloseSidebar}
             to="/bookmarks"
             // activeClassName="active"
           >
@@ -178,7 +165,7 @@ const Sidebar = () => {
 
         <StyledLi id="VideosSidebar">
           <LinkStyled
-            onClick={handleCloseSidebar}
+            
             to="/videos"
             // activeClassName="active"
           >
@@ -193,7 +180,7 @@ const Sidebar = () => {
 
         <StyledLi id="Music">
           <LinkStyled
-            onClick={handleCloseSidebar}
+            
             to="/musicv2"
             // activeClassName="active"
           >
@@ -208,7 +195,7 @@ const Sidebar = () => {
         </StyledLi>
         <StyledLi id="Photos">
           <LinkStyled
-            onClick={handleCloseSidebar}
+            
             to="/photos"
             // activeClassName="active"
           >
@@ -222,9 +209,22 @@ const Sidebar = () => {
           </LinkStyled>
         </StyledLi>
 
+        <StyledLi id="Users">
+          <LinkStyled
+            
+            to="/users"
+            // activeClassName="active"
+          >
+            <StyledDivIcon className="icon">
+              <FaUsers />
+            </StyledDivIcon>
+            <span className="mymusic">Users</span>
+          </LinkStyled>
+        </StyledLi>
+
         <StyledLi id="LinkTag">
           <LinkStyled
-            onClick={handleCloseSidebar}
+            
             to="/linktag/all"
             // activeClassName="active"
           >
@@ -243,7 +243,6 @@ const Sidebar = () => {
 
         {/*<StyledLi>
           <LinkStyled
-            onClick={handleCloseSidebar}
             to="/feed/liked"
             // activeClassName="active"
           >
@@ -276,7 +275,7 @@ const StyledDivIcon = styled.div`
   svg {
     height: 16px;
     width: 16px;
-    color: ${props => props.theme.text};
+    color: var(--text);
   }
 
 `;
@@ -294,7 +293,7 @@ const SCTrendingIcon = styled(TrendingIcon)`
 
     height: 16px;
     width: 16px;
-    fill: ${props => props.theme.text};
+    fill: var(--text);
 
 
 `;
@@ -307,9 +306,9 @@ const SidebarWrapper = styled.div`
   /* height: 100vh; */
   height: 100%;
   width: 240px;
-  /* background: ${(props) => props.theme.grey}; */
+  /* background: var(--grey); */
   /* background: #212121; */
-  background: ${(props) => props.theme.sideBarColor};
+  background: var(--sideBarColor);
   /* padding-top: 1rem; */
 
 
@@ -317,8 +316,9 @@ const SidebarWrapper = styled.div`
   overflow-y: auto;
 
   padding-bottom: 1.5rem;
-  transition: all 0.3s;
+  transition: all 0.3s ease-in-out;
   z-index: 2;
+  transform: ${({ open }) => open ? 'translateX(0)' : 'translateX(-100%)'};
 
   &::-webkit-scrollbar {
     width: 0;
@@ -333,12 +333,12 @@ const SidebarWrapper = styled.div`
   }
 
   .icon:not(.hover-disable):hover {
-    background: ${(props) => props.theme.darkGrey};
+    background: var(--darkGrey);
     cursor: pointer;
   }
 
   .active div {
-    background: ${(props) => props.theme.darkGrey};
+    background: var(--darkGrey);
     cursor: pointer;
   }
 
@@ -351,16 +351,6 @@ const SidebarWrapper = styled.div`
     position: relative;
     top: 1px;
   }
-
-  @media screen and (max-width: 1093px) {
-    transform: translateX(-100%);
-
-    ${(props) =>
-      props.open &&
-      css`
-        transform: translateX(-100%);
-      `}
-  }
 `;
 
 const StyledUl = styled.ul`
@@ -372,7 +362,7 @@ const StyledUl = styled.ul`
 const StyledLi = styled.li`
   margin-top: 15px;
   &:hover {
-    background-color: ${props => props.theme.sideBarHoverColor};
+    background-color: var(--sideBarHoverColor);
     border-radius: 12px;
   }
   /* border-style: dotted */
@@ -380,7 +370,7 @@ const StyledLi = styled.li`
 
 const LinkStyled = styled(Link)`
   align-items: center;
-  color: ${props => props.theme.text};
+  color: var(--text);
   text-decoration: none;
   &:hover: {
     text-decoration: underline;
@@ -439,7 +429,6 @@ const LinkStyled = styled(Link)`
 // const link_to = links.map((link) => {
 //   <LinkStyled
 //     to={link.path}
-//     onClick={handleCloseSidebar}
 //     >
 //     <${link.iconName}Icon/>
 //   </LinkStyled

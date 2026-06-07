@@ -1,6 +1,6 @@
 // youtube-clone-frontend
 
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 // Children Component
 export const Children = styled.div`

@@ -1,6 +1,6 @@
 // NoteList.js
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import Note from './Note';
 
 const List = styled.div`

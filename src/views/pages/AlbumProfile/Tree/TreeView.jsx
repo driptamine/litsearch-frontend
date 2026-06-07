@@ -1,7 +1,7 @@
 // reference: https://chatgpt.com/c/2c281b98-1339-41d3-993d-fc2a3496d02e
 
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 // Container for each node
 const TreeNodeContainer = styled.div`

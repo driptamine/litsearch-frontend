@@ -1,29 +1,45 @@
-import { createGlobalStyle } from 'styled-components';
+import { css } from '@linaria/core';
 
-const GlobalStyleThemeMode = createGlobalStyle`
-	body {
-		margin: 0;
-		// background: #181818;
-		// background: red;
-		background: ${({ theme }) => theme.body};
-		color: ${({ theme }) => theme.text};
-	}
+export const globals = css`
+  :global() {
+    html {
+      box-sizing: border-box;
+    }
 
+    *, *::before, *::after {
+      box-sizing: inherit;
+    }
 
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      background: var(--body);
+      color: var(--text);
+    }
 
-	::-webkit-scrollbar {
-	  /* display: none; */
-		background: transparent;
-  }
-	::-webkit-scrollbar-thumb {
-	  /* display: none; */
+    img {
+      max-width: 100%;
+      height: auto;
+    }
 
-		border: 5px solid transparent;
-    background: hsla(0,0%,100%,.3);
-		background-clip: content-box;
-		border-radius: 10px;
+    ::-webkit-scrollbar {
+      /* display: none; */
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      /* display: none; */
 
+      border: 5px solid transparent;
+      background: hsla(0,0%,100%,.3);
+      background-clip: content-box;
+      border-radius: 10px;
+    }
   }
 `;
+
+const GlobalStyleThemeMode = () => null;
 
 export default GlobalStyleThemeMode;

@@ -1,9 +1,13 @@
-import styled from "styled-components";
+import { styled } from '@linaria/react';
 
 export const AppContainer = styled.div`
   display: flex;
   height: 100vh;
   font-family: Arial, sans-serif;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 export const SidebarContainer = styled.div`
@@ -13,6 +17,12 @@ export const SidebarContainer = styled.div`
   padding: 20px;
   overflow-y: auto;
   box-sizing: border-box;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    height: auto;
+    max-height: 30vh;
+  }
 
   &::-webkit-scrollbar {
     width: 8px;
@@ -28,6 +38,10 @@ export const PageContainerWrapper = styled.div`
   flex: 1;
   padding: 40px;
   overflow-y: auto;
+
+  @media screen and (max-width: 768px) {
+    padding: 20px;
+  }
 `;
 
 export const PageTitleInput = styled.input`

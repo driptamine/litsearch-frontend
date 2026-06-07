@@ -19,19 +19,17 @@ function renderItem(imageId) {
 function ImageSearchResultsBing({ query }) {
   const dispatch = useDispatch();
   const imageIds = useSelector(state =>
-    selectors.selectImageSearchResultIds(state, query)
+    selectors.selectImageSearchResultIds(state, query, 'bing')
   );
   const isFetching = useSelector(state =>
     selectors.selectIsFetchingImageSearchResults(state)
   );
   const nextPage = useSelector(state =>
-    selectors.selectImageSearchResultsNextPage(state, query)
+    selectors.selectImageSearchResultsNextPage(state, query, 'bing')
   );
 
   function handleLoadMore() {
-    dispatch(fetchImageSearch(query, nextPage));
-    // dispatch(fetchBingImageSearch(query, nextPage));
-
+    dispatch(fetchBingImageSearch(query, nextPage));
   }
 
   return (

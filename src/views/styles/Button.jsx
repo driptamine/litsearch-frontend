@@ -1,19 +1,20 @@
-import styled, { css } from 'styled-components';
+import { styled } from '@linaria/react';
+import { css } from '@linaria/core';
 
 const Button = styled.button`
   padding: 0.4rem 1rem;
-  background: ${(props) => props.theme.red};
-  color: ${(props) => props.theme.white};
-  border: 1px solid ${(props) => props.theme.red};
+  background: var(--red);
+  color: var(--white);
+  border: 1px solid var(--red);
   border-radius: 3px;
   letter-spacing: 1.1px;
 
   ${(props) =>
     props.grey &&
     css`
-      background: ${(props) => props.theme.darkGrey};
-      border: 1px solid ${(props) => props.theme.darkGrey};
-      color: ${(props) => props.theme.secondaryColor};
+      background: var(--darkGrey);
+      border: 1px solid var(--darkGrey);
+      color: var(--secondaryColor);
     `}
 `;
 

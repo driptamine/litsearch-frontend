@@ -1,8 +1,10 @@
-import styled, { css } from 'styled-components';
+import { styled } from '@linaria/react';
+import { css } from '@linaria/core';
 
 export const Root = styled.div`
   position: relative;
-  width: 320px;
+  width: 100%;
+  max-width: 320px;
 `;
 
 export const baseButtonMixin = css`
@@ -47,7 +49,8 @@ export const AutoCompleteContainer = styled.ul`
   background: #fff;
   padding: 8px 0;
   list-style-type: none;
-  min-width: 320px;
+  width: 100%;
+  max-width: 320px;
   position: absolute;
   top: 100%;
   left: 0;
@@ -66,7 +69,7 @@ export const AutoCompleteItem = styled.li`
   box-sizing: border-box;
   &:hover {
     /* background-color: #ebf4ff; */
-    background-color: ${props => props.theme.sideBarHoverColor};
+    background-color: var(--sideBarHoverColor);
   }
 `;
 

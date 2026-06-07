@@ -34,6 +34,22 @@
   /* background-color: #1c2837; */
   background-color: #202225;
 }
+
+@media screen and (max-width: 1024px) {
+  .modal-content-1 {
+    width: 30%;
+    margin-left: 68%;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .modal-content-1 {
+    width: 90%;
+    margin-left: 5%;
+    left: 0;
+  }
+}
+
 .modal-content-2 {
   font-family: Helvetica;
   top: 50px;
@@ -51,6 +67,15 @@
   /* background-color: #1c2837; */
   background-color: #202225;
 }
+
+@media screen and (max-width: 768px) {
+  .modal-content-2 {
+    width: 90%;
+    margin-left: 5%;
+    left: 0;
+  }
+}
+
 .modal-content-3 {
   font-family: Helvetica;
   top: 50px;
@@ -67,6 +92,14 @@
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.5);
   /* background-color: #1c2837; */
   background-color: #202225;
+}
+
+@media screen and (max-width: 768px) {
+  .modal-content-3 {
+    width: 90%;
+    margin-left: 5%;
+    left: 0;
+  }
 }
 
 .modal-header {

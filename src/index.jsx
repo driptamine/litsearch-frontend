@@ -43,12 +43,15 @@ import history  from 'core/services/history';
 // sagaMiddleware.run(rootSaga);
 
 
+import { TestButton } from './linaria-components/TestButton';
+
 const container = document.getElementById('root');
 const root = createRoot(container);
 
 
 root.render(
   <React.StrictMode>
+    {/*<TestButton>Test</TestButton>*/}
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
 

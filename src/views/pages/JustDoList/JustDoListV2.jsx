@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import Sidebar from './components/Sidebar';
 import TodoList from './components/TodoList';
 import AddTodo from './components/AddTodo';
@@ -76,15 +76,25 @@ const AppWrapper = styled.div`
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 const ContentContainer = styled.div`
   flex: 1;
+  width: 95%;
   max-width: 800px;
-  margin: 50px auto;
-  padding: 2rem;
+  margin: 20px auto;
+  padding: 1.5rem;
 
   border-radius: 8px;
+
+  @media screen and (max-width: 480px) {
+    padding: 1rem;
+    margin: 10px auto;
+  }
 `;
 
 const Title = styled.h1`

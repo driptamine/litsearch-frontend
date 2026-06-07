@@ -1,7 +1,7 @@
 import { Panel } from 'lib/ui/Panel/Panel'
 import { Text } from 'lib/ui/Text'
 import { ReactNode } from 'react'
-import styled from 'styled-components'
+import { styled } from '@linaria/react'
 import { Slider, SliderProps } from '.'
 
 import { InputWrapperWithErrorMessage } from '../InputWrapper'

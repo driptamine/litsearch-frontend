@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import {PhotoCard} from 'views/pages/PhotosPage/PhotoCard';
 import { api_data } from 'views/pages/PhotosPage/data/api_data.jsx';
 

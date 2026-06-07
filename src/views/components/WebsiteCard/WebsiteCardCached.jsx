@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 // MATERIAL DONE
 // import { makeStyles } from '@mui/material/styles';
@@ -72,27 +72,48 @@ const UrlStyled = styled.div`
 `
 const Snippet = styled.div`
   font-family: arial,sans-serif;
-  font-size 14px;
-  word-break: break-all;
+  font-size: 14px;
+  word-break: break-word;
   white-space: pre-wrap;
+  line-height: 1.5;
+
+  @media screen and (max-width: 768px) {
+    font-size: 13px;
+    line-height: 1.4;
+  }
 `
 const Title = styled.div`
   font-family: arial,sans-serif;
-  color: ${(props) => props.theme.titleColor};
+  color: var(--titleColor);
+  font-size: 18px;
+  word-break: break-word;
+
   &:hover{
     text-decoration: underline;
   }
-`
+
+  @media screen and (max-width: 768px) {
+    font-size: 16px;
+  }
+`;
 const Card = styled.div`
-  width: 500px;
-  background-color: ${(props) => props.theme.inputBg};
+  width: 100%;
+  max-width: 500px;
+  background-color: var(--inputBg);
   border-radius: 11px;
   border: 1px solid black;
   margin-bottom: 1em;
   padding: 1em;
+  box-sizing: border-box;
+
+  @media screen and (max-width: 768px) {
+    padding: 12px;
+    max-width: 100%;
+  }
 `
+
 const Link = styled.a`
   text-decoration: none;
 `
 
-export default WebsiteCard;
+export default WebsiteCardCached;

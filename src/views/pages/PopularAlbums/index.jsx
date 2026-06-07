@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 import { fetchPopularMovies, fetchPopularAlbums } from 'core/actions';
 import { selectors } from 'core/reducers/index';
@@ -9,21 +9,33 @@ import AlbumItem from 'views/components/AlbumItem';
 import InfiniteGridList from 'views/components/InfiniteGridList';
 import InfiniteList from 'views/components/InfiniteList';
 
-const StyledLi = styled.li`
-  width: 550px;
-  margin-left: 18%;
-  border: 1.6px solid #383838;
-  /* background: #1b1e22; */
-  background: ${props => props.theme.cardColor};
-  padding-top: 6em;
-  padding-right: 1em;
-  padding-bottom: 4em;
-  padding-left: 1em;
-  margin-top: 1em;
-  border-radius: 10px;
+const styledLiStyles = props => `
+  background: ${props.theme.cardColor};
 `;
+
+const StyledLi = styled.li`
+  padding: 1em;
+  padding-top: 6em;
+  padding-bottom: 4em;
+  margin: 1em auto;
+
+  width: 95%;
+  max-width: 550px;
+  border: 1.6px solid #383838;
+  ${styledLiStyles}
+  border-radius: 10px;
+
+  @media screen and (max-width: 425px) {
+    padding-top: 4em;
+    padding-bottom: 3em;
+  }
+`;
+const headerTextStyles = props => `
+  color: ${props.theme.text};
+`;
+
 const HeaderText = styled.div`
-  color: ${props => props.theme.text};
+  ${headerTextStyles}
   cursor: pointer;
   font-family: Helvetica Neue;
   font-weight: 400;

@@ -1,7 +1,7 @@
 // https://gemini.google.com/app/e0d29882a4ef4d7b?hl=en
 import React, { useEffect, useMemo } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 // Hooks
 import { useModalSwitchLogic } from 'views/hooks/useModalSwitchLogic';
@@ -14,7 +14,7 @@ import { getState } from 'core/store'; // To get auth state
 import ChatList from 'views/pages/ChatV3/Left/ChatList';
 import ChatWindow from 'views/pages/ChatV3/Main/ChatWindow';
 import ChatWindowGemini from 'views/pages/ChatGemini/Main/ChatWindow';
-import chatsData from 'views/pages/ChatV3/chatsV2.json';
+// import chatsData from 'views/pages/ChatV3/chatsV2.json';
 import emojiData from 'views/pages/ChatV3/emoji.json';
 
 // UPLOAD - Restored original paths
@@ -42,6 +42,7 @@ import ArtistProfile from 'views/pages/ArtistProfile'; // Changed to single quot
 import AlbumProfile from 'views/pages/AlbumProfile'; // Changed to single quotes
 import PlaylistProfile from 'views/pages/PlaylistProfile'; // Changed to single quotes
 import TrackProfile from 'views/pages/TrackProfile'; // Changed to single quotes
+import PostProfile from 'views/pages/PostProfile'; // Changed to single quotes
 import LinksProfile from 'views/pages/LinksProfile'; // Changed to single quotes
 import SearchResults from 'views/pages/SearchResults'; // Changed to single quotes
 import SearchesResults from 'views/pages/SearchResults'; // Changed to single quotes
@@ -55,6 +56,8 @@ import { VideoFeedV2 } from 'views/pages/VideoFeedProfile/VideoFeedV2'; // Chang
 import VideoProfile from 'views/pages/VideoProfile'; // Changed to single quotes
 import { PhotosPage } from 'src/views/pages/PhotosPage/PhotosPage';
 import { PhotosPageUnsplash } from 'views/pages/PhotosPage/PhotosPageUnsplash';
+import ProfilePage from 'views/pages/ProfilePage';
+import UsersPage from 'views/pages/UsersPage/UsersPage';
 import  NoteApp  from 'views/pages/NoteText/NoteApp';
 import  NoteTakingApp  from 'views/pages/NoteApp/NoteTakingApp';
 import  SearchByTag  from 'views/pages/SavedLinks/SearchByTag';
@@ -69,80 +72,99 @@ function ModalSwitch({ children, renderModal, stopSong, pauseSong, resumeSong, a
   useScrollMemory(); // Keep if you still need scroll memory
 
   const auth = getState().users.access_token;
-  const showChatList = pathname.startsWith('/chat');
+  const isMobile = window.innerWidth <= 768;
+  const isChatPath = pathname.startsWith('/chat');
+  const isSpecificChat = pathname !== '/chat/im' && isChatPath;
+  
+  const showChatList = isChatPath && !(isMobile && isSpecificChat);
 
   return (
     <ModalRouteContext.Provider value={contextValue}>
-      {showChatList && <ChatList users={chatsData.users} messages={chatsData.messages} emojiData={emojiData} />}
-      <Switch location={switchLocation}>
-        {/* Authentication Routes */}
-        <Route path="/login" render={props => auth ? (<Redirect to={{ pathname: '/feed', }} />) : (<LoginPage {...props} />)} />
-        <Route path="/signup" render={props => auth ? (<Redirect to={{ pathname: '/feed', }} />) : (<SignUpPage {...props} />)} />
-        <Route path="/auth/twitch/callback" component={TwitchAuthCallback} />
-        <Route path="/auth/google/callback" component={GoogleAuthCallback} />
+      <LayoutWrapper isChat={isChatPath}>
+        {showChatList && (
+          <ChatList 
+            emojiData={emojiData} 
+          />
+        )}
+        <Switch location={switchLocation}>
+          {/* Authentication Routes */}
+          <Route path="/login" render={props => auth ? (<Redirect to={{ pathname: '/feed', }} />) : (<LoginPage {...props} />)} />
+          <Route path="/signup" render={props => auth ? (<Redirect to={{ pathname: '/feed', }} />) : (<SignUpPage {...props} />)} />
+          <Route path="/auth/twitch/callback" component={TwitchAuthCallback} />
+          <Route path="/auth/google/callback" component={GoogleAuthCallback} />
 
-        {/* Upload Routes */}
-        <Route exact path="/cu" component={ChunkUpload} />
-        <Route exact path="/ax" component={PostCreator} />
-        <Route exact path="/s3upload" component={MediaUploader} />
-        <Route exact path="/create" component={PostCreator} />
+          {/* Upload Routes */}
+          <Route exact path="/cu" component={ChunkUpload} />
+          <Route exact path="/ax" component={PostCreator} />
+          <Route exact path="/s3upload" component={MediaUploader} />
+          <Route exact path="/create" component={PostCreator} />
 
-        {/* Feed/Browse Routes */}
-        <Route exact path="/movies" component={ModalMovies} />
-        <Route exact path="/feed" component={ModalMovies} /> {/* Consider if /movies and /feed should be the same */}
-        <Route exact path="/feedV2" component={ModalPosts} />
-        <Route exact path="/people" component={ModalPeople} />
-        <Route exact path="/magazines" component={ModalMagazines} />
-        <Route exact path="/albums" component={ModalAlbums} />
-        <Route exact path="/" component={SearchAppp} /> {/* Homepage */}
+          {/* Feed/Browse Routes */}
+          <Route exact path="/movies" component={ModalMovies} />
+          <Route exact path="/feed" component={ModalMovies} /> {/* Consider if /movies and /feed should be the same */}
+          <Route exact path="/feedV2" component={ModalPosts} />
+          <Route exact path="/people" component={ModalPeople} />
+          <Route exact path="/users" component={UsersPage} />
+          <Route exact path="/magazines" component={ModalMagazines} />
+          <Route exact path="/albums" component={ModalAlbums} />
+          <Route exact path="/" component={SearchAppp} /> {/* Homepage */}
 
-        {/* Chat Routes */}
-        <Route exact path="/chat/:userId" component={ChatWindow} />
-        <Route exact path="/wow" component={ChatWindowGemini} />
+          {/* Chat Routes */}
+          <Route exact path="/chat/im">
+            <ChatWindowContainer>
+              <h2>Select a chat to start messaging</h2>
+            </ChatWindowContainer>
+          </Route>
+          <Route exact path="/chat/:userId" component={ChatWindow} />
+          <Route exact path="/wow" component={ChatWindowGemini} />
 
-        {/* Music Routes */}
-        <Route exact path="/musicv2" component={TrackListLoopV2} /> {/* Assuming TrackListLoopV2 is imported somewhere or defined here */}
-        <Route exact path="/musicv1" component={TrackListLoopV1} /> {/* Same for TrackListLoopV1 */}
+          {/* Music Routes */}
+          <Route exact path="/musicv2" component={TrackListLoopV2} /> {/* Assuming TrackListLoopV2 is imported somewhere or defined here */}
+          <Route exact path="/musicv1" component={TrackListLoopV1} /> {/* Same for TrackListLoopV1 */}
 
-        {/* Search Routes */}
-        <Route exact path="/search/:searchType" component={SearchResults} />
-        <Route exact path="/searches/:query" component={SearchResults} /> {/* Consider combining /search and /searches */}
-        <Route exact path="/searches/:type/:query" component={SearchResults} />
+          {/* Search Routes */}
+          <Route exact path="/search/:searchType" component={SearchResults} />
+          <Route exact path="/searches/:query" component={SearchResults} /> {/* Consider combining /search and /searches */}
+          <Route exact path="/searches/:type/:query" component={SearchResults} />
 
-        {/* Profile Routes (can receive audio control props if needed by component) */}
-        <Route path="/movies/:movieId" component={MovieProfile} />
-        <Route path="/person/:personId" component={PersonProfile} />
-        <Route path="/artist/:artistId">
-          <ArtistProfile stopSong={stopSong} pauseSong={pauseSong} resumeSong={resumeSong} audioControl={audioControl} />
-        </Route>
-        <Route path="/album/:albumId">
-          <AlbumProfile stopSong={stopSong} pauseSong={pauseSong} resumeSong={resumeSong} audioControl={audioControl} />
-        </Route>
-        <Route path="/playlist/:playlistId">
-          <PlaylistProfile stopSong={stopSong} pauseSong={pauseSong} resumeSong={resumeSong} audioControl={audioControl} />
-        </Route>
-        <Route path="/links/:linkId">
-          <LinksProfile stopSong={stopSong} pauseSong={pauseSong} resumeSong={resumeSong} audioControl={audioControl} />
-        </Route>
-        <Route path="/track/:trackId" component={TrackProfile} />
-        <Route path="/video/:videoId" component={VideoProfile} />
-        <Route path="/vine/:videoId" component={VideoProfile} /> {/* Duplicate, consider consolidating if same behavior */}
+          {/* Profile Routes (can receive audio control props if needed by component) */}
+          <Route path="/movies/:movieId" component={MovieProfile} />
+          <Route path="/person/:personId" component={PersonProfile} />
+          <Route path="/artist/:artistId">
+            <ArtistProfile stopSong={stopSong} pauseSong={pauseSong} resumeSong={resumeSong} audioControl={audioControl} />
+          </Route>
+          <Route path="/album/:albumId">
+            <AlbumProfile stopSong={stopSong} pauseSong={pauseSong} resumeSong={resumeSong} audioControl={audioControl} />
+          </Route>
+          <Route path="/posts/:postId" component={PostProfile} />
+          <Route path="/playlist/:playlistId">
+            <PlaylistProfile stopSong={stopSong} pauseSong={pauseSong} resumeSong={resumeSong} audioControl={audioControl} />
+          </Route>
+          <Route path="/links/:linkId">
+            <LinksProfile stopSong={stopSong} pauseSong={pauseSong} resumeSong={resumeSong} audioControl={audioControl} />
+          </Route>
+          <Route path="/track/:trackId" component={TrackProfile} />
+          <Route path="/video/:videoId" component={VideoProfile} />
+          <Route path="/vine/:videoId" component={VideoProfile} /> {/* Duplicate, consider consolidating if same behavior */}
 
-        {/* Feed Routes */}
-        <Route path="/videos" component={VideoFeedV2} />
-        <Route path="/videofeed" component={VideoFeedProfile} /> {/* Assuming VideoFeedProfile is imported */}
-        <Route path="/photos" component={PhotosPageUnsplash} />
-        {/*<Route path="/notes" component={NoteApp} />*/}
-        <Route path="/notes" component={NoteTakingApp} />
-        <Route path="/todo" component={JustDoListV2} />
-        <Route path="/linktag/search" component={SearchByTag} />
-        <Route path="/linktag/all" component={LinksList} />
-        <Route path="/linktag/:tagname" component={LinkListByTag} />
+          {/* Feed Routes */}
+          <Route path="/videos" component={VideoFeedV2} />
+          <Route path="/videofeed" component={VideoFeedProfile} /> {/* Assuming VideoFeedProfile is imported */}
+          <Route path="/photos" component={PhotosPageUnsplash} />
+          {/*<Route path="/notes" component={NoteApp} />*/}
+          <Route path="/notes" component={NoteTakingApp} />
+          <Route path="/todo" component={JustDoListV2} />
+          <Route path="/linktag/search" component={SearchByTag} />
+          <Route path="/linktag/all" component={LinksList} />
+          <Route path="/linktag/:tagname" component={LinkListByTag} />
 
+          {/* User Profile Route (Catch-all for usernames) */}
+          <Route path="/:username" component={ProfilePage} />
 
-        {/* Catch-all for unhandled routes, consider if needed */}
-        {/* <Route path="*"><Redirect to="/movies" /> </Route> */}
-      </Switch>
+          {/* Catch-all for unhandled routes, consider if needed */}
+          {/* <Route path="*"><Redirect to="/movies" /> </Route> */}
+        </Switch>
+      </LayoutWrapper>
 
       {isModal && renderModal({
           open: isModal,
@@ -154,11 +176,40 @@ function ModalSwitch({ children, renderModal, stopSong, pauseSong, resumeSong, a
 }
 
 // Styled components
+const LayoutWrapper = styled.div`
+  display: ${({ isChat }) => (isChat ? 'flex' : 'block')};
+  width: 100%;
+  min-height: 100%;
+  background-color: var(--navBg, #141414);
+
+  @media screen and (max-width: 768px) {
+    flex-direction: ${({ isChat }) => (isChat ? 'column' : 'initial')};
+  }
+`;
+
 const FlexDiv = styled.div``;
+
 const ChatAppContainer = styled.div`
   display: flex;
   height: 100vh;
   overflow: hidden;
+`;
+
+const ChatWindowContainer = styled.div`
+  width: 70%;
+  background-color: var(--navBg, #141414);;
+
+  padding: 20px;
+  box-sizing: border-box;
+  padding-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    padding: 10px;
+  }
 `;
 
 export default ModalSwitch;

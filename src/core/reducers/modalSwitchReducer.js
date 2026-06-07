@@ -14,7 +14,7 @@ export const initialState = {
 };
 
 // reducer
-export function modalSwitchReducer(state, action) {
+export function modalSwitchReducer(state = initialState, action) {
   switch (action.type) {
     case PUSH_MODAL_LOCATION_KEY: {
       const { modalLocationKeys } = state;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { useSetRecoilState } from 'recoil';
 
 import { AddCookie, getCookie } from 'views/utils';

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { fetchQuerySearch } from 'core/actions';
 import { selectors } from 'core/reducers/index';
 

@@ -1,10 +1,10 @@
 import React from 'react'
 import { func, string } from 'prop-types';
-import styled from 'styled-components'
+import { styled } from '@linaria/react'
 
 const Button = styled.div`
-  background: ${(props) => props.theme.togglerColor};
-  /* border: 3px solid ${({ theme }) => theme.toggleBorder}; */
+  background: var(--togglerColor);
+  /* border: 3px solid var(--toggleBorder); */
   border-radius: 30px;
   cursor: pointer;
   font-size: 0.5rem;

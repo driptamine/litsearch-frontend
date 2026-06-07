@@ -7,17 +7,12 @@ import { StyledTypography, StyledBox } from 'views/styledComponents';
 function SearchResultsHeader({ query, totalResults }) {
   return (
     <StyledBox
-      display="grid"
+      display="flex"
       alignItems="center"
       justifyContent="space-between"
-      style={{marginBottom: '20px'}}
-      // flexWrap="wrap"
+      style={{marginBottom: '10px', padding: '0 10px'}}
     >
-      {/*<StyledTypography variant="h6">Search Results For: {query} </StyledTypography>*/}
-
-      {/*<StyledTypography color="textSecondary">
-        Total {totalResults} Results
-      </StyledTypography>*/}
+      {/* Header content if needed */}
     </StyledBox>
   );
 }

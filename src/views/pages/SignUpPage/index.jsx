@@ -14,30 +14,26 @@ import { FaSoundcloud } from 'react-icons/fa';
 import { FaDeezer } from 'react-icons/fa';
 import { FaInstagram } from 'react-icons/fa';
 
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 
 import { StyledTextField, StyledContainer, StyledGrid, StyledButton } from 'views/styledComponents';
 
 
 import {
-  twitchSignInAction, googleSignInAction, appleSignInAction,
-  spotifySignInAction, unsplashSignInAction, deezerSignInAction, instagramSignInAction } from 'views/pages/LoginPage/action'
+  googleSignInAction, unsplashSignInAction, deezerSignInAction, instagramSignInAction } from 'views/pages/LoginPage/action'
 import ReAuthenticateButton from 'views/pages/Auth/ReAuthenticateButton';
 import disconnectYoutube from 'views/pages/Auth/youtube/disconnectYoutube';
-import disconnectTwitch from 'views/pages/Auth/twitch/disconnectTwitch';
 
 // CONTEXT PROVIDER
-import { TwitchContext } from 'views/pages/Auth/twitch/useToken';
 import { YoutubeContext } from 'views/pages/Auth/youtube/useToken';
-import { SpotifyContext } from 'views/pages/Auth/spotify/useToken';
 import { GoogleContext } from 'views/pages/Auth/google/useToken';
 
 import litloopLogo from 'views/assets/litloopLogo3.png';
 
 // CORE
 import history  from 'core/services/history';
-import { fetchAuthUser, fetchSignUpUser  } from 'core/actions'
+import { fetchAuthUser, fetchSignUpUser, fetchOAuthUser, fetchCurrentUser  } from 'core/actions'
 import useHistoryPush from 'core/hooks/useHistoryPush';
 // import { selectAuth } from 'core/reducers/authSlice';
 import { selectors } from 'core/reducers/index';
@@ -47,24 +43,6 @@ import useEventListenerMemo from 'core/hooks2/useEventListenerMemo';
 
 
 function SignUpForm () {
-  const {
-    setAutoRefreshEnabled,
-    autoRefreshEnabled,
-    twitchVideoHoverEnable,
-    setTwitchVideoHoverEnable,
-    isEnabledOfflineNotifications,
-    setIsEnabledOfflineNotifications,
-    isEnabledUpdateNotifications,
-    setIsEnabledUpdateNotifications,
-    setEnableVodVolumeOverlay,
-    enableVodVolumeOverlay,
-    setTwitchAccessToken,
-    twitchAccessToken,
-    setTwitchRefreshToken,
-    setTwitchUsername,
-    setTwitchUserId,
-    setTwitchProfileImage
-  } = useContext(TwitchContext) || {};
   const {
     youtubeVideoHoverEnable,
     setYoutubeVideoHoverEnable,
@@ -85,10 +63,7 @@ function SignUpForm () {
   const [username, setUsername] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [errors, setErrors] = useState(null)
   const [isError, setIsError] = useState(false);
-
-  const [loginDetail, setLoginDetail] = useState({username: '', password: ''})
 
   // if (authSelector.authenticated) {
   //   return <Redirect to={"/"} />;
@@ -108,17 +83,6 @@ function SignUpForm () {
 
   }
 
-  async function handleTwitchButtonClick(e) {
-    e.preventDefault();
-
-    try {
-      dispatch(twitchSignInAction());
-    } catch (err) {
-      console.log(err);
-      setIsError(true);
-    }
-  }
-
   async function handleGoogleButtonClick(e) {
     e.preventDefault();
 
@@ -135,28 +99,6 @@ function SignUpForm () {
 
     try {
       dispatch(unsplashSignInAction());
-    } catch (err) {
-      console.log(err);
-      setIsError(true);
-    }
-  }
-
-  async function handleAppleButtonClick(e) {
-    e.preventDefault();
-
-    try {
-      dispatch(appleSignInAction());
-    } catch (err) {
-      console.log(err);
-      setIsError(true);
-    }
-  }
-
-  async function handleSpotifyButtonClick(e) {
-    e.preventDefault();
-
-    try {
-      dispatch(spotifySignInAction());
     } catch (err) {
       console.log(err);
       setIsError(true);
@@ -200,38 +142,29 @@ function SignUpForm () {
   // const { setTwitchAccessToken, setTwitchRefreshToken, setTwitchUserId, setTwitchUsername, setTwitchProfileImage, } = useContext(TwitchContext) || {};
   // const { setYoutubeAccessToken, setYoutubeRefreshToken, setYoutubeUsername, setYoutubeProfileImage } = useContext(YoutubeContext) || {};
   const { setGoogleAccessToken, setGoogleRefreshToken, setGoogleUsername, setGoogleProfileImage } = useContext(GoogleContext) || {};
-  const { setSpotifyAccessToken, setSpotifyRefreshToken, setSpotifyUsername, setSpotifyProfileImage } = useContext(SpotifyContext) || {};
 
 
 
   function receiveMessage(e) {
-    if (e.origin.startsWith('http://localhost:3001') && e.data?.access_token && e.data?.service) {
+    if (e.origin.startsWith(`${FRONTEND_CALLBACK_URL}`) && e.data?.access_token && e.data?.service) {
+      const { service, access_token, refresh_token, username, userId } = e.data;
+      const profileImg = e.data.profileImg || e.data.profile_img || e.data.picture || e.data.avatar_url || e.data.avatar;
 
-      if (e.data.service === 'twitch') {
-        console.log("Receive postMessage TWITCH TOKEN");
-        console.log(e.data);
-        if (setTwitchAccessToken) setTwitchAccessToken(e.data.access_token);
-        if (setTwitchRefreshToken) setTwitchRefreshToken(e.data.refresh_token);
-        if (setTwitchUsername) setTwitchUsername(e.data.username);
-        if (setTwitchUserId) setTwitchUserId(e.data.userId);
-        if (setTwitchProfileImage) setTwitchProfileImage(e.data.profileImg);
-        // RELOAD
-        history.push('/');
-        // historyPusha.push('/');
-        // window.location.replace("http://localhost:3001/");
-
-      } else if (e.data.service === 'google') {
+      if (service === 'google') {
         console.log("Receive postMessage GOOGLE TOKEN");
         console.log(e.data);
-        if (e.data.access_token && setGoogleAccessToken) setGoogleAccessToken(e.data.access_token);
-        if (e.data.username && setGoogleUsername) setGoogleUsername(e.data.username);
-        if (e.data.profileImg && setGoogleProfileImage) setGoogleProfileImage(e.data.profileImg);
-        history.push('/');
+        if (access_token && setGoogleAccessToken) setGoogleAccessToken(access_token);
+        if (username && setGoogleUsername) setGoogleUsername(username);
+        if (profileImg && setGoogleProfileImage) setGoogleProfileImage(profileImg);
 
+        dispatch(fetchOAuthUser({ ...e.data, profileImg }));
+        dispatch(fetchCurrentUser());
+        history.push('/');
       }
 
     }
   }
+
 
   useEventListenerMemo('message', receiveMessage, window, true, { capture: false });
 
@@ -341,39 +274,15 @@ function SignUpForm () {
       <OAuthWrapper>
 
         <ReAuthenticateButton
-          disconnect={() =>
-            disconnectTwitch({
-              setTwitchAccessToken,
-              setEnableTwitch: () => toggleEnabled('google'),
-            })
-          }
+          // disconnect={() =>
+          //   disconnectTwitch({
+          //     setTwitchAccessToken,
+          //     setEnableTwitch: () => toggleEnabled('google'),
+          //   })
+          // }
           serviceName='Google'
+          title="Sign up with Google"
         />
-
-        <ReAuthenticateButton
-          disconnect={() =>
-            disconnectTwitch({
-              setTwitchAccessToken,
-              setEnableTwitch: () => toggleEnabled('twitch'),
-            })
-          }
-          serviceName='Twitch'
-        />
-
-
-        <OAuthLoginButton
-          onClick={(e) => handleSpotifyButtonClick(e)}
-        >
-          <FaSpotifyIcon/>
-          Sign in with Spotify
-        </OAuthLoginButton>
-
-        <OAuthLoginButton
-          onClick={(e) => handleAppleButtonClick(e)}
-        >
-          <FaApple/>
-          Sign in with Apple
-        </OAuthLoginButton>
 
         <br style={{ height: '24px' }} />
 

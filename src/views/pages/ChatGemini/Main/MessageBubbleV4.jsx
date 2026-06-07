@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import hljs from 'highlight.js';
@@ -68,12 +68,15 @@ const MessageBubbleV1 = ({ content, from }) => {
   return <Bubble from={from} dangerouslySetInnerHTML={{ __html: cleanHtml }} />;
 };
 
-const Bubble = styled.div`
-  background-color: ${(props) => props.from === "user" ? "#e0f2fe" : "#f1f5f9"};
-  align-self: ${(props) => props.from === "user" ? "flex-end" : "flex-start"};
-  margin: 8px 0;
+const bubbleStyles = props => `
+  background-color: ${props.from === "user" ? "#e0f2fe" : "#f1f5f9"};
+  align-self: ${props.from === "user" ? "flex-end" : "flex-start"};
+  margin-left: ${props.from === 'user' ? "18em" : '0px'};
+`;
 
-  margin-left: ${(props) => props.from === 'user' ? "18em": '0px'};
+const Bubble = styled.div`
+  ${bubbleStyles}
+  margin: 8px 0;
   padding: 12px;
   border-radius: 12px;
   max-width: 80%;

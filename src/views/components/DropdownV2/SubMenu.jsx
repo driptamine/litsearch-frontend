@@ -5,7 +5,7 @@ import {
   SvgTest,
   DropDownWrapper
 } from './DropDownNew.styles';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 function SubMenu(props, {className}) {
   const [isShown, setIsShown] = useState(true);

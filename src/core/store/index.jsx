@@ -3,16 +3,19 @@ import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
 import { persistStore } from 'redux-persist';
 import axios from 'axios';
+import storeV6, { getState as getV6State } from './storeV6_gemini';
 
 export const sagaMiddleware = createSagaMiddleware();
 
-export const store = configureStore({
-  reducer: rootReducer,
-  middleware: [
-    ...getDefaultMiddleware({ serializableCheck: false, immutableCheck: false }),
-    sagaMiddleware
-  ]
-});
+// export const store = configureStore({
+//   reducer: rootReducer,
+//   middleware: [
+//     ...getDefaultMiddleware({ serializableCheck: false, immutableCheck: false }),
+//     sagaMiddleware
+//   ]
+// });
+
+export const store = storeV6;
 
 // store.runSaga = sagaMiddleware.run;
 
@@ -26,7 +29,7 @@ export const store = configureStore({
 // let store = createStore(persistedReducer, applyMiddleware(sagaMiddleware));
 export const persistor = persistStore(store);
 
-export const getState = () => store.getState();
+export const getState = getV6State;
 
 export const getHeaders = () => {
   const headers = new Headers();
@@ -38,12 +41,15 @@ export const getHeaders = () => {
 
   headers.append('Accept', 'application/json');
 
-  // if (getState().users.access_token) {
+  const users = getState().users || {};
+  const token = users.access_token || users.token?.access_token || (typeof users.token === 'string' ? users.token : users.token?.token);
+
+  if (token) {
     headers.append(
       'Authorization',
-      `Bearer ${getState().users.access_token}`
+      `Bearer ${token}`
     );
-  // }
+  }
 
   headers.append(
     'User-Agent',

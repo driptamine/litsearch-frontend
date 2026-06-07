@@ -1,7 +1,7 @@
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
+import { layout, spacing } from 'views/styles/shared-styles';
 
 export const StyledBox = styled.div`
-  /* display: flex; */
-  /* display: grid; */
-  display: ${props => props.display ? props.display : 'grid'};
+  ${layout}
+  ${spacing}
 `;

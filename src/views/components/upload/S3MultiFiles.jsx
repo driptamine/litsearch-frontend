@@ -35,7 +35,7 @@ const UploadToS3 = () => {
     let uploadedParts = 0;
 
     // Step 1: Create multipart upload (initialization)
-    const { data: { uploadId, presignedUrls } } = await axios.post('/create_presigned_url/', {
+    const { data: { uploadId, presignedUrls } } = await axios.post('/gcs/create_presigned_url/', {
       fileKey,
       totalChunks
     });
@@ -51,7 +51,7 @@ const UploadToS3 = () => {
     await Promise.all(uploadChunksPromises);
 
     // Step 2: Complete multipart upload after all chunks are uploaded
-    await axios.post('/complete_upload/', {
+    await axios.post('/gcs/complete_upload/', {
       fileKey,
       uploadId
     });

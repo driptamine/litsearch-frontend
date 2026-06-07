@@ -1,5 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
+import themeVars from 'views/styles/theme-vars';
 // MATERIAL DONE
 // import { CircularProgress, Avatar, makeStyles, colors } from '@mui/material';
 import { StyledCircularProgress, StyledAvatar } from 'views/styledComponents';
@@ -16,7 +17,7 @@ import { StyledCircularProgress, StyledAvatar } from 'views/styledComponents';
 //   }
 // }));
 const RatingNumber = styled.span`
-  color: ${props => props.theme.text};
+  color: ${themeVars.text};
   font-family: Helvetica;
   margin-left: 30px;
   margin-right: 30px;

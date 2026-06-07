@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 import BaseImage from 'views/components/BaseImage';
 import ModalMovieList from 'views/components/ModalMovieList';

@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { Route } from 'react-router-dom';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import { RecoilRoot } from 'recoil';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 // MATERIAL DONE
 // import { Container } from '@mui/material';

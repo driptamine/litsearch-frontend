@@ -17,7 +17,8 @@ export const initialState = {
   volume: PLAYER_INITIAL_VOLUME
 }
 
-export default (state = initialState, {payload, type}) => {
+// export default (state = initialState, {payload, type}) => {
+export function playerReducer(state = initialState, {payload, type}) {
   switch (type) {
     case playerActions.AUDIO_ENDED:
     case playerActions.AUDIO_PAUSED:

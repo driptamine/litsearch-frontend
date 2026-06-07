@@ -62,7 +62,16 @@ function ConfigurationProvider({ children }) {
 
   const getImageUrl = useCallback(
     (path, { size = "w500" } = {}) => {
-      if (!path || !configuration) {
+      if (!path || typeof path !== 'string') {
+        return placeholderPng;
+      }
+
+      // If the path is an absolute URL, return it as is
+      if (path.startsWith('http') || path.startsWith('//')) {
+        return path;
+      }
+
+      if (!configuration) {
         return placeholderPng;
       }
 

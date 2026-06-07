@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react'
 import { findDOMNode } from 'react-dom';
 import screenfull from 'screenfull';
-import  styled  from 'styled-components';
 
 import Button from 'views/components/video-player/web/controls/Button';
 import './control-panel.css'

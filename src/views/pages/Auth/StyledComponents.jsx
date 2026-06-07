@@ -3,7 +3,7 @@ import { Form, Button } from 'react-bootstrap';
 import { MdRefresh } from 'react-icons/md';
 import { MdFormatIndentDecrease } from 'react-icons/md';
 import { FaWindowClose } from 'react-icons/fa';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 import Colors from 'views/components/themes/Colors';
 import MyButton from 'views/components/Button';
@@ -320,7 +320,7 @@ export const StyledCreateForm = styled(Form)`
   margin-top: 25px;
 `;
 
-export const ShowAddFormBtn = styled(Button).attrs({ variant: 'outline-secondary' })`
+const StyledShowAddFormBtn = styled(Button)`
   position: absolute;
   opacity: 0;
   background: #00000073;
@@ -347,7 +347,9 @@ export const ShowAddFormBtn = styled(Button).attrs({ variant: 'outline-secondary
   }
 `;
 
-export const StyledSidebarTrigger = styled(MdFormatIndentDecrease).attrs({ size: 32 })`
+export const ShowAddFormBtn = (props) => <StyledShowAddFormBtn variant="outline-secondary" {...props} />;
+
+const _StyledSidebarTrigger = styled(MdFormatIndentDecrease)`
   &&& {
     display: flex;
   }
@@ -367,6 +369,8 @@ export const StyledSidebarTrigger = styled(MdFormatIndentDecrease).attrs({ size:
     opacity: 1;
   }
 `;
+
+export const StyledSidebarTrigger = (props) => <_StyledSidebarTrigger size={32} {...props} />;
 
 export const StyledLogoutContiner = styled.div`
   right: 0;
@@ -543,7 +547,7 @@ export const StyledConnectContainer = styled.div`
   }
 `;
 
-export const StyledReconnectIcon = styled(MdRefresh).attrs({ size: 30 })`
+const _StyledReconnectIcon = styled(MdRefresh)`
   &&& {
     display: flex;
   }
@@ -565,7 +569,9 @@ export const StyledReconnectIcon = styled(MdRefresh).attrs({ size: 30 })`
   }
 `;
 
-export const CloseAddFormBtn = styled(FaWindowClose).attrs({ size: 26 })`
+export const StyledReconnectIcon = (props) => <_StyledReconnectIcon size={30} {...props} />;
+
+const _CloseAddFormBtn = styled(FaWindowClose)`
   color: rgb(225, 225, 255);
   position: absolute;
   margin-left: calc(100% - 46px);
@@ -577,6 +583,8 @@ export const CloseAddFormBtn = styled(FaWindowClose).attrs({ size: 26 })`
     color: #ffffff;
   }
 `;
+
+export const CloseAddFormBtn = (props) => <_CloseAddFormBtn size={26} {...props} />;
 
 export const ProfileImgInput = styled.form`
   border-radius: 5px;

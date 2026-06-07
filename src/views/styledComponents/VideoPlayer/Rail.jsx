@@ -1,13 +1,13 @@
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 export const StyledRail = styled.div`
   height: 4px;
   width: 100%;
 
-  border-bottom-left-radius 12px;
-  border-bottom-right-radius 12px;
-  border-top-left-radius 12px;
-  border-top-right-radius 12px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
 
   /* background-color: rgb(89 89 89); */
   background-color: white;

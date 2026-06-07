@@ -1,7 +1,7 @@
 import React from 'react';
 // import { useSearchParams } from 'react-router-dom';
 
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 import Downshift from 'downshift';
 

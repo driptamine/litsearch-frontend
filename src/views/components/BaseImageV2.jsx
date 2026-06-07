@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTrackVisibility } from 'react-intersection-observer-hook';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 
 // MATERIAL DONE
@@ -20,14 +20,14 @@ const DEFAULT_ASPECT_RATIO = getAspectRatioString(1, 1);
 
 
 
+const styledImgStyles = props => `
+  width: ${props.width}%;
+  object-fit: ${props.objectFit}
+`;
+
 const StyledImg = styled.img`
-  /* width: 20%; */
-
-  width: ${props => props.width}%;
-
-
+  ${styledImgStyles}
   height: 100%
-  object-fit: ${(props) => props.objectFit}
 `;
 
 function BaseImageV2({

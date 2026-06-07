@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect, useSelector } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 // MATERIAL DONE
 // import { Typography, Box, Grid, makeStyles } from '@mui/material';
@@ -14,20 +14,7 @@ import Introduktion from 'views/components/Introduktion';
 // import ImdbLogo from 'views/components/ImdbLogo';
 import AlbumGenreChip from './AlbumGenreChip';
 import BaseImage from 'views/components/BaseImage';
-import Button from 'views/components/Button';
-import LikeIcon from 'views/components/LikeIcon';
-import Comment from './Comment';
-import CommentV2 from './CommentV2';
-import CommentV3 from './CommentV3';
-import CommentV4 from './CommentV4';
-
-// import useDocumentTitle from 'views/components/useDocumentTitle'
-
-import { getAspectRatioString } from 'views/components/AspectRatio';
-import { useConfiguration } from 'views/components/ConfigurationProvider';
-
-import { screenLargerThan } from 'views/style/util'
-import { primaryColor1, white, likeColor, greenColor, } from 'views/style/colors';
+import LikeButton from 'views/components/LikeButton/LikeButton';
 
 // CORE
 import { selectors } from 'core/reducers/index';
@@ -57,49 +44,10 @@ import { fetchLikeAlbum, fetchUnLikeAlbum } from 'core/actions';
 
 
 
-const LikedBtn = styled(Button)`
-  display: flex;
-  align-items: center;
-  margin: 0;
-  ${props => props.likedByUser &&
-  `
-    background-color: ${likeColor};
-    color: ${white};
-    &:hover {
-      color: ${white};
-      border-color: transparent !important;
-    }
-  `};
-  ${screenLargerThan.giant`
-    flex-direction: column;
-    height: auto;
-    border: none;
-    color: ${white} !important;
-    background-color: transparent !important;
-    svg {
-      fill: ${white};
-      color: ${white};
-    }
-    ${props =>
-      props.likedByUser &&
-      `
-        svg {
-          fill: ${likeColor};
-          color: ${white};
-        }
-      `};
-    &:hover {
-      color: ${white};
-    }
-  `};
-`;
-
-const LikesCounter = styled.span`
-  margin: 0px 6px;
-`;
-
 const StyledImg = styled.img`
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
+  height: auto;
 `;
 const ReStyledTypography = styled.p`
   color: #673ab7;
@@ -382,21 +330,12 @@ function AlbumIntroduction({ albumId, handleLikePhoto, handleUnLikePhoto }) {
         </>
       }
       likeButton={
-        <>
-          <LikedBtn likedByUser={album.is_liked}
-            onClick={() =>
-              album.is_liked
-                ? handleUnLikePhoto(album)
-                : handleLikePhoto(album)
-            }>
-            <LikeIcon
-              size={18}
-              color={album.is_liked ? white : likeColor}
-              hoverColor={album.is_liked ? white : likeColor}
-            />
-            <LikesCounter>{album.total_likes}</LikesCounter>
-          </LikedBtn>
-        </>
+        <LikeButton 
+          isLiked={album.is_liked} 
+          likesCount={album.total_likes} 
+          onClick={() => album.is_liked ? handleUnLikePhoto(album) : handleLikePhoto(album)}
+          size={24}
+        />
       }
       commentSection={
         <Section>

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 import { StyledTypography } from 'views/styledComponents';
 
@@ -114,7 +114,7 @@ const SongHeaderContainer = styled.div`
   justify-content: space-between;
 
   p, i {
-    color: ${props => props.theme.text};
+    ${({ theme }) => `color: ${theme.text};`}
   }
 `;
 

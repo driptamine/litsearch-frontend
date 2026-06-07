@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import Sidebar from './components/Sidebar';
 import TodoList from './components/TodoList';
 import AddTodo from './components/AddTodo';

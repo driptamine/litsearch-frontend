@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { Link, useLocation, withRouter } from 'react-router-dom';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 // MATERIAL UNDONE
 // import { CardActionArea, ListItem, ListItemText, ListItemAvatar, Avatar, makeStyles } from '@mui/material';
@@ -25,20 +25,18 @@ import "views/components/track-card/track-card.css"
 // CORE
 import { selectors } from 'core/reducers/index';
 
+const hideIndexItemStyles = props => `
+  &:hover {
+    background-color: ${props.theme.sideBarHoverColor};
+  }
+`;
+
 const HideIndexItem = styled.div`
   padding: 0 16px;
   display: grid;
-  /* grid-template-columns: 25px 40px 28fr 3fr minmax(531px,1fr); */
-
-
   grid-template-columns: [index] 16px [first] 0fr [var1] 1fr [var2] 28px [var3] 1fr [var4] 1fr [var5] 0fr [last] minmax(120px,1fr);
-  /* grid-template-columns: [index] 16px [first] 6fr [var1] 4fr [var2] 3fr [last] minmax(120px,1fr); */
   grid-gap: 16px;
-
-  &:hover {
-    /* background-color: rgba(255, 255, 255, 0.1); */
-    background-color: ${props => props.theme.sideBarHoverColor};
-  }
+  ${hideIndexItemStyles}
 
   /* playButton */
 
@@ -65,15 +63,23 @@ const HideIndexItem = styled.div`
 
   border-radius: 4px;
 `;
+const trackNumberStyles = props => `
+  color: ${props.theme.text};
+`;
+
 const TrackNumber = styled.div`
-  color: ${props => props.theme.text};
+  ${trackNumberStyles}
 `;
 const ReStyledAvatar = styled(StyledAvatar)`
   margin-right: 16px;
   width: 16px;
 `;
+const styledLinkStyles = props => `
+  color: ${props.theme.text};
+`;
+
 const StyledLink = styled(Link)`
-  color: ${props => props.theme.text};
+  ${styledLinkStyles}
   text-decoration: none;
   cursor: pointer;
   &:hover {
@@ -93,8 +99,12 @@ const StyledArtistLink = styled(Link)`
   }
   font-family: Verdana;
 `;
+const styledSpanStyles = props => `
+  color: ${props.theme.text};
+`;
+
 const StyledSpan = styled.span`
-  color: ${props => props.theme.text};
+  ${styledSpanStyles}
   cursor: pointer;
 `;
 
@@ -103,11 +113,15 @@ const StyledDiv = styled.div`
 `;
 
 
-const StyledFormattedTime = styled(FormattedTime)`
+const formattedTimeStyles = props => `
   span {
-    color: ${props => props.theme.text};
+    color: ${props.theme.text};
     font-family: Verdana;
   }
+`;
+
+const StyledFormattedTime = styled(FormattedTime)`
+  ${formattedTimeStyles}
 `;
 
 

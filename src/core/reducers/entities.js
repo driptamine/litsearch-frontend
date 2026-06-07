@@ -7,6 +7,7 @@ const initialState = {
   images: {},
   
   movies: {},
+  posts: {},
 
   tracks: {
 
@@ -192,6 +193,7 @@ const selectImage = (state, imageId) => state.images[imageId];
 const selectQuery = (state, queryId) => state.queries[queryId];
 
 const selectMovie = (state, movieId) => state.movies[movieId];
+const selectPost = (state, postId) => state.posts[postId];
 const selectImdbMovie = (state, movieId) => state.movies[movieId];
 const selectPerson = (state, personId) => state.people[personId];
 const selectArtist = (state, artistId) => state.artists[artistId];
@@ -213,6 +215,7 @@ export const selectors = {
   selectQuery,
 
   selectMovie,
+  selectPost,
   selectImdbMovie,
   selectArtist,
   selectAlbum,

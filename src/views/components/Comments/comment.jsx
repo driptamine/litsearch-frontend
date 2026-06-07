@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 import Flair from '../components/flair';
 import Votes from '../components/votes';
@@ -330,7 +330,7 @@ const Body = styled.div`
     border-color: ${({ theme }) => theme.card.innerBorder};
   }
   a {
-    color: ${({ theme }) => theme.link};
+    color: var(--link);
   }
 `;
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 import Button from 'views/components/Button';
 import BaseImage from 'views/components/BaseImage';
@@ -71,21 +71,32 @@ function WebsiteCard({ websiteId }) {
   );
 }
 
-const LikedBtn = styled(Button)`
-border: 1px solid black;
-  display: flex;
-  align-items: center;
-  margin: 0;
-  ${props =>
-    props.likedByUser &&
-    `
+const likedBtnStyles = props => `
+  ${props.likedByUser ? `
     background-color: ${likeColor};
     color: ${white};
     &:hover {
       color: ${white};
       border-color: transparent !important;
     }
-  `};
+  ` : ''}
+`;
+
+const likedBtnGiantStyles = props => `
+  ${props.likedByUser ? `
+    svg {
+      fill: ${likeColor};
+      color: ${white};
+    }
+  ` : ''}
+`;
+
+const LikedBtn = styled(Button)`
+border: 1px solid black;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  ${likedBtnStyles}
   ${screenLargerThan.giant`
     flex-direction: column;
     height: auto;
@@ -96,14 +107,7 @@ border: 1px solid black;
       fill: ${white};
       color: ${white};
     }
-    ${props =>
-      props.likedByUser &&
-      `
-        svg {
-          fill: ${likeColor};
-          color: ${white};
-        }
-      `};
+    ${likedBtnGiantStyles}
     &:hover {
       color: ${white};
     }
@@ -127,25 +131,47 @@ const UrlStyled = styled.div`
 `
 const Snippet = styled.div`
   font-family: arial,sans-serif;
-  font-size 14px;
-  word-break: break-all;
+  font-size: 14px;
+  word-break: break-word;
   white-space: pre-wrap;
+  line-height: 1.5;
+
+  @media screen and (max-width: 768px) {
+    font-size: 13px;
+    line-height: 1.4;
+  }
 `
 const Title = styled.div`
   font-family: arial,sans-serif;
-  color: ${(props) => props.theme.titleColor};
+  color: var(--titleColor);
+  font-size: 18px;
+  word-break: break-word;
+
   &:hover{
     text-decoration: underline;
   }
-`
+
+  @media screen and (max-width: 768px) {
+    font-size: 16px;
+  }
+`;
+
 const Card = styled.div`
-  width: 500px;
-  background-color: ${(props) => props.theme.inputBg};
+  width: 100%;
+  max-width: 500px;
+  background-color: var(--inputBg);
   border-radius: 11px;
   border: 1px solid black;
   margin-bottom: 1em;
   padding: 1em;
+  box-sizing: border-box;
+
+  @media screen and (max-width: 768px) {
+    padding: 12px;
+    max-width: 100%;
+  }
 `
+
 const Link = styled.a`
   text-decoration: none;
 `

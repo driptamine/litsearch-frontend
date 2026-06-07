@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 import { fetchPopularMagazines } from 'core/actions';
 import { selectors } from 'core/reducers/index';
@@ -10,17 +10,19 @@ import InfiniteGridList from 'views/components/InfiniteGridList';
 import InfiniteList from 'views/components/InfiniteList';
 
 const StyledLi = styled.li`
-  width: 550px;
-  margin-left: 18%;
-  border: 1.6px solid #383838;
-  /* background: #1b1e22; */
-  background: #222222;
-  /* padding-top: 5em;
-  padding-right: 1em;
+  padding: 1em;
   padding-bottom: 4em;
-  padding-left: 1em;
-  margin-top: 1em; */
+  margin: 1em auto;
+
+  width: 95%;
+  max-width: 550px;
+  border: 1.6px solid #383838;
+  background: #222222;
   border-radius: 10px;
+
+  @media screen and (max-width: 425px) {
+    padding-bottom: 3em;
+  }
 `;
 const HeaderText = styled.div`
   color: white;

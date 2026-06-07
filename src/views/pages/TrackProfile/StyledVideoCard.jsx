@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useReducer } from 'react';
 import { findDOMNode } from 'react-dom';
 import ReactPlayer, { ReactPlayerProps } from 'react-player';
 import screenful from 'screenfull';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 import {
   // StyledTypography,

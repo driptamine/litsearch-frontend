@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import { styled } from '@linaria/react'
 
 export interface InvisibleHTMLSliderProps {
   min: number

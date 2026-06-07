@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 
 const Sidebar = ({children}) => {
@@ -23,6 +23,12 @@ const SidebarContainer = styled.div`
   color: #fff;
   padding: 2rem 1rem;
   box-sizing: border-box;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    height: auto;
+    padding: 1rem;
+  }
 `;
 
 const Logo = styled.h2`

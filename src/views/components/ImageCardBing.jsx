@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 import BaseImage from 'views/components/BaseImage';
 import BaseCard from 'views/components/BaseCard';
@@ -88,7 +88,7 @@ const Description = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 200px;
+  width: calc(100% - 12px);
 `;
 const Source = styled.div`
   color: #474747;
@@ -104,34 +104,47 @@ const Source = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 200px;
+  width: calc(100% - 12px);
 `;
 const Wrapper = styled.div`
   /* padding: 1em; */
   padding-bottom: 1em;
-  margin: 1em;
-  background: ${props => props.theme.imageCardColor} ;
+  margin: 10px;
+  background: var(--imageCardColor) ;
 
   border: 1px solid;
   border-radius: 7px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  box-sizing: border-box;
 
-  margin-bottom: 20px;
-  margin-right: 20px;
+  @media screen and (max-width: 600px) {
+    flex-basis: calc(50% - 20px);
+  }
+
+  @media screen and (max-width: 400px) {
+    flex-basis: 100%;
+    margin: 10px 0;
+  }
 
 `;
 const TextWrapper = styled.div`
-  color: ${props => props.theme.imageTitleColor} ;
+  color: var(--imageTitleColor) ;
   font-family: Verdana;
-  max-width: 200px;
+  width: 100%;
 `;
 const ImgStyled = styled.img`
   // cursor: pointer;
   width: auto;
   height: 180px;
   margin: auto;
+
+  @media screen and (max-width: 600px) {
+    width: 100%;
+    object-fit: cover;
+    border-radius: 7px 7px 0 0;
+  }
 `;
 const ImageWrapper = styled.div`
   right: 0;
@@ -145,7 +158,7 @@ const Favicon = styled.img`
 `;
 
 const StyledLink = styled.a`
-  color: ${props => props.theme.imageTitleColor} ;
+  color: var(--imageTitleColor) ;
   text-decoration: none;
   cursor: pointer;
 

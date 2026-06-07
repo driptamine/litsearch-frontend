@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 import LoadingIndicator from 'views/components/LoadingIndicator';
 import { StyledTypography } from 'views/styledComponents';
@@ -82,9 +82,7 @@ function BaseAlterList({
 const FlexList = styled.div`
   list-style: none;
   padding: 0;
-  display: list-item;
-  grid-gap: ${(props) => props.theme.spacing};
-  grid-template-columns: ${(props) => `repeat(auto-fill, minmax(${props.minItemWidth}px, 1))`}
+  display: block;
 `;
 
 export default BaseAlterList;

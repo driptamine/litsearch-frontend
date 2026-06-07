@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 
 // MATERIAL DONE
@@ -47,7 +47,7 @@ const ReStyledDialog = styled.div`
 
 const ReStyledDialogContent = styled.div`
   /* background: #09161c; */
-  background: ${props => props.theme.navBg};
+  background: var(--navBg);
   padding-right: 2.75rem;
   padding-left: 2.75rem;
 `;

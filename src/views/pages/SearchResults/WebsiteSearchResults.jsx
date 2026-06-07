@@ -9,10 +9,9 @@ import WebsiteCardBing from 'views/components/WebsiteCard/WebsiteCardBing';
 
 function renderItem(websiteId) {
   return (
-    <li>
+    // <div style={{width: '100%', boxSizing: 'border-box'}}>
       <WebsiteCard websiteId={websiteId} />
-      {/*<WebsiteCardBing websiteId={websiteId} />*/}
-    </li>
+    // </div>
   );
 }
 

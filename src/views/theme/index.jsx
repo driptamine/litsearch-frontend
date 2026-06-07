@@ -1,4 +1,4 @@
-import styled, { ThemeProvider } from 'styled-components';
+import React from 'react';
 
 const lit_theme = {
   spacing: '8px',
@@ -15,8 +15,8 @@ const lit_theme = {
 
 export default function Theme({children}) {
   return (
-    <ThemeProvider theme={lit_theme}>
+    <>
       {children}
-    </ThemeProvider>
+    </>
   )
 }

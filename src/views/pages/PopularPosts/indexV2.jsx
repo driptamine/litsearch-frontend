@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import axios from 'axios';
-import styled, { keyframes } from 'styled-components';
+import { styled } from '@linaria/react';
 
 function PopularMoviesNewsFeed() {
   const [movies, setMovies] = useState([]);
@@ -126,17 +126,25 @@ function PopularMoviesNewsFeed() {
   );
 }
 
+const movieFeedStyles = props => `
+  background-color: ${props.theme.bg};
+`;
+
 const MovieFeedContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 20px;
-  background-color: ${props => props.theme.bg};
+  ${movieFeedStyles}
   overflow-y: auto; /* Make the container scrollable */
 `;
 
+const movieCardStyles = props => `
+  background-color: ${props.theme.cardColor};
+`;
+
 const MovieCard = styled.div`
-  background-color: ${props => props.theme.cardColor};
+  ${movieCardStyles}
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
@@ -159,11 +167,15 @@ const MovieInfo = styled.div`
   padding: 15px;
 `;
 
+const movieTitleStyles = props => `
+  color: ${props.theme.text};
+`;
+
 const MovieTitle = styled.h3`
   margin-top: 0;
   margin-bottom: 10px;
   font-size: 1.5rem;
-  color: ${props => props.theme.text};
+  ${movieTitleStyles}
 `;
 
 const LoadingMore = styled.div`
@@ -182,32 +194,36 @@ const LoadMoreTrigger = styled.div`
 `;
 
 
-const pulse = keyframes`
-	0% {
-		background-position: 0% 0%;
-	}
-
-	100% {
-		background-position: -135% 0%;
-	}
-`;
-
 const SkeletonPulse = styled.div`
   display: block;
   height: 100%;
   width: 100%;
   background: linear-gradient(-90deg, #121212 0%, #161616 50%, #121212 100%);
   background-size: 400% 400%;
-  animation: ${pulse} 1s linear;
+  animation: pulse 1s linear;
+
+  @keyframes pulse {
+    0% {
+      background-position: 0% 0%;
+    }
+
+    100% {
+      background-position: -135% 0%;
+    }
+  }
+`;
+
+const skeletonLineStyles = props => `
+  margin-bottom: ${props.mb || ""};
+  margin-top: ${props.mt || ""};
+  margin-left: ${props.ml || ""};
+  margin-right: ${props.mr || ""};
+  width: ${props.width};
+  height: ${props.height};
 `;
 
 const SkeletonLine = styled(SkeletonPulse)`
-  margin-bottom: ${(props) => (props.mb ? props.mb : "")};
-  margin-top: ${(props) => (props.mt ? props.mt : "")};
-  margin-left: ${(props) => (props.ml ? props.ml : "")};
-  margin-right: ${(props) => (props.mr ? props.mr : "")};
-  width: ${(props) => props.width};
-  height: ${(props) => props.height};
+  ${skeletonLineStyles}
   border-radius: 4px;
 
   &::before {

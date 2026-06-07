@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 // import Hls from 'hls.js';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 import HLS from 'hls.js';
 
 

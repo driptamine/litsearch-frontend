@@ -9,29 +9,28 @@ import {
   OptionMenu,
   OptionRow,
   SvgTest,
-  Label
+  Label,
+  Divider
 } from './DropDownNew.styles';
 import SubMenu from './SubMenu';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 import { fetchLogout } from 'core/actions';
 
 const ReDropDownButton = styled(DropDownButton)`
   cursor: pointer;
 `;
-const ThemeSwitcher = styled.div`
-  display: flex;
-`;
-function DropDownNew({ defaultText = "", options = [], changeOptionName, className }) {
+function DropDownNew({ defaultText = "", options = [], accounts = [], activeAccountId, onOptionClick, onAccountSwitch, changeOptionName, className }) {
   const dispatch = useDispatch();
 
   const [actionDropDown, setActionDropDown] = useState(false);
-  const [isShown, setIsShown] = useState(false);
+  const [showAccounts, setShowAccounts] = useState(false);
   const dropdownEl = useRef(null);
   const [mainDefaultText, setMainDefaultText] = useState(defaultText);
 
   const dropdown = () => {
     setActionDropDown(!actionDropDown);
+    setShowAccounts(false);
   };
 
   const handleClickClose = (event) => {
@@ -42,18 +41,29 @@ function DropDownNew({ defaultText = "", options = [], changeOptionName, classNa
     if (isClickInside === undefined) {
       if (actionDropDown) {
         setActionDropDown(false);
+        setShowAccounts(false);
       }
     }
   };
 
-  // const selectOption = (option) => {
-  //   setActionDropDown(false);
-  // };
+  const handleOptionClick = (option) => {
+    if (option === 'Switch Accounts') {
+      setShowAccounts(true);
+    } else {
+      if (onOptionClick) {
+        onOptionClick(option);
+      }
+      setActionDropDown(false);
+    }
+  };
 
-  // const selectOutsideOption = (classId) => {
-  //   changeOptionName(classId);
-  //   selectOption();
-  // };
+  const handleAccountClick = (accountId) => {
+    if (onAccountSwitch) {
+      onAccountSwitch(accountId);
+    }
+    setActionDropDown(false);
+    setShowAccounts(false);
+  };
 
   // Set Default Text on Button
   useEffect(() => {
@@ -69,61 +79,63 @@ function DropDownNew({ defaultText = "", options = [], changeOptionName, classNa
   });
   function handleLogOut(){
     dispatch(fetchLogout())
-    // handleClickClose()
     setActionDropDown(false);
-    setIsShown(false);
+    setShowAccounts(false);
   }
   return (
-    <DropDownWrapper>
+    <DropDownWrapper className={className}>
       <div ref={dropdownEl}>
-        <ReDropDownButton onClick={dropdown} style={{cursor: 'pointer'}}>
+        <ReDropDownButton onClick={dropdown}>
           {mainDefaultText}
         </ReDropDownButton>
 
-        <DropDownWrapper>
-          {actionDropDown ? (
-            <>
-              <OptionMenu role="menu">
+        {actionDropDown && (
+          <OptionMenu role="menu">
+            {!showAccounts ? (
+              <>
                 {options.map((option, key) => (
-                  <OptionRow>
-                    <Label>{`${option}`}</Label>
-
+                  <OptionRow key={key} onClick={() => handleOptionClick(option)}>
+                    <Label>{option}</Label>
                   </OptionRow>
                 ))}
 
-                <ThemeSwitcher>
-                  <OptionRow>
-                    <Label>Dark</Label>
-                  </OptionRow>
-                  <OptionRow>
-                    <Label>Light</Label>
-                  </OptionRow>
-                </ThemeSwitcher>
-
-                <OptionRow>
-
-                  <Label onClick={handleLogOut}>LOGOUT</Label>
+                <Divider />
+                <OptionRow onClick={() => handleOptionClick('Dark Theme')}>
+                  <Label>Dark</Label>
+                </OptionRow>
+                <OptionRow onClick={() => handleOptionClick('Light Theme')}>
+                  <Label>Light</Label>
                 </OptionRow>
 
-              </OptionMenu>
-            </>
-          ) : null}
-          {isShown ? (
-            <Content>I'll appear when you hover over the button.</Content>
-          ) : null}
-        </DropDownWrapper>
+                <OptionRow onClick={handleLogOut}>
+                  <Label>LOGOUT</Label>
+                </OptionRow>
+              </>
+            ) : (
+              <>
+                <OptionRow onClick={() => setShowAccounts(false)}>
+                  <Label>← Back</Label>
+                </OptionRow>
+                {accounts.map((account) => (
+                  <OptionRow 
+                    key={account.id} 
+                    onClick={() => handleAccountClick(account.id)}
+                    style={{ backgroundColor: account.id === activeAccountId ? 'rgba(255, 255, 255, 0.1)' : 'transparent' }}
+                  >
+                    <Label>{account.username || account.email || account.id}</Label>
+                    {account.id === activeAccountId && <span style={{ marginLeft: 'auto', fontSize: '12px' }}>✓</span>}
+                  </OptionRow>
+                ))}
+                <OptionRow onClick={() => handleOptionClick('Add Account')}>
+                  <Label>+ Add Account</Label>
+                </OptionRow>
+              </>
+            )}
+          </OptionMenu>
+        )}
       </div>
     </DropDownWrapper>
   );
 }
 
 export default DropDownNew;
-
-export const Content = styled.div`
-  position: relative;
-  height: 50px;
-  right: -300px;
-  top: 200px;
-  background-color: blue;
-  z-index: 40;
-`;

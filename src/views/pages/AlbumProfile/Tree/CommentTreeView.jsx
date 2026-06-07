@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 // Styled-components for the Comment Tree
 const CommentContainer = styled.div`

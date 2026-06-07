@@ -16,7 +16,7 @@ const VideoUploader = () => {
     const fileName = `${Date.now()}-${file.name}`;
 
     // Get upload ID from Django
-    const res = await fetch(`http://localhost:8000/videos/create_presigned_url/?file_name=${fileName}&file_type=${file.type}`);
+    const res = await fetch(`http://localhost:8000/gcs/create_presigned_url/?file_name=${fileName}&file_type=${file.type}`);
     const { upload_id } = await res.json();
 
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
@@ -28,7 +28,7 @@ const VideoUploader = () => {
       const chunk = file.slice(start, end);
 
       // Get presigned URL for the chunk
-      const urlRes = await fetch(`http://localhost:8000/videos/get_presigned_url/?upload_id=${upload_id}&file_name=${fileName}&part_number=${partNumber}`);
+      const urlRes = await fetch(`http://localhost:8000/gcs/get_presigned_url/?upload_id=${upload_id}&file_name=${fileName}&part_number=${partNumber}`);
       // const endpoint = `http://localhost:8000/videos/get_presigned_url/?upload_id=${upload_id}&file_name=${fileName}&part_number=${partNumber}`;
       // const urlRes = await axios({
       //   method: 'GET',
@@ -56,7 +56,7 @@ const VideoUploader = () => {
     }
 
     // Finalize upload
-    await fetch(`http://localhost:8000/videos/complete_upload/`, {
+    await fetch(`http://localhost:8000/gcs/complete_upload/`, {
       method: "POST",
       body: JSON.stringify({ upload_id, file_name: fileName, parts: uploadedParts }),
       headers: { "Content-Type": "application/json" }

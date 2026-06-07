@@ -1,6 +1,6 @@
-import styled from 'styled-components';
+import { styled } from '@linaria/react';
 
 export const StyledTypography = styled.p`
-  color: ${props => props.color};
+  color: var(--color, inherit);
   font-family: Verdana;
 `;
