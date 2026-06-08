@@ -1,0 +1,1 @@
+import{j as t,s as o}from"./index-249b96e3.js";const e=o("div")({name:"CardWrapper",class:"ctkghcf",propsAsIs:!1});function n({children:s,className:r,...a}){return t.jsx(e,{className:r,...a,children:s})}export{n as P};
