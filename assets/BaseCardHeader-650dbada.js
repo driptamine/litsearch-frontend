@@ -1,1 +1,0 @@
-import{j as a,s as e}from"./index-00b4e99d.js";const r=e("div")({name:"StyledCardHeader",class:"s55r034",propsAsIs:!1});function o({className:t,...s}){return a.jsx(r,{...s,titleTypographyProps:{variant:"subtitle2"},subheaderTypographyProps:{variant:"subtitle2"}})}export{o as B};
