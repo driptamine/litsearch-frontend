@@ -155,20 +155,18 @@ function* fetchBraveImageSearchSaga(action) {
   const state = yield select();
   const cachedData = (page === 1 || page === undefined) ? state.pagination?.imageSearchResultsByQuery?.[`brave_${query}`]?.ids : null;
   yield call(
-    // fetcherSaga, {
-    // requestWithHeaderSaga, {
     fetcherAPISaga, {
     action,
-    // endpoint: `/search?q=${query}`,
     endpoint: `/websites/brave/images/search`,
     params: { q: query, page },
-    // schema: {
-    //   webPages: {
-    //     value: [schemas.webSchema]
-    //   }
-    // },
     schema: {
       results: [schemas.imagesSchemaBrave]
+    },
+    processData: (data) => {
+      if (Array.isArray(data)) {
+        return { results: data, total_pages: data.length > 0 ? 9999 : 1, total_results: data.length };
+      }
+      return data;
     },
     cachedData
 

@@ -1,24 +1,39 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { styled } from '@linaria/react';
-import {PhotoCard} from 'views/pages/PhotosPage/PhotoCard';
-import { api_data } from 'views/pages/PhotosPage/data/api_data.jsx';
-
-const videos_data = api_data;
-
-
+import { PhotoCard } from 'views/pages/PhotosPage/PhotoCard';
+import axios from 'axios';
+import { LITLOOP_API_URL } from 'core/constants/urls';
+import { authHeader } from 'core/api/rest-helper';
 export const PhotosPage = () => {
+  const { username } = useParams();
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate fetch delay
-    const timer = setTimeout(() => {
-      setPhotos(api_data);
-      setLoading(false);
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, []);
+    if (!username) return;
+    const fetchPhotos = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          `${LITLOOP_API_URL}/users/${username}/photos/`,
+          { headers: authHeader() }
+        );
+        const data = response.data;
+        const photosList = data.photos || data.results || [];
+        setPhotos(photosList.map(p => ({
+          ...p,
+          thumbNail: p.image || p.gcs_url || p.url || p.file_path,
+        })));
+      } catch (err) {
+        console.error('Failed to fetch photos:', err);
+        setPhotos([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPhotos();
+  }, [username]);
 
   const skeletonCount = 12;
   return (
@@ -31,7 +46,7 @@ export const PhotosPage = () => {
         </Grid>
       </Main>
     </Container>
-  )
+  );
 };
 
 const Container = styled.div`
@@ -48,6 +63,3 @@ const Grid = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 16px;
 `;
-
-
-// export default VideoFeed;

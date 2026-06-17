@@ -4,8 +4,8 @@ export const globals = css`
   :global() {
     body {
       margin: 0;
-      // background: #181818;
-      background: red;
+      background: #181818;
+      // background: red;
     }
 
     div#dropdown-root {

@@ -10,6 +10,7 @@ const PostCreatorV2 = ({ onPostSuccess }) => {
   const [photoIds, setPhotoIds] = useState([]);
   const [videoIds, setVideoIds] = useState([]);
   const [trackIds, setTrackIds] = useState([]);
+  const [tracks, setTracks] = useState([]);
   const [showDropZone, setShowDropZone] = useState(false);
   const [droppedFiles, setDroppedFiles] = useState([]);
   const dragCounter = useRef(0);
@@ -18,6 +19,7 @@ const PostCreatorV2 = ({ onPostSuccess }) => {
     setPhotoIds([]);
     setVideoIds([]);
     setTrackIds([]);
+    setTracks([]);
     if (onPostSuccess) onPostSuccess(newPost);
   };
 
@@ -31,11 +33,25 @@ const PostCreatorV2 = ({ onPostSuccess }) => {
        break;
      case 'track':
        setTrackIds(prev => [...prev, id]);
+       setTracks(prev => [...prev, { pk: id }]);
        break;
      default:
        console.warn('Unknown media type uploaded:', type);
    }
  };
+
+  const handleTracksAdded = (trackObjects) => {
+    setTrackIds(prev => {
+      const set = new Set(prev);
+      trackObjects.forEach(t => set.add(t.pk || t.id));
+      return Array.from(set);
+    });
+    setTracks(prev => {
+      const existing = new Set(prev.map(t => t.pk || t.id));
+      const newOnes = trackObjects.filter(t => !existing.has(t.pk || t.id));
+      return [...prev, ...newOnes];
+    });
+  };
 
  const handleDragEnter = (e) => {
   e.preventDefault();
@@ -80,7 +96,11 @@ const handleDrop = (e) => {
           video_ids: videoIds,
           track_ids: trackIds
         }}
+        tracks={tracks}
         onPostSuccess={resetMedia}
+        onTracksAdded={handleTracksAdded}
+        onPhotosAdded={(ids) => setPhotoIds(prev => { const s = new Set(prev); ids.forEach(id => s.add(id)); return Array.from(s); })}
+        onVideosAdded={(ids) => setVideoIds(prev => { const s = new Set(prev); ids.forEach(id => s.add(id)); return Array.from(s); })}
       />
 
       <BaseMediaUploader

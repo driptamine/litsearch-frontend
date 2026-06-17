@@ -9,7 +9,7 @@ import { LITLOOP_API_URL } from 'core/constants/urls';
 import PostCreator from 'views/components/upload/uploader/posts/PostCreator';
 import UserPosts from './UserPosts';
 
-const DEFAULT_AVATAR = 'https://www.gravatar.com/avatar/0?d=mp&f=y';
+const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
 
 const ProfilePage = () => {
   const { username: urlUsername } = useParams();
@@ -135,13 +135,27 @@ const ProfilePage = () => {
 
       {isOwnProfile && (
         <PostCreatorSection>
-          <PostCreator onPostSuccess={handlePostSuccess} />
+          <ModalHeader>
+            <span>Create Post</span>
+          </ModalHeader>
+          <ModalBody>
+            <PostCreator onPostSuccess={handlePostSuccess} />
+          </ModalBody>
         </PostCreatorSection>
       )}
 
+      <TracksButton to={`/${displayUsername}/tracks`}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 18V5l12-2v13"></path>
+          <circle cx="6" cy="18" r="3"></circle>
+          <circle cx="18" cy="16" r="3"></circle>
+        </svg>
+        Tracks
+      </TracksButton>
+
       <PostsSection>
         <SectionTitle>{isOwnProfile ? 'Your Posts' : `${displayUsername}'s Posts`}</SectionTitle>
-        <UserPosts username={displayUsername} newPosts={newPosts} />
+        <UserPosts username={displayUsername} newPosts={newPosts} isOwnProfile={isOwnProfile} />
       </PostsSection>
     </Container>
   );
@@ -304,14 +318,57 @@ const ActionButtons = styled.div`
   align-items: center;
 `;
 
+const TracksButton = styled(Link)`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: transparent;
+  color: #1db954;
+  border: 2px solid #1db954;
+  padding: 10px 24px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: rgba(29, 185, 84, 0.1);
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+`;
+
 const PostCreatorSection = styled.div`
   width: 100%;
   max-width: 800px;
-  background-color: #1a1a1a;
-  border-radius: 20px;
-  padding: 30px;
-  border: 1px solid #333;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  background: var(--cardColor);
+  border-radius: 16px;
+  border: 1px solid var(--darkGrey);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  color: var(--text);
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--darkGrey);
+`;
+
+const ModalBody = styled.div`
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
 `;
 
 const PostsSection = styled.div`

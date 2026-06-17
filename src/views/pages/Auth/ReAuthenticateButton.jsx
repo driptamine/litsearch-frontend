@@ -4,7 +4,7 @@ import uniqid from 'uniqid';
 
 import { FRONTEND_CALLBACK_URL } from 'core/constants/urls';
 
-import { FaYoutube } from 'react-icons/fa';
+import { FaYoutube, FaVk } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 
 import { FiLogOut } from 'react-icons/fi';
@@ -14,11 +14,14 @@ import { AddCookie } from 'views/utils';
 
 import { YoutubeContext } from './youtube/useToken';
 import { GoogleContext } from './google/useToken';
+import { VkContext } from './vk/useToken';
 
 import ToolTip from 'views/pages/Auth/tooltip/ToolTip';
 
 
 const GoogleBaseAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=570066117191-b0ob663u6klf2a7v80381h570jsagkqe.apps.googleusercontent.com&redirect_uri=${FRONTEND_CALLBACK_URL}/auth/google/callback&response_type=code&scope=profile email`;
+
+const VkBaseAuthUrl = `https://oauth.vk.com/authorize?client_id=5390c4f2dd203dcdb31faceaef1878e76d14042e5352eebc33de97850c3ec02e&redirect_uri=${FRONTEND_CALLBACK_URL}/auth/vk/callback&response_type=code&scope=email`;
 
 //to unfollow: scope=https://www.googleapis.com/auth/youtube
 //else  scope=https://www.googleapis.com/auth/youtube.readonly
@@ -61,10 +64,13 @@ const ReAuthenticateButton = ({ disconnect, serviceName, style, title: customTit
 
   const { googleUsername, googleProfileImage, googleAccessToken } = useContext(GoogleContext) || {};
 
+  const { vkUsername, vkProfileImage, vkAccessToken } = useContext(VkContext) || {};
+
   const AuthButton = {
     Youtube: !youtubeAccessToken ? (
 
         <OAuthBtn
+          type="button"
           id='connect'
           title='Authenticate/Connect'
           onClick={() => authenticatePopup('Youtube', `${YoutubeBaseAuthUrl}&prompt=consent`)}
@@ -95,6 +101,7 @@ const ReAuthenticateButton = ({ disconnect, serviceName, style, title: customTit
     Google: !googleUsername ? (
 
         <OAuthBtn
+          type="button"
           id='connect'
           onClick={() => authenticatePopup('Google', `${GoogleBaseAuthUrl}`)}
         >
@@ -113,6 +120,36 @@ const ReAuthenticateButton = ({ disconnect, serviceName, style, title: customTit
             <img title='Re-authenticate' src={googleProfileImage} alt='' />
           </div>
           <p id='name'>{googleUsername}</p>
+        </div>
+        {disconnect && (
+          <StyledConnectGoogle id='disconnect' title='Disconnect' onClick={disconnect}>
+            <FiLogOut size={24} />
+          </StyledConnectGoogle>
+        )}
+      </>
+    ),
+    Vk: !vkUsername ? (
+
+        <OAuthBtn
+          type="button"
+          id='connect'
+          onClick={() => authenticatePopup('Vk', `${VkBaseAuthUrl}`)}
+        >
+          <FaVk size={24} />
+          {customTitle || 'Connect VK'}
+        </OAuthBtn>
+
+    ) : (
+      <>
+        <div className='username' id='Vk'>
+          <div
+            title='Re-authenticate'
+            onClick={() => authenticatePopup('Vk', `${VkBaseAuthUrl}`)}
+          >
+            <StyledReconnectIcon id='reconnectIcon' />
+            <img title='Re-authenticate' src={vkProfileImage} alt='' />
+          </div>
+          <p id='name'>{vkUsername}</p>
         </div>
         {disconnect && (
           <StyledConnectGoogle id='disconnect' title='Disconnect' onClick={disconnect}>

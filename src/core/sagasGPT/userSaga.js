@@ -22,7 +22,6 @@ function* uploadAvatarSaga(action) {
         type: successType,
         payload: { response }
       });
-      // Update the user profile in the state with the new avatar info
       yield put(actions.setUserProfile(response));
     } else {
       yield put({ type: errorType, payload: { error } });
@@ -32,7 +31,51 @@ function* uploadAvatarSaga(action) {
   }
 }
 
+function* updateUserSaga(action) {
+  const { type, payload } = action;
+  const { requestType, successType, errorType } = getFetchTypes(type);
+
+  try {
+    yield put({ type: requestType, payload });
+    const { response, error } = yield call(api.updateUser, payload);
+
+    if (response) {
+      yield put({
+        type: successType,
+        payload: { response }
+      });
+      yield put(actions.setUserProfile(response));
+    } else {
+      yield put({ type: errorType, payload: { error } });
+    }
+  } catch (error) {
+    yield put({ type: errorType, payload: { error: error.message } });
+  }
+}
+
+function* changePasswordSaga(action) {
+  const { type, payload } = action;
+  const { requestType, successType, errorType } = getFetchTypes(type);
+
+  try {
+    yield put({ type: requestType, payload });
+    const { response, error } = yield call(api.changePassword, payload);
+
+    if (response) {
+      yield put({
+        type: successType,
+        payload: { response }
+      });
+    } else {
+      yield put({ type: errorType, payload: { error } });
+    }
+  } catch (error) {
+    yield put({ type: errorType, payload: { error: error.message } });
+  }
+}
+
 export function* watchUserSagas() {
-  // yield takeEvery(actions.fetchUser, fetchUserSaga);
   yield takeEvery(actions.uploadAvatarAction.type, uploadAvatarSaga);
+  yield takeEvery(actions.updateUserAction.type, updateUserSaga);
+  yield takeEvery(actions.changePasswordAction.type, changePasswordSaga);
 }

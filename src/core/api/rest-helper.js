@@ -2,6 +2,7 @@ import APIError from './api-error';
 import { getState } from 'core/store';
 import { UN_AVAILABLE, UNHANDLED } from 'core/constants/api-error-codes';
 import axios from 'axios';
+import { LITLOOP_API_URL } from 'core/constants/urls';
 
 // check status used in fetch promise
 function checkStatus(json, res){
@@ -203,6 +204,17 @@ export const postReqFormData = (endpoint, formData) =>
     .then(({ json, res }) => checkStatus(json, res))
     .catch(failure);
 
+
+export const uploadVoiceMessage = async (blob, duration) => {
+  const formData = new FormData();
+  formData.append('file', blob, 'voice.webm');
+  if (duration != null) formData.append('duration', String(duration));
+  const res = await axios.post(`${LITLOOP_API_URL}/chats/voice/upload/`, formData, {
+    headers: { ...authHeader() },
+    withCredentials: true,
+  });
+  return res.data;
+};
 
 export const deleteReq = (
   endpoint,

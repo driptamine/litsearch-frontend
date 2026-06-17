@@ -151,7 +151,10 @@ const AppHeader = React.forwardRef((props, ref) => {
 
             <LogoWrapper>
               <LinkStyled to="/">
-                <LitLoopLogo src={props.themez === 'light' ? litNightLogo : litLightLogo} />
+                <LitLoopLogo 
+                  src={props.themez === 'light' ? litNightLogo : litLightLogo} 
+                  width="100px"
+                />
               </LinkStyled>
             </LogoWrapper>
           </HeaderLeftSection>
@@ -387,6 +390,10 @@ const StyledToggleIcon = styled.div`
 const LitLoopLogo = styled.img`
   display: block;
   height: 20px;
+  width: ${({ width }) => width || 'auto'};
+  max-width: 100%;
+  object-fit: contain;
+  flex-shrink: 0;
   margin-top: auto;
   margin-bottom: auto;
   cursor: pointer;

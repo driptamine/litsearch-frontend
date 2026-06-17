@@ -196,6 +196,18 @@ const API = {
       params: {},
     }).catch((e) => console.error(e)),
 
+  getVkData: async () =>
+    await INSTANCE.get(`/vk`, {
+      params: {},
+    }).catch((e) => console.error(e)),
+
+  deleteVkToken: async () =>
+    await INSTANCE.delete(`/vk/token`, {
+      data: {},
+    })
+      .then(() => console.log(`Successfully disconnected from VK`))
+      .catch((e) => console.error(e)),
+
   updateFavoriteStreams: async (value) =>
     await INSTANCE.put(`/twitch/favorite_streams`, {
       channels: [...value],

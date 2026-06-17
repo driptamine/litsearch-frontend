@@ -1,6 +1,6 @@
 //@flow
 
-import { postReq, getHeaders, getReq, postReqFormData } from './rest-helper';
+import { postReq, putReq, getHeaders, getReq, postReqFormData } from './rest-helper';
 import { LITLOOP_API_URL } from '../constants/urls';
 
 // Note: service-info.js is missing. Providing placeholders for OAuth constants.
@@ -46,3 +46,9 @@ export const getUserProfile = () =>
 
 export const uploadAvatar = (formData) =>
   postReqFormData(`${LITLOOP_API_URL}/users/me/avatar/`, formData);
+
+export const updateUser = (data) =>
+  putReq(`${LITLOOP_API_URL}/users/me/`, data);
+
+export const changePassword = (data) =>
+  postReq(`${LITLOOP_API_URL}/users/me/password/`, data);

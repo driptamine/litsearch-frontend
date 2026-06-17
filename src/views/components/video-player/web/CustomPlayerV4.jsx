@@ -139,26 +139,19 @@ const CustomPlayerV4 = ({ url, light, viewsCount, likesCount }, props) => {
   useEffect(() => {
     const video = videoRef.current;
     const videoUrl = url
+    if (!videoUrl) return;
     let hls;
-    if (HLS.isSupported()) {
+    if (HLS.isSupported() && videoUrl.includes('.m3u8')) {
       hls = new HLS();
       hls.loadSource(videoUrl);
       hls.attachMedia(video);
     } else {
-
       video.src = videoUrl;
       video.type = 'video/mp4';
-      // addSourceToVideo(video, videoSrcInMp4, 'video/mp4');
-      video.play();
     }
-
-    function addSourceToVideo(element, src, type) {
-      var source = document.createElement('source');
-      source.src = src;
-      source.type = type;
-      element.appendChild(source);
-    }
-    return () => hls && hls.destroy();
+    return () => {
+      if (hls) hls.destroy();
+    };
   }, [url]);
 
   return (
@@ -178,7 +171,6 @@ const CustomPlayerV4 = ({ url, light, viewsCount, likesCount }, props) => {
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
 
-          src={url}
           onTimeUpdate={getCurrDuration}
           onLoadedData={(e) => {
             setDuration(e.currentTarget.duration.toFixed(2))

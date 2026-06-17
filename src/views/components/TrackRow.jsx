@@ -1,14 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { styled } from '@linaria/react';
+import TrackEditModal from 'views/components/TrackEditModal';
 
 const Row = styled.div`
   display: flex;
   align-items: center;
   padding: 10px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--darkGrey);
 
   &:hover {
-    background-color: #1e1e1e;
+    background-color: var(--cardColor);
   }
 
   &:last-child {
@@ -25,8 +26,8 @@ const PlayBtn = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  background-color: #3d3d3d;
+  color: var(--text);
+  background-color: var(--darkGrey);
   border-radius: 5px;
   cursor: pointer;
   flex-shrink: 0;
@@ -53,7 +54,7 @@ const PlayIcon = () => (
 const PauseIcon = () => (
   <Icon xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
     <g>
-      <circle cx="12" cy="12" r="10" fill="#fff" />
+      <circle cx="12" cy="12" r="10" fill="var(--text)" />
       <rect x="9" y="8" width="2" height="8" rx="1" ry="1" fill="black" />
       <rect x="13" y="8" width="2" height="8" rx="1" ry="1" fill="black" />
     </g>
@@ -62,18 +63,23 @@ const PauseIcon = () => (
 
 const TrackNumber = styled.span`
   font-family: Verdana;
-  color: #888;
+  color: var(--secondaryColor);
   width: 30px;
   flex-shrink: 0;
 `;
 
-const infoStyles = props => `
-  flex-direction: ${props.isPlaying ? 'row' : 'column'};
+const TrackInfoCol = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
 `;
 
-const Info = styled.div`
+const TrackInfoRow = styled.div`
   display: flex;
-  ${infoStyles}
+  flex-direction: row;
+  gap: 6px;
   flex: 1;
   min-width: 0;
 `;
@@ -81,23 +87,19 @@ const Info = styled.div`
 const Title = styled.span`
   font-family: Verdana;
   font-size: 16px;
-  color: white;
+  color: var(--text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-`;
-
-const artistStyles = props => `
-  font-size: ${props.isPlaying ? '14px' : '16px'};
 `;
 
 const Artist = styled.span`
   font-family: Verdana;
-  ${artistStyles}
-  color: gray;
+  color: var(--grey);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex-shrink: 0;
 `;
 
 const ContentColumn = styled.div`
@@ -163,7 +165,7 @@ const ProgressBar = ({ progress, ...rest }) => (
   <_ProgressBar
     type="range"
     style={{
-      background: `linear-gradient(to right, #5865f2 0%, #5865f2 ${progress}%, #333 ${progress}%, #333 100%)`
+      background: `linear-gradient(to right, #5865f2 0%, #5865f2 ${progress}%, var(--darkGrey) ${progress}%, var(--darkGrey) 100%)`
     }}
     {...rest}
   />
@@ -172,7 +174,7 @@ const ProgressBar = ({ progress, ...rest }) => (
 const TimeDisplay = styled.span`
   font-family: Verdana;
   font-size: 12px;
-  color: #888;
+  color: var(--secondaryColor);
   min-width: 35px;
   text-align: right;
   flex-shrink: 0;
@@ -186,18 +188,54 @@ function formatTime(seconds) {
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
-function TrackRow({ track, index }) {
+const EditBtn = styled.button`
+  background: none;
+  border: none;
+  color: var(--grey);
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 14px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+
+  ${Row}:hover & {
+    opacity: 1;
+  }
+
+  &:hover {
+    color: var(--text);
+  }
+`;
+
+function TrackRow({ track, index, showEdit = false, onTrackUpdated, onTrackDeleted }) {
   const audioRef = useRef(null);
   const [playing, setPlaying] = useState(false);
+  const [hasPlayed, setHasPlayed] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const src = track.gcs_url || track.url || track.preview_url;
   const title = track.title || track.name || `Track ${index + 1}`;
-  const artist = track.artist || track.artists?.[0]?.name || '';
+  const artist = track.artist || (Array.isArray(track.artists) ? track.artists.map(a => a.name || a).join(', ') : '') || '';
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  useEffect(() => {
+    const handleOtherTrackPlay = (e) => {
+      if (e.detail !== src && audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        setPlaying(false);
+        setHasPlayed(false);
+        setCurrentTime(0);
+      }
+    };
+    document.addEventListener('track-started', handleOtherTrackPlay);
+    return () => document.removeEventListener('track-started', handleOtherTrackPlay);
+  }, [src]);
 
   const togglePlay = (e) => {
     e.stopPropagation();
@@ -206,10 +244,13 @@ function TrackRow({ track, index }) {
     if (!audio) return;
     if (playing) {
       audio.pause();
+      setPlaying(false);
     } else {
+      document.dispatchEvent(new CustomEvent('track-started', { detail: src }));
       audio.play().catch(() => {});
+      setPlaying(true);
+      setHasPlayed(true);
     }
-    setPlaying(!playing);
   };
 
   const handleTimeUpdate = () => {
@@ -226,6 +267,7 @@ function TrackRow({ track, index }) {
 
   const handleEnded = () => {
     setPlaying(false);
+    setHasPlayed(false);
     setCurrentTime(0);
   };
 
@@ -256,6 +298,10 @@ function TrackRow({ track, index }) {
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={handleEnded}
+                onPlay={() => {
+                  setHasPlayed(true);
+                  document.dispatchEvent(new CustomEvent('track-started', { detail: src }));
+                }}
         preload="metadata"
       />
       <PlayBtn onClick={togglePlay}>
@@ -263,11 +309,18 @@ function TrackRow({ track, index }) {
       </PlayBtn>
       <TrackNumber>{index + 1}</TrackNumber>
       <ContentColumn>
-        <Info isPlaying={playing}>
-          <Title>{title}</Title>
-          {artist && <Artist isPlaying={playing}>{artist}</Artist>}
-        </Info>
-        {playing && (
+        {hasPlayed ? (
+          <TrackInfoRow>
+            <Title>{title}</Title>
+            {artist && <Artist>{artist}</Artist>}
+          </TrackInfoRow>
+        ) : (
+          <TrackInfoCol>
+            <Title>{title}</Title>
+            {artist && <Artist>{artist}</Artist>}
+          </TrackInfoCol>
+        )}
+        {hasPlayed && (
           <ProgressArea>
             <ProgressWrapper>
               <ProgressBar
@@ -287,6 +340,19 @@ function TrackRow({ track, index }) {
       <TimeDisplay>
         {playing || isSeeking ? formatTime(currentTime) : formatTime(duration)}
       </TimeDisplay>
+      {showEdit && (
+        <EditBtn onClick={(e) => { e.stopPropagation(); e.preventDefault(); setShowEditModal(true); }}>
+          &#8285;
+        </EditBtn>
+      )}
+      {showEditModal && (
+        <TrackEditModal
+          track={track}
+          onClose={() => setShowEditModal(false)}
+          onUpdated={onTrackUpdated}
+          onDeleted={onTrackDeleted}
+        />
+      )}
     </Row>
   );
 }

@@ -15,6 +15,11 @@ const initialState = {
     access_token: null,
     profileImg: null,
   },
+  vk_oauth: {
+    service: null,
+    access_token: null,
+    profileImg: null,
+  },
 };
 
 const usersSlice = createSlice({
@@ -183,6 +188,9 @@ const usersSlice = createSlice({
         state.profileImg = newAccount.profileImg;
         if (service === 'google') {
           state.google_oauth = oauthData;
+        }
+        if (service === 'vk') {
+          state.vk_oauth = oauthData;
         }
         state[service] = oauthData;
         Object.assign(state, response);

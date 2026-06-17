@@ -2,18 +2,22 @@ import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { styled } from '@linaria/react';
 import { LITLOOP_API_URL } from 'core/constants/urls';
+import { authHeader } from 'core/api/rest-helper';
 import { Link } from 'react-router-dom';
 import LikeButton from 'views/components/LikeButton/LikeButton';
 import PostCard from 'views/components/PostCard';
 import TrackRow from 'views/components/TrackRow';
+import CustomPlayerV4 from 'views/components/video-player/web/CustomPlayerV4';
 
-const DEFAULT_AVATAR = 'https://www.gravatar.com/avatar/0?d=mp&f=y';
+const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
 
-const UserPosts = ({ username, newPosts = [] }) => {
+const UserPosts = ({ username, newPosts = [], isOwnProfile = false }) => {
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [viewMode, setViewMode] = useState('feed'); // 'grid', 'feed', 'gallery'
+  const [viewMode, setViewMode] = useState('feed');
+  const [editingPostId, setEditingPostId] = useState(null);
+  const [editingDescription, setEditingDescription] = useState('');
 
   useEffect(() => {
     const fetchUserPosts = async () => {
@@ -43,7 +47,6 @@ const UserPosts = ({ username, newPosts = [] }) => {
   };
 
   const handleLike = async (postId) => {
-    // Optimistic UI update
     setPosts(prevPosts => prevPosts.map(post => {
       if ((post.id || post.post_id) === postId) {
         const isLiked = !post.is_liked;
@@ -60,6 +63,55 @@ const UserPosts = ({ username, newPosts = [] }) => {
       await axios.post(`${LITLOOP_API_URL}/posts/${postId}/like/`);
     } catch (err) {
       console.error('Error liking post:', err);
+    }
+  };
+
+  const handleDelete = async (postId) => {
+    if (!window.confirm('Delete this post?')) return;
+
+    const deleted = posts.find(p => (p.id || p.post_id) === postId);
+    setPosts(prev => prev.filter(p => (p.id || p.post_id) !== postId));
+
+    try {
+      await axios.delete(`${LITLOOP_API_URL}/posts/delete_no_drf/${postId}/`, { headers: authHeader() });
+    } catch (err) {
+      console.error('Error deleting post:', err);
+      if (deleted) setPosts(prev => [...prev, deleted]);
+    }
+  };
+
+  const startEditing = (post) => {
+    setEditingPostId(post.id || post.post_id);
+    setEditingDescription(post.description || '');
+  };
+
+  const cancelEditing = () => {
+    setEditingPostId(null);
+    setEditingDescription('');
+  };
+
+  const handleEdit = async (postId) => {
+    const prev = posts.find(p => (p.id || p.post_id) === postId);
+
+    setPosts(prevPosts => prevPosts.map(post => {
+      if ((post.id || post.post_id) === postId) {
+        return { ...post, description: editingDescription };
+      }
+      return post;
+    }));
+    setEditingPostId(null);
+    setEditingDescription('');
+
+    try {
+      await axios.put(`${LITLOOP_API_URL}/posts/update_no_drf/${postId}/`,
+        { description: editingDescription },
+        { headers: authHeader() }
+      );
+    } catch (err) {
+      console.error('Error editing post:', err);
+      if (prev) setPosts(prevPosts => prevPosts.map(p =>
+        (p.id || p.post_id) === postId ? prev : p
+      ));
     }
   };
 
@@ -95,6 +147,7 @@ const UserPosts = ({ username, newPosts = [] }) => {
       {allPosts.map(post => {
         const postId = post.id || post.post_id;
         const timeStr = post.created_at || post.timestamp || post.date;
+        const isEditing = editingPostId === postId;
         return (
           <PostCard key={postId}>
             <Link to={`/posts/${postId}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
@@ -113,13 +166,27 @@ const UserPosts = ({ username, newPosts = [] }) => {
                 )}
               </MediaPreview>
             </Link>
-            
+
             <PostContent>
               <Link to={`/posts/${postId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <PostTitle>{post.title || (post.description ? (post.description.substring(0, 30) + (post.description.length > 30 ? '...' : '')) : 'Post')}</PostTitle>
               </Link>
-              <PostDescription>{post.description?.substring(0, 100)}{post.description?.length > 100 ? '...' : ''}</PostDescription>
-              
+              {isEditing ? (
+                <EditForm>
+                  <EditTextarea
+                    value={editingDescription}
+                    onChange={e => setEditingDescription(e.target.value)}
+                    autoFocus
+                  />
+                  <EditActions>
+                    <SaveButton onClick={() => handleEdit(postId)}>Save</SaveButton>
+                    <CancelButton onClick={cancelEditing}>Cancel</CancelButton>
+                  </EditActions>
+                </EditForm>
+              ) : (
+                <PostDescription>{post.description?.substring(0, 100)}{post.description?.length > 100 ? '...' : ''}</PostDescription>
+              )}
+
               <PostTime>{formatPostTime(timeStr)}</PostTime>
 
               {post.tracks?.map((track, i) => (
@@ -127,14 +194,20 @@ const UserPosts = ({ username, newPosts = [] }) => {
               ))}
 
               <PostMeta>
-                <LikeButton 
-                  isLiked={post.is_liked} 
-                  likesCount={post.likes_count} 
+                <LikeButton
+                  isLiked={post.is_liked}
+                  likesCount={post.likes_count}
                   onClick={() => handleLike(postId)}
                 />
                 {post.photo_ids?.length > 0 && <span>📷 {post.photo_ids.length}</span>}
                 {post.video_ids?.length > 0 && <span>🎥 {post.video_ids.length}</span>}
                 {post.track_ids?.length > 0 && <span>🎵 {post.track_ids.length}</span>}
+                {isOwnProfile && !isEditing && (
+                  <PostActions>
+                    <ActionBtn onClick={() => startEditing(post)}>Edit</ActionBtn>
+                    <ActionBtn onClick={() => handleDelete(postId)}>Delete</ActionBtn>
+                  </PostActions>
+                )}
               </PostMeta>
             </PostContent>
           </PostCard>
@@ -151,33 +224,54 @@ const UserPosts = ({ username, newPosts = [] }) => {
         const authorAvatar = getFullUrl(author?.avatar || author?.profile_img || author?.profileImg);
         const authorName = author?.username || author?.name || username;
         const timeStr = post.created_at || post.timestamp || post.date;
+        const isEditing = editingPostId === postId;
 
         return (
           <FeedPost key={postId} to={`/posts/${postId}`}>
             <FeedAvatar src={authorAvatar} alt={authorName} />
             <FeedMainContent>
               <FeedHeader>
-                <FeedName>{authorName}</FeedName>
+                <FeedUser>{authorName}</FeedUser>
                 <FeedHandle>@{authorName}</FeedHandle>
                 <FeedTime to={`/posts/${postId}`}>· {formatPostTime(timeStr)}</FeedTime>
+                {isOwnProfile && !isEditing && (
+                  <FeedActionsRight>
+                    <FeedActionBtn onClick={(e) => { e.preventDefault(); e.stopPropagation(); startEditing(post); }}>Edit</FeedActionBtn>
+                    <FeedActionBtn onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(postId); }}>Delete</FeedActionBtn>
+                  </FeedActionsRight>
+                )}
               </FeedHeader>
               <FeedBody>
-                <FeedText>{post.description}</FeedText>
+                {isEditing ? (
+                  <EditForm>
+                    <EditTextarea
+                      value={editingDescription}
+                      onChange={e => setEditingDescription(e.target.value)}
+                      autoFocus
+                    />
+                    <EditActions>
+                      <SaveButton onClick={() => handleEdit(postId)}>Save</SaveButton>
+                      <CancelButton onClick={cancelEditing}>Cancel</CancelButton>
+                    </EditActions>
+                  </EditForm>
+                ) : (
+                  <FeedText>{post.description}</FeedText>
+                )}
                 <FeedMedia>
                    {post.photos?.slice(0, 4).map(photo => (
                      <FeedImage key={photo.id} src={photo.gcs_url} alt="Post content" />
                    ))}
                    {!post.photos?.length && post.videos?.slice(0, 1).map(video => (
-                     <FeedVideo key={video.id} src={video.gcs_url} controls />
+                      <CustomPlayerV4 key={video.id} url={video.gcs_url} />
                    ))}
                 </FeedMedia>
                 {post.tracks?.map((track, i) => (
                   <TrackRow key={track.id || i} track={track} index={i} />
                 ))}
                 <FeedActions>
-                   <LikeButton 
-                     isLiked={post.is_liked} 
-                     likesCount={post.likes_count} 
+                   <LikeButton
+                     isLiked={post.is_liked}
+                     likesCount={post.likes_count}
                      onClick={() => handleLike(postId)}
                    />
                    {post.photo_ids?.length > 0 && <span>📷 {post.photo_ids.length}</span>}
@@ -209,15 +303,20 @@ const UserPosts = ({ username, newPosts = [] }) => {
                 <Placeholder>No Media</Placeholder>
               )}
               <GalleryOverlay className="gallery-overlay">
-                <LikeButton 
-                  isLiked={post.is_liked} 
-                  likesCount={post.likes_count} 
+                <LikeButton
+                  isLiked={post.is_liked}
+                  likesCount={post.likes_count}
                   onClick={() => handleLike(postId)}
                   activeColor="white"
                   inactiveColor="white"
                   hoverColor="#ddd"
                 />
                 <span>💬 0</span>
+                {isOwnProfile && (
+                  <GalleryActionBtn onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(postId); }}>
+                    🗑️
+                  </GalleryActionBtn>
+                )}
               </GalleryOverlay>
             </GalleryMedia>
           </GalleryCard>
@@ -233,7 +332,7 @@ const UserPosts = ({ username, newPosts = [] }) => {
         <ViewButton active={viewMode === 'feed'} onClick={() => setViewMode('feed')}>Feed</ViewButton>
         <ViewButton active={viewMode === 'gallery'} onClick={() => setViewMode('gallery')}>Gallery</ViewButton>
       </ViewSwitcher>
-      
+
       {viewMode === 'grid' && renderGrid()}
       {viewMode === 'feed' && renderFeed()}
       {viewMode === 'gallery' && renderGallery()}
@@ -317,10 +416,11 @@ const FeedHeader = styled.div`
   display: flex;
   gap: 5px;
   align-items: baseline;
+  flex-wrap: wrap;
 `;
 
-const FeedName = styled.span`
-  color: white;
+const FeedUser = styled.span`
+  color: var(--text);
   font-weight: 700;
   font-size: 1rem;
 `;
@@ -336,6 +436,27 @@ const FeedTime = styled(Link)`
   margin-left: 4px;
 `;
 
+const FeedActionsRight = styled.div`
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+`;
+
+const FeedActionBtn = styled.button`
+  background: none;
+  border: none;
+  color: #71767b;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+
+  &:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+  }
+`;
+
 const FeedBody = styled.div`
   display: flex;
   flex-direction: column;
@@ -343,7 +464,7 @@ const FeedBody = styled.div`
 `;
 
 const FeedText = styled.div`
-  color: #e7e9ea;
+  color: var(--text);
   font-size: 1rem;
   line-height: 1.5;
   white-space: pre-wrap;
@@ -363,11 +484,6 @@ const FeedImage = styled.img`
   height: auto;
   max-height: 500px;
   object-fit: cover;
-`;
-
-const FeedVideo = styled.video`
-  width: 100%;
-  border-radius: 16px;
 `;
 
 const FeedActions = styled.div`
@@ -448,6 +564,14 @@ const GalleryOverlay = styled.div`
   }
 `;
 
+const GalleryActionBtn = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 4px;
+`;
+
 const MediaPreview = styled.div`
   width: 100%;
   height: 200px;
@@ -513,6 +637,87 @@ const PostMeta = styled.div`
   color: #666;
   font-size: 0.8rem;
   align-items: center;
+`;
+
+const PostActions = styled.div`
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+`;
+
+const ActionBtn = styled.button`
+  background: none;
+  border: 1px solid #555;
+  color: #888;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 3px 10px;
+  border-radius: 4px;
+
+  &:hover {
+    color: white;
+    border-color: #888;
+    background: rgba(255, 255, 255, 0.05);
+  }
+`;
+
+const EditForm = styled.div`
+  margin: 8px 0;
+`;
+
+const EditTextarea = styled.textarea`
+  width: 100%;
+  min-height: 80px;
+  background: #111;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: #0084ff;
+  }
+`;
+
+const EditActions = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+`;
+
+const SaveButton = styled.button`
+  background: #0084ff;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  &:hover {
+    background: #0073e6;
+  }
+`;
+
+const CancelButton = styled.button`
+  background: transparent;
+  color: #888;
+  border: 1px solid #555;
+  padding: 6px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+
+  &:hover {
+    color: white;
+    border-color: #888;
+  }
 `;
 
 const LoadingMessage = styled.div`

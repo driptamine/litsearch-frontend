@@ -214,6 +214,12 @@ const litloopAPI = {
     }).catch((e) => console.error(e))
   },
   
+  getVkData: async () => {
+    await INSTANCE.get(`/vk`, {
+      params: {},
+    }).catch((e) => console.error(e))
+  },
+  
   getSpotifyData: async () => {
     await INSTANCE.get(`/spotify`, {
       params: {},

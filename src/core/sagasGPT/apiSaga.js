@@ -24,7 +24,7 @@ export function* callTrackAPI(endpoint, params, schema, processData, config = {}
     });
     let { data } = response;
     // Process the data if any additional info is required for reducers or normalization.
-    // data = processData ? processData(data) : data;
+    data = processData ? processData(data) : data;
     // Normalize the data, if a schema is given.
     data = schema ? normalize(data, schema) : data;
     return data;

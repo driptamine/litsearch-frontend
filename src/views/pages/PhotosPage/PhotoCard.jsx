@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import { Link } from 'react-router-dom'
 import { styled } from '@linaria/react';
 import { css } from '@linaria/core';
+import { themeVars } from 'views/styles/theme-vars';
 
 export const PhotoCard = ({ photo, loading }) => {
   // Removed const [data, setData] = useState([]); as it was unused
@@ -111,7 +112,7 @@ const ChannelSkeleton = styled(SkeletonBox)`
 `;
 
 const styledLinkStyles = props => `
-  color: ${props.theme.text};
+  color: ${themeVars.text};
 `;
 
 const StyledLink = styled(Link)`

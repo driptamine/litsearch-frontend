@@ -1,392 +1,297 @@
-/* Settings.js
- *  Component that shows allows user to change name, email, or password
- */
-
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  getProfile,
-  changeNameAction,
-  changeEmailAction,
-  changePasswordAction,
-  deleteAccountAction,
-  changeEmailAlert,
-  selectAuth,
-} from '../../_store/reducers/authSlice';
+import { styled } from '@linaria/react';
 import * as EmailValidator from 'email-validator';
+import { updateUserAction, changePasswordAction } from 'core/actions';
+import { selectors } from 'core/reducers';
 
-const Settings = () => {
+const SettingsPage = () => {
   const dispatch = useDispatch();
-  const profile = useSelector(selectAuth).userProfile;
-  const authSelector = useSelector(selectAuth);
-  const [newName, setNewName] = useState("");
-  const [newEmail, setNewEmail] = useState("");
-  const [newEmailpw, setNewEmailpw] = useState("");
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword1, setNewPassword1] = useState("");
-  const [newPassword2, setNewPassword2] = useState("");
-  const [dPassword, setDPassword] = useState("");
-  const [newNameAlert, setNewNameAlert] = useState("");
-  const [newEmailAlert, setNewEmailAlert] = useState("");
-  const [newPasswordAlert, setNewPasswordAlert] = useState("");
-  const [deleteAccountAlert, setDeleteAccountAlert] = useState("");
-  const [daForm, setDAform] = useState(false);
+  const user = useSelector(state => state.users);
+  const authUser = useSelector(selectors.selectAuthUser);
 
-  useEffect(() => {
-    if (profile.email === "") {
-      dispatch(getProfile());
-    }
-  }, [dispatch]);
+  const [editUsername, setEditUsername] = useState(false);
+  const [editEmail, setEditEmail] = useState(false);
+  const [editPassword, setEditPassword] = useState(false);
 
-  async function handleNameChangeButton(e) {
+  const [username, setUsername] = useState(authUser?.username || user.username || '');
+  const [email, setEmail] = useState(authUser?.email || user.email || '');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [usernameMsg, setUsernameMsg] = useState('');
+  const [emailMsg, setEmailMsg] = useState('');
+  const [passwordMsg, setPasswordMsg] = useState('');
+
+  const handleUsernameSubmit = (e) => {
     e.preventDefault();
+    setUsernameMsg('');
 
-    if (newName === "") {
-      setNewNameAlert("Name cannot be empty");
+    if (!username.trim()) {
+      setUsernameMsg('Username cannot be empty');
       return;
     }
 
-    if (newName === profile.name) {
-      setNewNameAlert("Thats the same name");
-      return;
-    }
+    dispatch(updateUserAction({ username: username.trim() }));
+    setUsernameMsg('Saved!');
+    setEditUsername(false);
+  };
 
-    try {
-      dispatch(changeNameAction(newName));
-      setNewName("");
-    } catch (err) {
-      console.log(err);
-      setNewNameAlert("Something went wrong, please try again later");
-    }
-  }
-
-  async function handleEmailChangeButton(e) {
+  const handleEmailSubmit = (e) => {
     e.preventDefault();
-    setNewEmailAlert("");
-    dispatch(changeEmailAlert(""));
+    setEmailMsg('');
 
-    if (newEmail === profile.email) {
-      setNewEmailAlert("That's the same email");
+    if (!EmailValidator.validate(email.trim())) {
+      setEmailMsg('Invalid email address');
       return;
     }
 
-    if (!EmailValidator.validate(newEmail)) {
-      setNewEmailAlert("Invalid email");
-      return;
-    }
+    dispatch(updateUserAction({ email: email.trim() }));
+    setEmailMsg('Saved!');
+    setEditEmail(false);
+  };
 
-    if (newEmailpw === "") {
-      setNewEmailAlert("Password field cannot be empty");
-      return;
-    }
-
-    try {
-      dispatch(changeEmailAction(newEmail, newEmailpw));
-      setNewEmail("");
-      setNewEmailpw("");
-    } catch (err) {
-      console.log(err);
-      setNewEmailAlert("Something went wrong, please try again later");
-    }
-  }
-
-  async function handlePasswordChangeButton(e) {
+  const handlePasswordSubmit = (e) => {
     e.preventDefault();
-    setNewPasswordAlert("");
+    setPasswordMsg('');
 
-    if (oldPassword === "") {
-      setNewPasswordAlert("Old Password field empty");
+    if (!currentPassword) {
+      setPasswordMsg('Current password is required');
       return;
     }
 
-    if (newPassword1 === "") {
-      setNewPasswordAlert("New Password field empty");
+    if (newPassword.length < 6) {
+      setPasswordMsg('New password must be at least 6 characters');
       return;
     }
 
-    if (newPassword1.length < 6) {
-      setNewPasswordAlert("Password should be at least 6 characters");
+    if (newPassword !== confirmPassword) {
+      setPasswordMsg('Passwords do not match');
       return;
     }
 
-    if (newPassword1 !== newPassword2) {
-      setNewPasswordAlert("Passwords do not match");
-      return;
-    }
+    dispatch(changePasswordAction({
+      oldPassword: currentPassword,
+      newPassword: newPassword
+    }));
+    setPasswordMsg('Password changed!');
+    setEditPassword(false);
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+  };
 
-    try {
-      dispatch(changePasswordAction(oldPassword, newPassword1));
-      setDPassword("");
-      setNewPassword1("");
-      setNewPassword2("");
-    } catch (err) {
-      console.log(err);
-      setNewPasswordAlert("Something went wrong please try again later");
-    }
-  }
-
-  async function handleDeleteAccountButton(e) {
-    e.preventDefault();
-    setDeleteAccountAlert("");
-
-    if (dPassword === "") {
-      setDeleteAccountAlert("Password field empty");
-      return;
-    }
-
-    try {
-      dispatch(deleteAccountAction(dPassword));
-      setDPassword("");
-    } catch (err) {
-      console.log(err);
-      setDeleteAccountAlert("Something went wrong please try again later");
-    }
-  }
-
-  function renderEmailAlert() {
-    if (authSelector.emailAlert) {
-      return (
-        <div className="alert alert-danger">
-          <strong>Oops! </strong>
-          {authSelector.emailAlert}
-        </div>
-      );
-    }
-
-    if (newEmailAlert !== "") {
-      return (
-        <div className="alert alert-danger">
-          <strong>Oops!</strong> {newEmailAlert}
-        </div>
-      );
-    }
-  }
-
-  function renderPasswordAlert() {
-    if (authSelector.pwAlert) {
-      return <div className="alert alert-danger">{authSelector.pwAlert}</div>;
-    }
-
-    if (newPasswordAlert !== "") {
-      return (
-        <div className="alert alert-danger">
-          <strong>Oops!</strong> {newPasswordAlert}
-        </div>
-      );
-    }
-  }
-
-  function renderDAform() {
-    if (daForm) {
-      return (
-        <>
-          <div className="alert alert-danger">
-            WARNING: This action cannot be reversed. If you are sure you want to
-            delete your account, confirm your password and continue. Otherwise
-            click cancel.
-          </div>
-          <div className="form-floating mb-4">
-            <input
-              name="dPassword"
-              id="dPassword"
-              type="password"
-              className="form-control form-control-lg"
-              placeholder="Confirm password"
-              value={dPassword}
-              onChange={(e) => setDPassword(e.target.value)}
-              required
-            />
-            <label style={{ opacity: "0.5" }} htmlFor="dPassword">
-              Confirm password
-            </label>
-          </div>
-          <button
-            className="btn btn-danger btn-md btn-block"
-            style={{ marginRight: "5px" }}
-            onClick={(e) => {
-              e.preventDefault();
-              setDAform(false);
-            }}
-          >
-            CANCEL
-          </button>
-          <button
-            className="btn btn-secondary btn-md btn-block"
-            onClick={(e) => handleDeleteAccountButton(e)}
-          >
-            Continue to Delete account
-          </button>
-        </>
-      );
-    } else {
-      return (
-        <button
-          className="btn btn-danger btn-md btn-block"
-          onClick={(e) => {
-            e.preventDefault();
-            setDAform(true);
-          }}
-        >
-          Delete account
-        </button>
-      );
-    }
-  }
-
-  function renderDeleteAlert() {
-    if (authSelector.daAlert) {
-      return (
-        <div className="alert alert-danger">
-          <strong>Oops!</strong> {authSelector.daAlert}
-        </div>
-      );
-    }
-
-    if (deleteAccountAlert) {
-      return (
-        <div className="alert alert-danger">
-          <strong>Oops!</strong> {deleteAccountAlert}
-        </div>
-      );
-    }
-  }
+  const currentUsername = authUser?.username || user.username || user.user__username;
+  const currentEmail = authUser?.email || user.email;
 
   return (
-    <div className="container h-100">
-      <h2>User Settings</h2>
-      <br />
-      <h5>Change Name</h5>
-      <p>
-        Your name: <b>{profile.name}</b>{" "}
-      </p>
-      <div className="form-floating mb-4">
-        <input
-          name="changeName"
-          id="changeName"
-          type="text"
-          className="form-control form-control-lg"
-          placeholder="name"
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-          required
-        />
-        <label style={{ opacity: "0.5" }} htmlFor="changeName">
-          Change Name
-        </label>
-      </div>
-      <button
-        className="btn btn-secondary btn-md btn-block"
-        onClick={(e) => handleNameChangeButton(e)}
-      >
-        Submit name change
-      </button>
-      {newNameAlert === "" ? <br /> : <p>{newNameAlert}</p>}
-      <br />
-      <h5>Change Email</h5>
-      <p>
-        Your email: <b>{profile.email}</b>
-      </p>
-      <div className="form-floating mb-4">
-        <input
-          name="changeEmail"
-          id="changeEmail"
-          type="email"
-          className="form-control form-control-lg"
-          placeholder="name@example.com"
-          value={newEmail}
-          onChange={(e) => setNewEmail(e.target.value)}
-          required
-        />
-        <label style={{ opacity: "0.5" }} htmlFor="changeEmail">
-          New Email
-        </label>
-      </div>
-      <div className="form-floating mb-4">
-        <input
-          name="confirmPassword"
-          id="confirmPassword"
-          type="password"
-          className="form-control form-control-lg"
-          placeholder="Confirm password"
-          value={newEmailpw}
-          onChange={(e) => setNewEmailpw(e.target.value)}
-          required
-        />
-        <label style={{ opacity: "0.5" }} htmlFor="confirmPassword">
-          Password
-        </label>
-      </div>
-      <button
-        className="btn btn-secondary btn-md btn-block"
-        onClick={(e) => handleEmailChangeButton(e)}
-      >
-        Submit email change
-      </button>
-      {renderEmailAlert()}
-      <br />
-      <br />
-      <h5>Change password </h5>
-      <div className="form-floating mb-4">
-        <input
-          name="changePassword0"
-          id="changePassword0"
-          type="password"
-          className="form-control form-control-lg"
-          placeholder="Old password"
-          value={oldPassword}
-          onChange={(e) => setOldPassword(e.target.value)}
-          required
-        />
-        <label style={{ opacity: "0.5" }} htmlFor="changePassword0">
-          Old password
-        </label>
-      </div>
-      <div className="form-floating mb-4">
-        <input
-          name="changePassword1"
-          id="changePassword1"
-          type="password"
-          className="form-control form-control-lg"
-          placeholder="change password"
-          value={newPassword1}
-          onChange={(e) => setNewPassword1(e.target.value)}
-          required
-        />
-        <label style={{ opacity: "0.5" }} htmlFor="changePassword1">
-          New password
-        </label>
-      </div>
-      <div className="form-floating mb-4">
-        <input
-          name="changePassword2"
-          id="changePassword2"
-          type="password"
-          className="form-control form-control-lg"
-          placeholder="retype password"
-          value={newPassword2}
-          onChange={(e) => setNewPassword2(e.target.value)}
-          required
-        />
-        <label style={{ opacity: "0.5" }} htmlFor="changePassword2">
-          Confirm new password
-        </label>
-      </div>
-      <button
-        className="btn btn-secondary btn-md btn-block"
-        onClick={(e) => handlePasswordChangeButton(e)}
-      >
-        Submit password change
-      </button>
-      {renderPasswordAlert()}
+    <Container>
+      <Title>Settings</Title>
 
-      <hr />
+      <Section>
+        <SectionTitle>Username</SectionTitle>
+        <CurrentValue>@{currentUsername}</CurrentValue>
+        {editUsername ? (
+          <Form onSubmit={handleUsernameSubmit}>
+            <Input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="New username"
+              autoFocus
+            />
+            <ButtonRow>
+              <SaveBtn type="submit">Save</SaveBtn>
+              <CancelBtn type="button" onClick={() => { setEditUsername(false); setUsername(currentUsername); setUsernameMsg(''); }}>Cancel</CancelBtn>
+            </ButtonRow>
+            {usernameMsg && <Msg>{usernameMsg}</Msg>}
+          </Form>
+        ) : (
+          <EditBtn onClick={() => setEditUsername(true)}>Edit</EditBtn>
+        )}
+      </Section>
 
-      <h5>Danger zone</h5>
+      <Section>
+        <SectionTitle>Email</SectionTitle>
+        <CurrentValue>{currentEmail}</CurrentValue>
+        {editEmail ? (
+          <Form onSubmit={handleEmailSubmit}>
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="New email"
+              autoFocus
+            />
+            <ButtonRow>
+              <SaveBtn type="submit">Save</SaveBtn>
+              <CancelBtn type="button" onClick={() => { setEditEmail(false); setEmail(currentEmail); setEmailMsg(''); }}>Cancel</CancelBtn>
+            </ButtonRow>
+            {emailMsg && <Msg>{emailMsg}</Msg>}
+          </Form>
+        ) : (
+          <EditBtn onClick={() => setEditEmail(true)}>Edit</EditBtn>
+        )}
+      </Section>
 
-      {renderDAform()}
-      {renderDeleteAlert()}
-    </div>
+      <Section>
+        <SectionTitle>Password</SectionTitle>
+        {editPassword ? (
+          <Form onSubmit={handlePasswordSubmit}>
+            <Input
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              placeholder="Current password"
+              autoFocus
+            />
+            <Input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="New password"
+            />
+            <Input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirm new password"
+            />
+            <ButtonRow>
+              <SaveBtn type="submit">Change Password</SaveBtn>
+              <CancelBtn type="button" onClick={() => { setEditPassword(false); setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); setPasswordMsg(''); }}>Cancel</CancelBtn>
+            </ButtonRow>
+            {passwordMsg && <Msg>{passwordMsg}</Msg>}
+          </Form>
+        ) : (
+          <EditBtn onClick={() => setEditPassword(true)}>Change</EditBtn>
+        )}
+      </Section>
+    </Container>
   );
 };
 
-export default Settings;
+const Container = styled.div`
+  max-width: 600px;
+  margin: 2em auto;
+  padding: 0 1em;
+`;
+
+const Title = styled.h1`
+  color: white;
+  font-family: Verdana;
+  font-size: 24px;
+  margin-bottom: 1.5em;
+`;
+
+const Section = styled.div`
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 1.5em;
+  margin-bottom: 1em;
+`;
+
+const SectionTitle = styled.h2`
+  color: white;
+  font-family: Verdana;
+  font-size: 16px;
+  margin: 0 0 0.5em 0;
+`;
+
+const CurrentValue = styled.p`
+  color: #888;
+  font-family: Verdana;
+  font-size: 14px;
+  margin: 0 0 1em 0;
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+`;
+
+const Input = styled.input`
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: white;
+  font-size: 14px;
+  font-family: Verdana;
+  outline: none;
+  box-sizing: border-box;
+  width: 100%;
+
+  &:focus {
+    border-color: #686cb9;
+  }
+
+  &::placeholder {
+    color: #555;
+  }
+`;
+
+const ButtonRow = styled.div`
+  display: flex;
+  gap: 0.75em;
+`;
+
+const SaveBtn = styled.button`
+  background: #686cb9;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  color: white;
+  font-family: Verdana;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: #7b7fcf;
+  }
+`;
+
+const CancelBtn = styled.button`
+  background: transparent;
+  border: 1px solid #555;
+  border-radius: 8px;
+  padding: 10px 20px;
+  color: #aaa;
+  font-family: Verdana;
+  font-size: 14px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #888;
+    color: white;
+  }
+`;
+
+const EditBtn = styled.button`
+  background: transparent;
+  border: 1px solid #686cb9;
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: #686cb9;
+  font-family: Verdana;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover {
+    background: #686cb9;
+    color: white;
+  }
+`;
+
+const Msg = styled.p`
+  color: #4ade80;
+  font-family: Verdana;
+  font-size: 13px;
+  margin: 0;
+`;
+
+export default SettingsPage;

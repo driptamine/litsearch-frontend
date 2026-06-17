@@ -42,6 +42,7 @@ import { TwitchContext, TwitchProvider } from 'views/pages/Auth/twitch/useToken'
 import { YoutubeContext, YoutubeProvider } from 'views/pages/Auth/youtube/useToken';
 import { GoogleContext, GoogleProvider } from 'views/pages/Auth/google/useToken';
 import { SpotifyContext, SpotifyProvider } from 'views/pages/Auth/spotify/useToken';
+import { VkContext, VkProvider } from 'views/pages/Auth/vk/useToken';
 
 
 import useEventListenerMemo from 'core/hooks2/useEventListenerMemo';
@@ -136,7 +137,7 @@ function App({ stopSong, pauseSongzz, playSongzz, resumeSong }) {
   const { setYoutubeAccessToken, setYoutubeRefreshToken, setYoutubeUsername, setYoutubeProfileImage } = useContext(YoutubeContext) || {};
   const { setGoogleAccessToken, setGoogleRefreshToken, setGoogleUsername, setGoogleProfileImage } = useContext(GoogleContext) || {};
   const { setSpotifyAccessToken, setSpotifyRefreshToken, setSpotifyUsername, setSpotifyProfileImage } = useContext(SpotifyContext) || {};
-  // const { setUnsplashAccessToken, setUnsplashRefreshToken, setUnsplashUsername, setUnsplashProfileImage } = useContext(UnsplashContext) || {};
+  const { setVkAccessToken, setVkRefreshToken, setVkUsername, setVkProfileImage } = useContext(VkContext) || {};
 
   useEventListenerMemo('message', receiveMessage, window, true, { capture: false });
   // useEventListenerMemo('message', receiveMessage2, window, true, { capture: false });
@@ -176,6 +177,11 @@ function App({ stopSong, pauseSongzz, playSongzz, resumeSong }) {
         if (e.data.username && setSpotifyUsername) setSpotifyUsername(e.data.username);
         if (e.data.profileImg && setSpotifyProfileImage) setGoogleProfileImage(e.data.profileImg);
         // toggleEnabled('youtube', true);
+      }
+      } else if (e.data.service === 'vk') {
+        if (e.data.access_token && setVkAccessToken) setVkAccessToken(e.data.access_token);
+        if (e.data.username && setVkUsername) setVkUsername(e.data.username);
+        if (e.data.profileImg && setVkProfileImage) setVkProfileImage(e.data.profileImg);
       }
       // else if (e.data.service === 'unsplash') {
       //   if (e.data.access_token && setUnsplashAccessToken) setUnsplashAccessToken(e.data.access_token);

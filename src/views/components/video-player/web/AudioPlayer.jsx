@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react'
 import Hls from 'hls.js';
 
-import song from './Suncrown - Legend of the Forgotten Centuries.mp3'
 import Slider from './slider/Slider'
 import AudioSlider from './slider/AudioSlider'
 import ControlPanel from './controls/ControlPanel'

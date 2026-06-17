@@ -41,8 +41,24 @@ export const fetchSignUpUser = createAction(
   (data) => ({
     payload: {
       email: data.email,
-      username: data.username,
       password: data.password
+    }
+  })
+)
+
+export const updateUserAction = createAction(
+  "user/update",
+  (data) => ({
+    payload: data
+  })
+)
+
+export const changePasswordAction = createAction(
+  "user/changePassword",
+  (data) => ({
+    payload: {
+      old_password: data.oldPassword,
+      new_password: data.newPassword
     }
   })
 )

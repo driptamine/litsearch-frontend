@@ -1,9 +1,8 @@
 import { styled } from '@linaria/react';
 
 const dynamicStyles = props => `
-  margin-left: ${props.gotsidebar ? '240px' : '0'};
   overflow: ${props.isChat ? 'hidden' : 'auto'};
-  height: ${props.isChat ? 'calc(100vh - 5em)' : 'auto'};
+  height: ${props.isChat ? '100%' : 'auto'};
 `;
 
 // Linaria container component
@@ -12,9 +11,7 @@ const BaseContainer = styled.div`
   flex: 1;
   width: auto;
   ${dynamicStyles}
-  transition: margin-left 0.3s ease-in-out;
 
-  padding-top: 5em;
   padding-left: 1em;
   padding-right: 1em;
   padding-bottom: 0em;

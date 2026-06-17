@@ -5,6 +5,7 @@ import * as schemas from 'core/schemas';
 import { getFetchTypes, verifyCachedData, createUrl, createAPIUrl, createAuthUrl, bingAPIurl } from 'core/utils';
 import history  from 'core/services/history';
 import { RemoveCookie } from 'views/utils';
+import { saveAuthCookies, clearAuthCookies } from 'core/utils/authCookies';
 
 
 
@@ -33,6 +34,7 @@ function* fetchLogoutSaga() {
   yield put(actions.fetchUserLoggedOut());
   
   // Clear cookies
+  yield call(clearAuthCookies);
   RemoveCookie('Google-access_token');
   RemoveCookie('Google-refresh_token');
   RemoveCookie('Google-username');
@@ -42,6 +44,12 @@ function* fetchLogoutSaga() {
   RemoveCookie('Twitch-access_token');
   RemoveCookie('Twitch-refresh_token');
   RemoveCookie('Youtube-access_token');
+  RemoveCookie('Vk-access_token');
+  RemoveCookie('Vk-refresh_token');
+  RemoveCookie('Vk-username');
+  RemoveCookie('Vk-profileImg');
+  RemoveCookie('Vk-email');
+  RemoveCookie('Vk-userId');
   
   // Redirect to login
   yield call([history, history.push], '/login');
@@ -128,6 +136,9 @@ function* fetcherAuthSaga({ action, endpoint, params, schema, processData, cache
       // Store access token if needed
       yield put(actions.setAccessToken(data));
 
+      // Persist tokens to cookies
+      yield call(saveAuthCookies, data);
+
       // Fetch user details after login
       yield put(actions.fetchCurrentUser());
 
@@ -178,6 +189,9 @@ function* fetchSignUpSaga(action) {
 
     // Store access token if needed
     yield put(actions.setAccessToken(data));
+
+    // Persist tokens to cookies
+    yield call(saveAuthCookies, data);
 
     // Fetch user details after login
     yield put(actions.fetchCurrentUser());

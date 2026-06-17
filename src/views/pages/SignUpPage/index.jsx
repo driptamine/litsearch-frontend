@@ -28,12 +28,14 @@ import disconnectYoutube from 'views/pages/Auth/youtube/disconnectYoutube';
 // CONTEXT PROVIDER
 import { YoutubeContext } from 'views/pages/Auth/youtube/useToken';
 import { GoogleContext } from 'views/pages/Auth/google/useToken';
+import { VkContext } from 'views/pages/Auth/vk/useToken';
 
 import litloopLogo from 'views/assets/litloopLogo3.png';
 
 // CORE
 import history  from 'core/services/history';
 import { fetchAuthUser, fetchSignUpUser, fetchOAuthUser, fetchCurrentUser  } from 'core/actions'
+import RouterLink from 'views/components/RouterLink';
 import useHistoryPush from 'core/hooks/useHistoryPush';
 // import { selectAuth } from 'core/reducers/authSlice';
 import { selectors } from 'core/reducers/index';
@@ -60,7 +62,6 @@ function SignUpForm () {
   // const authSelector = useSelector(selectAuth);
   // const navigate = useNavigate();
 
-  const [username, setUsername] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isError, setIsError] = useState(false);
@@ -75,7 +76,6 @@ function SignUpForm () {
 
     dispatch(fetchSignUpUser({
       email: email,
-      username: username,
       password: password
     }))
 
@@ -142,6 +142,7 @@ function SignUpForm () {
   // const { setTwitchAccessToken, setTwitchRefreshToken, setTwitchUserId, setTwitchUsername, setTwitchProfileImage, } = useContext(TwitchContext) || {};
   // const { setYoutubeAccessToken, setYoutubeRefreshToken, setYoutubeUsername, setYoutubeProfileImage } = useContext(YoutubeContext) || {};
   const { setGoogleAccessToken, setGoogleRefreshToken, setGoogleUsername, setGoogleProfileImage } = useContext(GoogleContext) || {};
+  const { setVkAccessToken, setVkRefreshToken, setVkUsername, setVkProfileImage } = useContext(VkContext) || {};
 
 
 
@@ -156,6 +157,14 @@ function SignUpForm () {
         if (access_token && setGoogleAccessToken) setGoogleAccessToken(access_token);
         if (username && setGoogleUsername) setGoogleUsername(username);
         if (profileImg && setGoogleProfileImage) setGoogleProfileImage(profileImg);
+
+        dispatch(fetchOAuthUser({ ...e.data, profileImg }));
+        dispatch(fetchCurrentUser());
+        history.push('/');
+      } else if (service === 'vk') {
+        if (access_token && setVkAccessToken) setVkAccessToken(access_token);
+        if (username && setVkUsername) setVkUsername(username);
+        if (profileImg && setVkProfileImage) setVkProfileImage(profileImg);
 
         dispatch(fetchOAuthUser({ ...e.data, profileImg }));
         dispatch(fetchCurrentUser());
@@ -198,41 +207,16 @@ function SignUpForm () {
 
                 >
                 <TextFieldStyledInput
-                  // className={classes.input}
-                  name="Email"
+                  name="email"
                   label="Email"
-                  type="text"
+                  type="email"
                   value={email}
-                  // handleChange={handleChange}
                   onChange={(e) => setEmail(e.target.value)}
-                  variant="outlined"
-                  inputProps={{
-                    autoComplete: 'on'
-                  }}
-                    // error={username}
+                  autoComplete="email"
                   placeholder="Email"
                 />
               </ReStyledGrid>
-              <ReStyledGrid
-                // class={classes.input}
 
-                >
-                <TextFieldStyledInput
-                  // className={classes.input}
-                  name="Username"
-                  label="Username"
-                  type="text"
-                  value={username}
-                  // handleChange={handleChange}
-                  onChange={(e) => setUsername(e.target.value)}
-                  variant="outlined"
-                  inputProps={{
-                    autoComplete: 'on'
-                  }}
-                  placeholder="Username"
-                    // error={username}
-                />
-              </ReStyledGrid>
               <ReStyledGrid item
                 // class={classes.input}
                 >
@@ -274,14 +258,13 @@ function SignUpForm () {
       <OAuthWrapper>
 
         <ReAuthenticateButton
-          // disconnect={() =>
-          //   disconnectTwitch({
-          //     setTwitchAccessToken,
-          //     setEnableTwitch: () => toggleEnabled('google'),
-          //   })
-          // }
           serviceName='Google'
           title="Sign up with Google"
+        />
+
+        <ReAuthenticateButton
+          serviceName='Vk'
+          title="Sign up with VK"
         />
 
         <br style={{ height: '24px' }} />
@@ -300,6 +283,10 @@ function SignUpForm () {
         />*/}
 
       </OAuthWrapper>
+
+      <LoginLinkWrapper>
+        <LoginLinkText>Already have an account? <LoginLink to="/login">Log In</LoginLink></LoginLinkText>
+      </LoginLinkWrapper>
     </ContainerStyled>
   )
     // }
@@ -365,12 +352,13 @@ const TextFieldStyledInput = styled.input`
 `;
 
 const LitLoopLogo = styled.img`
-  width: 10%;
-  height: 50%;
+  height: 90px;
+  max-width: 100%;
+  object-fit: contain;
 
   display: block;
   margin-left: auto;
-  margin-right: auto }
+  margin-right: auto;
 `;
 
 const LitLoopTitle = styled.p`
@@ -417,6 +405,27 @@ const OAuthLoginButton = styled.button`
   border-radius: 6px;
   grid-gap: 10px;
   gap: 10px;
+`;
+
+const LoginLinkWrapper = styled.div`
+  text-align: center;
+  margin-top: 1.5em;
+  margin-bottom: 1em;
+`;
+
+const LoginLinkText = styled.p`
+  color: white;
+  font-family: Verdana;
+  font-size: 14px;
+`;
+
+const LoginLink = styled(RouterLink)`
+  color: #686cb9;
+  text-decoration: none;
+  font-weight: 600;
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const FaSpotifyIcon = styled(FaSpotify)`

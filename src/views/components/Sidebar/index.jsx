@@ -18,10 +18,13 @@ import { FaHashtag } from "react-icons/fa";
 import { CiBoxList } from "react-icons/ci";
 import { BsUiChecks } from "react-icons/bs";
 import { LuLayoutList } from "react-icons/lu";
+import { useNotifications } from 'core/context/NotificationContext';
 
 
 const Sidebar = () => {
   const open = useSelector((state) => state.sidebar.sidebar);
+  const username = useSelector((state) => state.users?.username || state.users?.user__username);
+  const { unreadChatCount } = useNotifications();
 
   return (
     <SidebarWrapper open={open}>
@@ -38,7 +41,7 @@ const Sidebar = () => {
 
         <StyledLi id="WarpNode">
           <LinkStyled
-            
+
             to="/notes"
             // activeClassName="active"
           >
@@ -57,7 +60,7 @@ const Sidebar = () => {
 
         <StyledLi id="JustDoList">
           <LinkStyled
-            
+
             to="/todo"
             // activeClassName="active"
           >
@@ -106,6 +109,7 @@ const Sidebar = () => {
 
             </StyledDivIcon>
             <span>Messages</span>
+            {unreadChatCount > 0 && <Badge>{unreadChatCount}</Badge>}
           </LinkStyled>
         </StyledLi>
         {/*<div className="ruler"></div>*/}
@@ -165,7 +169,7 @@ const Sidebar = () => {
 
         <StyledLi id="VideosSidebar">
           <LinkStyled
-            
+
             to="/videos"
             // activeClassName="active"
           >
@@ -180,8 +184,8 @@ const Sidebar = () => {
 
         <StyledLi id="Music">
           <LinkStyled
-            
-            to="/musicv2"
+
+            to={`/${username}/tracks`}
             // activeClassName="active"
           >
             <StyledDivIcon className="icon">
@@ -193,25 +197,42 @@ const Sidebar = () => {
             <span className="mymusic">Music</span>
           </LinkStyled>
         </StyledLi>
-        <StyledLi id="Photos">
+        <StyledLi id="Albums">
           <LinkStyled
-            
-            to="/photos"
-            // activeClassName="active"
+            to={`/${username}/albums`}
           >
             <StyledDivIcon className="icon">
-              {/*<FiBookmark />*/}
-              {/*<FaHistory />*/}
-              <FaImage />
+              <MdAlbum />
+            </StyledDivIcon>
+            <span className="mymusic">Albums</span>
+          </LinkStyled>
+        </StyledLi>
 
+        <StyledLi id="Photos">
+          <LinkStyled
+            to={`/${username}/photos`}
+          >
+            <StyledDivIcon className="icon">
+              <FaImage />
             </StyledDivIcon>
             <span className="mymusic">Photos</span>
           </LinkStyled>
         </StyledLi>
 
+        <StyledLi id="Videos">
+          <LinkStyled
+            to={`/${username}/videos`}
+          >
+            <StyledDivIcon className="icon">
+              <FaFilm />
+            </StyledDivIcon>
+            <span className="mymusic">Videos</span>
+          </LinkStyled>
+        </StyledLi>
+
         <StyledLi id="Users">
           <LinkStyled
-            
+
             to="/users"
             // activeClassName="active"
           >
@@ -224,7 +245,7 @@ const Sidebar = () => {
 
         <StyledLi id="LinkTag">
           <LinkStyled
-            
+
             to="/linktag/all"
             // activeClassName="active"
           >
@@ -270,15 +291,31 @@ const Sidebar = () => {
 
 
 const StyledDivIcon = styled.div`
-  margin-right: 10px;
+  display: flex;
+  align-items: center;
 
   svg {
     height: 16px;
     width: 16px;
     color: var(--text);
   }
-
 `;
+const Badge = styled.span`
+  background-color: #0084ff;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  margin-left: auto;
+  margin-right: 10px;
+`;
+
 const SCEarthIcon = styled(EarthIcon)`
 
 
@@ -298,38 +335,20 @@ const SCTrendingIcon = styled(TrendingIcon)`
 
 `;
 const SidebarWrapper = styled.div`
-  position: fixed;
-  /* top: 6em; */
-  top: 0;
-  padding-top: 4em;
-  left: 0;
-  /* height: 100vh; */
   height: 100%;
-  width: 240px;
-  /* background: var(--grey); */
-  /* background: #212121; */
+  width: ${({ open }) => open ? '240px' : '0'};
+  flex-shrink: 0;
+  overflow: hidden;
+  white-space: nowrap;
   background: var(--sideBarColor);
-  /* padding-top: 1rem; */
 
-
-  /* overflow: auto; */
   overflow-y: auto;
 
   padding-bottom: 1.5rem;
-  transition: all 0.3s ease-in-out;
-  z-index: 2;
-  transform: ${({ open }) => open ? 'translateX(0)' : 'translateX(-100%)'};
+  transition: width 0.3s ease-in-out;
 
   &::-webkit-scrollbar {
     width: 0;
-  }
-
-  .icon {
-    display: flex;
-    align-items: center;
-    padding: 0.7rem 0;
-    padding-left: 1.5rem;
-    /* margin-bottom: 0.4rem; */
   }
 
   .icon:not(.hover-disable):hover {
@@ -344,12 +363,6 @@ const SidebarWrapper = styled.div`
 
   .active svg {
     fill: #fff;
-  }
-
-  .icon span {
-    padding-left: 1rem;
-    position: relative;
-    top: 1px;
   }
 `;
 
@@ -372,15 +385,14 @@ const LinkStyled = styled(Link)`
   align-items: center;
   color: var(--text);
   text-decoration: none;
-  &:hover: {
+  display: flex;
+  gap: 12px;
+  padding: 0.7rem 0;
+  padding-left: 1.5rem;
+
+  &:hover {
     text-decoration: underline;
   }
-
-  /* display: grid; */
-
-  /* grid-gap: 1em; */
-   /* grid-template-columns: 20px 29px minmax(81px,0fr); */
-  display: flex;
 
   span {
     font-family: Helvetica;

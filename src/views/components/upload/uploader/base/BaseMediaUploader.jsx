@@ -3,6 +3,7 @@ import { styled } from '@linaria/react';
 import axios from 'axios';
 import { IoIosCloseCircle } from 'react-icons/io';
 import { LITLOOP_API_URL } from 'core/constants/urls';
+import { authHeader } from 'core/api/rest-helper';
 
 const CHUNK_SIZE = 5 * 1024 * 1024;
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
@@ -181,7 +182,7 @@ export const BaseMediaUploader = forwardRef(({ mediaType, onUploadComplete, labe
           filename: fileName,
           content_type: file.type,
           media_type: mType,
-        }, { headers: { "Content-Type": "application/json" } });
+        }, { headers: { "Content-Type": "application/json", ...authHeader() } });
 
         const { upload_id, key } = initRes.data;
         const totalParts = Math.ceil(file.size / CHUNK_SIZE);
@@ -196,7 +197,7 @@ export const BaseMediaUploader = forwardRef(({ mediaType, onUploadComplete, labe
             upload_id,
             key,
             part_number: partNumber,
-          }, { headers: { "Content-Type": "application/json" } });
+          }, { headers: { "Content-Type": "application/json", ...authHeader() } });
 
           const { url } = presignRes.data;
 
@@ -218,7 +219,7 @@ export const BaseMediaUploader = forwardRef(({ mediaType, onUploadComplete, labe
           key,
           parts,
           media_type: mType,
-        }, { headers: { "Content-Type": "application/json" } });
+        }, { headers: { "Content-Type": "application/json", ...authHeader() } });
 
         const { id, location } = completeRes.data;
         setFileLinks(prev => ({ ...prev, [file.name]: location }));

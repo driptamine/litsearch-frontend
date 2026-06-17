@@ -8,6 +8,7 @@ import {
 } from 'views/pages/LoginPage/action';
 import { YoutubeContext } from 'views/pages/Auth/youtube/useToken';
 import { GoogleContext } from 'views/pages/Auth/google/useToken';
+import { VkContext } from 'views/pages/Auth/vk/useToken';
 
 import litloopLogo from 'views/assets/litloopLogo3.png';
 import { fetchAuthUser } from 'core/actions';
@@ -21,6 +22,7 @@ const SignUpForm = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const { setGoogleAccessToken, setGoogleUsername, setGoogleProfileImage } = useContext(GoogleContext) || {};
+  const { setVkAccessToken, setVkUsername, setVkProfileImage } = useContext(VkContext) || {};
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -50,6 +52,10 @@ const SignUpForm = () => {
       setGoogleAccessToken(access_token);
       setGoogleUsername(username);
       setGoogleProfileImage(profileImg);
+    } else if (service === 'vk') {
+      setVkAccessToken(access_token);
+      setVkUsername(username);
+      setVkProfileImage(profileImg);
     }
     history.push('/');
   };
@@ -90,6 +96,7 @@ const SignUpForm = () => {
 
       <OAuthWrapper>
         <ReAuthenticateButton serviceName='Google' title="Sign up with Google" />
+        <ReAuthenticateButton serviceName='Vk' title="Sign up with VK" />
       </OAuthWrapper>
     </Container>
   );

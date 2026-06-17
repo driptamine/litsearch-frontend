@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { styled } from '@linaria/react';
 import axios from 'axios';
@@ -6,49 +6,52 @@ import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader, getAxiosReq } from 'core/api/rest-helper';
 
 import useSelectAuthUser from 'core/hooks/useSelectAuthUser';
+import { useNotifications } from 'core/context/NotificationContext';
+import ChatRow from './ChatRow';
 
-const DEFAULT_AVATAR = 'https://www.gravatar.com/avatar/0?d=mp&f=y';
+const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
 
 const ChatList = ({ emojiData }) => {
-  const { authUser } = useSelectAuthUser();
+  const { authUser, isSignedIn } = useSelectAuthUser();
+  const { unreadChatCount, setUnreadChatCount, chatUpdateTick } = useNotifications();
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
   const location = useLocation();
 
-  useEffect(() => {
-    const fetchChats = async () => {
-      setLoading(true);
-      try {
-        const response = await getAxiosReq(`${LITLOOP_API_URL}/chats/me/`);
-        // Use response.data.chats as per the provided structure
-        const apiChats = response.data?.chats || [];
-        
-        console.log("ChatList: Fetched chats:", apiChats);
-        setChats(apiChats);
-      } catch (err) {
-        console.error("Failed to fetch chats:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchChats();
+  const fetchChats = useCallback(async () => {
+    try {
+      const response = await getAxiosReq(`${LITLOOP_API_URL}/chats/me/`);
+      const apiChats = response.data?.chats || [];
+      setChats(apiChats);
+    } catch (err) {
+      console.error("Failed to fetch chats:", err);
+    }
   }, []);
 
-  // Refetch when returning to the chat list view
+  useEffect(() => {
+    if (!isSignedIn) return;
+    if (initialLoadDone) return;
+    const load = async () => {
+      setLoading(true);
+      await fetchChats();
+      setLoading(false);
+      setInitialLoadDone(true);
+    };
+    load();
+  }, [isSignedIn, initialLoadDone]);
+
   useEffect(() => {
     if (location.pathname === '/chat/im') {
-      const fetchChats = async () => {
-        try {
-          const response = await getAxiosReq(`${LITLOOP_API_URL}/chats/me/`);
-          const apiChats = response.data?.chats || [];
-          setChats(apiChats);
-        } catch (err) {
-          console.error("Failed to refetch chats:", err);
-        }
-      };
       fetchChats();
     }
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (chatUpdateTick > 0) {
+      fetchChats();
+    }
+  }, [chatUpdateTick]);
 
   const currentUserAvatar = authUser?.profileImg || authUser?.avatar || DEFAULT_AVATAR;
   const currentUsername = authUser?.username || authUser?.user?.username || authUser?.user__username || 'User';
@@ -57,11 +60,11 @@ const ChatList = ({ emojiData }) => {
     <ChatListContainer>
       <CurrentUserProfile to={currentUsername !== 'User' ? `/${currentUsername}` : '/login'}>
         <ImgWrap>
-          <Avatar 
-            src={currentUserAvatar} 
-            alt={currentUsername} 
-            onError={(e) => { 
-              if (e.target.src !== DEFAULT_AVATAR) e.target.src = DEFAULT_AVATAR; 
+          <Avatar
+            src={currentUserAvatar}
+            alt={currentUsername}
+            onError={(e) => {
+              if (e.target.src !== DEFAULT_AVATAR) e.target.src = DEFAULT_AVATAR;
             }}
           />
         </ImgWrap>
@@ -69,6 +72,9 @@ const ChatList = ({ emojiData }) => {
           <User>{currentUsername}</User>
           <Status>Online</Status>
         </UserWrapper>
+        {unreadChatCount > 0 && (
+          <GlobalUnreadBadge>{unreadChatCount}</GlobalUnreadBadge>
+        )}
       </CurrentUserProfile>
 
       <Tabs>
@@ -90,52 +96,27 @@ const ChatList = ({ emojiData }) => {
         <div style={{ padding: '20px', color: '#888' }}>No conversations yet.</div>
       )}
 
-      {chats?.map((chat) => {
-        const otherUser = chat.target_user || chat.other_participant || {};
-        const displayName = otherUser.username || "User";
-        
-        // Use chat.image_url if available (group chat), otherwise participant's avatar
-        let avatarUrl = chat.image_url || otherUser.avatar;
-        
-        if (avatarUrl) {
-          if (!avatarUrl.startsWith('http')) {
-            avatarUrl = `${LITLOOP_API_URL}${avatarUrl.startsWith('/') ? '' : '/'}${avatarUrl}`;
-          }
-        } else {
-          avatarUrl = DEFAULT_AVATAR;
-        }
-
-        const lastMsgText = chat.last_message?.text || "No messages yet";
-        const unreadCount = chat.unread_count || 0;
-
-        return (
-          <LinkStyled key={chat.id} to={`/chat/${otherUser.id}`}
-            onClick={() => setChats(prev => prev.map(c => 
-              c.id === chat.id ? { ...c, unread_count: 0 } : c
-            ))}>
-            <HoverWrapper>
-              <ImgWrap>
-                <Avatar 
-                  src={avatarUrl} 
-                  alt={displayName}
-                  onError={(e) => { 
-                    if (e.target.src !== DEFAULT_AVATAR) e.target.src = DEFAULT_AVATAR; 
-                  }}
-                />
-              </ImgWrap>
-              <UserWrapper>
-                <User>{displayName}</User>
-                <LastMessage>{lastMsgText}</LastMessage>
-              </UserWrapper>
-              {unreadCount > 0 && <UnreadBadge>{unreadCount}</UnreadBadge>}
-            </HoverWrapper>
-          </LinkStyled>
-        );
-      })}
+      {chats?.map((chat) => (
+        <div key={chat.id}>
+          <ChatRow
+            chat={chat}
+            onClick={() => {
+              const clickedUnread = chat.unread_count || 0;
+              setChats(prev => prev.map(c =>
+                c.id === chat.id ? { ...c, unread_count: 0 } : c
+              ));
+              if (clickedUnread > 0) {
+                setUnreadChatCount(prev => Math.max(0, (prev || 0) - clickedUnread));
+              }
+            }}
+          />
+        </div>
+      ))}
 
     </ChatListContainer>
   );
 };
+
 const CurrentUserProfile = styled(Link)`
   text-decoration: none;
   display: flex;
@@ -146,6 +127,7 @@ const CurrentUserProfile = styled(Link)`
   border-radius: 12px;
   border: 1px solid #333;
   transition: background-color 0.2s;
+  position: relative;
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
@@ -160,22 +142,12 @@ const Status = styled.div`
 
 const UserWrapper = styled.div`
   display: flex;
-  /* align-items: center; */
   flex-direction: column;
 `;
+
 const AllTabs = styled.div`
   margin: auto;
   cursor: pointer;
-`;
-
-const LastMessage = styled.div`
-  font-size: 12px;
-  font-family: Verdana;
-  color: #999;
-  max-width: 200px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 `;
 
 const UnreadBadge = styled.div`
@@ -194,20 +166,29 @@ const UnreadBadge = styled.div`
   align-self: center;
   flex-shrink: 0;
 `;
+
+const GlobalUnreadBadge = styled(UnreadBadge)`
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+`;
+
 const Tabs = styled.div`
   display: flex;
   overflow: auto;
-
-
 `;
+
 const ImgWrap = styled.div`
   padding-right: 12px;
 `;
+
 const Avatar = styled.img`
   width: 48px;
   height: 48px;
   border-radius: 10px;
 `;
+
 const LinkStyled = styled(Link)`
   text-decoration: none;
   display: flex;
@@ -218,12 +199,14 @@ const LinkStyled = styled(Link)`
     border-radius: 10px;
   }
 `;
+
 const HoverWrapper = styled.div`
   display: flex;
   &:hover {
     background-color: var(--chatHoverText, #2e2e2e);
   }
 `;
+
 const ChatListContainer = styled.div`
   width: 30%;
   background-color: var(--navBg, #000);
@@ -232,7 +215,7 @@ const ChatListContainer = styled.div`
   box-sizing: border-box;
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
-  height: calc(100vh - 5em); /* Matching Container.jsx padding-top */
+  height: calc(100vh - 5em);
   overflow-y: auto;
 
   @media screen and (max-width: 768px) {
@@ -247,13 +230,8 @@ const ChatListContainer = styled.div`
 const User = styled.div`
   font-size: 14px;
   font-family: Arial;
-  /* background-color: ${({ isActive }) => (isActive ? '#ddd' : '#f4f4f4')}; */
-
-  /* background-color: var(--navBg); */
   color: var(--text, #fff);
-
   cursor: pointer;
-
 `;
 
 export default ChatList;

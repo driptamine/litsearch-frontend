@@ -22,12 +22,16 @@ import Sidebar from 'views/components/Sidebar';
 import BottomNavbar from 'views/components/Navbar/BottomNavbar';
 
 import {
-  fetchOAuthUser, fetchCurrentUser
+  fetchOAuthUser, fetchCurrentUser, setAccessToken
 } from 'core/actions';
+import { getAuthTokensFromCookies, saveAuthCookies } from 'core/utils/authCookies';
+import useSelectAuthUser from 'core/hooks/useSelectAuthUser';
 import { GoogleContext } from 'views/pages/Auth/google/useToken';
+import { VkContext } from 'views/pages/Auth/vk/useToken';
 import { MusicPlayerContext } from 'views/components/context/MusicPlayerContext';
 import useEventListenerMemo from 'core/hooks2/useEventListenerMemo';
 import useDetectMobile from 'core/hooks/useDetectMobile';
+import { NotificationProvider } from 'core/context/NotificationContext';
 
 const ModalContext = React.createContext();
 
@@ -160,6 +164,10 @@ const App = () => {
     setGoogleAccessToken, setGoogleRefreshToken, setGoogleUsername,
     setGoogleProfileImage, setGoogleEmail, setGoogleUserId
   } = useContext(GoogleContext) || {};
+  const {
+    setVkAccessToken, setVkRefreshToken, setVkUsername,
+    setVkProfileImage, setVkEmail, setVkUserId
+  } = useContext(VkContext) || {};
 
   const [childMessage, setChildMessage] = useState("");
   const user = useSelector(state => state.users) || {};
@@ -182,9 +190,35 @@ const App = () => {
 
         dispatch(fetchOAuthUser({ ...e.data, profileImg }));
         dispatch(fetchCurrentUser());
+        saveAuthCookies(e.data);
+      } else if (service === 'vk') {
+        if (access_token && setVkAccessToken) setVkAccessToken(access_token);
+        if (refresh_token && setVkRefreshToken) setVkRefreshToken(refresh_token);
+        if (username && setVkUsername) setVkUsername(username);
+        if (profileImg && setVkProfileImage) setVkProfileImage(profileImg);
+        if (email && setVkEmail) setVkEmail(email);
+        if (userId && setVkUserId) setVkUserId(userId);
+
+        setChildMessage(profileImg);
+
+        dispatch(fetchOAuthUser({ ...e.data, profileImg }));
+        dispatch(fetchCurrentUser());
+        saveAuthCookies(e.data);
       }
     }
   }
+
+  const { isSignedIn } = useSelectAuthUser();
+
+  useEffect(() => {
+    if (!isSignedIn) {
+      const tokens = getAuthTokensFromCookies();
+      if (tokens?.access_token) {
+        dispatch(setAccessToken(tokens));
+        dispatch(fetchCurrentUser());
+      }
+    }
+  }, []);
 
   const [theme, themeToggler] = useThemeMode();
 
@@ -193,7 +227,6 @@ const App = () => {
   }, [theme]);
 
   const themeMode = theme === 'light' ? lightTheme : darkTheme;
-  const sidebarOpen = useSelector((state) => state.sidebar.sidebar);
   const isMobile = useDetectMobile();
   const showChatList = pathname.startsWith('/chat');
   const isAuthPage = pathname === '/' || pathname === '/login' || pathname === '/signup';
@@ -203,6 +236,7 @@ const App = () => {
     <>
       <>
       <GlobalStyleThemeMode />
+      <NotificationProvider>
       <StyledWrapper isMobile={isMobile} showBottomNav={showBottomNav}>
         {(!isAuthPage && pathname !== '/auth/google/callback') && (
           <AppHeader
@@ -214,8 +248,6 @@ const App = () => {
           </AppHeader>
         )}
 
-        {(isAuthPage || isMobile) ? null : (<Sidebar />)}
-
         {isAuthPage ? (
           <WrapperContainer id='Wrapper'>
             <ModalRoutes
@@ -225,30 +257,36 @@ const App = () => {
               audioControl={audioControlz}
             />
           </WrapperContainer>
-        ) : (showChatList) ? (
-            <BaseContainer gotsidebar={!isMobile && sidebarOpen} isChat={true} >
-              <ChatFlexWrapper>
+        ) : (
+          <ContentWrapper>
+            {!isMobile && <Sidebar />}
+            {showChatList ? (
+              <BaseContainer isChat={true} >
+                <ChatFlexWrapper>
+                  <ModalRoutes
+                    stopSong={stopSongz}
+                    pauseSong={pauseSongz}
+                    resumeSong={resumeSongz}
+                    audioControl={audioControlz}
+                  />
+                </ChatFlexWrapper>
+              </BaseContainer>
+            ) : (
+              <BaseContainer>
                 <ModalRoutes
                   stopSong={stopSongz}
                   pauseSong={pauseSongz}
                   resumeSong={resumeSongz}
                   audioControl={audioControlz}
                 />
-              </ChatFlexWrapper>
-            </BaseContainer>
-        ) : (
-          <BaseContainer gotsidebar={!isMobile && sidebarOpen} >
-            <ModalRoutes
-              stopSong={stopSongz}
-              pauseSong={pauseSongz}
-              resumeSong={resumeSongz}
-              audioControl={audioControlz}
-            />
-          </BaseContainer>
+              </BaseContainer>
+            )}
+          </ContentWrapper>
         )}
 
         {showBottomNav && <BottomNavbar />}
       </StyledWrapper>
+      </NotificationProvider>
 
       {isModalVisible && (
         <Modal onModalClose={() => setIsModalVisible(false)}>
@@ -276,6 +314,18 @@ const ChatFlexWrapper = styled.div`
   @media screen and (max-width: 768px) {
     flex-direction: column;
     height: auto;
+  }
+`;
+
+const ContentWrapper = styled.div`
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  padding-top: 5em;
+
+  @media screen and (max-width: 768px) {
+    padding-top: 70px;
+    flex-direction: column;
   }
 `;
 

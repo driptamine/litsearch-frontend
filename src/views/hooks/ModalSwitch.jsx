@@ -1,169 +1,195 @@
-// https://gemini.google.com/app/e0d29882a4ef4d7b?hl=en
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, Suspense } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { styled } from '@linaria/react';
 
 // Hooks
 import { useModalSwitchLogic } from 'views/hooks/useModalSwitchLogic';
-import useScrollMemory from 'core/hooks/useScrollMemory'; // Keep if still needed for scroll
+import useScrollMemory from 'core/hooks/useScrollMemory';
 
 // CORE
-import { getState } from 'core/store'; // To get auth state
+import { getState } from 'core/store';
+import { lazyImport } from 'core/utils/lazyImport';
 
 // CHAT
-import ChatList from 'views/pages/ChatV3/Left/ChatList';
-import ChatWindow from 'views/pages/ChatV3/Main/ChatWindow';
-import ChatWindowGemini from 'views/pages/ChatGemini/Main/ChatWindow';
-// import chatsData from 'views/pages/ChatV3/chatsV2.json';
+const ChatList = lazyImport(() => import('views/pages/ChatV3/Left/ChatList'));
+const ChatWindow = lazyImport(() => import('views/pages/ChatV3/Main/ChatWindow'));
+const ChatWindowGemini = lazyImport(() => import('views/pages/ChatGemini/Main/ChatWindow'));
 import emojiData from 'views/pages/ChatV3/emoji.json';
 
-// UPLOAD - Restored original paths
-import ChunkUpload from 'views/components/upload/ChunkUpload'; // Changed to single quotes
-import MediaUploader from 'views/components/upload/MediaUploader'; // Changed to single quotes
-import PostCreator from 'views/components/upload/uploader/posts/PostCreator'; // Changed to single quotes
+// UPLOAD
+const ChunkUpload = lazyImport(() => import('views/components/upload/ChunkUpload'));
+const MediaUploader = lazyImport(() => import('views/components/upload/MediaUploader'));
+const PostCreator = lazyImport(() => import('views/components/upload/uploader/posts/PostCreator'));
 
-// MODALS - Restored original paths (these are typically rendered by ModalRoute, but their imports are needed if directly used or passed down)
-import ModalMovies from 'views/components/ModalMovies'; // Changed to single quotes
-import ModalPosts from 'views/pages/PopularPosts/ModalPosts'; // Changed to single quotes
-import ModalPeople from 'views/components/ModalPeople'; // Changed to single quotes
-import ModalMagazines from 'views/components/ModalMagazines'; // Changed to single quotes
-import ModalAlbums from 'views/components/ModalAlbums'; // Changed to single quotes
+// MODALS
+const ModalMovies = lazyImport(() => import('views/components/ModalMovies'));
+const ModalPosts = lazyImport(() => import('views/pages/PopularPosts/ModalPosts'));
+const ModalPeople = lazyImport(() => import('views/components/ModalPeople'));
+const ModalMagazines = lazyImport(() => import('views/components/ModalMagazines'));
+const ModalAlbums = lazyImport(() => import('views/components/ModalAlbums'));
 
-// PAGES - Restored original paths
-import LoginPage from 'views/pages/LoginPage/indexV2'; // Changed to single quotes
-import SignUpPage from 'views/pages/SignUpPage'; // Changed to single quotes
-import SearchAppp from 'views/pages/MainSearch/StartPage/App'; // Changed to single quotes
-import TwitchAuthCallback from 'views/pages/Auth/TwitchAuthCallback'; // Changed to single quotes
-import GoogleAuthCallback from 'views/pages/Auth/GoogleAuthCallback'; // Changed to single quotes
+// PAGES
+const LoginPage = lazyImport(() => import('views/pages/LoginPage/indexV2'));
+const SignUpPage = lazyImport(() => import('views/pages/SignUpPage'));
+const SearchAppp = lazyImport(() => import('views/pages/MainSearch/StartPage/App'));
+const TwitchAuthCallback = lazyImport(() => import('views/pages/Auth/TwitchAuthCallback'));
+const GoogleAuthCallback = lazyImport(() => import('views/pages/Auth/GoogleAuthCallback'));
+const VkAuthCallback = lazyImport(() => import('views/pages/Auth/VkAuthCallback'));
 
-import MovieProfile from 'views/pages/MovieProfile'; // Changed to single quotes
-import PersonProfile from 'views/pages/PersonProfile'; // Changed to single quotes
-import ArtistProfile from 'views/pages/ArtistProfile'; // Changed to single quotes
-import AlbumProfile from 'views/pages/AlbumProfile'; // Changed to single quotes
-import PlaylistProfile from 'views/pages/PlaylistProfile'; // Changed to single quotes
-import TrackProfile from 'views/pages/TrackProfile'; // Changed to single quotes
-import PostProfile from 'views/pages/PostProfile'; // Changed to single quotes
-import LinksProfile from 'views/pages/LinksProfile'; // Changed to single quotes
-import SearchResults from 'views/pages/SearchResults'; // Changed to single quotes
-import SearchesResults from 'views/pages/SearchResults'; // Changed to single quotes
+const MovieProfile = lazyImport(() => import('views/pages/MovieProfile'));
+const PersonProfile = lazyImport(() => import('views/pages/PersonProfile'));
+const ArtistProfile = lazyImport(() => import('views/pages/ArtistProfile'));
+const AlbumProfile = lazyImport(() => import('views/pages/AlbumProfile'));
+const PlaylistProfile = lazyImport(() => import('views/pages/PlaylistProfile'));
+const TrackProfile = lazyImport(() => import('views/pages/TrackProfile'));
+const PostProfile = lazyImport(() => import('views/pages/PostProfile'));
+const LinksProfile = lazyImport(() => import('views/pages/LinksProfile'));
+const SearchResults = lazyImport(() => import('views/pages/SearchResults'));
+const SearchesResults = lazyImport(() => import('views/pages/SearchResults'));
 
-import TrackListLoopV2 from 'views/pages/PopularMusic/indexV2'; // Changed to single quotes
-import TrackListLoopV1 from 'views/pages/PopularMusic/index'; // Changed to single quotes
+const TrackListLoopV2 = lazyImport(() => import('views/pages/PopularMusic/indexV2'));
+const TrackListLoopV1 = lazyImport(() => import('views/pages/PopularMusic/index'));
 
-import { VideoFeedProfile } from 'views/pages/VideoFeedProfile'; // Changed to single quotes
-import { VideoFeed } from 'views/pages/VideoFeedProfile/VideoFeed'; // Changed to single quotes
-import { VideoFeedV2 } from 'views/pages/VideoFeedProfile/VideoFeedV2'; // Changed to single quotes
-import VideoProfile from 'views/pages/VideoProfile'; // Changed to single quotes
-import { PhotosPage } from 'src/views/pages/PhotosPage/PhotosPage';
-import { PhotosPageUnsplash } from 'views/pages/PhotosPage/PhotosPageUnsplash';
-import ProfilePage from 'views/pages/ProfilePage';
-import UsersPage from 'views/pages/UsersPage/UsersPage';
-import  NoteApp  from 'views/pages/NoteText/NoteApp';
-import  NoteTakingApp  from 'views/pages/NoteApp/NoteTakingApp';
-import  SearchByTag  from 'views/pages/SavedLinks/SearchByTag';
-import  LinkListByTag  from 'views/pages/SavedLinks/LinkListByTag';
-import  LinksList  from 'views/pages/SavedLinks/LinksList';
-import  JustDoListV2  from 'views/pages/JustDoList/JustDoListV2';
+const VideoFeedProfile = lazyImport(() => import('views/pages/VideoFeedProfile').then(m => ({ default: m.VideoFeedProfile })));
+const VideoFeedV2 = lazyImport(() => import('views/pages/VideoFeedProfile/VideoFeedV2').then(m => ({ default: m.VideoFeedV2 })));
+const VideoProfile = lazyImport(() => import('views/pages/VideoProfile'));
+const PhotosPageUnsplash = lazyImport(() => import('views/pages/PhotosPage/PhotosPageUnsplash').then(m => ({ default: m.PhotosPageUnsplash })));
+const PhotosPage = lazyImport(() => import('views/pages/PhotosPage/PhotosPage').then(m => ({ default: m.PhotosPage })));
+const ProfilePage = lazyImport(() => import('views/pages/ProfilePage'));
+const UserTracksPage = lazyImport(() => import('views/pages/UserTracksPage'));
+const PhotoAlbumPage = lazyImport(() => import('views/pages/PhotoAlbum'));
+const PhotoAlbumModalPage = lazyImport(() => import('views/pages/PhotoAlbum/PhotoAlbumModal'));
+const PhotoAlbumEditPage = lazyImport(() => import('views/pages/PhotoAlbum/PhotoAlbumEdit'));
+const UserVideosPage = lazyImport(() => import('views/pages/VideosPage'));
+const UsersPage = lazyImport(() => import('views/pages/UsersPage/UsersPage'));
+const NoteApp = lazyImport(() => import('views/pages/NoteText/NoteApp'));
+const NoteTakingApp = lazyImport(() => import('views/pages/NoteApp/NoteTakingApp'));
+const SearchByTag = lazyImport(() => import('views/pages/SavedLinks/SearchByTag'));
+const LinkListByTag = lazyImport(() => import('views/pages/SavedLinks/LinkListByTag'));
+const LinksList = lazyImport(() => import('views/pages/SavedLinks/LinksList'));
+const JustDoListV2 = lazyImport(() => import('views/pages/JustDoList/JustDoListV2'));
+const SettingsPage = lazyImport(() => import('views/pages/SettingsPage'));
+
+import PageLoader from 'views/components/PageLoader';
 
 export const ModalRouteContext = React.createContext();
 
 function ModalSwitch({ children, renderModal, stopSong, pauseSong, resumeSong, audioControl }) {
   const { isModal, switchLocation, contextValue, pathname } = useModalSwitchLogic();
-  useScrollMemory(); // Keep if you still need scroll memory
+  useScrollMemory();
 
   const auth = getState().users.access_token;
   const isMobile = window.innerWidth <= 768;
   const isChatPath = pathname.startsWith('/chat');
   const isSpecificChat = pathname !== '/chat/im' && isChatPath;
-  
+
   const showChatList = isChatPath && !(isMobile && isSpecificChat);
 
   return (
     <ModalRouteContext.Provider value={contextValue}>
       <LayoutWrapper isChat={isChatPath}>
         {showChatList && (
-          <ChatList 
-            emojiData={emojiData} 
-          />
+          <Suspense fallback={<PageLoader />}>
+            <ChatList
+              emojiData={emojiData}
+            />
+          </Suspense>
         )}
-        <Switch location={switchLocation}>
-          {/* Authentication Routes */}
-          <Route path="/login" render={props => auth ? (<Redirect to={{ pathname: '/feed', }} />) : (<LoginPage {...props} />)} />
-          <Route path="/signup" render={props => auth ? (<Redirect to={{ pathname: '/feed', }} />) : (<SignUpPage {...props} />)} />
-          <Route path="/auth/twitch/callback" component={TwitchAuthCallback} />
-          <Route path="/auth/google/callback" component={GoogleAuthCallback} />
+        <Suspense fallback={<PageLoader />}>
+          <Switch location={switchLocation}>
+            {/* Authentication Routes */}
+            <Route path="/login" render={props => auth ? (<Redirect to={{ pathname: '/feed', }} />) : (<LoginPage {...props} />)} />
+            <Route path="/signup" render={props => auth ? (<Redirect to={{ pathname: '/feed', }} />) : (<SignUpPage {...props} />)} />
+            <Route path="/auth/twitch/callback" component={TwitchAuthCallback} />
+            <Route path="/auth/google/callback" component={GoogleAuthCallback} />
+            <Route path="/auth/vk/callback" component={VkAuthCallback} />
 
-          {/* Upload Routes */}
-          <Route exact path="/cu" component={ChunkUpload} />
-          <Route exact path="/ax" component={PostCreator} />
-          <Route exact path="/s3upload" component={MediaUploader} />
-          <Route exact path="/create" component={PostCreator} />
+            {/* Upload Routes */}
+            <Route exact path="/cu" component={ChunkUpload} />
+            <Route exact path="/ax" component={PostCreator} />
+            <Route exact path="/s3upload" component={MediaUploader} />
+            <Route exact path="/create" component={PostCreator} />
 
-          {/* Feed/Browse Routes */}
-          <Route exact path="/movies" component={ModalMovies} />
-          <Route exact path="/feed" component={ModalMovies} /> {/* Consider if /movies and /feed should be the same */}
-          <Route exact path="/feedV2" component={ModalPosts} />
-          <Route exact path="/people" component={ModalPeople} />
-          <Route exact path="/users" component={UsersPage} />
-          <Route exact path="/magazines" component={ModalMagazines} />
-          <Route exact path="/albums" component={ModalAlbums} />
-          <Route exact path="/" component={SearchAppp} /> {/* Homepage */}
+            {/* Feed/Browse Routes */}
+            <Route exact path="/movies" component={ModalMovies} />
+            <Route exact path="/feed" component={ModalMovies} />
+            <Route exact path="/feedV2" component={ModalPosts} />
+            <Route exact path="/people" component={ModalPeople} />
+            <Route exact path="/users" component={UsersPage} />
+            <Route exact path="/magazines" component={ModalMagazines} />
+            <Route exact path="/albums" component={ModalAlbums} />
+            <Route exact path="/" component={SearchAppp} />
 
-          {/* Chat Routes */}
-          <Route exact path="/chat/im">
-            <ChatWindowContainer>
-              <h2>Select a chat to start messaging</h2>
-            </ChatWindowContainer>
-          </Route>
-          <Route exact path="/chat/:userId" component={ChatWindow} />
-          <Route exact path="/wow" component={ChatWindowGemini} />
+            {/* Chat Routes */}
+            <Route exact path="/chat/im">
+              <ChatWindowContainer>
+                <h2>Select a chat to start messaging</h2>
+              </ChatWindowContainer>
+            </Route>
+            <Route exact path="/chat/:userId" component={ChatWindow} />
+            <Route exact path="/chat/:userId/attachments" component={lazyImport(() => import('views/pages/ChatV3/Main/Attachments'))} />
+            <Route exact path="/wow" component={ChatWindowGemini} />
 
-          {/* Music Routes */}
-          <Route exact path="/musicv2" component={TrackListLoopV2} /> {/* Assuming TrackListLoopV2 is imported somewhere or defined here */}
-          <Route exact path="/musicv1" component={TrackListLoopV1} /> {/* Same for TrackListLoopV1 */}
+            {/* Music Routes */}
+            <Route exact path="/musicv2" component={TrackListLoopV2} />
+            <Route exact path="/musicv1" component={TrackListLoopV1} />
 
-          {/* Search Routes */}
-          <Route exact path="/search/:searchType" component={SearchResults} />
-          <Route exact path="/searches/:query" component={SearchResults} /> {/* Consider combining /search and /searches */}
-          <Route exact path="/searches/:type/:query" component={SearchResults} />
+            {/* Search Routes */}
+            <Route exact path="/search/:searchType" component={SearchResults} />
+            <Route exact path="/searches/:query" component={SearchResults} />
+            <Route exact path="/searches/:type/:query" component={SearchResults} />
 
-          {/* Profile Routes (can receive audio control props if needed by component) */}
-          <Route path="/movies/:movieId" component={MovieProfile} />
-          <Route path="/person/:personId" component={PersonProfile} />
-          <Route path="/artist/:artistId">
-            <ArtistProfile stopSong={stopSong} pauseSong={pauseSong} resumeSong={resumeSong} audioControl={audioControl} />
-          </Route>
-          <Route path="/album/:albumId">
-            <AlbumProfile stopSong={stopSong} pauseSong={pauseSong} resumeSong={resumeSong} audioControl={audioControl} />
-          </Route>
-          <Route path="/posts/:postId" component={PostProfile} />
-          <Route path="/playlist/:playlistId">
-            <PlaylistProfile stopSong={stopSong} pauseSong={pauseSong} resumeSong={resumeSong} audioControl={audioControl} />
-          </Route>
-          <Route path="/links/:linkId">
-            <LinksProfile stopSong={stopSong} pauseSong={pauseSong} resumeSong={resumeSong} audioControl={audioControl} />
-          </Route>
-          <Route path="/track/:trackId" component={TrackProfile} />
-          <Route path="/video/:videoId" component={VideoProfile} />
-          <Route path="/vine/:videoId" component={VideoProfile} /> {/* Duplicate, consider consolidating if same behavior */}
+            {/* Profile Routes */}
+            <Route path="/movies/:movieId" component={MovieProfile} />
+            <Route path="/person/:personId" component={PersonProfile} />
+            <Route path="/artist/:artistId">
+              <ArtistProfile stopSong={stopSong} pauseSong={pauseSong} resumeSong={resumeSong} audioControl={audioControl} />
+            </Route>
+            <Route path="/album/:albumId">
+              <AlbumProfile stopSong={stopSong} pauseSong={pauseSong} resumeSong={resumeSong} audioControl={audioControl} />
+            </Route>
+            <Route path="/posts/:postId" component={PostProfile} />
+            <Route path="/playlist/:playlistId">
+              <PlaylistProfile stopSong={stopSong} pauseSong={pauseSong} resumeSong={resumeSong} audioControl={audioControl} />
+            </Route>
+            <Route path="/links/:linkId">
+              <LinksProfile stopSong={stopSong} pauseSong={pauseSong} resumeSong={resumeSong} audioControl={audioControl} />
+            </Route>
+            <Route path="/track/:trackId" component={TrackProfile} />
+            <Route path="/video/:videoId" component={VideoProfile} />
+            <Route path="/vine/:videoId" component={VideoProfile} />
 
-          {/* Feed Routes */}
-          <Route path="/videos" component={VideoFeedV2} />
-          <Route path="/videofeed" component={VideoFeedProfile} /> {/* Assuming VideoFeedProfile is imported */}
-          <Route path="/photos" component={PhotosPageUnsplash} />
-          {/*<Route path="/notes" component={NoteApp} />*/}
-          <Route path="/notes" component={NoteTakingApp} />
-          <Route path="/todo" component={JustDoListV2} />
-          <Route path="/linktag/search" component={SearchByTag} />
-          <Route path="/linktag/all" component={LinksList} />
-          <Route path="/linktag/:tagname" component={LinkListByTag} />
+            {/* Feed Routes */}
+            <Route path="/videos" component={VideoFeedV2} />
+            <Route path="/videofeed" component={VideoFeedProfile} />
+            <Route path="/unsplash" component={PhotosPageUnsplash} />
+            <Route path="/notes" component={NoteTakingApp} />
+            <Route path="/todo" component={JustDoListV2} />
+            <Route path="/linktag/search" component={SearchByTag} />
+            <Route path="/linktag/all" component={LinksList} />
+            <Route path="/linktag/:tagname" component={LinkListByTag} />
 
-          {/* User Profile Route (Catch-all for usernames) */}
-          <Route path="/:username" component={ProfilePage} />
+            {/* Settings */}
+            <Route exact path="/settings" component={SettingsPage} />
 
-          {/* Catch-all for unhandled routes, consider if needed */}
-          {/* <Route path="*"><Redirect to="/movies" /> </Route> */}
-        </Switch>
+            {/* User Albums Route */}
+            <Route path="/:username/albums/:photoAlbumId/edit" component={PhotoAlbumEditPage} />
+            <Route path="/:username/albums/:photoAlbumId" component={PhotoAlbumModalPage} />
+            <Route path="/:username/albums" component={PhotoAlbumPage} />
+
+            {/* User Photos Route */}
+            <Route path="/:username/photos" component={PhotosPage} />
+
+            {/* User Tracks Route (must be before catch-all) */}
+            <Route path="/:username/tracks" component={UserTracksPage} />
+
+            {/* User Videos Route */}
+            <Route path="/:username/videos" component={UserVideosPage} />
+
+            {/* User Profile Route */}
+            <Route path="/:username" component={ProfilePage} />
+          </Switch>
+        </Suspense>
       </LayoutWrapper>
 
       {isModal && renderModal({
@@ -175,7 +201,6 @@ function ModalSwitch({ children, renderModal, stopSong, pauseSong, resumeSong, a
   );
 }
 
-// Styled components
 const LayoutWrapper = styled.div`
   display: ${({ isChat }) => (isChat ? 'flex' : 'block')};
   width: 100%;
@@ -185,14 +210,6 @@ const LayoutWrapper = styled.div`
   @media screen and (max-width: 768px) {
     flex-direction: ${({ isChat }) => (isChat ? 'column' : 'initial')};
   }
-`;
-
-const FlexDiv = styled.div``;
-
-const ChatAppContainer = styled.div`
-  display: flex;
-  height: 100vh;
-  overflow: hidden;
 `;
 
 const ChatWindowContainer = styled.div`

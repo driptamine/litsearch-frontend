@@ -9,6 +9,7 @@ import {
 } from 'views/pages/LoginPage/action';
 import { YoutubeContext } from 'views/pages/Auth/youtube/useToken';
 import { GoogleContext } from 'views/pages/Auth/google/useToken';
+import { VkContext } from 'views/pages/Auth/vk/useToken';
 
 import litloopLogo from 'views/assets/litloopLogo3.png';
 import { fetchAuthUser } from 'core/actions';
@@ -25,6 +26,7 @@ const LoginForm = () => {
   const dispatch = useDispatch();
   // const history = useHistory();
   const { setGoogleAccessToken, setGoogleUsername, setGoogleProfileImage } = useContext(GoogleContext) || {};
+  const { setVkAccessToken, setVkUsername, setVkProfileImage } = useContext(VkContext) || {};
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -63,6 +65,11 @@ const LoginForm = () => {
       if (e.data.username && setGoogleUsername) setGoogleUsername(e.data.username);
       if (e.data.profileImg && setGoogleProfileImage) setGoogleProfileImage(e.data.profileImg);
       history.push('/feed');
+    } else if (service === 'vk') {
+      if (e.data.access_token && setVkAccessToken) setVkAccessToken(e.data.access_token);
+      if (e.data.username && setVkUsername) setVkUsername(e.data.username);
+      if (e.data.profileImg && setVkProfileImage) setVkProfileImage(e.data.profileImg);
+      history.push('/feed');
     }
     // history.push('/');
   };
@@ -96,14 +103,16 @@ const LoginForm = () => {
           />
         </Grid>
         <Grid item xs={12}>
-          <LoginButton onClick={handleSubmit}>Login</LoginButton>
-          <Link to="/signup">Not Registered yet? Signup</Link>
+          <LoginButton type="submit" onClick={handleSubmit}>Login</LoginButton>
         </Grid>
+        <Link to="/signup">Not Registered yet? Signup</Link>
       </Form>
-
       <OAuthWrapper>
         <ReAuthenticateButton serviceName='Google' title="Sign in with Google" />
+        <ReAuthenticateButton serviceName='Vk' title="Sign in with VK" />
       </OAuthWrapper>
+
+      
     </Container>
   );
 };

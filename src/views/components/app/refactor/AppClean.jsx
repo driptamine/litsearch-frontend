@@ -56,6 +56,7 @@ import history  from 'core/services/history';
 import { TwitchContext, TwitchProvider } from 'views/pages/Auth/twitch/useToken';
 import { GoogleContext, GoogleProvider } from 'views/pages/Auth/google/useToken';
 import { SpotifyContext, SpotifyProvider } from 'views/pages/Auth/spotify/useToken';
+import { VkContext, VkProvider } from 'views/pages/Auth/vk/useToken';
 import { MusicPlayerContext, MusicPlayerProvider } from 'views/components/context/MusicPlayerContext';
 
 import { YoutubeContext, YoutubeProvider } from 'views/pages/Auth/youtube/useToken';
@@ -130,6 +131,7 @@ const App = () => {
   const { setTwitchAccessToken, setTwitchRefreshToken, setTwitchUserId, setTwitchUsername, setTwitchProfileImage } = useContext(TwitchContext) || {};
   const { setGoogleAccessToken, setGoogleRefreshToken, setGoogleUsername, setGoogleProfileImage } = useContext(GoogleContext) || {};
   const { setSpotifyAccessToken, setSpotifyRefreshToken, setSpotifyUsername, setSpotifyProfileImage } = useContext(SpotifyContext) || {};
+  const { setVkAccessToken, setVkUsername, setVkProfileImage } = useContext(VkContext) || {};
 
   const [childMessage, setChildMessage] = useState("");
   useEventListenerMemo('message', receiveMessage, window, true, { capture: false });
@@ -168,6 +170,11 @@ const App = () => {
         if (e.data.username && setSpotifyUsername) setSpotifyUsername(e.data.username);
         if (e.data.profileImg && setSpotifyProfileImage) setGoogleProfileImage(e.data.profileImg);
         // toggleEnabled('youtube', true);
+      } else if (e.data.service === 'vk') {
+        if (e.data.access_token && setVkAccessToken) setVkAccessToken(e.data.access_token);
+        if (e.data.username && setVkUsername) setVkUsername(e.data.username);
+        if (e.data.profileImg && setVkProfileImage) setVkProfileImage(e.data.profileImg);
+        dispatch(fetchOAuthUser(e.data));
       }
     }
   }
