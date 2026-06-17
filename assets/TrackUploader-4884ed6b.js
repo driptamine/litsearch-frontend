@@ -1,0 +1,1 @@
+import{j as o}from"./index-dea309cc.js";import{B as e}from"./BaseMediaUploader-c196fd43.js";const s=({onTrackUpload:a})=>o.jsx(e,{mediaType:["track"],onUploadComplete:a,label:"Upload Tracks"});export{s as T};
