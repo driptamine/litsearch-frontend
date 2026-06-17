@@ -3,8 +3,8 @@ export const BASE_API_URL = "//api.themoviedb.org/3";
 // export const TRACK_API_URL = "//localhost:8000";
 
 
-export const TRACK_API_URL = import.meta.env.MODE === 'development' ? 'http://localhost:8000' : 'https://litloop.duckdns.org'
-export const LITLOOP_API_URL = import.meta.env.MODE === 'development' ? 'http://localhost:8000' : 'https://litloop.duckdns.org'
+export const TRACK_API_URL = import.meta.env.MODE === 'development' ? 'http://localhost:8001' : 'https://litloop.duckdns.org'
+export const LITLOOP_API_URL = import.meta.env.MODE === 'development' ? 'http://localhost:8001' : 'https://litloop.duckdns.org'
 export const WS_URL = import.meta.env.MODE === 'development' ? 'ws://localhost:8000' : 'wss://litloop.duckdns.org'
 export const FRONTEND_CALLBACK_URL = import.meta.env.MODE === 'development' ? 'http://localhost:3001' : 'https://litloop.netlify.app'
 // export const FRONTEND_CALLBACK_URL = import.meta.env.MODE === 'production' ? 'http://localhost:3001' : 'https://litloop.netlify.app'
