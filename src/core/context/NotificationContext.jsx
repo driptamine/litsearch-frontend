@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useRef, useEff
 import { useSelector } from 'react-redux';
 import useSelectAuthUser from 'core/hooks/useSelectAuthUser';
 import useWebSocket from 'core/hooks/useWebSocket';
+import { getState } from 'core/store';
 
 const NotificationContext = createContext(null);
 
@@ -62,6 +63,16 @@ export const NotificationProvider = ({ children }) => {
     }, []),
     enabled,
   });
+
+  useEffect(() => {
+    if (isConnected) {
+      const users = getState().users || {};
+      const token = users.access_token || users.token?.access_token || (typeof users.token === 'string' ? users.token : users.token?.token);
+      if (token) {
+        send({ type: 'auth', token });
+      }
+    }
+  }, [isConnected, send]);
 
   const clearNotifications = useCallback(() => {
     setNotifications([]);
