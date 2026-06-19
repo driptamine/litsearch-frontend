@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams, useHistory, useRouteMatch } from 'react-router-dom';
 import { styled } from '@linaria/react';
 import { FaArrowLeft } from 'react-icons/fa';
 import { LITLOOP_API_URL } from 'core/constants/urls';
@@ -9,7 +9,9 @@ const TABS = ['Photos', 'Videos', 'Tracks'];
 const TAB_TYPE = { Photos: 'photo', Videos: 'video', Tracks: 'track' };
 
 const Attachments = () => {
-  const { userId } = useParams();
+  const { userId, chatId } = useParams();
+  const isGroupMatch = useRouteMatch('/chat/group/:chatId/attachments');
+  const isGroup = !!isGroupMatch;
   const history = useHistory();
   const [activeTab, setActiveTab] = useState('Photos');
   const [messages, setMessages] = useState([]);
@@ -19,13 +21,16 @@ const Attachments = () => {
     const fetch = async () => {
       setLoading(true);
       try {
-        const res = await getAxiosReq(`${LITLOOP_API_URL}/chats/u/${userId}/`);
+        const url = isGroup
+          ? `${LITLOOP_API_URL}/chats/group/${chatId}/`
+          : `${LITLOOP_API_URL}/chats/direct/${userId}/`;
+        const res = await getAxiosReq(url);
         setMessages(res.data?.messages || []);
       } catch (_) {}
       setLoading(false);
     };
     fetch();
-  }, [userId]);
+  }, [userId, chatId, isGroup]);
 
   const attachments = useMemo(() => {
     const type = TAB_TYPE[activeTab];

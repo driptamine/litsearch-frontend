@@ -1,13 +1,9 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { WS_URL } from 'core/constants/urls';
-import { getState } from 'core/store';
+import getAuthToken from 'core/utils/getAuthToken';
 
-const getToken = () => {
-  const users = getState().users || {};
-  return users.access_token || users.token?.access_token || (typeof users.token === 'string' ? users.token : users.token?.token);
-};
-
-const useWebSocket = (path, { onOpen, onMessage, onClose, onError, enabled = true } = {}) => {
+const useWebSocket = (path, { onOpen, onMessage, onClose, onError, enabled = true, requireAuth = false } = {}) => {
   const wsRef = useRef(null);
   const reconnectTimeoutRef = useRef(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -15,6 +11,11 @@ const useWebSocket = (path, { onOpen, onMessage, onClose, onError, enabled = tru
   const onOpenRef = useRef(onOpen);
   const onCloseRef = useRef(onClose);
   const onErrorRef = useRef(onError);
+  const rehydrated = useSelector(state => state._persist?.rehydrated);
+  const accessToken = useSelector(state => {
+    const users = state.users || {};
+    return users.access_token || users.access || (typeof users.token === 'string' ? users.token : users.token?.access_token);
+  });
 
   onMessageRef.current = onMessage;
   onOpenRef.current = onOpen;
@@ -42,7 +43,9 @@ const useWebSocket = (path, { onOpen, onMessage, onClose, onError, enabled = tru
   const connect = useCallback(() => {
     if (wsRef.current) disconnect();
 
-    const token = getToken();
+    const token = getAuthToken();
+    if (requireAuth && !token) return;
+
     const query = token ? `?token=${encodeURIComponent(token)}` : '';
     const url = `${WS_URL}${path}${query}`;
     const ws = new WebSocket(url);
@@ -71,16 +74,18 @@ const useWebSocket = (path, { onOpen, onMessage, onClose, onError, enabled = tru
     ws.onerror = () => {
       if (onErrorRef.current) onErrorRef.current();
     };
-  }, [path, disconnect]);
+  }, [path, requireAuth, disconnect]);
+
+  const canConnect = enabled && path && rehydrated !== false && (!requireAuth || !!getAuthToken());
 
   useEffect(() => {
-    if (!enabled) {
+    if (!canConnect) {
       disconnect();
       return;
     }
     connect();
     return disconnect;
-  }, [path, enabled, connect, disconnect]);
+  }, [path, canConnect, connect, disconnect, accessToken]);
 
   const send = useCallback((data) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {

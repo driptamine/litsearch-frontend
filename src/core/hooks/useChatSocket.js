@@ -54,6 +54,7 @@ const useChatSocket = (chatId, { onNewMessage, onTyping, onReadReceipt, onVoipCa
   const { send, isConnected } = useWebSocket(path, {
     onMessage: handleMessage,
     enabled: enabled && !!chatId,
+    requireAuth: true,
   });
 
   const sendMessage = useCallback((text, attachments = [], voiceMessageId = null) => {

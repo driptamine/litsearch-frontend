@@ -3,8 +3,8 @@ import { AddCookie, RemoveCookie, getCookie } from '../../views/utils';
 const COOKIE_OPTIONS = { 'max-age': 86400 * 30 };
 
 export const saveAuthCookies = (data) => {
-  const access_token = data?.access_token || data?.token;
-  const refresh_token = data?.refresh_token;
+  const access_token = data?.access_token || data?.access || data?.token;
+  const refresh_token = data?.refresh_token || data?.refresh;
 
   if (access_token && typeof access_token === 'string') {
     AddCookie('access_token', access_token, COOKIE_OPTIONS);

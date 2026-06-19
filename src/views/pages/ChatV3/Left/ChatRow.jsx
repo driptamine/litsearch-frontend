@@ -4,19 +4,29 @@ import { styled } from '@linaria/react';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
+const GROUP_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%232e7d32' rx='8'/%3E%3Ccircle cx='24' cy='16' r='7' fill='%23a5d6a7'/%3E%3Ccircle cx='14' cy='34' r='5' fill='%23a5d6a7'/%3E%3Ccircle cx='34' cy='34' r='5' fill='%23a5d6a7'/%3E%3C/svg%3E";
 
 const ChatRow = ({ chat, onClick }) => {
-  const otherUser = chat.target_user || chat.other_participant || {};
-  const displayName = otherUser.username || "User";
+  const isGroup = chat.chat_type === 'groupchat';
 
-  let avatarUrl = chat.image_url || otherUser.avatar;
+  const displayName = isGroup
+    ? (chat.name || 'Group')
+    : (chat.target_user?.username || chat.other_participant?.username || 'User');
+
+  const otherUser = chat.target_user || chat.other_participant || {};
+  const linkTo = isGroup ? `/chat/group/${chat.id}` : `/chat/${otherUser.id}`;
+
+  let avatarUrl = chat.image_url;
+  if (!avatarUrl && !isGroup) {
+    avatarUrl = otherUser.avatar;
+  }
 
   if (avatarUrl) {
     if (!avatarUrl.startsWith('http')) {
       avatarUrl = `${LITLOOP_API_URL}${avatarUrl.startsWith('/') ? '' : '/'}${avatarUrl}`;
     }
   } else {
-    avatarUrl = DEFAULT_AVATAR;
+    avatarUrl = isGroup ? GROUP_AVATAR : DEFAULT_AVATAR;
   }
 
   const lastMsg = chat.last_message;
@@ -24,19 +34,22 @@ const ChatRow = ({ chat, onClick }) => {
   const unreadCount = chat.unread_count || 0;
 
   return (
-    <LinkStyled to={`/chat/${otherUser.id}`} onClick={onClick}>
+    <LinkStyled to={linkTo} onClick={onClick}>
       <HoverWrapper>
         <ImgWrap>
           <Avatar
             src={avatarUrl}
             alt={displayName}
             onError={(e) => {
-              if (e.target.src !== DEFAULT_AVATAR) e.target.src = DEFAULT_AVATAR;
+              if (e.target.src !== DEFAULT_AVATAR && e.target.src !== GROUP_AVATAR) e.target.src = isGroup ? GROUP_AVATAR : DEFAULT_AVATAR;
             }}
           />
         </ImgWrap>
         <UserWrapper>
-          <User>{displayName}</User>
+          <Row>
+            <User>{displayName}</User>
+            {isGroup && <GroupBadge>Group</GroupBadge>}
+          </Row>
           <LastMessage>{lastMsgText}</LastMessage>
         </UserWrapper>
         {unreadCount > 0 && <UnreadBadge>{unreadCount}</UnreadBadge>}
@@ -66,6 +79,21 @@ const HoverWrapper = styled.div`
 const UserWrapper = styled.div`
   display: flex;
   flex-direction: column;
+`;
+
+const Row = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const GroupBadge = styled.span`
+  font-size: 10px;
+  color: #a5d6a7;
+  background-color: rgba(46, 125, 50, 0.3);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 600;
 `;
 
 const LastMessage = styled.div`

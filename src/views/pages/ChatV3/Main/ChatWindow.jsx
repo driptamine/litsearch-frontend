@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { styled } from '@linaria/react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams, useHistory, useRouteMatch } from 'react-router-dom';
 import axios from 'axios';
-import { FaArrowLeft, FaTrash, FaPhone, FaVideo, FaPhoneSlash } from 'react-icons/fa';
+import { FaArrowLeft, FaTrash, FaPhone, FaVideo, FaPhoneSlash, FaPaperclip, FaEllipsisV } from 'react-icons/fa';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader, getAxiosReq, postAxiosReq } from 'core/api/rest-helper';
 import ChatInput from 'views/pages/ChatV3/Main/ChatInput';
@@ -17,10 +17,13 @@ import CallOverlay from 'views/pages/ChatV3/Main/CallOverlay';
 import IncomingCallOverlay from 'views/pages/ChatV3/Main/IncomingCallOverlay';
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
+const GROUP_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%232e7d32' rx='8'/%3E%3Ccircle cx='24' cy='16' r='7' fill='%23a5d6a7'/%3E%3Ccircle cx='14' cy='34' r='5' fill='%23a5d6a7'/%3E%3Ccircle cx='34' cy='34' r='5' fill='%23a5d6a7'/%3E%3C/svg%3E";
 
 const ChatWindow = () => {
   const { authUser } = useSelectAuthUser();
-  const { userId } = useParams();
+  const { userId, chatId: groupChatId } = useParams();
+  const isGroupMatch = useRouteMatch('/chat/group/:chatId');
+  const isGroup = !!isGroupMatch;
   const history = useHistory();
   const { setUnreadChatCount, notifications, incomingCall, clearIncomingCall } = useNotifications();
 
@@ -32,6 +35,12 @@ const ChatWindow = () => {
   const [callState, setCallState] = useState('idle');
   const [callType, setCallType] = useState(null);
   const [demoDelay, setDemoDelay] = useState(false);
+  const [addMemberOpen, setAddMemberOpen] = useState(false);
+  const [memberSearch, setMemberSearch] = useState('');
+  const [memberResults, setMemberResults] = useState([]);
+  const [addingMember, setAddingMember] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef(null);
   const messagesEndRef = useRef(null);
   const voiceCacheRef = useRef(null);
 
@@ -197,7 +206,8 @@ const ChatWindow = () => {
   sendVoipWebRtcSignalRef.current = sendVoipWebRtcSignal;
 
   useEffect(() => {
-    if (!userId) {
+    const id = isGroup ? groupChatId : userId;
+    if (!id) {
       setChatInfo(null);
       setMessages([]);
       setActiveChatId(null);
@@ -208,26 +218,14 @@ const ChatWindow = () => {
     const fetchChatDetail = async () => {
       setLoading(true);
       try {
-        const url = `${LITLOOP_API_URL}/chats/u/${userId}/`;
+        const url = isGroup
+          ? `${LITLOOP_API_URL}/chats/group/${groupChatId}/`
+          : `${LITLOOP_API_URL}/chats/direct/${userId}/`;
         const response = await getAxiosReq(url);
         const data = response.data;
 
-        const participantInfo = data.target_user || data.other_participant || data.other_user || {};
-
-        let mergedInfo = {
-          name: data.name,
-          ...participantInfo
-        };
-
-        if (!mergedInfo.avatar && !mergedInfo.profileImg && !mergedInfo.avatar_url) {
-          try {
-            const userRes = await getAxiosReq(`${LITLOOP_API_URL}/users/${userId}/`);
-            mergedInfo = { ...mergedInfo, ...userRes.data };
-          } catch (_) {}
-        }
-
-        setChatInfo(mergedInfo);
-        setMessages(normalizeMessages(data.messages));
+        setChatInfo(data);
+        setMessages(normalizeMessages(data.messages || []));
         setActiveChatId(data.id);
 
         if (data.id) {
@@ -238,26 +236,25 @@ const ChatWindow = () => {
         }
       } catch (err) {
         console.error("Failed to fetch chat details:", err);
-        try {
-          const userRes = await getAxiosReq(`${LITLOOP_API_URL}/users/${userId}/`);
-          setChatInfo(userRes.data);
-        } catch (userErr) {
-          console.error("Failed to fetch user fallback:", userErr);
-        }
       } finally {
         setLoading(false);
       }
     };
     fetchChatDetail();
-  }, [userId]);
+  }, [userId, groupChatId, isGroup]);
 
   useEffect(() => {
-    if (!notifications?.length || !userId) return;
+    if (!notifications?.length || (!userId && !groupChatId)) return;
     const latest = notifications[0];
-    if (latest.type === 'new_message' && String(latest.chat_user_id) === String(userId)) {
+    const matches = isGroup
+      ? (latest.type === 'new_message' && String(latest.chat_id) === String(groupChatId))
+      : (latest.type === 'new_message' && String(latest.chat_user_id) === String(userId));
+    if (matches) {
       const refetch = async () => {
         try {
-          const url = `${LITLOOP_API_URL}/chats/u/${userId}/`;
+          const url = isGroup
+            ? `${LITLOOP_API_URL}/chats/group/${activeChatId}/`
+            : `${LITLOOP_API_URL}/chats/direct/${userId}/`;
           const response = await getAxiosReq(url);
           const data = response.data;
           if (data.id === activeChatId) {
@@ -267,7 +264,41 @@ const ChatWindow = () => {
       };
       refetch();
     }
-  }, [notifications, userId, activeChatId]);
+  }, [notifications, userId, groupChatId, activeChatId, isGroup]);
+
+  // User search for adding group members
+  const memberTimerRef = useRef(null);
+  useEffect(() => {
+    if (!memberSearch.trim() || !isGroup) {
+      setMemberResults([]);
+      return;
+    }
+    clearTimeout(memberTimerRef.current);
+    memberTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await getAxiosReq(`${LITLOOP_API_URL}/users/search/?q=${encodeURIComponent(memberSearch)}`);
+        const results = res.data?.results || [];
+        const existingIds = new Set(chatInfo?.participants?.map(p => p.id) || []);
+        setMemberResults(results.filter(u => !existingIds.has(u.id)));
+      } catch (_) { setMemberResults([]); }
+    }, 250);
+    return () => clearTimeout(memberTimerRef.current);
+  }, [memberSearch, isGroup, chatInfo?.participants]);
+
+  const handleAddMember = async (user) => {
+    setAddingMember(true);
+    try {
+      await postAxiosReq(`${LITLOOP_API_URL}/chats/group/${activeChatId}/add/`, { user_id: user.id });
+      setChatInfo(prev => ({
+        ...prev,
+        participants: [...(prev?.participants || []), user],
+      }));
+      setMemberSearch('');
+      setMemberResults([]);
+      setAddMemberOpen(false);
+    } catch (_) {}
+    setAddingMember(false);
+  };
 
   useEffect(() => {
     if (incomingCall && activeChatId && activeChatId === incomingCall.chatId) {
@@ -279,8 +310,18 @@ const ChatWindow = () => {
     if (voipConnected) setCallState('connected');
   }, [voipConnected]);
 
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setShowMenu(false);
+      }
+    };
+    if (showMenu) document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [showMenu]);
+
   const handleSendMessage = async (text, attachments = [], voiceMessageData = null) => {
-    if (!userId) return;
+    if (!userId && !groupChatId) return;
 
     const messageText = (text || '').trim();
     const voiceMessageId = voiceMessageData?.id;
@@ -303,10 +344,9 @@ const ChatWindow = () => {
     };
     setMessages((prev) => [...prev, tempMessage]);
 
+    if (!activeChatId) return;
     try {
-      const url = activeChatId
-        ? `${LITLOOP_API_URL}/chats/${activeChatId}/send/`
-        : `${LITLOOP_API_URL}/chats/u/${userId}/send/`;
+      const url = `${LITLOOP_API_URL}/chats/${activeChatId}/send/`;
 
       const body = { text: messageText, attachments };
       if (voiceMessageId != null) body.voice_message_id = voiceMessageId;
@@ -317,10 +357,6 @@ const ChatWindow = () => {
       setMessages((prev) => prev.map(msg =>
         (msg.tempId === tempId) ? { ...msg, ...newData, isTemp: false, sentByMe: true } : msg
       ));
-
-      if (!activeChatId && response.data.chat_id) {
-        setActiveChatId(response.data.chat_id);
-      }
     } catch (err) {
       console.error("Failed to send message:", err);
       setMessages((prev) => prev.filter(msg => msg.tempId !== tempId));
@@ -391,6 +427,12 @@ const ChatWindow = () => {
   };
 
   const targetAvatar = (() => {
+    if (isGroup) {
+      if (chatInfo?.image_url) {
+        return chatInfo.image_url.startsWith('http') ? chatInfo.image_url : `${LITLOOP_API_URL}/${chatInfo.image_url}`;
+      }
+      return GROUP_AVATAR;
+    }
     const raw = chatInfo?.avatar || chatInfo?.profileImg || chatInfo?.avatar_url || chatInfo?.profile_image_url || chatInfo?.picture;
     if (!raw) return DEFAULT_AVATAR;
     if (raw.startsWith('http')) return raw;
@@ -433,31 +475,74 @@ const ChatWindow = () => {
 
   return (
     <ChatWindowContainer>
-      {userId ? (
+      {(isGroup ? groupChatId : userId) ? (
         <>
           <Header>
             <BackButton onClick={() => history.push('/chat/im')}>
               <FaArrowLeft />
             </BackButton>
-            <Avatar
-              src={targetAvatar}
-              alt={chatInfo?.name || 'Chat'}
-              onError={(e) => {
-                if (e.target.src !== DEFAULT_AVATAR) e.target.src = DEFAULT_AVATAR;
-              }}
-            />
-            <UserInfo onClick={() => history.push(`/chat/${userId}/attachments`)}>
-              <Username>
-                {chatInfo?.name ||
-                 (chatInfo?.first_name ? `${chatInfo.first_name} ${chatInfo.last_name || ''}`.trim() : null) ||
-                 chatInfo?.username ||
-                 (loading ? 'Loading...' : 'New Message')}
-              </Username>
-              <StatusRow>
-                {chatInfo?.username && chatInfo?.name && <UserHandle>@{chatInfo.username}</UserHandle>}
+          <Avatar
+            src={targetAvatar}
+            alt={chatInfo?.name || 'Chat'}
+            onError={(e) => {
+              if (e.target.src !== DEFAULT_AVATAR) e.target.src = DEFAULT_AVATAR;
+            }}
+          />
+          <UserInfo>
+            <Username>
+              {isGroup
+                ? (chatInfo?.name || 'Group')
+                : (chatInfo?.first_name ? `${chatInfo.first_name} ${chatInfo.last_name || ''}`.trim() : null) ||
+                  chatInfo?.username ||
+                  (loading ? 'Loading...' : 'New Message')}
+            </Username>
+            {isGroup && chatInfo?.participants && (
+              <MemberAvatars>
+                {chatInfo.participants.slice(0, 5).map((p) => (
+                  <MemberAvatar key={p.id} src={p.avatar || ''} alt={p.username} title={p.username} />
+                ))}
+                {chatInfo.participants.length > 5 && <ExtraCount>+{chatInfo.participants.length - 5}</ExtraCount>}
+              </MemberAvatars>
+            )}
+            <StatusRow>
+                {isGroup ? (
+                  <GroupMeta>
+                    <GroupBadge>Group</GroupBadge>
+                    {chatInfo?.participants && (
+                      <MemberCount>{chatInfo.participants.length} members</MemberCount>
+                    )}
+                    <AddMemberBtn onClick={() => setAddMemberOpen(o => !o)} title="Add member">+</AddMemberBtn>
+                  </GroupMeta>
+                ) : (
+                  chatInfo?.username && <UserHandle>@{chatInfo.username}</UserHandle>
+                )}
                 <ConnectionDot connected={isConnected} />
-              </StatusRow>
-            </UserInfo>
+            </StatusRow>
+            {isGroup && addMemberOpen && (
+                <AddMemberWrap>
+                  <MemberSearchInput
+                    value={memberSearch}
+                    onChange={e => setMemberSearch(e.target.value)}
+                    placeholder="Search users..."
+                    autoFocus
+                  />
+                  {memberResults.length > 0 && (
+                    <MemberResults>
+                      {memberResults.map(u => (
+                        <MemberResultItem key={u.id} onClick={() => handleAddMember(u)}>
+                          <MemberResultAvatar src={u.avatar || ''} alt="" />
+                          <MemberResultName>{u.username}</MemberResultName>
+                        </MemberResultItem>
+                      ))}
+                    </MemberResults>
+                  )}
+                  {memberSearch && memberResults.length === 0 && !addingMember && (
+                    <NoResults>No users found</NoResults>
+                  )}
+                  {addingMember && <NoResults>Adding...</NoResults>}
+                </AddMemberWrap>
+              )}
+          </UserInfo>
             <RightActions>
               {!showIncomingOverlay && (inCall ? (
                 <EndCallButton onClick={handleEndCall} title="End call">
@@ -473,18 +558,26 @@ const ChatWindow = () => {
                   </CallButton>
                 </>
               ))}
-              <DemoButton
-                active={demoDelay}
-                onClick={() => setDemoDelay(d => !d)}
-                title={demoDelay ? 'Delay ON (2s)' : 'Delay OFF'}
-              >
-                {demoDelay ? '2s' : '1x'}
-              </DemoButton>
-              {activeChatId && !showIncomingOverlay && (
-                <DeleteButton onClick={handleDeleteChat} title="Delete chat">
-                  <FaTrash />
-                </DeleteButton>
-              )}
+              <MenuWrap ref={menuRef}>
+                <KebabBtn onClick={() => setShowMenu(s => !s)} title="More">
+                  <FaEllipsisV />
+                </KebabBtn>
+                {showMenu && (
+                  <Dropdown>
+                    <DropItem onClick={() => { setShowMenu(false); history.push(isGroup ? `/chat/group/${groupChatId}/attachments` : `/chat/${userId}/attachments`); }}>
+                      <FaPaperclip /> Attachments
+                    </DropItem>
+                    <DropItem onClick={() => { setShowMenu(false); setDemoDelay(d => !d); }}>
+                      {demoDelay ? '2s Delay ON' : '1x Delay OFF'}
+                    </DropItem>
+                    {activeChatId && !showIncomingOverlay && (
+                      <DropItem danger onClick={() => { setShowMenu(false); handleDeleteChat(); }}>
+                        <FaTrash /> Delete chat
+                      </DropItem>
+                    )}
+                  </Dropdown>
+                )}
+              </MenuWrap>
             </RightActions>
           </Header>
           <MessagesContainer>
@@ -620,6 +713,121 @@ const UserHandle = styled.span`
   font-size: 0.85rem;
 `;
 
+const GroupBadge = styled.span`
+  font-size: 10px;
+  color: #a5d6a7;
+  background-color: rgba(46, 125, 50, 0.3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+`;
+
+const GroupMeta = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const MemberCount = styled.span`
+  font-size: 11px;
+  color: #888;
+`;
+
+const MemberAvatars = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 2px 0;
+`;
+
+const MemberAvatar = styled.img`
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #444;
+  object-fit: cover;
+  border: 1px solid #2a2a2a;
+`;
+
+const ExtraCount = styled.span`
+  font-size: 10px;
+  color: #888;
+  margin-left: 2px;
+`;
+
+const AddMemberBtn = styled.button`
+  background: none;
+  border: 1px solid #444;
+  color: #009688;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  &:hover { background: rgba(0, 150, 136, 0.15); border-color: #009688; }
+`;
+
+const AddMemberWrap = styled.div`
+  margin-top: 4px;
+  position: relative;
+`;
+
+const MemberSearchInput = styled.input`
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #2a2a2a;
+  color: #fff;
+  font-size: 13px;
+  box-sizing: border-box;
+  &:focus { outline: none; border-color: #009688; }
+`;
+
+const MemberResults = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  max-height: 160px;
+  overflow-y: auto;
+  z-index: 10;
+`;
+
+const MemberResultItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  &:hover { background: #333; }
+`;
+
+const MemberResultAvatar = styled.img`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #444;
+`;
+
+const MemberResultName = styled.span`
+  font-size: 13px;
+`;
+
+const NoResults = styled.div`
+  padding: 8px 10px;
+  color: #888;
+  font-size: 12px;
+`;
+
 const RightActions = styled.div`
   display: flex;
   align-items: center;
@@ -627,21 +835,53 @@ const RightActions = styled.div`
   margin-left: auto;
 `;
 
-const DemoButton = styled.button`
+const KebabBtn = styled.button`
   background: none;
-  border: 1px solid ${({ active }) => (active ? '#009688' : '#444')};
-  color: ${({ active }) => (active ? '#009688' : '#666')};
+  border: none;
+  color: #888;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-family: monospace;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s;
-
   &:hover {
-    border-color: #009688;
     color: #009688;
+    background-color: rgba(0, 150, 136, 0.1);
   }
+`;
+
+const MenuWrap = styled.div`
+  position: relative;
+`;
+
+const Dropdown = styled.div`
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  min-width: 180px;
+  z-index: 100;
+  overflow: hidden;
+`;
+
+const DropItem = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  color: ${p => p.danger ? '#ff5252' : '#ddd'};
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+  &:hover { background: rgba(255,255,255,0.06); }
 `;
 
 const CallButton = styled.button`
@@ -675,24 +915,6 @@ const EndCallButton = styled.button`
   transition: all 0.2s;
 
   &:hover {
-    background-color: rgba(255, 68, 68, 0.1);
-  }
-`;
-
-const DeleteButton = styled.button`
-  background: none;
-  border: none;
-  color: #888;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-
-  &:hover {
-    color: #ff4444;
     background-color: rgba(255, 68, 68, 0.1);
   }
 `;

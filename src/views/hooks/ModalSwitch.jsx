@@ -127,6 +127,8 @@ function ModalSwitch({ children, renderModal, stopSong, pauseSong, resumeSong, a
               </ChatWindowContainer>
             </Route>
             <Route exact path="/chat/:userId" component={ChatWindow} />
+            <Route exact path="/chat/group/:chatId" component={ChatWindow} />
+            <Route exact path="/chat/group/:chatId/attachments" component={lazyImport(() => import('views/pages/ChatV3/Main/Attachments'))} />
             <Route exact path="/chat/:userId/attachments" component={lazyImport(() => import('views/pages/ChatV3/Main/Attachments'))} />
             <Route exact path="/wow" component={ChatWindowGemini} />
 

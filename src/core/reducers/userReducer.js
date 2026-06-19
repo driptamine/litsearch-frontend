@@ -43,7 +43,7 @@ const usersSlice = createSlice({
       })
       .addCase("setToken/fetch", (state, action) => {
         const response = action.payload;
-        const token = response.access_token || response.response?.access_token || response.token;
+        const token = response.access_token || response.access || response.response?.access_token || response.token;
         return { ...state, ...response, access_token: token };
       })
       .addCase("token/get", (state, action) => {
@@ -97,7 +97,7 @@ const usersSlice = createSlice({
 
         state.isFetching.token = false;
         state.isAuthorized = true;
-        state.access_token = userData?.access_token || userData?.token;
+        state.access_token = userData?.access_token || userData?.access || userData?.token;
         state.username = username;
         state.user__username = username; // Attach for compatibility
         Object.assign(state, userData);
@@ -111,7 +111,7 @@ const usersSlice = createSlice({
         const username = userData?.username || userData?.user?.username;
 
         state.isAuthorized = true;
-        state.access_token = userData?.access_token || userData?.token;
+        state.access_token = userData?.access_token || userData?.access || userData?.token;
         state.username = username;
         state.user__username = username; // Attach for compatibility
         Object.assign(state, userData);
@@ -194,6 +194,10 @@ const usersSlice = createSlice({
         }
         state[service] = oauthData;
         Object.assign(state, response);
+        if (response.access_token || response.access) {
+          state.access_token = response.access_token || response.access;
+          state.isAuthorized = true;
+        }
       })
       .addCase('user/SE_ACCESS_TOKEN', (state, action) => {
         const { scope, ...others } = action.payload;
