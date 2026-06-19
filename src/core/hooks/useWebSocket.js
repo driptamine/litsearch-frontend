@@ -61,7 +61,7 @@ const useWebSocket = (path, { onOpen, onMessage, onClose, onError, enabled = tru
     const token = getAuthToken();
     if (requireAuth && !token) return;
 
-    const url = buildWsUrl(path, token);
+    const url = buildWsUrl(path, requireAuth ? token : null);
     const existing = wsRef.current;
 
     if (
