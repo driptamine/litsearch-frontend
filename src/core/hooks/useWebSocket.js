@@ -20,10 +20,7 @@ const useWebSocket = (path, { onOpen, onMessage, onClose, onError, enabled = tru
   const onCloseRef = useRef(onClose);
   const onErrorRef = useRef(onError);
   const rehydrated = useSelector(state => state._persist?.rehydrated === true);
-  const accessToken = useSelector(state => {
-    const users = state.users || {};
-    return users.access_token || users.access || (typeof users.token === 'string' ? users.token : users.token?.access_token);
-  });
+  const accessToken = getAuthToken();
 
   onMessageRef.current = onMessage;
   onOpenRef.current = onOpen;
