@@ -8,9 +8,16 @@ const defaultApiUrl = isDev ? 'http://localhost:8001' : 'https://litloop.duckdns
 const defaultWsUrl = isDev ? 'ws://localhost:8000' : 'wss://litloop.duckdns.org';
 const defaultFrontendUrl = isDev ? 'http://localhost:3001' : 'https://litloop.netlify.app';
 
+const deriveWsUrl = (apiUrl) => {
+  if (!apiUrl) return null;
+  if (apiUrl.startsWith('https://')) return `wss://${apiUrl.slice('https://'.length)}`;
+  if (apiUrl.startsWith('http://')) return `ws://${apiUrl.slice('http://'.length)}`;
+  return null;
+};
+
 export const TRACK_API_URL = import.meta.env.VITE_API_URL || defaultApiUrl;
 export const LITLOOP_API_URL = import.meta.env.VITE_API_URL || defaultApiUrl;
-export const WS_URL = import.meta.env.VITE_WS_URL || defaultWsUrl;
+export const WS_URL = import.meta.env.VITE_WS_URL || deriveWsUrl(import.meta.env.VITE_API_URL) || defaultWsUrl;
 export const FRONTEND_CALLBACK_URL = import.meta.env.VITE_FRONTEND_URL || defaultFrontendUrl;
 // export const FRONTEND_CALLBACK_URL = import.meta.env.MODE === 'production' ? 'http://localhost:3001' : 'https://litloop.netlify.app'
 // export const TRACK_API_URL = import.meta.env.MODE === 'development' ? 'http://localhost:8000' : 'https://api.litloop.co'

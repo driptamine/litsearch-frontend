@@ -5,6 +5,9 @@ export const getAuthToken = () => {
   const users = getState().users || {};
   const fromStore =
     users.access_token ||
+    users.access ||
+    users.users?.access_token ||
+    users.users?.access ||
     users.token?.access_token ||
     (typeof users.token === 'string' ? users.token : users.token?.token) ||
     users.access;

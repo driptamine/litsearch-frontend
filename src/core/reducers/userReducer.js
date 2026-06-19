@@ -39,7 +39,17 @@ const usersSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(REHYDRATE, (state, action) => {
-        return { ...state, ...action.payload };
+        const persistedUsers = action.payload?.users;
+        if (!persistedUsers) return state;
+
+        const merged = { ...state, ...persistedUsers };
+        if (!merged.access_token && merged.users?.access_token) {
+          merged.access_token = merged.users.access_token;
+        }
+        if (!merged.access && merged.users?.access) {
+          merged.access = merged.users.access;
+        }
+        return merged;
       })
       .addCase("setToken/fetch", (state, action) => {
         const response = action.payload;

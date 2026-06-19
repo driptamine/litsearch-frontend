@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import useSelectAuthUser from 'core/hooks/useSelectAuthUser';
 import useWebSocket from 'core/hooks/useWebSocket';
 import { getAuthToken } from 'core/utils/getAuthToken';
 
@@ -13,7 +12,6 @@ export const useNotifications = () => {
 };
 
 export const NotificationProvider = ({ children }) => {
-  const { isSignedIn, authUser } = useSelectAuthUser();
   const rehydrated = useSelector(state => state._persist?.rehydrated);
   const [unreadChatCount, setUnreadChatCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
@@ -55,7 +53,7 @@ export const NotificationProvider = ({ children }) => {
     setIncomingCall(null);
   }, []);
 
-  const enabled = rehydrated && isSignedIn && !!authUser;
+  const enabled = rehydrated && !!getAuthToken();
   const { send, isConnected } = useWebSocket('/ws/notifications/', {
     onMessage: handleMessage,
     onError: useCallback(() => {

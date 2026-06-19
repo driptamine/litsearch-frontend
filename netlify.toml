@@ -2,6 +2,11 @@
     publish = "dist"
     command = "npm run build"
 
+[build.environment]
+    VITE_API_URL = "https://litloop.duckdns.org"
+    VITE_WS_URL = "wss://litloop.duckdns.org"
+    VITE_FRONTEND_URL = "https://litloop.netlify.app"
+
 # The following redirect is intended for use with most SPAs that handle
 # routing internally.
 [[redirects]]
