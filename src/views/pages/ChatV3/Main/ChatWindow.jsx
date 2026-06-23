@@ -326,7 +326,7 @@ const ChatWindow = () => {
   }, [showMenu]);
 
   const handleSendMessage = async (text, attachments = [], voiceMessageData = null) => {
-    if (!userId && !groupChatId) return;
+    if (!userId && !groupChatId && !isSaved) return;
 
     const messageText = (text || '').trim();
     const voiceMessageId = voiceMessageData?.id;
