@@ -65,7 +65,7 @@ function WebsiteCard({ websiteId }) {
 
       <Snippet
         dangerouslySetInnerHTML={{
-          __html: website.description
+          __html: website.body
         }}
       />
 

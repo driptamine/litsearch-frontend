@@ -42,15 +42,15 @@ function WebsiteCardCached({ websiteId }) {
             </div>
           </div><br/>
 
-          <div
+          {/*<div
             dangerouslySetInnerHTML={{
               __html: website.scrapped
             }}
-          />
+          />*/}
 
-          {/*<Snippet>
+          <Snippet>
             {website.description}
-          </Snippet>*/}
+          </Snippet>
 
 
           {/*<BaseCardHeader title={movie.title} subheader={subheader} />*/}

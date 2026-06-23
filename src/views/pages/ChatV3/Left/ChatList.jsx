@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { styled } from '@linaria/react';
-import { FaPlus, FaEllipsisV } from 'react-icons/fa';
+import { FaBookmark, FaPlus, FaEllipsisV } from 'react-icons/fa';
 import axios from 'axios';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader, getAxiosReq } from 'core/api/rest-helper';
@@ -96,6 +96,15 @@ const ChatList = ({ emojiData }) => {
         ))}
       </Tabs>
 
+      <SavedMessagesRow>
+        <LinkStyledSaved to="/chat/saved" onClick={() => {}}>
+          <SavedIconWrap>
+            <FaBookmark />
+          </SavedIconWrap>
+          <SavedLabel>Saved Messages</SavedLabel>
+        </LinkStyledSaved>
+      </SavedMessagesRow>
+
       {loading && chats.length === 0 && (
         <div style={{ padding: '20px', color: '#888' }}>Loading chats...</div>
       )}
@@ -104,7 +113,7 @@ const ChatList = ({ emojiData }) => {
         <div style={{ padding: '20px', color: '#888' }}>No conversations yet.</div>
       )}
 
-      {chats?.map((chat) => (
+      {chats?.filter(c => !c.is_saved_messages)?.map((chat) => (
         <div key={chat.id}>
           <ChatRow
             chat={chat}
@@ -300,6 +309,44 @@ const User = styled.div`
   font-family: Arial;
   color: var(--text, #fff);
   cursor: pointer;
+`;
+
+const SavedMessagesRow = styled.div`
+  padding: 6px 0;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #333;
+`;
+
+const LinkStyledSaved = styled(Link)`
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+  &:hover {
+    background-color: var(--chatHoverText, #2e2e2e);
+  }
+`;
+
+const SavedIconWrap = styled.div`
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: #2a2a2a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #009688;
+  font-size: 20px;
+`;
+
+const SavedLabel = styled.div`
+  font-size: 15px;
+  font-family: Arial;
+  color: var(--text, #fff);
+  font-weight: 500;
 `;
 
 export default ChatList;

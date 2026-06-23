@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { styled } from '@linaria/react';
 import { useParams, useHistory, useRouteMatch } from 'react-router-dom';
 import axios from 'axios';
-import { FaArrowLeft, FaTrash, FaPhone, FaVideo, FaPhoneSlash, FaPaperclip, FaEllipsisV } from 'react-icons/fa';
+import { FaArrowLeft, FaBookmark, FaTrash, FaPhone, FaVideo, FaPhoneSlash, FaPaperclip, FaEllipsisV } from 'react-icons/fa';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader, getAxiosReq, postAxiosReq } from 'core/api/rest-helper';
 import ChatInput from 'views/pages/ChatV3/Main/ChatInput';
@@ -24,6 +24,8 @@ const ChatWindow = () => {
   const { userId, chatId: groupChatId } = useParams();
   const isGroupMatch = useRouteMatch('/chat/group/:chatId');
   const isGroup = !!isGroupMatch;
+  const isSavedMatch = useRouteMatch('/chat/saved');
+  const isSaved = !!isSavedMatch;
   const history = useHistory();
   const { setUnreadChatCount, notifications, incomingCall, clearIncomingCall } = useNotifications();
 
@@ -206,7 +208,7 @@ const ChatWindow = () => {
   sendVoipWebRtcSignalRef.current = sendVoipWebRtcSignal;
 
   useEffect(() => {
-    const id = isGroup ? groupChatId : userId;
+    const id = isGroup ? groupChatId : (isSaved ? 'saved' : userId);
     if (!id) {
       setChatInfo(null);
       setMessages([]);
@@ -218,9 +220,11 @@ const ChatWindow = () => {
     const fetchChatDetail = async () => {
       setLoading(true);
       try {
-        const url = isGroup
-          ? `${LITLOOP_API_URL}/chats/group/${groupChatId}/`
-          : `${LITLOOP_API_URL}/chats/direct/${userId}/`;
+        const url = isSaved
+          ? `${LITLOOP_API_URL}/chats/saved/`
+          : isGroup
+            ? `${LITLOOP_API_URL}/chats/group/${groupChatId}/`
+            : `${LITLOOP_API_URL}/chats/direct/${userId}/`;
         const response = await getAxiosReq(url);
         const data = response.data;
 
@@ -228,7 +232,7 @@ const ChatWindow = () => {
         setMessages(normalizeMessages(data.messages || []));
         setActiveChatId(data.id);
 
-        if (data.id) {
+        if (data.id && !isSaved) {
           try {
             await postAxiosReq(`${LITLOOP_API_URL}/chats/${data.id}/read/`, {});
             setUnreadChatCount(0);
@@ -241,9 +245,10 @@ const ChatWindow = () => {
       }
     };
     fetchChatDetail();
-  }, [userId, groupChatId, isGroup]);
+  }, [userId, groupChatId, isGroup, isSaved]);
 
   useEffect(() => {
+    if (isSaved) return;
     if (!notifications?.length || (!userId && !groupChatId)) return;
     const latest = notifications[0];
     const matches = isGroup
@@ -264,7 +269,7 @@ const ChatWindow = () => {
       };
       refetch();
     }
-  }, [notifications, userId, groupChatId, activeChatId, isGroup]);
+  }, [notifications, userId, groupChatId, activeChatId, isGroup, isSaved]);
 
   // User search for adding group members
   const memberTimerRef = useRef(null);
@@ -376,6 +381,7 @@ const ChatWindow = () => {
   };
 
   const handleInputChange = (isTyping) => {
+    if (isSaved) return;
     sendTyping(isTyping);
   };
 
@@ -475,12 +481,17 @@ const ChatWindow = () => {
 
   return (
     <ChatWindowContainer>
-      {(isGroup ? groupChatId : userId) ? (
+      {(isSaved || isGroup ? groupChatId : userId) ? (
         <>
           <Header>
             <BackButton onClick={() => history.push('/chat/im')}>
               <FaArrowLeft />
             </BackButton>
+          {isSaved ? (
+            <SavedIconWrap>
+              <FaBookmark size={22} />
+            </SavedIconWrap>
+          ) : (
           <Avatar
             src={targetAvatar}
             alt={chatInfo?.name || 'Chat'}
@@ -488,15 +499,18 @@ const ChatWindow = () => {
               if (e.target.src !== DEFAULT_AVATAR) e.target.src = DEFAULT_AVATAR;
             }}
           />
+          )}
           <UserInfo>
             <Username>
-              {isGroup
-                ? (chatInfo?.name || 'Group')
-                : (chatInfo?.first_name ? `${chatInfo.first_name} ${chatInfo.last_name || ''}`.trim() : null) ||
-                  chatInfo?.username ||
-                  (loading ? 'Loading...' : 'New Message')}
+              {isSaved
+                ? 'Saved Messages'
+                : isGroup
+                  ? (chatInfo?.name || 'Group')
+                  : (chatInfo?.first_name ? `${chatInfo.first_name} ${chatInfo.last_name || ''}`.trim() : null) ||
+                    chatInfo?.username ||
+                    (loading ? 'Loading...' : 'New Message')}
             </Username>
-            {isGroup && chatInfo?.participants && (
+            {!isSaved && isGroup && chatInfo?.participants && (
               <MemberAvatars>
                 {chatInfo.participants.slice(0, 5).map((p) => (
                   <MemberAvatar key={p.id} src={p.avatar || ''} alt={p.username} title={p.username} />
@@ -504,6 +518,7 @@ const ChatWindow = () => {
                 {chatInfo.participants.length > 5 && <ExtraCount>+{chatInfo.participants.length - 5}</ExtraCount>}
               </MemberAvatars>
             )}
+            {!isSaved && (
             <StatusRow>
                 {isGroup ? (
                   <GroupMeta>
@@ -518,7 +533,8 @@ const ChatWindow = () => {
                 )}
                 <ConnectionDot connected={isConnected} />
             </StatusRow>
-            {isGroup && addMemberOpen && (
+            )}
+            {!isSaved && isGroup && addMemberOpen && (
                 <AddMemberWrap>
                   <MemberSearchInput
                     value={memberSearch}
@@ -544,7 +560,7 @@ const ChatWindow = () => {
               )}
           </UserInfo>
             <RightActions>
-              {!showIncomingOverlay && (inCall ? (
+              {!isSaved && !showIncomingOverlay && (inCall ? (
                 <EndCallButton onClick={handleEndCall} title="End call">
                   <FaPhoneSlash />
                 </EndCallButton>
@@ -564,13 +580,15 @@ const ChatWindow = () => {
                 </KebabBtn>
                 {showMenu && (
                   <Dropdown>
-                    <DropItem onClick={() => { setShowMenu(false); history.push(isGroup ? `/chat/group/${groupChatId}/attachments` : `/chat/${userId}/attachments`); }}>
-                      <FaPaperclip /> Attachments
+                    <DropItem onClick={() => { setShowMenu(false); history.push(isSaved ? '/chat/saved' : (isGroup ? `/chat/group/${groupChatId}/attachments` : `/chat/${userId}/attachments`)); }}>
+                      <FaPaperclip /> {isSaved ? 'Saved Messages' : 'Attachments'}
                     </DropItem>
+                    {!isSaved && (
                     <DropItem onClick={() => { setShowMenu(false); setDemoDelay(d => !d); }}>
                       {demoDelay ? '2s Delay ON' : '1x Delay OFF'}
                     </DropItem>
-                    {activeChatId && !showIncomingOverlay && (
+                    )}
+                    {activeChatId && !showIncomingOverlay && !isSaved && (
                       <DropItem danger onClick={() => { setShowMenu(false); handleDeleteChat(); }}>
                         <FaTrash /> Delete chat
                       </DropItem>
@@ -593,7 +611,7 @@ const ChatWindow = () => {
                 <TheirMessage key={message.id || message.tempId || index} message={message} formatTime={formatTime} />
               );
             })}
-            {partnerTyping && (
+            {!isSaved && partnerTyping && (
               <TypingIndicator>
                 <TypingDots>
                   <span>.</span><span>.</span><span>.</span>
@@ -989,6 +1007,18 @@ const TypingLabel = styled.span`
   color: #888;
   margin-left: 8px;
   font-style: italic;
+`;
+
+const SavedIconWrap = styled.div`
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: #2a2a2a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #009688;
+  flex-shrink: 0;
 `;
 
 export default ChatWindow;

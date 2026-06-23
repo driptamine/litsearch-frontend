@@ -44,9 +44,9 @@ const UsersPage = () => {
       <Header>
         <Title>Explore Users</Title>
         <SearchForm onSubmit={handleSearch}>
-          <SearchInput 
-            type="text" 
-            placeholder="Search users..." 
+          <SearchInput
+            type="text"
+            placeholder="Search users..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -64,16 +64,16 @@ const UsersPage = () => {
         <UserGrid>
           {users.map((user) => {
             const rawAvatar = user.avatar || user.profileImg;
-            const avatarUrl = rawAvatar 
+            const avatarUrl = rawAvatar
               ? (rawAvatar.startsWith('http') ? rawAvatar : `${LITLOOP_API_URL}${rawAvatar.startsWith('/') ? '' : '/'}${rawAvatar}`)
               : DEFAULT_AVATAR;
 
             return (
               <UserCard key={user.id} to={`/${user.username}`}>
-                <Avatar 
-                  src={avatarUrl} 
-                  alt={user.username} 
-                  onError={(e) => { 
+                <Avatar
+                  src={avatarUrl}
+                  alt={user.username}
+                  onError={(e) => {
                     if (e.target.src !== DEFAULT_AVATAR) {
                       e.target.src = DEFAULT_AVATAR;
                     }
@@ -82,8 +82,8 @@ const UsersPage = () => {
                 <UserInfo>
                   <Username>{user.username}</Username>
                   <FullName>
-                    {user.first_name || user.last_name 
-                      ? `${user.first_name || ''} ${user.last_name || ''}`.trim() 
+                    {user.first_name || user.last_name
+                      ? `${user.first_name || ''} ${user.last_name || ''}`.trim()
                       : `@${user.username}`}
                   </FullName>
                 </UserInfo>
@@ -173,7 +173,8 @@ const UserCard = styled(Link)`
 
   &:hover {
     transform: translateY(-5px);
-    background: rgba(255, 255, 255, 0.08);
+    /* background: rgba(255, 255, 255, 0.08); */
+    background: rgb(138 138 138 / 7%);
     border-color: rgba(255, 255, 255, 0.1);
   }
 `;

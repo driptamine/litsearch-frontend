@@ -126,6 +126,7 @@ function ModalSwitch({ children, renderModal, stopSong, pauseSong, resumeSong, a
                 <h2>Select a chat to start messaging</h2>
               </ChatWindowContainer>
             </Route>
+            <Route exact path="/chat/saved" component={ChatWindow} />
             <Route exact path="/chat/:userId" component={ChatWindow} />
             <Route exact path="/chat/group/:chatId" component={ChatWindow} />
             <Route exact path="/chat/group/:chatId/attachments" component={lazyImport(() => import('views/pages/ChatV3/Main/Attachments'))} />

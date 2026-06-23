@@ -1,32 +1,33 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { styled } from '@linaria/react';
+import { FaBookmark } from 'react-icons/fa';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
 const GROUP_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%232e7d32' rx='8'/%3E%3Ccircle cx='24' cy='16' r='7' fill='%23a5d6a7'/%3E%3Ccircle cx='14' cy='34' r='5' fill='%23a5d6a7'/%3E%3Ccircle cx='34' cy='34' r='5' fill='%23a5d6a7'/%3E%3C/svg%3E";
 
 const ChatRow = ({ chat, onClick }) => {
+  const isSaved = chat.is_saved_messages;
   const isGroup = chat.chat_type === 'groupchat';
 
-  const displayName = isGroup
-    ? (chat.name || 'Group')
-    : (chat.target_user?.username || chat.other_participant?.username || 'User');
+  const displayName = isSaved
+    ? 'Saved Messages'
+    : isGroup
+      ? (chat.name || 'Group')
+      : (chat.target_user?.username || chat.other_participant?.username || 'User');
 
-  const otherUser = chat.target_user || chat.other_participant || {};
-  const linkTo = isGroup ? `/chat/group/${chat.id}` : `/chat/${otherUser.id}`;
+  const linkTo = isSaved ? '/chat/saved' : (isGroup ? `/chat/group/${chat.id}` : `/chat/${(chat.target_user || chat.other_participant || {}).id}`);
 
   let avatarUrl = chat.image_url;
-  if (!avatarUrl && !isGroup) {
-    avatarUrl = otherUser.avatar;
+  if (!avatarUrl && !isGroup && !isSaved) {
+    avatarUrl = (chat.target_user || chat.other_participant || {}).avatar;
   }
 
   if (avatarUrl) {
     if (!avatarUrl.startsWith('http')) {
       avatarUrl = `${LITLOOP_API_URL}${avatarUrl.startsWith('/') ? '' : '/'}${avatarUrl}`;
     }
-  } else {
-    avatarUrl = isGroup ? GROUP_AVATAR : DEFAULT_AVATAR;
   }
 
   const lastMsg = chat.last_message;
@@ -37,13 +38,19 @@ const ChatRow = ({ chat, onClick }) => {
     <LinkStyled to={linkTo} onClick={onClick}>
       <HoverWrapper>
         <ImgWrap>
-          <Avatar
-            src={avatarUrl}
-            alt={displayName}
-            onError={(e) => {
-              if (e.target.src !== DEFAULT_AVATAR && e.target.src !== GROUP_AVATAR) e.target.src = isGroup ? GROUP_AVATAR : DEFAULT_AVATAR;
-            }}
-          />
+          {isSaved ? (
+            <SavedIconWrap>
+              <FaBookmark size={22} />
+            </SavedIconWrap>
+          ) : (
+            <Avatar
+              src={avatarUrl || (isGroup ? GROUP_AVATAR : DEFAULT_AVATAR)}
+              alt={displayName}
+              onError={(e) => {
+                if (e.target.src !== DEFAULT_AVATAR && e.target.src !== GROUP_AVATAR) e.target.src = isGroup ? GROUP_AVATAR : DEFAULT_AVATAR;
+              }}
+            />
+          )}
         </ImgWrap>
         <UserWrapper>
           <Row>
@@ -125,6 +132,17 @@ const UnreadBadge = styled.div`
 
 const ImgWrap = styled.div`
   padding-right: 12px;
+`;
+
+const SavedIconWrap = styled.div`
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: #2a2a2a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #009688;
 `;
 
 const Avatar = styled.img`
