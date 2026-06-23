@@ -1,10 +1,12 @@
 import React, { useEffect, useContext, useCallback, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { Route, useLocation } from 'react-router-dom';
+import { Route, useLocation, Link } from 'react-router-dom';
+import ModalLink from 'views/components/ModalLink';
 import { useDispatch, useSelector } from 'react-redux';
 import { RecoilRoot } from 'recoil';
 import { styled } from '@linaria/react';
 import { FRONTEND_CALLBACK_URL } from 'core/constants/urls';
+import { FaPlus } from 'react-icons/fa';
 
 import { useThemeMode } from 'views/components/Toggle/useThemeMode'
 import useKeyboardShortcut from 'use-keyboard-shortcut';
@@ -285,6 +287,15 @@ const App = () => {
         )}
 
         {showBottomNav && <BottomNavbar />}
+        {isMobile ? (
+          <CreateButton to="/create_post">
+            <FaPlus size={22} />
+          </CreateButton>
+        ) : (
+          <CreateBtnModal to="/create_post">
+            <FaPlus size={22} />
+          </CreateBtnModal>
+        )}
       </StyledWrapper>
       </NotificationProvider>
 
@@ -341,5 +352,35 @@ const StyledWrapper = styled.div`
   display: flex;
   flex-direction: column;
 `;
+
+const btnStyles = `
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  z-index: 1001;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #1d9bf0;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(29, 155, 240, 0.4);
+  transition: transform 0.2s, background 0.2s;
+
+  &:hover {
+    background: #1a8cd8;
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+`;
+
+const CreateButton = styled(Link)`${btnStyles}`;
+const CreateBtnModal = styled(ModalLink)`${btnStyles}`;
 
 export default AppRoutesContainer;

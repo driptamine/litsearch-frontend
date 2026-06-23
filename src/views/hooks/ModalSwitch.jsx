@@ -20,6 +20,7 @@ import emojiData from 'views/pages/ChatV3/emoji.json';
 const ChunkUpload = lazyImport(() => import('views/components/upload/ChunkUpload'));
 const MediaUploader = lazyImport(() => import('views/components/upload/MediaUploader'));
 const PostCreator = lazyImport(() => import('views/components/upload/uploader/posts/PostCreator'));
+const PostCreatorSection = lazyImport(() => import('views/pages/PostCreatorSection'));
 
 // MODALS
 const ModalMovies = lazyImport(() => import('views/components/ModalMovies'));
@@ -109,6 +110,7 @@ function ModalSwitch({ children, renderModal, stopSong, pauseSong, resumeSong, a
             <Route exact path="/ax" component={PostCreator} />
             <Route exact path="/s3upload" component={MediaUploader} />
             <Route exact path="/create" component={PostCreator} />
+            <Route exact path="/create_post" component={PostCreatorSection} />
 
             {/* Feed/Browse Routes */}
             <Route exact path="/movies" component={ModalMovies} />

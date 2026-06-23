@@ -7,6 +7,7 @@ const MovieProfile  = lazyImport(() => import('views/pages/MovieProfile'));
 const AlbumProfile  = lazyImport(() => import('views/pages/AlbumProfile'));
 const TrackProfile  = lazyImport(() => import('views/pages/TrackProfile'));
 const PostProfile  = lazyImport(() => import('views/pages/PostProfile'));
+const PostCreatorSection  = lazyImport(() => import('views/pages/PostCreatorSection'));
 const PlaylistProfile  = lazyImport(() => import('views/pages/PlaylistProfile'));
 const ArtistProfile  = lazyImport(() => import('views/pages/ArtistProfile'));
 const LinksProfile  = lazyImport(() => import('views/pages/LinksProfile'));
@@ -39,6 +40,7 @@ function ModalRoutes({ stopSong, pauseSong, resumeSong, audioControl }) {
             <ModalRoute path="/playlist/:playlistId" component={PlaylistProfile}/>
             <ModalRoute path="/artist/:artistId" component={ArtistProfile}/>
             <ModalRoute path="/links/:linkId" component={LinksProfile}/>
+            <ModalRoute exact path="/create_post" component={PostCreatorSection}/>
           </ModalCustom>
         )}
 

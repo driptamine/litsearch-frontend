@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { styled } from '@linaria/react';
 import { LITLOOP_API_URL } from 'core/constants/urls';
@@ -8,6 +8,7 @@ import LikeButton from 'views/components/LikeButton/LikeButton';
 import PostCard from 'views/components/PostCard';
 import TrackRow from 'views/components/TrackRow';
 import CustomPlayerV4 from 'views/components/video-player/web/CustomPlayerV4';
+import Impressions from 'views/components/Impressions';
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
 
@@ -18,7 +19,6 @@ const UserPosts = ({ username, newPosts = [], isOwnProfile = false }) => {
   const [viewMode, setViewMode] = useState('feed');
   const [editingPostId, setEditingPostId] = useState(null);
   const [editingDescription, setEditingDescription] = useState('');
-
   useEffect(() => {
     const fetchUserPosts = async () => {
       setIsLoading(true);
@@ -114,6 +114,52 @@ const UserPosts = ({ username, newPosts = [], isOwnProfile = false }) => {
       ));
     }
   };
+
+  const impressionQueueRef = useRef(new Set());
+  const seenPostsRef = useRef(new Set());
+  const flushTimerRef = useRef(null);
+  const feedObserverRef = useRef(null);
+
+  const flushImpressions = useCallback(async () => {
+    const ids = [...impressionQueueRef.current];
+    if (!ids.length) return;
+    impressionQueueRef.current = new Set();
+    try {
+      await axios.post(`${LITLOOP_API_URL}/posts/impressions/batch/`, { post_ids: ids }, { headers: authHeader() });
+      setPosts(prev => prev.map(p => ids.includes(p.id || p.post_id) ? { ...p, impressions_count: (p.impressions_count || 0) + 1 } : p));
+    } catch (_) {}
+  }, []);
+
+  useEffect(() => {
+    flushTimerRef.current = setInterval(flushImpressions, 3000);
+    return () => {
+      clearInterval(flushTimerRef.current);
+      flushImpressions();
+    };
+  }, [flushImpressions]);
+
+  const observePost = useCallback((el, postId) => {
+    if (!el || !feedObserverRef.current) return;
+    el.dataset.postId = postId;
+    feedObserverRef.current.observe(el);
+  }, []);
+
+  useEffect(() => {
+    seenPostsRef.current = new Set();
+    feedObserverRef.current = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          const id = entry.target.dataset.postId;
+          if (id && !seenPostsRef.current.has(id)) {
+            seenPostsRef.current.add(id);
+            impressionQueueRef.current.add(Number(id));
+            feedObserverRef.current.unobserve(entry.target);
+          }
+        }
+      }
+    }, { threshold: 0.5 });
+    return () => feedObserverRef.current?.disconnect();
+  }, []);
 
   const allPosts = useMemo(() => {
     const fetchedPosts = Array.isArray(posts) ? posts : [];
@@ -227,7 +273,7 @@ const UserPosts = ({ username, newPosts = [], isOwnProfile = false }) => {
         const isEditing = editingPostId === postId;
 
         return (
-          <FeedPost key={postId} to={`/posts/${postId}`}>
+          <FeedPost key={postId} to={`/posts/${postId}`} ref={(el) => observePost(el, postId)}>
             <FeedAvatar src={authorAvatar} alt={authorName} />
             <FeedMainContent>
               <FeedHeader>
@@ -274,6 +320,7 @@ const UserPosts = ({ username, newPosts = [], isOwnProfile = false }) => {
                      likesCount={post.likes_count}
                      onClick={() => handleLike(postId)}
                    />
+                   <Impressions count={post.impressions_count} />
                    {post.photo_ids?.length > 0 && <span>📷 {post.photo_ids.length}</span>}
                    {post.video_ids?.length > 0 && <span>🎥 {post.video_ids.length}</span>}
                    {post.track_ids?.length > 0 && <span>🎵 {post.track_ids.length}</span>}
@@ -326,6 +373,10 @@ const UserPosts = ({ username, newPosts = [], isOwnProfile = false }) => {
   );
 
   return (
+    <>
+      <ObserverOverlay>
+        <ObserverLabel>IO viewport (threshold 0.5)</ObserverLabel>
+      </ObserverOverlay>
     <Wrapper>
       <ViewSwitcher>
         <ViewButton active={viewMode === 'grid'} onClick={() => setViewMode('grid')}>Grid</ViewButton>
@@ -337,6 +388,7 @@ const UserPosts = ({ username, newPosts = [], isOwnProfile = false }) => {
       {viewMode === 'feed' && renderFeed()}
       {viewMode === 'gallery' && renderGallery()}
     </Wrapper>
+    </>
   );
 };
 
@@ -740,6 +792,28 @@ const NoPosts = styled.div`
   border-radius: 12px;
   border: 1px dashed #444;
   width: 100%;
+`;
+
+const ObserverOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  border: 2px dashed rgba(0, 255, 100, 0.5);
+  pointer-events: none;
+  z-index: 9999;
+`;
+
+const ObserverLabel = styled.div`
+  position: fixed;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #0f6;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  z-index: 9999;
+  pointer-events: none;
+  font-family: monospace;
 `;
 
 export default UserPosts;

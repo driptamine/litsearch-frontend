@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import  {Link, useParams,  }  from 'react-router-dom';
+import  {Link, useParams, useLocation }  from 'react-router-dom';
 import { styled } from '@linaria/react';
 import axios from 'axios';
 import useSelectAuthUser from 'core/hooks/useSelectAuthUser';
@@ -17,10 +17,18 @@ const ProfilePage = () => {
   const dispatch = useDispatch();
   const fileInputRef = useRef(null);
   const [newPosts, setNewPosts] = useState([]);
+  const location = useLocation();
   const [profileData, setProfileData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const displayUsername = urlUsername || authUser?.username || authUser?.user?.username || authUser?.user__username;
+
+  useEffect(() => {
+    const state = location.state;
+    if (state?.newPost) {
+      setNewPosts(prev => [state.newPost, ...prev]);
+    }
+  }, [location.state?.newPost]);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -155,7 +163,7 @@ const ProfilePage = () => {
 
       <PostsSection>
         <SectionTitle>{isOwnProfile ? 'Your Posts' : `${displayUsername}'s Posts`}</SectionTitle>
-        <UserPosts username={displayUsername} newPosts={newPosts} isOwnProfile={isOwnProfile} />
+        <UserPosts key={location.key} username={displayUsername} newPosts={newPosts} isOwnProfile={isOwnProfile} />
       </PostsSection>
     </Container>
   );
@@ -344,14 +352,7 @@ const TracksButton = styled(Link)`
 `;
 
 const PostCreatorSection = styled.div`
-  width: 100%;
-  max-width: 800px;
-  background: var(--cardColor);
-  border-radius: 16px;
-  border: 1px solid var(--darkGrey);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  display: none;
 `;
 
 const ModalHeader = styled.div`
