@@ -481,7 +481,7 @@ const ChatWindow = () => {
 
   return (
     <ChatWindowContainer>
-      {(isSaved || isGroup ? groupChatId : userId) ? (
+      {(isSaved || (isGroup ? groupChatId : userId)) ? (
         <>
           <Header>
             <BackButton onClick={() => history.push('/chat/im')}>
