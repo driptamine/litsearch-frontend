@@ -1,5 +1,5 @@
 import React from 'react';
-import { styled, keyframes } from '@linaria/react';
+import { styled } from '@linaria/react';
 import { FaEye } from 'react-icons/fa';
 
 const Impressions = ({ count = 0 }) => (
@@ -8,12 +8,6 @@ const Impressions = ({ count = 0 }) => (
     <Count key={count}>{count}</Count>
   </ImpressionsWrap>
 );
-
-const pop = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.3); color: #0f6; }
-  100% { transform: scale(1); }
-`;
 
 const ImpressionsWrap = styled.div`
   display: flex;
@@ -28,7 +22,12 @@ const StyledFaEye = styled(FaEye)`
 `;
 
 const Count = styled.span`
-  animation: ${pop} 0.35s ease;
+  @keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); color: #0f6; }
+    100% { transform: scale(1); }
+  }
+  animation: pop 0.35s ease;
 `;
 
 export default Impressions;
