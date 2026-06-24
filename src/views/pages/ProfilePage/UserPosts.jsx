@@ -432,24 +432,24 @@ const ViewButton = styled.button`
 const FeedContainer = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 0;
+  max-width: 600px;
+  margin: 0 auto;
+  border-left: 1px solid #333;
+  border-right: 1px solid #333;
 `;
 
 const FeedPost = styled.div`
-  padding: 1em;
-  padding-bottom: 4em;
-  margin: 1em auto;
-  width: 95%;
-  max-width: 550px;
-  border: 1.6px solid #383838;
-  background: var(--cardColor);
-  border-radius: 10px;
+  padding: 15px;
+  border-bottom: 1px solid #333;
   display: flex;
   gap: 12px;
   text-decoration: none;
   color: inherit;
+  transition: background-color 0.2s;
 
-  @media screen and (max-width: 425px) {
-    padding-bottom: 3em;
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.03);
   }
 `;
 
