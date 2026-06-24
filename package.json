@@ -62,7 +62,7 @@
     "build:prod": "vite build --mode production",
     "predeploy": "vite build --mode production --base=/litsearch-frontend/",
     "deploy": "gh-pages -d dist",
-    "dev": "vite --host"
+    "dev": "VITE_EAGER_IMPORTS=true vite --host"
   },
   "eslintConfig": {
     "extends": "react-app"
