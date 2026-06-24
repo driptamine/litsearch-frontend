@@ -315,15 +315,19 @@ const UserPosts = ({ username, newPosts = [], isOwnProfile = false }) => {
                   <TrackRow key={track.id || i} track={track} index={i} />
                 ))}
                 <FeedActions>
-                   <LikeButton
-                     isLiked={post.is_liked}
-                     likesCount={post.likes_count}
-                     onClick={() => handleLike(postId)}
-                   />
-                   <Impressions count={post.impressions_count} />
-                   {post.photo_ids?.length > 0 && <span>📷 {post.photo_ids.length}</span>}
-                   {post.video_ids?.length > 0 && <span>🎥 {post.video_ids.length}</span>}
-                   {post.track_ids?.length > 0 && <span>🎵 {post.track_ids.length}</span>}
+                  <FeedStatsLeft>
+                    <LikeButton
+                      isLiked={post.is_liked}
+                      likesCount={post.likes_count}
+                      onClick={() => handleLike(postId)}
+                    />
+                    {post.photo_ids?.length > 0 && <span>📷 {post.photo_ids.length}</span>}
+                    {post.video_ids?.length > 0 && <span>🎥 {post.video_ids.length}</span>}
+                    {post.track_ids?.length > 0 && <span>🎵 {post.track_ids.length}</span>}
+                  </FeedStatsLeft>
+                  <FeedStatsRight>
+                    <Impressions count={post.impressions_count} />
+                  </FeedStatsRight>
                 </FeedActions>
               </FeedBody>
             </FeedMainContent>
@@ -428,24 +432,24 @@ const ViewButton = styled.button`
 const FeedContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0;
-  max-width: 600px;
-  margin: 0 auto;
-  border-left: 1px solid #333;
-  border-right: 1px solid #333;
 `;
 
 const FeedPost = styled.div`
-  padding: 15px;
-  border-bottom: 1px solid #333;
+  padding: 1em;
+  padding-bottom: 4em;
+  margin: 1em auto;
+  width: 95%;
+  max-width: 550px;
+  border: 1.6px solid #383838;
+  background: var(--cardColor);
+  border-radius: 10px;
   display: flex;
   gap: 12px;
   text-decoration: none;
   color: inherit;
-  transition: background-color 0.2s;
 
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.03);
+  @media screen and (max-width: 425px) {
+    padding-bottom: 3em;
   }
 `;
 
@@ -541,10 +545,20 @@ const FeedImage = styled.img`
 const FeedActions = styled.div`
   display: flex;
   justify-content: space-between;
-  max-width: 425px;
-  color: #71767b;
-  font-size: 0.85rem;
   margin-top: 10px;
+  color: var(--text);
+  column-gap: 8px;
+`;
+
+const FeedStatsLeft = styled.div`
+  display: flex;
+  align-items: center;
+  column-gap: 20px;
+`;
+
+const FeedStatsRight = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 const GalleryGrid = styled.div`
