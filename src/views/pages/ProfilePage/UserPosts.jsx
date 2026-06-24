@@ -7,8 +7,8 @@ import { Link } from 'react-router-dom';
 import LikeButton from 'views/components/LikeButton/LikeButton';
 import PostCard from 'views/components/PostCard';
 import TrackRow from 'views/components/TrackRow';
-import CustomPlayerV4 from 'views/components/video-player/web/CustomPlayerV4';
-import Impressions from 'views/components/Impressions';
+import StatsPost from './StatsPost';
+import ClassicPost from './ClassicPost';
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
 
@@ -17,6 +17,7 @@ const UserPosts = ({ username, newPosts = [], isOwnProfile = false }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [viewMode, setViewMode] = useState('feed');
+  const [feedLayout, setFeedLayout] = useState('stats');
   const [editingPostId, setEditingPostId] = useState(null);
   const [editingDescription, setEditingDescription] = useState('');
   useEffect(() => {
@@ -262,80 +263,35 @@ const UserPosts = ({ username, newPosts = [], isOwnProfile = false }) => {
     </PostsGrid>
   );
 
-  const renderFeed = () => (
+  const renderFeed = () => {
+    const PostComponent = feedLayout === 'stats' ? StatsPost : ClassicPost;
+    return (
     <FeedContainer>
       {allPosts.map(post => {
         const postId = post.id || post.post_id;
-        const author = post.author || post.user;
-        const authorAvatar = getFullUrl(author?.avatar || author?.profile_img || author?.profileImg);
-        const authorName = author?.username || author?.name || username;
-        const timeStr = post.created_at || post.timestamp || post.date;
-        const isEditing = editingPostId === postId;
-
         return (
-          <FeedPost key={postId} to={`/posts/${postId}`} ref={(el) => observePost(el, postId)}>
-            <FeedAvatar src={authorAvatar} alt={authorName} />
-            <FeedMainContent>
-              <FeedHeader>
-                <FeedUser>{authorName}</FeedUser>
-                <FeedHandle>@{authorName}</FeedHandle>
-                <FeedTime to={`/posts/${postId}`}>· {formatPostTime(timeStr)}</FeedTime>
-                {isOwnProfile && !isEditing && (
-                  <FeedActionsRight>
-                    <FeedActionBtn onClick={(e) => { e.preventDefault(); e.stopPropagation(); startEditing(post); }}>Edit</FeedActionBtn>
-                    <FeedActionBtn onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(postId); }}>Delete</FeedActionBtn>
-                  </FeedActionsRight>
-                )}
-              </FeedHeader>
-              <FeedBody>
-                {isEditing ? (
-                  <EditForm>
-                    <EditTextarea
-                      value={editingDescription}
-                      onChange={e => setEditingDescription(e.target.value)}
-                      autoFocus
-                    />
-                    <EditActions>
-                      <SaveButton onClick={() => handleEdit(postId)}>Save</SaveButton>
-                      <CancelButton onClick={cancelEditing}>Cancel</CancelButton>
-                    </EditActions>
-                  </EditForm>
-                ) : (
-                  <FeedText>{post.description}</FeedText>
-                )}
-                <FeedMedia>
-                   {post.photos?.slice(0, 4).map(photo => (
-                     <FeedImage key={photo.id} src={photo.gcs_url} alt="Post content" />
-                   ))}
-                   {!post.photos?.length && post.videos?.slice(0, 1).map(video => (
-                      <CustomPlayerV4 key={video.id} url={video.gcs_url} />
-                   ))}
-                </FeedMedia>
-                {post.tracks?.map((track, i) => (
-                  <TrackRow key={track.id || i} track={track} index={i} />
-                ))}
-                <FeedActions>
-                  <FeedStatsLeft>
-                    <LikeButton
-                      isLiked={post.is_liked}
-                      likesCount={post.likes_count}
-                      onClick={() => handleLike(postId)}
-                    />
-                    {post.photo_ids?.length > 0 && <span>📷 {post.photo_ids.length}</span>}
-                    {post.video_ids?.length > 0 && <span>🎥 {post.video_ids.length}</span>}
-                    {post.track_ids?.length > 0 && <span>🎵 {post.track_ids.length}</span>}
-                  </FeedStatsLeft>
-                  <FeedStatsRight>
-                    <Impressions count={post.impressions_count} />
-                  </FeedStatsRight>
-                </FeedActions>
-              </FeedBody>
-            </FeedMainContent>
-          </FeedPost>
+          <PostComponent
+            key={postId}
+            post={post}
+            username={username}
+            isOwnProfile={isOwnProfile}
+            onLike={handleLike}
+            onDelete={handleDelete}
+            onEdit={handleEdit}
+            onStartEdit={startEditing}
+            onCancelEdit={cancelEditing}
+            editingPostId={editingPostId}
+            editingDescription={editingDescription}
+            onEditingDescriptionChange={setEditingDescription}
+            observeRef={observePost}
+            formatPostTime={formatPostTime}
+            getFullUrl={getFullUrl}
+          />
         );
       })}
     </FeedContainer>
   );
+  };
 
   const renderGallery = () => (
     <GalleryGrid>
@@ -386,6 +342,12 @@ const UserPosts = ({ username, newPosts = [], isOwnProfile = false }) => {
         <ViewButton active={viewMode === 'grid'} onClick={() => setViewMode('grid')}>Grid</ViewButton>
         <ViewButton active={viewMode === 'feed'} onClick={() => setViewMode('feed')}>Feed</ViewButton>
         <ViewButton active={viewMode === 'gallery'} onClick={() => setViewMode('gallery')}>Gallery</ViewButton>
+        {viewMode === 'feed' && (
+          <LayoutToggle>
+            <LayoutBtn active={feedLayout === 'stats'} onClick={() => setFeedLayout('stats')}>Stats</LayoutBtn>
+            <LayoutBtn active={feedLayout === 'classic'} onClick={() => setFeedLayout('classic')}>Classic</LayoutBtn>
+          </LayoutToggle>
+        )}
       </ViewSwitcher>
 
       {viewMode === 'grid' && renderGrid()}
@@ -429,6 +391,29 @@ const ViewButton = styled.button`
   transition: all 0.2s;
 `;
 
+const LayoutToggle = styled.div`
+  display: flex;
+  gap: 4px;
+`;
+
+const layoutBtnStyles = props => `
+  background: ${props.active ? '#333' : 'transparent'};
+  color: ${props.active ? 'white' : '#888'};
+  border: 1px solid ${props.active ? '#555' : '#444'};
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover {
+    background: ${props.active ? '#333' : 'rgba(255,255,255,0.05)'};
+  }
+`;
+
+const LayoutBtn = styled.button`
+  ${layoutBtnStyles}
+`;
+
 const FeedContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -437,128 +422,6 @@ const FeedContainer = styled.div`
   margin: 0 auto;
   border-left: 1px solid #333;
   border-right: 1px solid #333;
-`;
-
-const FeedPost = styled.div`
-  padding: 15px;
-  border-bottom: 1px solid #333;
-  display: flex;
-  gap: 12px;
-  text-decoration: none;
-  color: inherit;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.03);
-  }
-`;
-
-const FeedAvatar = styled.img`
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-`;
-
-const FeedMainContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex-grow: 1;
-`;
-
-const FeedHeader = styled.div`
-  display: flex;
-  gap: 5px;
-  align-items: baseline;
-  flex-wrap: wrap;
-`;
-
-const FeedUser = styled.span`
-  color: var(--text);
-  font-weight: 700;
-  font-size: 1rem;
-`;
-
-const FeedHandle = styled.span`
-  color: #71767b;
-  font-size: 0.9rem;
-`;
-
-const FeedTime = styled(Link)`
-  color: #71767b;
-  font-size: 0.8rem;
-  margin-left: 4px;
-`;
-
-const FeedActionsRight = styled.div`
-  margin-left: auto;
-  display: flex;
-  gap: 8px;
-`;
-
-const FeedActionBtn = styled.button`
-  background: none;
-  border: none;
-  color: #71767b;
-  font-size: 0.8rem;
-  cursor: pointer;
-  padding: 2px 6px;
-  border-radius: 4px;
-
-  &:hover {
-    color: white;
-    background: rgba(255, 255, 255, 0.1);
-  }
-`;
-
-const FeedBody = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
-
-const FeedText = styled.div`
-  color: var(--text);
-  font-size: 1rem;
-  line-height: 1.5;
-  white-space: pre-wrap;
-`;
-
-const FeedMedia = styled.div`
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid #333;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 2px;
-`;
-
-const FeedImage = styled.img`
-  width: 100%;
-  height: auto;
-  max-height: 500px;
-  object-fit: cover;
-`;
-
-const FeedActions = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-  color: var(--text);
-  column-gap: 8px;
-`;
-
-const FeedStatsLeft = styled.div`
-  display: flex;
-  align-items: center;
-  column-gap: 20px;
-`;
-
-const FeedStatsRight = styled.div`
-  display: flex;
-  align-items: center;
 `;
 
 const GalleryGrid = styled.div`
@@ -724,65 +587,6 @@ const ActionBtn = styled.button`
     color: white;
     border-color: #888;
     background: rgba(255, 255, 255, 0.05);
-  }
-`;
-
-const EditForm = styled.div`
-  margin: 8px 0;
-`;
-
-const EditTextarea = styled.textarea`
-  width: 100%;
-  min-height: 80px;
-  background: #111;
-  color: white;
-  border: 1px solid #444;
-  border-radius: 8px;
-  padding: 8px;
-  font-size: 0.9rem;
-  font-family: inherit;
-  resize: vertical;
-  box-sizing: border-box;
-
-  &:focus {
-    outline: none;
-    border-color: #0084ff;
-  }
-`;
-
-const EditActions = styled.div`
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-`;
-
-const SaveButton = styled.button`
-  background: #0084ff;
-  color: white;
-  border: none;
-  padding: 6px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 600;
-
-  &:hover {
-    background: #0073e6;
-  }
-`;
-
-const CancelButton = styled.button`
-  background: transparent;
-  color: #888;
-  border: 1px solid #555;
-  padding: 6px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
-
-  &:hover {
-    color: white;
-    border-color: #888;
   }
 `;
 

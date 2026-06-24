@@ -8,6 +8,7 @@ import MovieFeedCard from 'views/components/MovieFeedCard';
 import MovieCard from 'views/components/MovieCard';
 import InfiniteGridList from 'views/components/InfiniteGridList';
 import InfiniteList from 'views/components/InfiniteList';
+import { useMovieImpressionFlusher } from 'views/components/movieImpressionQueue';
 
 import Skeleton from 'views/skeletons/HomeSkeleton';
 
@@ -51,6 +52,8 @@ const fetchData = async (id) => {
 function PopularMovies() {
   const [tracks, setTracks] = useState(null);
   const paragraphObserver = React.useRef(null);
+
+  useMovieImpressionFlusher();
 
   const dispatch = useDispatch();
   const isFetching = useSelector(state =>

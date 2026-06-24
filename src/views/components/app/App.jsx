@@ -321,22 +321,22 @@ const ChatFlexWrapper = styled.div`
   display: flex;
   width: 100%;
   height: 100%;
+  padding-left: 240px;
 
   @media screen and (max-width: 768px) {
     flex-direction: column;
     height: auto;
+    padding-left: 0;
   }
 `;
 
 const ContentWrapper = styled.div`
-  display: flex;
   flex: 1;
   min-height: 0;
   padding-top: 5em;
 
   @media screen and (max-width: 768px) {
     padding-top: 70px;
-    flex-direction: column;
   }
 `;
 

@@ -3,19 +3,20 @@ import { useSelector, useDispatch } from 'react-redux';
 import { styled } from '@linaria/react';
 import axios from 'axios';
 
-import { FaEye, FaRegHeart, FaRegComment } from 'react-icons/fa';
-import { AiFillEye } from 'react-icons/ai';
+import { FaRegHeart, FaHeart, FaRegComment } from 'react-icons/fa';
 
 import BaseImage from 'views/components/BaseImage';
 import ModalLink from 'views/components/ModalLink';
 import BaseCardHeader from 'views/components/BaseCardHeader';
 import CrossLayout from 'views/components/cross/CrossLayout';
+import Impressions from 'views/components/Impressions';
 
 import { getAspectRatioString } from 'views/components/AspectRatio';
 import { useConfiguration } from 'views/components/ConfigurationProvider';
 import { selectors } from 'core/reducers/index';
-import { albumText } from 'views/components/data/albumText.js';
-
+import { LITLOOP_API_URL } from 'core/constants/urls';
+import { authHeader } from 'core/api/rest-helper';
+import { queueMovieImpression } from './movieImpressionQueue';
 
 
 
@@ -24,71 +25,67 @@ function MovieFeedCard({ movieId, subheader }) {
   const postRef = useRef(null);
 
   const movie = useSelector(state => selectors.selectMovie(state, movieId));
-  const movie_imdb = useSelector(state => selectors.selectImdbMovie(state, movieId));
   const { getImageUrl } = useConfiguration();
 
-  const [showMore, setShowMore] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [impressionsCount, setImpressionsCount] = useState(0);
 
-  // Generate text with <br/>
-  const newText = albumText.split("<br/>").map((item, key) => <div key={key}>{item}<br/></div>);
-  const newWithBrText = albumText.substring(0, 212).split("<br/>").map((item, key) => <div key={key}>{item}<br/></div>);
+  const handleLike = async () => {
+    const prevLiked = liked;
+    const prevCount = likesCount;
+    setLiked(!liked);
+    setLikesCount(c => c + (liked ? -1 : 1));
+    try {
+      const res = await axios.post(`${LITLOOP_API_URL}/movies/${movieId}/like/`, null, { headers: authHeader() });
+      setLiked(res.data.liked);
+      setLikesCount(res.data.likes_count);
+    } catch (_) {
+      setLiked(prevLiked);
+      setLikesCount(prevCount);
+    }
+  };
 
-  // Persistent random stats
-  const viewsRef = useRef(Math.floor(Math.random() * (999 - 99 + 1)) + 99);
-  const likesRef = useRef(Math.floor(Math.random() * 1000) + 1);
-  const commentsRef = useRef(Math.floor(50 + Math.random() * 400));
+  // ─── Impressions ───
+  const impressionQueuedRef = useRef(false);
+  const visibleTimerRef = useRef(null);
 
-  const [views, setViews] = useState(viewsRef.current);
-  const [likes] = useState(likesRef.current);
-  const [comments] = useState(commentsRef.current);
-
-  // Calculate scaled ratio (optional)
-  const ratio = likes / views;
-  const scaledRatio = 10 + (ratio * (30 - 10));
-  const likesNumberNonFloat = Math.floor((views / scaledRatio) * 1000);
-
-  // Intersection observer to increment views
   useEffect(() => {
+    if (!postRef.current) return;
+    const dbId = movie?.db_id;
+    if (!dbId) return;
     const observer = new IntersectionObserver(
       entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            // Increment persistent views
-            viewsRef.current += 1;
-            setViews(viewsRef.current);
-
-            // Send to backend
-            axios.post('http://localhost:8000/movies/up', {
-              post_id: movieId,
-              user_id: '1',
-            }).catch(console.error);
-
-            observer.unobserve(entry.target);
+        for (const entry of entries) {
+          if (entry.isIntersecting && !impressionQueuedRef.current) {
+            visibleTimerRef.current = setTimeout(() => {
+              if (dbId) queueMovieImpression(dbId);
+              setImpressionsCount(c => c + 1);
+              impressionQueuedRef.current = true;
+            }, 3000);
+          } else if (!entry.isIntersecting && visibleTimerRef.current) {
+            clearTimeout(visibleTimerRef.current);
+            visibleTimerRef.current = null;
           }
-        });
+        }
       },
-      { threshold: 0.5 } // 50% visible
+      { threshold: 0.5 }
     );
-
-    if (postRef.current) observer.observe(postRef.current);
-
-    return () => observer.disconnect();
-  }, [movieId]);
+    observer.observe(postRef.current);
+    return () => {
+      observer.disconnect();
+      if (visibleTimerRef.current) clearTimeout(visibleTimerRef.current);
+    };
+  }, [movieId, movie?.db_id]);
 
   return (
     <Card ref={postRef}>
       <Wrapper>
         <CrossLayout avatars={[]} />
-        <ProfileText>Longusername</ProfileText>
+        <ProfileText>{movie.title}</ProfileText>
       </Wrapper>
 
-      <HeaderText onClick={() => setShowMore(!showMore)}>
-        <div>
-          {movie_imdb.imdbId}
-          {showMore ? newText : newWithBrText}
-          <ShowMore>{showMore ? "Show less" : "Show more"}</ShowMore>
-        </div>
-      </HeaderText>
+      <Description>{movie.overview}</Description>
 
       <ModalLink to={`/movies/${movieId}`}>
         <BaseImage
@@ -101,20 +98,18 @@ function MovieFeedCard({ movieId, subheader }) {
       <BaseCardHeader subheader={subheader} />
 
       <Stats>
-        <Right>
-          <Likes>
-            <StyledFaRegHeart />
-            <Count>{likesNumberNonFloat.toLocaleString()}</Count>
-          </Likes>
-          <Comments>
+        <Left>
+          <LikeBtn onClick={handleLike}>
+            {liked ? <StyledFaHeart /> : <StyledFaRegHeart />}
+            <Count>{likesCount.toLocaleString()}</Count>
+          </LikeBtn>
+          <CommentBtn>
             <StyledFaRegComment />
-            <Count>{comments}</Count>
-          </Comments>
+          </CommentBtn>
+        </Left>
+        <Right>
+          <Impressions count={impressionsCount} />
         </Right>
-        <Impressions>
-          <StyledFaEye />
-          <span>{views}K</span>
-        </Impressions>
       </Stats>
     </Card>
   );
@@ -136,21 +131,13 @@ const ProfileText = styled.div`
     text-decoration: underline;
   }
 `;
-const HeaderText = styled.div`
+const Description = styled.div`
   color: var(--text);
-  cursor: pointer;
-  font-family: Georgia, "Courier New", "system-ui" ;
+  font-family: Georgia, "Courier New", "system-ui";
   font-weight: 400;
-  font-size: 16px;
-`;
-const ShowMore = styled.div`
-  cursor: pointer;
-  color: #347c8a;
-
-
-  &:hover{
-    text-decoration: underline;
-  }
+  font-size: 14px;
+  margin: 8px 0;
+  line-height: 1.4;
 `;
 
 const Stats = styled.div`
@@ -160,37 +147,38 @@ const Stats = styled.div`
   column-gap: 8px;
   justify-content: space-between;
 `;
-const Likes = styled.div`
+const LikeBtn = styled.div`
   font-family: Helvetica Neue;
   display: flex;
   align-items: center;
+  cursor: pointer;
 `;
-const Comments = styled.div`
+const CommentBtn = styled.div`
   font-family: Helvetica Neue;
   display: flex;
   align-items: center;
+  margin-left: 26px;
 `;
-const Impressions = styled.div`
+const Left = styled.div`
   display: flex;
-  font-family: Helvetica Neue;
   align-items: center;
-`;
-const Profile = styled.div`
-
 `;
 const Right = styled.div`
   display: flex;
-`;
-const StyledFaEye = styled(FaEye)`
-  margin-right: 6px;
+  align-items: center;
 `;
 const StyledFaRegHeart = styled(FaRegHeart)`
   margin-right: 6px;
   font-size: 20px;
   cursor: pointer;
 `;
+const StyledFaHeart = styled(FaHeart)`
+  margin-right: 6px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #e74c3c;
+`;
 const StyledFaRegComment = styled(FaRegComment)`
-  margin-left: 26px;
   font-size: 20px;
   cursor: pointer;
 `;
@@ -201,9 +189,6 @@ const Count = styled.span`
   &:hover{
     text-decoration: underline;
   }
-`;
-const StyledAiFillEye = styled(AiFillEye)`
-  margin-right: 6px;
 `;
 const Card = styled.div`
   padding: 1em;

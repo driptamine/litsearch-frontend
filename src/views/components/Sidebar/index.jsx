@@ -335,9 +335,13 @@ const SCTrendingIcon = styled(TrendingIcon)`
 
 `;
 const SidebarWrapper = styled.div`
-  height: 100%;
+  position: fixed;
+  left: 0;
+  top: 5em;
+  bottom: 0;
+  z-index: 2;
+  height: auto;
   width: ${({ open }) => open ? '240px' : '0'};
-  flex-shrink: 0;
   overflow: hidden;
   white-space: nowrap;
   background: var(--sideBarColor);

@@ -4,6 +4,7 @@ import * as schemas from 'core/schemas';
 import { selectors } from 'core/reducers/index';
 
 import { fetcherSaga } from './fetcherSaga';
+import { callTrackAPI } from './apiSaga';
 
 function* fetchMovieSaga(action) {
   yield call(fetcherSaga, {
@@ -17,9 +18,10 @@ function* fetchPopularMoviesSaga(action) {
   const { page } = action.payload;
   yield call(fetcherSaga, {
     action: action,
-    endpoint: "/movie/popular",
+    endpoint: "/movies/feed/",
     params: { page },
-    schema: { results: [schemas.movieSchema] }
+    schema: { results: [schemas.movieSchema] },
+    apiCaller: callTrackAPI
   });
 }
 

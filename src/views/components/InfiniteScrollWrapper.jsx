@@ -1,18 +1,28 @@
-import React from 'react';
-import  useInfiniteScroll  from 'react-infinite-scroll-hook';
+import React, { useEffect, useRef } from 'react';
 
-function InfiniteScrollWrapper({ hasNextPage, loading, onLoadMore, children }) {
+function InfiniteScrollWrapper({ hasNextPage, loading, onLoadMore }) {
+  const sentryRef = useRef(null);
+  const loadingRef = useRef(loading);
 
-  const [sentryRef] = useInfiniteScroll({
-  // const [sentryRef, {rootRef}] = useInfiniteScroll({
-    hasNextPage,
-    loading,
-    onLoadMore
-  });
+  useEffect(() => {
+    loadingRef.current = loading;
+  }, [loading]);
 
-  return (
-    <div ref={sentryRef} />
-  )
+  useEffect(() => {
+    if (!sentryRef.current || !hasNextPage || loading) return;
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && !loadingRef.current) {
+          onLoadMore();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+    observer.observe(sentryRef.current);
+    return () => observer.disconnect();
+  }, [hasNextPage, loading, onLoadMore]);
+
+  return <div ref={sentryRef} style={{ minHeight: 1 }} />;
 }
 
 export default InfiniteScrollWrapper;
