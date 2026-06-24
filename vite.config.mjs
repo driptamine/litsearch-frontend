@@ -105,6 +105,7 @@ export default defineConfig(({ command, mode }) => {
             plugins: [
               "@babel/plugin-syntax-jsx",
             ],
+          },
         }),
         enforce: 'pre',
       },
