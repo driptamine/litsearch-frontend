@@ -100,10 +100,11 @@ export default defineConfig(({ command, mode }) => {
           babelOptions: {
             presets: [
               "@babel/preset-env",
-              "@babel/preset-react",
               "@wyw-in-js/babel-preset",
             ],
-          },
+            plugins: [
+              "@babel/plugin-syntax-jsx",
+            ],
         }),
         enforce: 'pre',
       },
