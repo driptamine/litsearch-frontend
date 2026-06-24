@@ -60,7 +60,7 @@ const UserPosts = ({ username, newPosts = [], isOwnProfile = false }) => {
     }));
 
     try {
-      await axios.post(`${LITLOOP_API_URL}/posts/${postId}/like/`);
+      await axios.post(`${LITLOOP_API_URL}/posts/${postId}/like/`, null, { headers: authHeader() });
     } catch (err) {
       console.error('Error liking post:', err);
     }

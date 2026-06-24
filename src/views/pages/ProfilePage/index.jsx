@@ -162,7 +162,6 @@ const ProfilePage = () => {
       </TracksButton>
 
       <PostsSection>
-        <SectionTitle>{isOwnProfile ? 'Your Posts' : `${displayUsername}'s Posts`}</SectionTitle>
         <UserPosts key={location.key} username={displayUsername} newPosts={newPosts} isOwnProfile={isOwnProfile} />
       </PostsSection>
     </Container>
@@ -376,15 +375,6 @@ const PostsSection = styled.div`
   width: 100%;
   max-width: 1000px;
   padding: 0 20px;
-`;
-
-const SectionTitle = styled.h3`
-  color: white;
-  margin-top: 0;
-  margin-bottom: 20px;
-  font-size: 1.5rem;
-  border-bottom: 1px solid #333;
-  padding-bottom: 10px;
 `;
 
 export default ProfilePage;
