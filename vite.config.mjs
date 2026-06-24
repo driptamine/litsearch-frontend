@@ -16,6 +16,7 @@ function lazyImportTogglePlugin(eager) {
     name: 'vite-plugin-lazy-toggle',
     enforce: 'pre',
     transform(code, id) {
+      if (!id.includes('/src/')) return null
       if (!/\.(jsx?|tsx?)$/.test(id)) return null
       if (!code.includes('lazyImport')) return null
 
@@ -97,6 +98,7 @@ export default defineConfig(({ command, mode }) => {
     plugins: [
       {
         ...wyw({
+          include: /src\/.*\.(jsx?|tsx?)$/,
           babelOptions: {
             presets: [
               "@babel/preset-env",
