@@ -22,12 +22,12 @@ const StyledFaEye = styled(FaEye)`
 `;
 
 const Count = styled.span`
-  @keyframes pop {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.3); color: #0f6; }
-    100% { transform: scale(1); }
+  @keyframes slideUp {
+    0% { transform: translateY(6px); opacity: 0; }
+    60% { transform: translateY(-2px); opacity: 1; }
+    100% { transform: translateY(0); opacity: 1; }
   }
-  animation: pop 0.35s ease;
+  animation: slideUp 0.35s ease;
 `;
 
 export default Impressions;
