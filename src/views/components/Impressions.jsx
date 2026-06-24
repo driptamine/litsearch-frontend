@@ -27,7 +27,7 @@ const Count = styled.span`
     60% { transform: translateY(-2px); opacity: 1; }
     100% { transform: translateY(0); opacity: 1; }
   }
-  animation: slideUp 0.35s ease;
+  animation: slideUp 0.6s ease;
 `;
 
 export default Impressions;
