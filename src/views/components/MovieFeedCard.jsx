@@ -29,7 +29,7 @@ function MovieFeedCard({ movieId, subheader }) {
 
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
-  const [impressionsCount, setImpressionsCount] = useState(0);
+  const [impressionsCount, setImpressionsCount] = useState(movie?.impressions_count || 0);
 
   const handleLike = async () => {
     const prevLiked = liked;
