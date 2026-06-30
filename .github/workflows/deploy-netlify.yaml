@@ -24,7 +24,7 @@ jobs:
       run: npm ci
 
     - name: Build
-      run: VITE_EAGER_IMPORTS=true npm run build
+      run: VITE_EAGER_IMPORTS=true TMDB_API_KEY=${{ secrets.TMDB_API_KEY }} npm run build
 
     - name: Deploy to Netlify
       uses: nwtgck/actions-netlify@v2.0
