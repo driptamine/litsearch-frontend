@@ -14,7 +14,7 @@ function PopularMoviesNewsFeed() {
   const scrollPosition = useRef(0); // Ref to store the scroll position
 
   const observer = useRef();
-  const apiKey = 'bceb6c0fefae8ee5a3cf9762ec780d63'; // Replace with your actual API key
+  const apiKey = import.meta.env.TMDB_API_KEY;
   const imageBaseUrl = 'https://image.tmdb.org/t/p/original/';
 
   const fetchPopularMovies = useCallback(async (currentPage) => {

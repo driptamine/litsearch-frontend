@@ -216,6 +216,12 @@ export const uploadVoiceMessage = async (blob, duration) => {
   return res.data;
 };
 
+export const triggerTranscription = (voiceId) =>
+  axios.post(`${LITLOOP_API_URL}/chats/voice/${voiceId}/transcribe/`, {}, { headers: authHeader() });
+
+export const getTranscriptionStatus = (voiceId) =>
+  axios.get(`${LITLOOP_API_URL}/chats/voice/${voiceId}/status/`, { headers: authHeader() }).then(r => r.data);
+
 export const deleteReq = (
   endpoint,
   body = {},

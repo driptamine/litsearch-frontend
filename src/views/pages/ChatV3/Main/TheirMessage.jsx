@@ -55,7 +55,14 @@ const TheirMessage = ({ message, formatTime }) => {
         )}
         {msgData.voice_message && (
           <VoiceMsgWrap>
-            <VoiceMessagePlayer url={resolveUrl(msgData.voice_message.url)} duration={msgData.voice_message.duration} />
+            <VoiceMessagePlayer
+              url={resolveUrl(msgData.voice_message.url)}
+              duration={msgData.voice_message.duration}
+              voiceMsgId={msgData.voice_message.id}
+              transcription={msgData.voice_message.transcription}
+              transcriptionStatus={msgData.voice_message.transcription_status}
+              transcriptionLanguage={msgData.voice_message.transcription_language}
+            />
           </VoiceMsgWrap>
         )}
         {messageText && <MessageText>{messageText}</MessageText>}

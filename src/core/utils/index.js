@@ -15,8 +15,7 @@ export function getMovieReleaseYear(movie) {
   return year;
 }
 
-// const api_key = import.meta.env.REACT_APP_API_KEY;
-const api_key = "bceb6c0fefae8ee5a3cf9762ec780d63";
+const api_key = import.meta.env.TMDB_API_KEY;
 
 export const createUrl = (endpoint, params = {}) =>
   `${BASE_API_URL}${endpoint}?${queryString.stringify({

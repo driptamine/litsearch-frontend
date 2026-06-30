@@ -20,7 +20,7 @@ const PopularPosts = () => {
 
 
   const fetchItems = async (page) => {
-    const url = `https://api.themoviedb.org/3/movie/popular?api_key=bceb6c0fefae8ee5a3cf9762ec780d63&page=${page}`
+    const url = `https://api.themoviedb.org/3/movie/popular?api_key=${import.meta.env.TMDB_API_KEY}&page=${page}`
 
     setLoading(true);
     try {
@@ -52,7 +52,7 @@ const PopularPosts = () => {
     fetchItems(page);
   }, [page]);
 
-  // bceb6c0fefae8ee5a3cf9762ec780d63
+  // ${import.meta.env.TMDB_API_KEY}
   return (
     <div>
       {items.map((item, index) => {

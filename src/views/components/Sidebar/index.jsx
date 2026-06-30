@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { HomeIcon, TrendingIcon, SubIcon, LibIcon, HistoryIcon, VidIcon, LikeIcon, EarthIcon } from './Icons';
 import { FiClock, FiBookmark, FiMessageCircle } from 'react-icons/fi';
 import { FaFilm, FaUsers } from 'react-icons/fa';
-import { FaMusic, FaImage } from 'react-icons/fa';
+import { FaMusic, FaImage, FaRocket } from 'react-icons/fa';
 
 import { TbMessageCircle } from 'react-icons/tb';
 import { FaHistory, FaWpexplorer } from 'react-icons/fa';
@@ -36,6 +36,15 @@ const Sidebar = () => {
 
             </StyledDivIcon>
             <span>Feed</span>
+          </LinkStyled>
+        </StyledLi>
+
+        <StyledLi id="FYP">
+          <LinkStyled to="/fyp">
+            <StyledDivIcon className="icon">
+              <FaRocket />
+            </StyledDivIcon>
+            <span>FYP</span>
           </LinkStyled>
         </StyledLi>
 

@@ -81,6 +81,21 @@ const AppHeader = React.forwardRef((props, ref) => {
       case 'Settings':
         history.push('/settings');
         break;
+      case 'Import Watchlist':
+        history.push('/import-watchlist');
+        break;
+      case 'Import Ratings':
+        history.push('/import-ratings');
+        break;
+      case 'Watchlist':
+        history.push('/watchlist');
+        break;
+      case 'Ratings':
+        history.push('/ratings');
+        break;
+      case 'Credits':
+        history.push('/credits');
+        break;
       case 'Liked':
         history.push('/liked');
         break;
@@ -211,7 +226,7 @@ const AppHeader = React.forwardRef((props, ref) => {
 
         {authed || oauthed ? (
           <DropDownNew
-            options={['Profile', 'Switch Accounts', 'Liked', 'Settings']}
+            options={['Profile', 'Switch Accounts', 'Liked', 'Watchlist', 'Ratings', 'Import Watchlist', 'Import Ratings', 'Credits', 'Settings']}
             defaultText={renderHeaderUser()}
             accounts={user.accounts || []}
             activeAccountId={user.activeAccountId}

@@ -70,6 +70,13 @@ const LinkListByTag = lazyImport(() => import('views/pages/SavedLinks/LinkListBy
 const LinksList = lazyImport(() => import('views/pages/SavedLinks/LinksList'));
 const JustDoListV2 = lazyImport(() => import('views/pages/JustDoList/JustDoListV2'));
 const SettingsPage = lazyImport(() => import('views/pages/SettingsPage'));
+const ImportWatchlist = lazyImport(() => import('views/pages/ImportWatchlist'));
+const ImportRatings = lazyImport(() => import('views/pages/ImportRatings'));
+const WatchlistPage = lazyImport(() => import('views/pages/Watchlist'));
+const RatingsPage = lazyImport(() => import('views/pages/Ratings'));
+const CreditsPage = lazyImport(() => import('views/pages/Credits'));
+const FYPPage = lazyImport(() => import('views/pages/FYP'));
+const MemePage = lazyImport(() => import('views/pages/MemePage'));
 
 import PageLoader from 'views/components/PageLoader';
 
@@ -176,6 +183,15 @@ function ModalSwitch({ children, renderModal, stopSong, pauseSong, resumeSong, a
 
             {/* Settings */}
             <Route exact path="/settings" component={SettingsPage} />
+
+            {/* Watchlist & Ratings */}
+            <Route exact path="/fyp" component={FYPPage} />
+            <Route path="/p/:id" component={MemePage} />
+            <Route exact path="/credits" component={CreditsPage} />
+            <Route exact path="/watchlist" component={WatchlistPage} />
+            <Route exact path="/ratings" component={RatingsPage} />
+            <Route exact path="/import-watchlist" component={ImportWatchlist} />
+            <Route exact path="/import-ratings" component={ImportRatings} />
 
             {/* User Albums Route */}
             <Route path="/:username/albums/:photoAlbumId/edit" component={PhotoAlbumEditPage} />

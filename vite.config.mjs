@@ -130,6 +130,7 @@ export default defineConfig(({ command, mode }) => {
         plugins: [esbuildCommonjs(['react-moment'])],
       },
     },
+    envPrefix: ['VITE_', 'TMDB_'],
     server: {
       host: true,
       port: 3001,
