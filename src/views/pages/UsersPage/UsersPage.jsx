@@ -101,6 +101,10 @@ const PageContainer = styled.div`
   background-color: var(--navBg, #141414);
   min-height: 100vh;
   color: var(--text, white);
+
+  @media (min-width: 768px) {
+    padding: 40px 40px 40px 240px;
+  }
 `;
 
 const Header = styled.div`

@@ -12,6 +12,10 @@ function getApiPrefix(mediaType) {
   return 'videos';
 }
 
+function getStoragePath(mediaType) {
+  return 'r2';
+}
+
 export function useMediaUpload() {
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -27,9 +31,10 @@ export function useMediaUpload() {
       try {
         const fileName = `${file.name}-${Date.now()}`;
         const apiPrefix = getApiPrefix(mediaType);
+        const storagePath = getStoragePath(mediaType);
 
         const initRes = await axios.post(
-          `${LITLOOP_API_URL}/${apiPrefix}/gcs/create_presigned_url/`,
+          `${LITLOOP_API_URL}/${apiPrefix}/${storagePath}/create_presigned_url/`,
           { filename: fileName, content_type: file.type, media_type: mediaType },
           { headers: { "Content-Type": "application/json", ...authHeader() } }
         );
@@ -43,7 +48,7 @@ export function useMediaUpload() {
           const blob = file.slice(start, end);
 
           const presignRes = await axios.post(
-            `${LITLOOP_API_URL}/${apiPrefix}/gcs/get_presigned_url/`,
+            `${LITLOOP_API_URL}/${apiPrefix}/${storagePath}/get_presigned_url/`,
             { upload_id, key, part_number: partNumber },
             { headers: { "Content-Type": "application/json", ...authHeader() } }
           );
@@ -59,7 +64,7 @@ export function useMediaUpload() {
         }
 
         const completeRes = await axios.post(
-          `${LITLOOP_API_URL}/${apiPrefix}/gcs/complete_upload/`,
+          `${LITLOOP_API_URL}/${apiPrefix}/${storagePath}/complete_upload/`,
           { upload_id, key, parts, media_type: mediaType, ...(album_id ? { album_id } : {}) },
           { headers: { "Content-Type": "application/json", ...authHeader() } }
         );

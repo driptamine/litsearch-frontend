@@ -146,6 +146,7 @@ export const BaseMediaUploader = forwardRef(({ mediaType, onUploadComplete, labe
         return;
       }
 
+      const mType = getMediaType(file.type);
       const fileName = `${file.name}-${Date.now()}`;
       const visualRef = { current: 0 };
 
@@ -175,10 +176,10 @@ export const BaseMediaUploader = forwardRef(({ mediaType, onUploadComplete, labe
 
       try {
         const simulation = simulateInitialProgress();
-        const mType = getMediaType(file.type);
         const apiPrefix = mType === 'track' ? 'tracks' : mType === 'photo' ? 'photos' : 'videos';
+        const storagePath = 'r2';
 
-        const initRes = await axios.post(`${LITLOOP_API_URL}/${apiPrefix}/gcs/create_presigned_url/`, {
+        const initRes = await axios.post(`${LITLOOP_API_URL}/${apiPrefix}/${storagePath}/create_presigned_url/`, {
           filename: fileName,
           content_type: file.type,
           media_type: mType,
@@ -193,7 +194,7 @@ export const BaseMediaUploader = forwardRef(({ mediaType, onUploadComplete, labe
           const end = Math.min(start + CHUNK_SIZE, file.size);
           const blob = file.slice(start, end);
 
-          const presignRes = await axios.post(`${LITLOOP_API_URL}/${apiPrefix}/gcs/get_presigned_url/`, {
+          const presignRes = await axios.post(`${LITLOOP_API_URL}/${apiPrefix}/${storagePath}/get_presigned_url/`, {
             upload_id,
             key,
             part_number: partNumber,
@@ -214,16 +215,16 @@ export const BaseMediaUploader = forwardRef(({ mediaType, onUploadComplete, labe
 
         await simulation;
 
-        const completeRes = await axios.post(`${LITLOOP_API_URL}/${apiPrefix}/gcs/complete_upload/`, {
+        const completeRes = await axios.post(`${LITLOOP_API_URL}/${apiPrefix}/${storagePath}/complete_upload/`, {
           upload_id,
           key,
           parts,
           media_type: mType,
         }, { headers: { "Content-Type": "application/json", ...authHeader() } });
 
-        const { id, location } = completeRes.data;
+        const { id, location, name, artist } = completeRes.data;
         setFileLinks(prev => ({ ...prev, [file.name]: location }));
-        onUploadComplete?.(id, getMediaType(file.type));
+        onUploadComplete?.(id, getMediaType(file.type), { name, artist });
 
       } catch (err) {
         console.error(`Upload failed for ${file.name}:`, err);

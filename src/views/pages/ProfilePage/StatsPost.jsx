@@ -293,10 +293,10 @@ const StatsPost = ({
           {post.photos?.length > 0 || post.videos?.length > 0 ? (
           <Media>
             {post.photos?.slice(0, 4).map((photo) => (
-              <Image key={photo.id} src={photo.gcs_url} alt="Post content" />
+              <Image key={photo.id} src={photo.r2_url || photo.gcs_url} alt="Post content" />
             ))}
             {!post.photos?.length && post.videos?.slice(0, 1).map((video) => (
-              <CustomPlayerV4 key={video.id} url={video.gcs_url} />
+              <CustomPlayerV4 key={video.id} url={video.r2_url || video.gcs_url} />
             ))}
           </Media>
           ) : null}

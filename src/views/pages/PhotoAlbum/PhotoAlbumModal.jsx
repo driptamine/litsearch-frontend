@@ -71,7 +71,7 @@ function PhotoAlbumModal() {
             ) : (
               photos.map(photo => (
                 <PhotoItem key={photo.id}>
-                  <PhotoImg src={photo.image || photo.gcs_url} alt={photo.title} />
+                  <PhotoImg src={photo.r2_url || photo.image || photo.gcs_url} alt={photo.title} />
                 </PhotoItem>
               ))
             )}

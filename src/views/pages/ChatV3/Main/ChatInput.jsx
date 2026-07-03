@@ -164,7 +164,7 @@ const ChatInput = ({ onSendMessage, onTyping }) => {
       if (!Array.isArray(photos)) return;
       const selected = photos.filter((p) => ids.includes(p.id || p.pk));
       const newAtt = selected.map((p) => ({
-        url: p.gcs_url || p.image || p.url || p.file_path,
+        url: p.r2_url || p.gcs_url || p.image || p.url || p.file_path,
         type: 'photo',
         name: p.name || p.title || 'photo',
       }));
@@ -184,7 +184,7 @@ const ChatInput = ({ onSendMessage, onTyping }) => {
       if (!Array.isArray(videos)) return;
       const selected = videos.filter((v) => ids.includes(v.id || v.pk || v.video_id));
       const newAtt = selected.map((v) => ({
-        url: v.gcs_url || v.url || v.file || v.file_path,
+        url: v.r2_url || v.gcs_url || v.url || v.file || v.file_path,
         type: 'video',
         name: v.title || v.name || 'video',
       }));
@@ -198,7 +198,7 @@ const ChatInput = ({ onSendMessage, onTyping }) => {
     setPicker(null);
     if (!tracks?.length) return;
     const newAtt = tracks.map((t) => ({
-      url: t.gcs_url || t.url || t.preview_url,
+      url: t.r2_url || t.gcs_url || t.url || t.preview_url,
       type: 'track',
       name: t.name || 'track',
     }));

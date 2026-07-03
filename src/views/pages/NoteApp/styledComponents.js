@@ -8,6 +8,10 @@ export const AppContainer = styled.div`
   @media screen and (max-width: 768px) {
     flex-direction: column;
   }
+
+  @media (min-width: 768px) {
+    padding-left: 240px;
+  }
 `;
 
 export const SidebarContainer = styled.div`

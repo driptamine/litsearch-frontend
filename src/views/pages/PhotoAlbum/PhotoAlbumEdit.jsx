@@ -245,7 +245,7 @@ function PhotoAlbumEdit() {
               <Grid>
                 {photos.map(photo => (
                   <PhotoItem key={photo.id}>
-                    <PhotoImg src={photo.image || photo.gcs_url} alt={photo.title} />
+                    <PhotoImg src={photo.r2_url || photo.image || photo.gcs_url} alt={photo.title} />
                   </PhotoItem>
                 ))}
               </Grid>
@@ -265,7 +265,7 @@ function PhotoAlbumEdit() {
                     onClick={() => addPhoto(photo.id)}
                     style={{ cursor: 'pointer' }}
                   >
-                    <PhotoImg src={photo.image || photo.gcs_url} alt={photo.title} />
+                    <PhotoImg src={photo.r2_url || photo.image || photo.gcs_url} alt={photo.title} />
                     <AddOverlay>
                       {addingId === photo.id ? <Spinner /> : <FaPlus size={24} />}
                     </AddOverlay>

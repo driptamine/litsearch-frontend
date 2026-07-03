@@ -369,6 +369,10 @@ const ListContainer = styled.div`
   /* background-color: #121212; */
   background-color: #222222;
   border-radius: 5px;
+
+  @media (min-width: 768px) {
+    padding: 20px 20px 20px 240px;
+  }
 `;
 
 const TrackRow = styled.div`

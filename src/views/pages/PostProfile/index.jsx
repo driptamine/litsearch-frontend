@@ -79,10 +79,10 @@ function PostProfile() {
               {(post.photos?.length > 0 || post.photo_ids?.length > 0) && (
                 <FeedMedia>
                   {(post.photos || []).slice(0, 4).map(photo => (
-                    <FeedImage key={photo.id || photo.pk} src={photo.gcs_url || photo.image || photo.file_path || photo.url || photo} alt="" />
+                    <FeedImage key={photo.id || photo.pk} src={photo.r2_url || photo.gcs_url || photo.image || photo.file_path || photo.url || photo} alt="" />
                   ))}
                   {!post.photos?.length && (post.videos || []).slice(0, 1).map(video => (
-                    <CustomPlayerV4 key={video.id || video.pk} url={video.gcs_url || video.file_path || video.url || video} />
+                    <CustomPlayerV4 key={video.id || video.pk} url={video.r2_url || video.gcs_url || video.file_path || video.url || video} />
                   ))}
                 </FeedMedia>
               )}

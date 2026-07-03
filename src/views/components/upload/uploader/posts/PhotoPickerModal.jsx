@@ -141,7 +141,7 @@ function PhotoPickerModal({ onSelect, onClose }) {
             <Grid>
               {photos.map((photo, i) => {
                 const id = photo.id || photo.pk || i;
-                const src = photo.gcs_url || photo.image || photo.url || photo.file_path;
+                const src = photo.r2_url || photo.gcs_url || photo.image || photo.url || photo.file_path;
                 const selected = selectedIds.has(id);
                 return (
                   <PhotoCard key={id} selected={selected} onClick={() => toggle(id)}>

@@ -217,7 +217,7 @@ function TrackRow({ track, index, showEdit = false, onTrackUpdated, onTrackDelet
   const [isSeeking, setIsSeeking] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  const src = track.gcs_url || track.url || track.preview_url;
+  const src = track.r2_url || track.gcs_url || track.url || track.preview_url;
   const title = track.title || track.name || `Track ${index + 1}`;
   const artist = track.artist || (Array.isArray(track.artists) ? track.artists.map(a => a.name || a).join(', ') : '') || '';
 

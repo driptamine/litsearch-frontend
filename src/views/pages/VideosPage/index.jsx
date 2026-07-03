@@ -43,7 +43,7 @@ function UserVideosPage() {
             ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
             : videos.map(video => (
                 <VideoCard key={video.id || video.pk}>
-                  <CustomPlayerV4 url={video.gcs_url || video.file_path || video.url} />
+                  <CustomPlayerV4 url={video.r2_url || video.gcs_url || video.file_path || video.url} />
                   <VideoInfo>
                     <VideoTitle>{video.title || 'Untitled Video'}</VideoTitle>
                   </VideoInfo>
@@ -60,6 +60,10 @@ function UserVideosPage() {
 
 const Container = styled.div`
   display: flex;
+
+  @media (min-width: 768px) {
+    padding-left: 240px;
+  }
 `;
 
 const Main = styled.main`

@@ -23,7 +23,7 @@ export const PhotosPage = () => {
         const photosList = data.photos || data.results || [];
         setPhotos(photosList.map(p => ({
           ...p,
-          thumbNail: p.image || p.gcs_url || p.url || p.file_path,
+          thumbNail: p.r2_url || p.image || p.gcs_url || p.url || p.file_path,
         })));
       } catch (err) {
         console.error('Failed to fetch photos:', err);
@@ -51,6 +51,10 @@ export const PhotosPage = () => {
 
 const Container = styled.div`
   display: flex;
+
+  @media (min-width: 768px) {
+    padding-left: 240px;
+  }
 `;
 
 const Main = styled.main`

@@ -224,7 +224,7 @@ const Time = styled.span`
 `;
 
 const TranscribeBtn = styled.button`
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   width: ${({ small }) => (small ? 'auto' : '24px')};

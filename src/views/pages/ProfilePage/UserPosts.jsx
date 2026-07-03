@@ -200,10 +200,10 @@ const UserPosts = ({ username, newPosts = [], isOwnProfile = false }) => {
             <Link to={`/posts/${postId}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
               <MediaPreview>
                 {post.photos?.slice(0, 1).map(photo => (
-                  <PostThumbnail key={photo.id} src={photo.gcs_url} alt="Post content" />
+                  <PostThumbnail key={photo.id} src={photo.r2_url || photo.gcs_url} alt="Post content" />
                 ))}
                 {!post.photos?.length && post.videos?.slice(0, 1).map(video => (
-                  <VideoPreview key={video.id} src={video.gcs_url} />
+                  <VideoPreview key={video.id} src={video.r2_url || video.gcs_url} />
                 ))}
                 {post.thumbnail && !post.photos?.length && !post.videos?.length && (
                   <PostThumbnail src={post.thumbnail} alt={post.title} />
@@ -301,9 +301,9 @@ const UserPosts = ({ username, newPosts = [], isOwnProfile = false }) => {
           <GalleryCard key={postId} to={`/posts/${postId}`}>
             <GalleryMedia>
               {post.photos?.length > 0 ? (
-                <GalleryImage src={post.photos[0].gcs_url} alt="Post content" />
+                <GalleryImage src={post.photos[0].r2_url || post.photos[0].gcs_url} alt="Post content" />
               ) : post.videos?.length > 0 ? (
-                <GalleryVideo src={post.videos[0].gcs_url} />
+                <GalleryVideo src={post.videos[0].r2_url || post.videos[0].gcs_url} />
               ) : post.thumbnail ? (
                 <GalleryImage src={post.thumbnail} alt={post.title} />
               ) : (

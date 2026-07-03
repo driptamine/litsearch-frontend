@@ -23,7 +23,7 @@ const PostCreatorV2 = ({ onPostSuccess }) => {
     if (onPostSuccess) onPostSuccess(newPost);
   };
 
-  const handleMediaUpload = (id, type) => {
+  const handleMediaUpload = (id, type, extra = {}) => {
    switch (type) {
      case 'photo':
        setPhotoIds(prev => [...prev, id]);
@@ -33,7 +33,7 @@ const PostCreatorV2 = ({ onPostSuccess }) => {
        break;
      case 'track':
        setTrackIds(prev => [...prev, id]);
-       setTracks(prev => [...prev, { pk: id }]);
+       setTracks(prev => [...prev, { pk: id, ...extra }]);
        break;
      default:
        console.warn('Unknown media type uploaded:', type);

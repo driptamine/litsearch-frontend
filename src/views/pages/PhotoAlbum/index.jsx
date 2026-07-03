@@ -75,6 +75,10 @@ function PhotoAlbumPage() {
 
 const Container = styled.div`
   display: flex;
+
+  @media (min-width: 768px) {
+    padding-left: 240px;
+  }
 `;
 
 const Main = styled.main`

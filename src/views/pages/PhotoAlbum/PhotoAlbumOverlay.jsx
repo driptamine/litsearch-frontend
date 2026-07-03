@@ -187,7 +187,7 @@ const PhotoAlbumOverlay = ({ album, username, onClose }) => {
                       onClick={() => addPhoto(photo.id)}
                       style={{ cursor: 'pointer' }}
                     >
-                      <PhotoImg src={photo.image || photo.gcs_url} alt={photo.title} />
+                      <PhotoImg src={photo.r2_url || photo.image || photo.gcs_url} alt={photo.title} />
                       <AddOverlay>
                         {addingId === photo.id ? <Spinner /> : <FaPlus size={24} />}
                       </AddOverlay>
@@ -206,7 +206,7 @@ const PhotoAlbumOverlay = ({ album, username, onClose }) => {
               ? Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} />)
               : photos.map(photo => (
                   <PhotoItem key={photo.id}>
-                    <PhotoImg src={photo.image || photo.gcs_url} alt={photo.title} />
+                    <PhotoImg src={photo.r2_url || photo.image || photo.gcs_url} alt={photo.title} />
                   </PhotoItem>
                 ))}
           </Grid>
