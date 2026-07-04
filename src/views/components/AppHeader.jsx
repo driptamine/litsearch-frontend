@@ -27,7 +27,7 @@ import Dropdown from 'views/components/Dropdown/Dropdown';
 import DropdownV2 from 'views/components/Dropdown/DropdownV2';
 import DropdownPortal from 'views/components/Dropdown/DropdownPortal';
 import DropDownNew from 'views/components/DropdownV2/DropDown';
-import DropdownApps from 'views/components/DropdownApps/DropdownApps';
+import GridIconApps from 'views/components/GridIconApps/GridIconApps';
 
 import Toggle from 'views/components/Toggle/Toggler';
 import { useThemeMode } from 'views/components/Toggle/useThemeMode'
@@ -221,7 +221,7 @@ const AppHeader = React.forwardRef((props, ref) => {
         <HeaderActionWrapper>
           <RouterLink to="/s3upload"><UploadButtonS3 /></RouterLink>
           <RouterLink to="/ax"><UploadButton /></RouterLink>
-          <DropdownApps />
+          <GridIconApps />
         </HeaderActionWrapper>
 
         {authed || oauthed ? (

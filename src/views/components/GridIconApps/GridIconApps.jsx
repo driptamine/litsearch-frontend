@@ -4,7 +4,7 @@ import { styled } from '@linaria/react';
 import { IoAppsOutline } from "react-icons/io5";
 
 
-const DropdownApps = () => {
+const GridIconApps = () => {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -111,4 +111,4 @@ const Label = styled.span`
   text-align: center;
 `;
 
-export default DropdownApps;
+export default GridIconApps;
