@@ -73,15 +73,33 @@ const PostCard = ({ post, onLike, onDelete, formatPostTime, getFullUrl }) => {
 const FeedPage = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasNext, setHasNext] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
-    axios.get(`${LITLOOP_API_URL}/posts/list/`, { headers: authHeader() })
+    axios.get(`${LITLOOP_API_URL}/posts/feed/`, { params: { page: 1 }, headers: authHeader() })
       .then((res) => {
-        setPosts(res.data.posts || res.data.results || []);
+        setPosts(res.data.posts || []);
+        setHasNext(res.data.has_next);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []);
+
+  const loadMore = () => {
+    if (loadingMore || !hasNext) return;
+    setLoadingMore(true);
+    const nextPage = page + 1;
+    axios.get(`${LITLOOP_API_URL}/posts/feed/`, { params: { page: nextPage }, headers: authHeader() })
+      .then((res) => {
+        setPosts((prev) => [...prev, ...(res.data.posts || [])]);
+        setPage(nextPage);
+        setHasNext(res.data.has_next);
+        setLoadingMore(false);
+      })
+      .catch(() => setLoadingMore(false));
+  };
 
   const getFullUrl = (url) => {
     if (!url) return DEFAULT_AVATAR;
@@ -139,16 +157,23 @@ const FeedPage = () => {
       {posts.length === 0 ? (
         <LoadingText>No posts yet.</LoadingText>
       ) : (
-        posts.map((post) => (
-          <PostCard
-            key={post.id || post.post_id}
-            post={post}
-            onLike={handleLike}
-            onDelete={handleDelete}
-            formatPostTime={formatPostTime}
-            getFullUrl={getFullUrl}
-          />
-        ))
+        <>
+          {posts.map((post) => (
+            <PostCard
+              key={post.id || post.post_id}
+              post={post}
+              onLike={handleLike}
+              onDelete={handleDelete}
+              formatPostTime={formatPostTime}
+              getFullUrl={getFullUrl}
+            />
+          ))}
+          {hasNext && (
+            <LoadMoreBtn onClick={loadMore} disabled={loadingMore}>
+              {loadingMore ? "Loading..." : "Load more"}
+            </LoadMoreBtn>
+          )}
+        </>
       )}
     </Wrapper>
   );
@@ -265,6 +290,20 @@ const DeleteBtn = styled.button`
   padding: 3px 10px;
   border-radius: 4px;
   &:hover { color: #ff4d4d; border-color: #ff4d4d; }
+`;
+
+const LoadMoreBtn = styled.button`
+  display: block;
+  margin: 20px auto;
+  padding: 10px 24px;
+  background: #1d9bf0;
+  color: #fff;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  &:hover { background: #1a8cd8; }
+  &:disabled { opacity: 0.5; cursor: default; }
 `;
 
 const LoadingText = styled.div`
