@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { styled } from '@linaria/react';
-import Sidebar from './components/Sidebar';
+import ListSidebar from './components/ListSidebar';
 import TodoList from './components/TodoList';
 import AddTodo from './components/AddTodo';
 
@@ -46,7 +46,7 @@ const JustDoList = () => {
         <AddTodo addTodo={addTodo} />
         <TodoList todos={todos} toggleTodo={toggleTodo} deleteTodo={deleteTodo} />
       </ContentContainer>
-      <Sidebar />
+      <ListSidebar />
     </AppWrapper>
   );
 };

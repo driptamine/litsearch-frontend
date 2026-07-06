@@ -1,36 +1,45 @@
-import React from "react";
-import { BlockWrapper, BlockTextarea } from "./styledComponents";
+import React, { useEffect, useRef } from "react";
+import "katex/dist/katex.min.css";
+import { BlockWrapper, BlockTextarea, BlockPreview } from "./styledComponents";
+import LatexRenderer from "./LatexRenderer";
+
+const hasLatex = (text) => text.includes('$');
 
 const Block = ({
   index,
   value,
   updateBlock,
   handleKeyDown,
-  handlePaste,
   refCallback,
-  focusedIndex,
-  setFocusedIndex,
 }) => {
+  const internalRef = useRef(null);
+
+  const setRef = (el) => {
+    internalRef.current = el;
+    if (refCallback) refCallback(el);
+  };
+
+  useEffect(() => {
+    const el = internalRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }, [value]);
 
   return (
     <BlockWrapper>
       <BlockTextarea
-        ref={refCallback}
-        // dangerouslySetInnerHTML={{ __html: value }}
-
-        contentEditable
-        suppressContentEditableWarning
-        onInput={(e) => updateBlock(index, e.currentTarget.textContent)}
+        ref={setRef}
+        value={value}
+        onChange={(e) => updateBlock(index, e.target.value)}
         onKeyDown={(e) => handleKeyDown(e, index)}
-
-        onPaste={(e) => handlePaste(e, index)}
-
-        data-placeholder={focusedIndex === index ? "Type '/' for commands" : ""}
-        onFocus={() => setFocusedIndex(index)}
-        onBlur={() => setFocusedIndex(null)}
-      >
-      
-      </BlockTextarea>
+        placeholder="Type here..."
+      />
+      {hasLatex(value) && (
+        <BlockPreview>
+          <LatexRenderer text={value} />
+        </BlockPreview>
+      )}
     </BlockWrapper>
   );
 };

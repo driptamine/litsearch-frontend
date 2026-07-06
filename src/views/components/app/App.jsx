@@ -287,14 +287,16 @@ const App = () => {
         )}
 
         {showBottomNav && <BottomNavbar />}
-        {isMobile ? (
-          <CreateButton to="/create_post">
-            <FaPlus size={22} />
-          </CreateButton>
-        ) : (
-          <CreateBtnModal to="/create_post">
-            <FaPlus size={22} />
-          </CreateBtnModal>
+        {!/^\/(todo|notes|users)(\/|$)/.test(pathname) && (/^\/[^/]+$/.test(pathname) || pathname.startsWith('/feed')) && (
+          isMobile ? (
+            <CreateButton to="/create_post">
+              <FaPlus size={22} />
+            </CreateButton>
+          ) : (
+            <CreateBtnModal to="/create_post">
+              <FaPlus size={22} />
+            </CreateBtnModal>
+          )
         )}
       </StyledWrapper>
       </NotificationProvider>

@@ -1,73 +1,198 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { styled } from '@linaria/react';
-import Sidebar from './components/Sidebar';
+import axios from 'axios';
+import ListSidebar from './components/ListSidebar';
 import TodoList from './components/TodoList';
 import AddTodo from './components/AddTodo';
-
+import UploadInput from './components/UploadInput';
+import { LITLOOP_API_URL } from 'core/constants/urls';
+import { authHeader } from 'core/api/rest-helper';
 
 const JustDoListV2 = () => {
   const [todos, setTodos] = useState([]);
+  const [lists, setLists] = useState([]);
+  const [activeListId, setActiveListId] = useState(null);
   const [backgroundImage, setBackgroundImage] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Load saved wallpaper from localStorage on mount
   useEffect(() => {
     const savedImage = localStorage.getItem('backgroundImage');
-    if (savedImage) {
-      setBackgroundImage(savedImage);
-    }
+    if (savedImage) setBackgroundImage(savedImage);
   }, []);
 
-  // Save wallpaper to localStorage when it changes
   useEffect(() => {
     if (backgroundImage) {
       localStorage.setItem('backgroundImage', backgroundImage);
     }
   }, [backgroundImage]);
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setBackgroundImage(imageUrl);
+  const fetchData = useCallback(async () => {
+    try {
+      const headers = authHeader();
+      const [todosRes, listsRes] = await Promise.all([
+        axios.get(`${LITLOOP_API_URL}/todos/all`, { headers }),
+        axios.get(`${LITLOOP_API_URL}/todos/lists/`, { headers }),
+      ]);
+      setTodos(todosRes.data.todos || []);
+      if (todosRes.data.background_image_url) {
+        setBackgroundImage(todosRes.data.background_image_url);
+      }
+      setLists(listsRes.data || []);
+    } catch (err) {
+      console.error('Failed to fetch data:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleSelectList = (listId) => {
+    setActiveListId(listId);
+  };
+
+  const handleUploadSuccess = (imageUrl) => {
+    setBackgroundImage(imageUrl);
+  };
+
+  const handleCreateList = async (name) => {
+    try {
+      const res = await axios.post(
+        `${LITLOOP_API_URL}/todos/lists/create/`,
+        { name },
+        { headers: authHeader() }
+      );
+      setLists([...lists, res.data]);
+    } catch (err) {
+      console.error('Failed to create list:', err);
     }
   };
 
-  const addTodo = (text) => {
-    setTodos([...todos, { text, completed: false }]);
+  const handleDeleteList = async (listId) => {
+    try {
+      await axios.delete(`${LITLOOP_API_URL}/todos/lists/${listId}/delete/`, {
+        headers: authHeader(),
+      });
+      setLists(lists.filter(l => l.id !== listId));
+      if (activeListId === listId) setActiveListId(null);
+    } catch (err) {
+      console.error('Failed to delete list:', err);
+    }
   };
 
-  const toggleTodo = (index) => {
-    const newTodos = [...todos];
-    newTodos[index].completed = !newTodos[index].completed;
-    setTodos(newTodos);
+  const handleUpdateList = async (listId, name) => {
+    try {
+      const res = await axios.put(
+        `${LITLOOP_API_URL}/todos/lists/${listId}/update/`,
+        { name },
+        { headers: authHeader() }
+      );
+      setLists(lists.map(l => l.id === listId ? res.data : l));
+    } catch (err) {
+      console.error('Failed to update list:', err);
+    }
   };
 
-  const deleteTodo = (index) => {
-    const newTodos = [...todos];
-    newTodos.splice(index, 1);
-    setTodos(newTodos);
+  const handleReorderTodos = async (reordered) => {
+    setTodos(reordered);
+    const items = reordered.map((t, i) => ({ id: t.id, order: i }));
+    try {
+      await axios.post(`${LITLOOP_API_URL}/todos/reorder/`, { items }, { headers: authHeader() });
+    } catch (err) {
+      console.error('Failed to reorder todos:', err);
+    }
   };
+
+  const handleReorderLists = async (reordered) => {
+    setLists(reordered);
+    const items = reordered.map((lst, i) => ({ id: lst.id, order: i }));
+    try {
+      await axios.post(`${LITLOOP_API_URL}/todos/lists/reorder/`, { items }, { headers: authHeader() });
+    } catch (err) {
+      console.error('Failed to reorder lists:', err);
+    }
+  };
+
+  const addTodo = async (text) => {
+    try {
+      const res = await axios.post(
+        `${LITLOOP_API_URL}/todos/create/`,
+        { title: text, completed: false, todo_list: activeListId },
+        { headers: authHeader() }
+      );
+      setTodos([...todos, res.data]);
+    } catch (err) {
+      console.error('Failed to create todo:', err);
+    }
+  };
+
+  const handleUpdateTodo = async (id, title) => {
+    try {
+      const res = await axios.put(
+        `${LITLOOP_API_URL}/todos/${id}/update/`,
+        { title },
+        { headers: authHeader() }
+      );
+      setTodos(todos.map(t => t.id === id ? res.data : t));
+    } catch (err) {
+      console.error('Failed to update todo:', err);
+    }
+  };
+
+  const toggleTodo = async (id, completed) => {
+    try {
+      const res = await axios.put(
+        `${LITLOOP_API_URL}/todos/${id}/update/`,
+        { completed: !completed },
+        { headers: authHeader() }
+      );
+      setTodos(todos.map(t => t.id === id ? res.data : t));
+    } catch (err) {
+      console.error('Failed to update todo:', err);
+    }
+  };
+
+  const deleteTodo = async (id) => {
+    try {
+      await axios.delete(`${LITLOOP_API_URL}/todos/${id}/delete/`, {
+        headers: authHeader(),
+      });
+      setTodos(todos.filter(t => t.id !== id));
+    } catch (err) {
+      console.error('Failed to delete todo:', err);
+    }
+  };
+
+  const filteredTodos = activeListId === 'completed'
+    ? todos.filter(t => t.completed)
+    : activeListId
+      ? todos.filter(t => t.todo_list === activeListId)
+      : todos;
+
+  if (loading) return null;
 
   return (
     <AppWrapper backgroundImage={backgroundImage}>
       <ContentContainer>
-      <AddTodo addTodo={addTodo} />
-        {/*<Title>My Tasks</Title>*/}
-
-
-        <TodoList todos={todos} toggleTodo={toggleTodo} deleteTodo={deleteTodo} />
+        <AddTodo addTodo={addTodo} />
+        <TodoList todos={filteredTodos} toggleTodo={toggleTodo} deleteTodo={deleteTodo} onUpdateTodo={handleUpdateTodo} onReorderTodos={handleReorderTodos} />
       </ContentContainer>
-      <Sidebar>
-        <UploadInput
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-        />
-      </Sidebar>
+      <ListSidebar
+        lists={lists}
+        activeListId={activeListId}
+        onSelectList={handleSelectList}
+        onCreateList={handleCreateList}
+        onDeleteList={handleDeleteList}
+        onUpdateList={handleUpdateList}
+        onReorderLists={handleReorderLists}
+      >
+        <UploadInput onUploadSuccess={handleUploadSuccess} />
+      </ListSidebar>
     </AppWrapper>
   );
 };
-
 
 const AppWrapper = styled.div`
   display: flex;
@@ -88,21 +213,12 @@ const ContentContainer = styled.div`
   max-width: 800px;
   margin: 20px auto;
   padding: 1.5rem;
-
   border-radius: 8px;
 
   @media screen and (max-width: 480px) {
     padding: 1rem;
     margin: 10px auto;
   }
-`;
-
-const Title = styled.h1`
-  color: #333;
-`;
-
-const UploadInput = styled.input`
-  margin-bottom: 1rem;
 `;
 
 export default JustDoListV2;

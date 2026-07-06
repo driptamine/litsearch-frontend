@@ -1,7 +1,8 @@
 import React from "react";
 import PageTitle from "./PageTitle";
 import Block from "./Block";
-import { PageContainerWrapper } from "./styledComponents";
+import TagInput from "./TagInput";
+import { PageContainerWrapper, LoadingText } from "./styledComponents";
 
 const PageContainer = ({
   title,
@@ -9,26 +10,27 @@ const PageContainer = ({
   blocks,
   updateBlock,
   handleKeyDown,
-  handlePaste,
   refs,
-  focusedIndex,
-  setFocusedIndex,
+  pageLoading,
+  tags,
+  onAddTag,
+  onRemoveTag,
 }) => {
+  if (pageLoading) return <PageContainerWrapper><LoadingText>Loading page...</LoadingText></PageContainerWrapper>;
+
   return (
     <PageContainerWrapper>
-      <PageTitle value={title} onChange={(e) => setTitle(e.target.value)} />
+      <TagInput tags={tags} onAdd={onAddTag} onRemove={onRemoveTag} />
+      <PageTitle value={title} onChange={setTitle} />
 
       {blocks.map((block, index) => (
         <Block
-          key={index}
+          key={block._id}
           index={index}
-          value={block}
+          value={block.content}
           updateBlock={updateBlock}
           handleKeyDown={handleKeyDown}
-          handlePaste={handlePaste}
           refCallback={(el) => (refs.current[index] = el)}
-          focusedIndex={focusedIndex}
-          setFocusedIndex={setFocusedIndex}
         />
       ))}
     </PageContainerWrapper>
