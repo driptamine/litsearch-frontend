@@ -65,6 +65,7 @@ const UserVideosPage = lazyImport(() => import('views/pages/VideosPage'));
 const UsersPage = lazyImport(() => import('views/pages/UsersPage/UsersPage'));
 const NoteApp = lazyImport(() => import('views/pages/NoteText/NoteApp'));
 const NoteTakingApp = lazyImport(() => import('views/pages/NoteApp/NoteTakingApp'));
+const FeedPage = lazyImport(() => import('views/pages/FeedPage/FeedPage'));
 const SearchByTag = lazyImport(() => import('views/pages/SavedLinks/SearchByTag'));
 const LinkListByTag = lazyImport(() => import('views/pages/SavedLinks/LinkListByTag'));
 const LinksList = lazyImport(() => import('views/pages/SavedLinks/LinksList'));
@@ -121,6 +122,7 @@ function ModalSwitch({ children, renderModal, stopSong, pauseSong, resumeSong, a
 
             {/* Feed/Browse Routes */}
             <Route exact path="/movies" component={ModalMovies} />
+            <Route exact path="/feed/user" component={FeedPage} />
             <Route exact path="/feed" component={ModalMovies} />
             <Route exact path="/feedV2" component={ModalPosts} />
             <Route exact path="/people" component={ModalPeople} />
