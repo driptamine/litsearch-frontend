@@ -266,6 +266,11 @@ const NoteTakingApp = () => {
   };
 
   // ── Delete page ─────────────────────────────
+  const handleInsertTable = useCallback(() => {
+    const newBlock = { _id: tempBlockId(), apiId: null, content: JSON.stringify({ columns: ["Column 1", "Column 2"], rows: [["", ""]] }) };
+    setBlocks((prev) => [...prev, newBlock]);
+  }, []);
+
   const handleDeletePage = async (pageId) => {
     try {
       await deletePage(pageId);
@@ -307,6 +312,7 @@ const NoteTakingApp = () => {
           tags={tags}
           onAddTag={handleAddTag}
           onRemoveTag={handleRemoveTag}
+          onInsertTable={handleInsertTable}
         />
       ) : (
         <LoadingText>Select or create a page</LoadingText>

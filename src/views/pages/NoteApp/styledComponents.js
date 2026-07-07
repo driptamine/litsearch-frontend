@@ -198,6 +198,28 @@ export const SidebarSearchInput = styled.input`
   }
 `;
 
+export const Toolbar = styled.div`
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+`;
+
+export const ToolbarBtn = styled.button`
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  color: #555;
+
+  &:hover {
+    background: #e4e4e4;
+    color: #000;
+  }
+`;
+
 export const LoadingText = styled.div`
   padding: 40px;
   font-size: 18px;

@@ -5,6 +5,8 @@ import LatexRenderer from "./LatexRenderer";
 
 const hasLatex = (text) => text.includes('$');
 
+const TABLE_CMD = "/table";
+
 const Block = ({
   index,
   value,
@@ -26,12 +28,21 @@ const Block = ({
     el.style.height = el.scrollHeight + "px";
   }, [value]);
 
+  const handleChange = (e) => {
+    const val = e.target.value;
+    if (val.trim() === TABLE_CMD) {
+      updateBlock(index, JSON.stringify({ columns: ["Column 1", "Column 2"], rows: [["", ""]] }));
+      return;
+    }
+    updateBlock(index, val);
+  };
+
   return (
     <BlockWrapper>
       <BlockTextarea
         ref={setRef}
         value={value}
-        onChange={(e) => updateBlock(index, e.target.value)}
+        onChange={handleChange}
         onKeyDown={(e) => handleKeyDown(e, index)}
         placeholder="Type here..."
       />
