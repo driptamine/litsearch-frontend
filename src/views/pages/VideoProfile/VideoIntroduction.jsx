@@ -72,9 +72,7 @@ function VideoIntroduction({ videoId, obj, url }) {
           width={20}
         />*/}
 
-        <CustomPlayerV4
-          url={`http://localhost:8000${url}`}
-        />
+        <CustomPlayerV4 url={url} />
 
         {/*<a target="_blank" href={`https://rezka.ag/search/?q=${movie.title}&do=search&subaction=search`}>rezka</a>*/}
       {/*</StyledBox>*/}
