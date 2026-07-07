@@ -39,6 +39,15 @@ const Sidebar = () => {
           </LinkStyled>
         </StyledLi>
 
+        <StyledLi id="UserPosts">
+          <LinkStyled to="/feed/user">
+            <StyledDivIcon className="icon">
+              <FaRocket />
+            </StyledDivIcon>
+            <span>User Posts</span>
+          </LinkStyled>
+        </StyledLi>
+
         <StyledLi id="FYP">
           <LinkStyled to="/fyp">
             <StyledDivIcon className="icon">
