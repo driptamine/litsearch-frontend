@@ -45,7 +45,9 @@ function UserVideosPage() {
                 <VideoCard key={video.id || video.pk}>
                   <CustomPlayerV4 url={video.r2_url || video.gcs_url || video.file_path || video.url} />
                   <VideoInfo>
-                    <VideoTitle>{video.title || 'Untitled Video'}</VideoTitle>
+                    <Link to={`/video/${video.id || video.pk}`} style={{ textDecoration: 'none' }}>
+                      <VideoTitle>{video.title || 'Untitled Video'}</VideoTitle>
+                    </Link>
                   </VideoInfo>
                 </VideoCard>
               ))}
