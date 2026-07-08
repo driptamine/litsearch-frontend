@@ -15,6 +15,7 @@ import {
   addTag,
   deleteTag,
   searchPagesByTags,
+  updateBlockTable,
 } from "./notesApi";
 
 const DEBOUNCE_MS = 1500;
@@ -78,10 +79,12 @@ const NoteTakingApp = () => {
         const mapped = (data.blocks || []).map((b) => ({
           _id: b.id,
           apiId: b.id,
+          type: b.type || 'text',
           content: b.content,
+          tableData: b.type === 'table' ? b.table_data : null,
         }));
         if (mapped.length === 0) {
-          mapped.push({ _id: tempBlockId(), apiId: null, content: '' });
+          mapped.push({ _id: tempBlockId(), apiId: null, type: 'text', content: '' });
         }
         setBlocks(mapped);
         const tagNames = data.tags || [];
@@ -148,6 +151,28 @@ const NoteTakingApp = () => {
     });
     const blockId = blocksRef.current[index]?._id;
     if (blockId) scheduleBlockSave(blockId, value);
+  };
+
+  const pendingTableCreate = useRef({});
+
+  const updateBlockTableData = (index, columns, rows) => {
+    setBlocks((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], tableData: { columns, rows } };
+      return next;
+    });
+    const block = blocksRef.current[index];
+    if (block?.apiId) {
+      updateBlockTable(block.apiId, columns, rows).catch(() => {});
+    } else if (block?._id && selectedId && !pendingTableCreate.current[block._id]) {
+      pendingTableCreate.current[block._id] = true;
+      createBlock(selectedId, '', null, 'table', { columns, rows }).then((saved) => {
+        pendingTableCreate.current[block._id] = false;
+        setBlocks((prev) => prev.map((b) => b._id === block._id ? { ...b, apiId: saved.id, _id: saved.id } : b));
+      }).catch(() => {
+        pendingTableCreate.current[block._id] = false;
+      });
+    }
   };
 
   // ── Key handling (Enter, Backspace, arrows) ──
@@ -267,9 +292,30 @@ const NoteTakingApp = () => {
 
   // ── Delete page ─────────────────────────────
   const handleInsertTable = useCallback(() => {
-    const newBlock = { _id: tempBlockId(), apiId: null, content: JSON.stringify({ columns: ["Column 1", "Column 2"], rows: [["", ""]] }) };
+    const defaultTable = { columns: ["Column 1", "Column 2"], rows: [["", ""]] };
+    const newBlock = { _id: tempBlockId(), apiId: null, type: 'table', content: '', tableData: defaultTable };
     setBlocks((prev) => [...prev, newBlock]);
-  }, []);
+    if (selectedId) {
+      createBlock(selectedId, '', null, 'table', defaultTable).then((saved) => {
+        setBlocks((prev) => prev.map((b) => b._id === newBlock._id ? { ...b, apiId: saved.id, _id: saved.id } : b));
+      }).catch(() => {});
+    }
+  }, [selectedId]);
+
+  const handleInsertTableAt = useCallback((afterIndex) => {
+    const defaultTable = { columns: ["Column 1", "Column 2"], rows: [["", ""]] };
+    const newBlock = { _id: tempBlockId(), apiId: null, type: 'table', content: '', tableData: defaultTable };
+    setBlocks((prev) => {
+      const next = [...prev];
+      next.splice(afterIndex + 1, 0, newBlock);
+      return next;
+    });
+    if (selectedId) {
+      createBlock(selectedId, '', afterIndex + 1, 'table', defaultTable).then((saved) => {
+        setBlocks((prev) => prev.map((b) => b._id === newBlock._id ? { ...b, apiId: saved.id, _id: saved.id } : b));
+      }).catch(() => {});
+    }
+  }, [selectedId]);
 
   const handleDeletePage = async (pageId) => {
     try {
@@ -313,6 +359,8 @@ const NoteTakingApp = () => {
           onAddTag={handleAddTag}
           onRemoveTag={handleRemoveTag}
           onInsertTable={handleInsertTable}
+          onTableChange={updateBlockTableData}
+          onInsertTableAt={handleInsertTableAt}
         />
       ) : (
         <LoadingText>Select or create a page</LoadingText>

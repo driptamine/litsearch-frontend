@@ -2,60 +2,86 @@ import React, { useState } from 'react';
 import { styled } from '@linaria/react';
 import { FullScreenIcon } from 'views/components/Sidebar/Icons';
 
-const Comment = ({ comment, depth = 0 }) => {
+const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply }) => {
   const [showReplies, setShowReplies] = useState(true);
+  const [replyText, setReplyText] = useState('');
 
   const toggleReplies = () => {
     setShowReplies(!showReplies);
   };
 
+  const isReplying = replyToId === comment.id;
+
+  const handleReplySubmit = (e) => {
+    e.preventDefault();
+    const val = replyText.trim();
+    if (!val) return;
+    onSubmitReply(val, comment.id);
+    setReplyText('');
+  };
+
   return (
     <StyledComment>
       <LeftBar>
-        <UserPic/> 
+        <UserPic src={comment.avatar} onError={(e) => { e.target.style.display = 'none'; }} /> 
         {showReplies ? (
           <>
             <Collapse onClick={toggleReplies}>
               <Threadline />
             </Collapse>
-
-            {/*<ToggleButton onClick={toggleReplies}>
-              {showReplies ? <Minus>-</Minus> : <Plus>+</Plus>}
-            </ToggleButton>*/}
           </>
         ) : (
           <>
             <Collapse onClick={toggleReplies}>
               <FullScreenIcon />
             </Collapse>
-
-            {/*<ToggleButton onClick={toggleReplies}>
-              {showReplies ? <Minus>-</Minus> : <Plus>+</Plus>}
-            </ToggleButton>*/}
           </>
         )}
 
       </LeftBar>
 
       <Right>
-        {/*<UserPic/>*/}
-        {/*<CommentContainer  showReplies={showReplies}>*/}
-        {showReplies && (<CommentContainer  >
-          <CommentText>{comment.text}</CommentText>
-          <Stats>
-          <Like></Like>
-          <Dislike></Dislike>
-          </Stats>
-
-        </CommentContainer>)}
+        {showReplies && (
+          <CommentContainer>
+            <Username>{comment.username || 'Anonymous'}</Username>
+            <CommentText>{comment.text}</CommentText>
+            <Stats>
+              <Like />
+              <Dislike />
+              {onReply && (
+                <ReplyBtn onClick={() => onReply(comment.id)}>Reply</ReplyBtn>
+              )}
+            </Stats>
+            {isReplying && (
+              <ReplyForm onSubmit={handleReplySubmit}>
+                <ReplyInput
+                  autoFocus
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder="Write a reply..."
+                />
+                <ReplyActionRow>
+                  <CancelBtn type="button" onClick={() => onReply(null)}>Cancel</CancelBtn>
+                  <ReplyPostBtn type="submit" disabled={!replyText.trim()}>Reply</ReplyPostBtn>
+                </ReplyActionRow>
+              </ReplyForm>
+            )}
+          </CommentContainer>
+        )}
 
         {comment.replies && comment.replies.length > 0 && (
           <>
-
             {showReplies && (
               <NestedCommentsContainer>
                 {comment.replies.map((reply) => (
-                  <Comment key={reply.id} comment={reply} depth={depth + 1} />
+                  <Comment
+                    key={reply.id}
+                    comment={reply}
+                    depth={depth + 1}
+                    onReply={onReply}
+                    replyToId={replyToId}
+                    onSubmitReply={onSubmitReply}
+                  />
                 ))}
               </NestedCommentsContainer>
             )}
@@ -97,6 +123,14 @@ const CommentText = styled.p`
   margin: 0;
 `;
 
+const Username = styled.span`
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+`;
+
 const ToggleButton = styled.button`
   display: flex;
   margin-top: 35px;
@@ -126,12 +160,12 @@ const Plus = styled.div`
   border-radius: 50%;
   display: inline-block;
 `
-const UserPic = styled.div`
+const UserPic = styled.img`
   height: 25px;
   width: 25px;
-  background-color: Aqua;
   border-radius: 50%;
   display: inline-block;
+  object-fit: cover;
 `
 
 
@@ -187,5 +221,83 @@ const Dislike = styled.div`
 `;
 const Stats = styled.div`
   display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
 `;
+
+const ReplyBtn = styled.button`
+  background: none;
+  border: none;
+  color: #1a73e8;
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+
+  &:hover {
+    background: rgba(26, 115, 232, 0.1);
+  }
+`;
+
+const ReplyForm = styled.form`
+  margin-top: 8px;
+`;
+
+const ReplyInput = styled.input`
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background: #1a1a1a;
+  color: var(--text);
+  font-size: 0.9rem;
+  outline: none;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: #1a73e8;
+  }
+`;
+
+const ReplyActionRow = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+  justify-content: flex-end;
+`;
+
+const CancelBtn = styled.button`
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 4px 12px;
+
+  &:hover {
+    color: var(--text);
+  }
+`;
+
+const ReplyPostBtn = styled.button`
+  padding: 4px 16px;
+  border-radius: 6px;
+  border: none;
+  background: #1a73e8;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  &:hover:not(:disabled) {
+    background: #1557b0;
+  }
+`;
+
 export default Comment;

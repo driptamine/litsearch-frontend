@@ -30,7 +30,7 @@ const Sidebar = () => {
     <SidebarWrapper open={open}>
       <StyledUl>
         <StyledLi id="Feed">
-          <LinkStyled  to="/feed">
+          <LinkStyled  to="/feed/movies">
             <StyledDivIcon className="icon">
               <SCEarthIcon />
 
@@ -40,7 +40,7 @@ const Sidebar = () => {
         </StyledLi>
 
         <StyledLi id="UserPosts">
-          <LinkStyled to="/feed/user">
+          <LinkStyled to="/feed">
             <StyledDivIcon className="icon">
               <FaRocket />
             </StyledDivIcon>

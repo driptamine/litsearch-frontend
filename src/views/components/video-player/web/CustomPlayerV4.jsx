@@ -1,6 +1,6 @@
 // REFERENCE: https://voskan.host/2023/03/26/how-to-create-a-custom-video-player-in-react-js/
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import {
   FaPlay,
   FaPause,
@@ -21,7 +21,7 @@ import { StyledTypography } from 'views/styledComponents';
 
 
 
-const CustomPlayerV4 = ({ url, light, viewsCount, likesCount }, props) => {
+const CustomPlayerV4 = ({ url, light, viewsCount, likesCount, maxDuration = 0 }, props) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(1);
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -32,8 +32,9 @@ const CustomPlayerV4 = ({ url, light, viewsCount, likesCount }, props) => {
 
   const videoContainerRef = useRef(null);
   const videoRef = useRef(null);
+  const animationTimeoutRef = useRef(null);
 
-
+  const [showAnimation, setShowAnimation] = useState(null);
   const [percentage, setPercentage] = useState(0)
 
   const [duration, setDuration] = useState(0)
@@ -111,13 +112,21 @@ const CustomPlayerV4 = ({ url, light, viewsCount, likesCount }, props) => {
     setVolume(event.target.value);
     videoRef.current.volume = event.target.value;
   };
+  const triggerAnimation = useCallback((type) => {
+    if (animationTimeoutRef.current) clearTimeout(animationTimeoutRef.current);
+    setShowAnimation(type);
+    animationTimeoutRef.current = setTimeout(() => setShowAnimation(null), 400);
+  }, []);
+
   const handlePlayPause = () => {
     if (isPlaying) {
       videoRef.current.pause();
       setIsPlaying(false);
+      triggerAnimation('pause');
     } else {
       videoRef.current.play();
       setIsPlaying(true);
+      triggerAnimation('play');
     }
   };
 
@@ -132,13 +141,16 @@ const CustomPlayerV4 = ({ url, light, viewsCount, likesCount }, props) => {
   useEffect(() => {
     const videoElement = videoRef.current;
     if (videoElement.readyState >= 1) {
-      handleLoadedMetadata(); // If metadata is already loaded
+      handleLoadedMetadata();
     }
+    return () => {
+      if (animationTimeoutRef.current) clearTimeout(animationTimeoutRef.current);
+    };
   }, []);
 
   useEffect(() => {
     const video = videoRef.current;
-    const videoUrl = url
+    let videoUrl = url
     if (!videoUrl) return;
     let hls;
     if (HLS.isSupported() && videoUrl.includes('.m3u8')) {
@@ -146,13 +158,17 @@ const CustomPlayerV4 = ({ url, light, viewsCount, likesCount }, props) => {
       hls.loadSource(videoUrl);
       hls.attachMedia(video);
     } else {
-      video.src = videoUrl;
       video.type = 'video/mp4';
+      if (maxDuration > 0) {
+        const separator = videoUrl.includes('#') ? '&' : '#';
+        videoUrl = `${videoUrl}${separator}t=0,${maxDuration}`;
+      }
+      video.src = videoUrl;
     }
     return () => {
       if (hls) hls.destroy();
     };
-  }, [url]);
+  }, [url, maxDuration]);
 
   return (
     <VideoContainer ref={videoContainerRef} aspectRatio={aspectRatio}>
@@ -168,6 +184,7 @@ const CustomPlayerV4 = ({ url, light, viewsCount, likesCount }, props) => {
       <VideoWrapper aspectRatio={aspectRatio}>
         <Video
           ref={videoRef}
+          preload={maxDuration > 0 ? "metadata" : undefined}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
 
@@ -176,10 +193,16 @@ const CustomPlayerV4 = ({ url, light, viewsCount, likesCount }, props) => {
             setDuration(e.currentTarget.duration.toFixed(2))
           }}
           onLoadedMetadata={handleLoadedMetadata}
-        >
-
-        </Video>
+        />
       </VideoWrapper>
+
+      {showAnimation && (
+        <AnimationOverlay>
+          <AnimationCircle>
+            {showAnimation === 'play' ? <FaPlay /> : <FaPause />}
+          </AnimationCircle>
+        </AnimationOverlay>
+      )}
 
       <DisplayDiv>
 
@@ -260,6 +283,39 @@ const Duration = styled.div`
   font-family: sans-serif;
 `;
 
+
+const AnimationOverlay = styled.div`
+  @keyframes fadeInOut {
+    0% { opacity: 0; transform: scale(0.5); }
+    20% { opacity: 1; transform: scale(1); }
+    60% { opacity: 1; }
+    100% { opacity: 0; transform: scale(0.8); }
+  }
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 150;
+  color: white;
+  font-size: 3rem;
+  animation: fadeInOut 0.7s ease-out forwards;
+`;
+
+const AnimationCircle = styled.div`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 
 const VideoContainer = styled.div`
   position: relative;

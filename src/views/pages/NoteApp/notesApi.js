@@ -27,8 +27,15 @@ export const updatePage = (pageId, data) =>
 export const deletePage = (pageId) =>
   api.delete(`/pages/${pageId}/delete/`).then(r => r.data);
 
-export const createBlock = (pageId, content = '', order = null) =>
-  api.post(`/pages/${pageId}/blocks/create/`, { content, order }).then(r => r.data);
+export const createBlock = (pageId, content = '', order = null, type = 'text', tableData = null) => {
+  const body = { content, type };
+  if (order !== null) body.order = order;
+  if (tableData !== null) body.table_data = tableData;
+  return api.post(`/pages/${pageId}/blocks/create/`, body).then(r => r.data);
+};
+
+export const updateBlockTable = (blockId, columns, rows) =>
+  api.put(`/blocks/${blockId}/table/`, { columns, rows }).then(r => r.data);
 
 export const updateBlock = (blockId, data) =>
   api.put(`/blocks/${blockId}/update/`, data).then(r => r.data);

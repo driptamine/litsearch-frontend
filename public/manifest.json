@@ -1,6 +1,6 @@
 {
-  "short_name": "TMDb Explorer",
-  "name": "The Movie Database (TMDb) react-redux client application",
+  "short_name": "LitSearch",
+  "name": "LitSearch",
   "icons": [
     {
       "src": "favicon.ico",

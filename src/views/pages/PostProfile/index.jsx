@@ -7,6 +7,8 @@ import { authHeader } from 'core/api/rest-helper';
 import LikeButton from 'views/components/LikeButton/LikeButton';
 import TrackRow from 'views/components/TrackRow';
 import CustomPlayerV4 from 'views/components/video-player/web/CustomPlayerV4';
+import Impressions from 'views/components/Impressions';
+import CommentSection from './CommentSection';
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
 
@@ -76,12 +78,12 @@ function PostProfile() {
             </FeedHeader>
             <FeedBody>
               <FeedText>{post.description || post.content || ''}</FeedText>
-              {(post.photos?.length > 0 || post.photo_ids?.length > 0) && (
+              {(post.photos?.length > 0 || post.photo_ids?.length > 0 || post.videos?.length > 0 || post.video_ids?.length > 0) && (
                 <FeedMedia>
                   {(post.photos || []).slice(0, 4).map(photo => (
                     <FeedImage key={photo.id || photo.pk} src={photo.r2_url || photo.gcs_url || photo.image || photo.file_path || photo.url || photo} alt="" />
                   ))}
-                  {!post.photos?.length && (post.videos || []).slice(0, 1).map(video => (
+                  {(post.videos || []).slice(0, 1).map(video => (
                     <CustomPlayerV4 key={video.id || video.pk} url={video.r2_url || video.gcs_url || video.file_path || video.url || video} />
                   ))}
                 </FeedMedia>
@@ -95,6 +97,7 @@ function PostProfile() {
                   likesCount={post.likes_count}
                   onClick={() => {}}
                 />
+                <Impressions count={post.impressions_count || 0} />
                 {post.photo_ids?.length > 0 && <span>📷 {post.photo_ids.length}</span>}
                 {post.video_ids?.length > 0 && <span>🎥 {post.video_ids.length}</span>}
                 {post.track_ids?.length > 0 && <span>🎵 {post.track_ids.length}</span>}
@@ -102,6 +105,7 @@ function PostProfile() {
             </FeedBody>
           </FeedMainContent>
         </FeedPost>
+        <CommentSection postId={postId} />
       </FeedContainer>
     </Container>
   );

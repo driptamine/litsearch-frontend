@@ -13,6 +13,7 @@ const Block = ({
   updateBlock,
   handleKeyDown,
   refCallback,
+  onInsertTableAt,
 }) => {
   const internalRef = useRef(null);
 
@@ -31,7 +32,8 @@ const Block = ({
   const handleChange = (e) => {
     const val = e.target.value;
     if (val.trim() === TABLE_CMD) {
-      updateBlock(index, JSON.stringify({ columns: ["Column 1", "Column 2"], rows: [["", ""]] }));
+      updateBlock(index, '');
+      if (onInsertTableAt) onInsertTableAt(index);
       return;
     }
     updateBlock(index, val);

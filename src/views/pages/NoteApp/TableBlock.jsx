@@ -1,85 +1,43 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback } from "react";
 import { styled } from "@linaria/react";
 
-const DEFAULT_TABLE = {
-  columns: ["Column 1", "Column 2"],
-  rows: [
-    ["", ""],
-  ],
-};
-
-const tryParseTable = (content) => {
-  if (!content || typeof content !== "string") return null;
-  const trimmed = content.trim();
-  if (!trimmed.startsWith("{")) return null;
-  try {
-    const parsed = JSON.parse(trimmed);
-    if (parsed && Array.isArray(parsed.columns) && Array.isArray(parsed.rows)) {
-      return parsed;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-};
-
-const TableBlock = ({ index, content, updateBlock }) => {
-  const table = tryParseTable(content) || { columns: [""], rows: [[""]] };
-  const [activeCell, setActiveCell] = useState(null);
-
-  const emitChange = useCallback((newTable) => {
-    updateBlock(index, JSON.stringify(newTable));
-  }, [index, updateBlock]);
+const TableBlock = ({ index, columns, rows, onTableChange }) => {
+  const emitChange = useCallback((newCols, newRows) => {
+    onTableChange(index, newCols, newRows);
+  }, [index, onTableChange]);
 
   const setCell = (rowIdx, colIdx, value) => {
-    const next = {
-      ...table,
-      rows: table.rows.map((r, ri) =>
-        ri === rowIdx ? r.map((c, ci) => (ci === colIdx ? value : c)) : r
-      ),
-    };
-    emitChange(next);
+    const next = rows.map((r, ri) =>
+      ri === rowIdx ? r.map((c, ci) => (ci === colIdx ? value : c)) : r
+    );
+    emitChange(columns, next);
   };
 
   const setColumn = (colIdx, value) => {
-    const next = {
-      ...table,
-      columns: table.columns.map((c, ci) => (ci === colIdx ? value : c)),
-    };
-    emitChange(next);
+    const next = columns.map((c, ci) => (ci === colIdx ? value : c));
+    emitChange(next, rows);
   };
 
   const addRow = () => {
-    emitChange({
-      ...table,
-      rows: [...table.rows, Array(table.columns.length).fill("")],
-    });
+    emitChange(columns, [...rows, Array(columns.length).fill("")]);
   };
 
   const addColumn = () => {
-    const newColName = `Col ${table.columns.length + 1}`;
-    emitChange({
-      ...table,
-      columns: [...table.columns, newColName],
-      rows: table.rows.map((r) => [...r, ""]),
-    });
+    const name = `Col ${columns.length + 1}`;
+    emitChange([...columns, name], rows.map((r) => [...r, ""]));
   };
 
   const removeRow = (rowIdx) => {
-    if (table.rows.length <= 1) return;
-    emitChange({
-      ...table,
-      rows: table.rows.filter((_, i) => i !== rowIdx),
-    });
+    if (rows.length <= 1) return;
+    emitChange(columns, rows.filter((_, i) => i !== rowIdx));
   };
 
   const removeColumn = (colIdx) => {
-    if (table.columns.length <= 1) return;
-    emitChange({
-      ...table,
-      columns: table.columns.filter((_, i) => i !== colIdx),
-      rows: table.rows.map((r) => r.filter((_, i) => i !== colIdx)),
-    });
+    if (columns.length <= 1) return;
+    emitChange(
+      columns.filter((_, i) => i !== colIdx),
+      rows.map((r) => r.filter((_, i) => i !== colIdx))
+    );
   };
 
   return (
@@ -88,14 +46,14 @@ const TableBlock = ({ index, content, updateBlock }) => {
         <thead>
           <tr>
             <th style={{ width: 24 }} />
-            {table.columns.map((col, ci) => (
+            {columns.map((col, ci) => (
               <th key={ci}>
                 <HeaderInput
                   value={col}
                   onChange={(e) => setColumn(ci, e.target.value)}
                   placeholder="Header"
                 />
-                {table.columns.length > 1 && (
+                {columns.length > 1 && (
                   <RemoveBtn onClick={() => removeColumn(ci)} title="Remove column">×</RemoveBtn>
                 )}
               </th>
@@ -104,11 +62,11 @@ const TableBlock = ({ index, content, updateBlock }) => {
           </tr>
         </thead>
         <tbody>
-          {table.rows.map((row, ri) => (
+          {rows.map((row, ri) => (
             <tr key={ri}>
               <td className="row-label">
                 <RowLabel>{ri + 1}</RowLabel>
-                {table.rows.length > 1 && (
+                {rows.length > 1 && (
                   <RemoveBtn onClick={() => removeRow(ri)} title="Remove row">×</RemoveBtn>
                 )}
               </td>
@@ -117,8 +75,6 @@ const TableBlock = ({ index, content, updateBlock }) => {
                   <CellInput
                     value={cell}
                     onChange={(e) => setCell(ri, ci, e.target.value)}
-                    onFocus={() => setActiveCell(`${ri}-${ci}`)}
-                    onBlur={() => setActiveCell(null)}
                     placeholder="..."
                   />
                 </td>
@@ -243,5 +199,4 @@ const AddRowBtn = styled.button`
   }
 `;
 
-export { TableBlock, tryParseTable };
 export default TableBlock;

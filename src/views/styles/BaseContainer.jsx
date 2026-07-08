@@ -17,8 +17,8 @@ const BaseContainer = styled.div`
   padding-bottom: 0em;
 
   @media screen and (max-width: 768px) {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 0;
+    padding-right: 0;
     padding-top: 10px;
     height: auto;
     overflow: auto;

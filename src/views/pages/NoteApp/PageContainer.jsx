@@ -1,7 +1,7 @@
 import React from "react";
 import PageTitle from "./PageTitle";
 import Block from "./Block";
-import { TableBlock, tryParseTable } from "./TableBlock";
+import TableBlock from "./TableBlock";
 import TagInput from "./TagInput";
 import { PageContainerWrapper, LoadingText, Toolbar, ToolbarBtn } from "./styledComponents";
 
@@ -17,10 +17,10 @@ const PageContainer = ({
   onAddTag,
   onRemoveTag,
   onInsertTable,
+  onTableChange,
+  onInsertTableAt,
 }) => {
   if (pageLoading) return <PageContainerWrapper><LoadingText>Loading page...</LoadingText></PageContainerWrapper>;
-
-  const isTable = (block) => tryParseTable(block.content) !== null;
 
   return (
     <PageContainerWrapper>
@@ -31,12 +31,13 @@ const PageContainer = ({
       <PageTitle value={title} onChange={setTitle} />
 
       {blocks.map((block, index) =>
-        isTable(block) ? (
+        block.type === 'table' ? (
           <TableBlock
             key={block._id}
             index={index}
-            content={block.content}
-            updateBlock={updateBlock}
+            columns={block.tableData?.columns || ["Column 1", "Column 2"]}
+            rows={block.tableData?.rows || [["", ""]]}
+            onTableChange={onTableChange}
           />
         ) : (
           <Block
@@ -46,6 +47,7 @@ const PageContainer = ({
             updateBlock={updateBlock}
             handleKeyDown={handleKeyDown}
             refCallback={(el) => (refs.current[index] = el)}
+            onInsertTableAt={onInsertTableAt}
           />
         )
       )}

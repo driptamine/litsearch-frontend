@@ -122,8 +122,8 @@ function ModalSwitch({ children, renderModal, stopSong, pauseSong, resumeSong, a
 
             {/* Feed/Browse Routes */}
             <Route exact path="/movies" component={ModalMovies} />
-            <Route exact path="/feed/user" component={FeedPage} />
-            <Route exact path="/feed" component={ModalMovies} />
+            <Route exact path="/feed" component={FeedPage} />
+            <Route exact path="/feed/movies" component={ModalMovies} />
             <Route exact path="/feedV2" component={ModalPosts} />
             <Route exact path="/people" component={ModalPeople} />
             <Route exact path="/users" component={UsersPage} />
