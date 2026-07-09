@@ -316,6 +316,9 @@ const Sidebar = () => {
               ))}
             </SubUl>
           )}
+          {open && communities.length === 0 && isSignedIn && (
+            <EmptyText>No communities yet</EmptyText>
+          )}
         </StyledLi>
 
 
@@ -510,6 +513,14 @@ const SubIconPlaceholder = styled.div`
   border-radius: 4px;
   background: var(--darkGrey);
   flex-shrink: 0;
+`;
+
+const EmptyText = styled.span`
+  display: block;
+  padding: 0.3rem 0 0.3rem 2.8rem;
+  font-size: 0.8rem;
+  color: var(--textSecondary, #888);
+  font-family: Helvetica;
 `;
 
 // const links = [
