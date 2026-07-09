@@ -79,6 +79,7 @@ const CreditsPage = lazyImport(() => import('views/pages/Credits'));
 const FYPPage = lazyImport(() => import('views/pages/FYP'));
 const MemePage = lazyImport(() => import('views/pages/MemePage'));
 
+const CommunitiesPage = lazyImport(() => import('views/pages/CommunitiesPage/CommunitiesPage'));
 import PageLoader from 'views/components/PageLoader';
 
 export const ModalRouteContext = React.createContext();
@@ -127,6 +128,7 @@ function ModalSwitch({ children, renderModal, stopSong, pauseSong, resumeSong, a
             <Route exact path="/feedV2" component={ModalPosts} />
             <Route exact path="/people" component={ModalPeople} />
             <Route exact path="/users" component={UsersPage} />
+            <Route exact path="/communities" component={CommunitiesPage} />
             <Route exact path="/magazines" component={ModalMagazines} />
             <Route exact path="/albums" component={ModalAlbums} />
             <Route exact path="/" component={SearchAppp} />
