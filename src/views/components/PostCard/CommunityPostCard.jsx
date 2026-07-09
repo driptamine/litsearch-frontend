@@ -99,7 +99,7 @@ const CommunityPostCard = ({ post, onLike, onDelete, formatPostTime, getFullUrl,
           {requestedBy.username && (
             <RequestedBy>
               <SmallAvatar src={getFullUrl(requestedBy.avatar)} alt="" />
-              <span>Requested by <strong>{requestedBy.username}</strong></span>
+              <UserLink to={`/${requestedBy.username}`}>{requestedBy.username}</UserLink>
             </RequestedBy>
           )}
         </MainContent>
@@ -283,6 +283,15 @@ const SmallAvatar = styled.img`
   height: 20px;
   border-radius: 50%;
   object-fit: cover;
+`;
+
+const UserLink = styled(Link)`
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 export default CommunityPostCard;
