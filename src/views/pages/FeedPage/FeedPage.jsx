@@ -184,6 +184,7 @@ const Wrapper = styled.div`
   max-width: 600px;
   margin: 0 auto;
   padding: 20px 0;
+  padding-bottom: 70px;
   border-left: 1px solid #333;
   border-right: 1px solid #333;
 `;
