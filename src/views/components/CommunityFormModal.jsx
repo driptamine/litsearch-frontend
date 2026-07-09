@@ -7,6 +7,7 @@ import { authHeader } from 'core/api/rest-helper';
 const CommunityFormModal = ({ mode, community, onClose, onSaved }) => {
   const isEdit = mode === 'edit';
   const [name, setName] = useState(community?.name || '');
+  const [handle, setHandle] = useState(community?.handle || '');
   const [description, setDescription] = useState(community?.description || '');
   const [icon, setIcon] = useState(community?.icon || '');
   const [banner, setBanner] = useState(community?.banner || '');
@@ -24,7 +25,7 @@ const CommunityFormModal = ({ mode, community, onClose, onSaved }) => {
 
     setSaving(true);
     try {
-      const payload = { name: name.trim(), description: description.trim(), icon: icon || null, banner: banner || null };
+      const payload = { name: name.trim(), handle: handle.trim() || undefined, description: description.trim(), icon: icon || null, banner: banner || null };
 
       let res;
       if (isEdit) {
@@ -54,6 +55,9 @@ const CommunityFormModal = ({ mode, community, onClose, onSaved }) => {
 
           <Label>Name</Label>
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Community name" disabled={isEdit} required={!isEdit} />
+
+          <Label>Handle</Label>
+          <Input value={handle} onChange={(e) => setHandle(e.target.value)} placeholder="@handle (auto-generated if empty)" />
 
           <Label>Description</Label>
           <TextArea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What's this community about?" rows={3} />
