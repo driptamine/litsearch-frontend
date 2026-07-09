@@ -64,7 +64,7 @@ const CommunitiesPage = () => {
 
             return (
               <Card key={c.id}>
-                <CardLink to={`/communities/${c.id}`}>
+                <CardLink to={`/communities/@${c.name}`}>
                   <Icon src={iconUrl} alt={c.name} onError={(e) => { if (e.target.src !== DEFAULT_ICON) e.target.src = DEFAULT_ICON; }} />
                   <Info>
                     <Name>{c.name}</Name>

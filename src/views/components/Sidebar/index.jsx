@@ -304,7 +304,7 @@ const Sidebar = () => {
             <SubUl>
               {communities.map((c) => (
                 <StyledSubLi key={c.id}>
-                  <SubLink to={`/communities/${c.id}`}>
+                  <SubLink to={`/communities/@${c.name}`}>
                     {c.icon ? (
                       <SubIconImg src={c.icon} alt="" />
                     ) : (
