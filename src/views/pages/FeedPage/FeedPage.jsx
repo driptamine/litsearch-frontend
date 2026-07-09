@@ -85,7 +85,7 @@ const FeedPage = () => {
   };
 
   const getFullUrl = (url) => {
-    if (!url) return DEFAULT_AVATAR;
+    if (!url) return '';
     if (url.startsWith("http") || url.startsWith("data:") || url.startsWith("//")) {
       return url.startsWith("//") ? `https:${url}` : url;
     }
