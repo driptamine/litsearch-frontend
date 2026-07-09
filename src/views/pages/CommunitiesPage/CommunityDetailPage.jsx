@@ -45,6 +45,7 @@ const CommunityDetailPage = () => {
   if (!community) return <Container><Message>Community not found.</Message></Container>;
 
   return (
+    <>
     <Container>
       <Banner style={{ background: community.banner ? `url(${community.banner}) center/cover` : 'var(--cardBg)' }}>
         <Icon src={community.icon || DEFAULT_ICON} alt={community.name} />
@@ -89,6 +90,7 @@ const CommunityDetailPage = () => {
         }}
       />
     )}
+    </>
   );
 };
 
