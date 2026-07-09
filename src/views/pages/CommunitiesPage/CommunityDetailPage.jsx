@@ -10,15 +10,16 @@ import CommunityPostModal from 'views/components/CommunityPostModal';
 const DEFAULT_ICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ctext x='24' y='30' text-anchor='middle' fill='%23999' font-size='20' font-family='sans-serif'%3EC%3C/text%3E%3C/svg%3E";
 
 const CommunityDetailPage = () => {
-  const { communityId } = useParams();
+  const { communityId, handle } = useParams();
   const [community, setCommunity] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showEdit, setShowEdit] = useState(false);
   const [showPostModal, setShowPostModal] = useState(false);
 
-  const isNameLookup = communityId && communityId.startsWith('@');
-  const lookupValue = isNameLookup ? communityId.slice(1) : communityId;
+  const idOrHandle = handle || communityId;
+  const isNameLookup = !!handle;
+  const lookupValue = handle || communityId;
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -41,7 +42,7 @@ const CommunityDetailPage = () => {
       }
     };
     fetchDetail();
-  }, [communityId]);
+  }, [idOrHandle]);
 
   if (loading) return <Container><Message>Loading...</Message></Container>;
   if (!community) return <Container><Message>Community not found.</Message></Container>;
