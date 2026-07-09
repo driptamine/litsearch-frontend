@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { styled } from '@linaria/react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 // import Subscriptions from './Subscriptions';
 import { HomeIcon, TrendingIcon, SubIcon, LibIcon, HistoryIcon, VidIcon, LikeIcon, EarthIcon } from './Icons';
 import { FiClock, FiBookmark, FiMessageCircle } from 'react-icons/fi';
@@ -19,12 +20,26 @@ import { CiBoxList } from "react-icons/ci";
 import { BsUiChecks } from "react-icons/bs";
 import { LuLayoutList } from "react-icons/lu";
 import { useNotifications } from 'core/context/NotificationContext';
+import { LITLOOP_API_URL } from 'core/constants/urls';
+import { authHeader } from 'core/api/rest-helper';
 
 
 const Sidebar = () => {
   const open = useSelector((state) => state.sidebar.sidebar);
   const username = useSelector((state) => state.users?.username || state.users?.user__username);
+  const isSignedIn = useSelector((state) => state.users?.isAuthorized || !!state.users?.access_token);
   const { unreadChatCount } = useNotifications();
+  const [communities, setCommunities] = useState([]);
+
+  useEffect(() => {
+    if (!isSignedIn) return;
+    axios.get(`${LITLOOP_API_URL}/communities/`, { headers: authHeader() })
+      .then((res) => {
+        const mine = (res.data.communities || []).filter((c) => c.user_is_member);
+        setCommunities(mine);
+      })
+      .catch(() => {});
+  }, [isSignedIn]);
 
   return (
     <SidebarWrapper open={open}>
@@ -278,6 +293,31 @@ const Sidebar = () => {
           </LinkStyled>
         </StyledLi>
 
+        <StyledLi id="Communities">
+          <LinkStyled to="/communities">
+            <StyledDivIcon className="icon">
+              <FaUsers />
+            </StyledDivIcon>
+            <span className="mymusic">Communities</span>
+          </LinkStyled>
+          {open && communities.length > 0 && (
+            <SubUl>
+              {communities.map((c) => (
+                <StyledSubLi key={c.id}>
+                  <SubLink to={`/communities/${c.id}`}>
+                    {c.icon ? (
+                      <SubIconImg src={c.icon} alt="" />
+                    ) : (
+                      <SubIconPlaceholder />
+                    )}
+                    <span>{c.name}</span>
+                  </SubLink>
+                </StyledSubLi>
+              ))}
+            </SubUl>
+          )}
+        </StyledLi>
+
 
 
         {/*<StyledLi>
@@ -419,6 +459,57 @@ const LinkStyled = styled(Link)`
   span {
     font-family: Helvetica;
   }
+`;
+
+const SubUl = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+`;
+
+const StyledSubLi = styled.li`
+  &:hover {
+    background-color: var(--sideBarHoverColor);
+    border-radius: 8px;
+  }
+`;
+
+const SubLink = styled(Link)`
+  align-items: center;
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  gap: 10px;
+  padding: 0.4rem 0;
+  padding-left: 2.8rem;
+  font-size: 0.85rem;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  span {
+    font-family: Helvetica;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+`;
+
+const SubIconImg = styled.img`
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+`;
+
+const SubIconPlaceholder = styled.div`
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: var(--darkGrey);
+  flex-shrink: 0;
 `;
 
 // const links = [
