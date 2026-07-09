@@ -70,7 +70,9 @@ const CommunityDetailPage = () => {
       <SectionRow>
         <SectionTitle>Posts</SectionTitle>
         {community.user_is_member && (
-          <PostBtn onClick={() => setShowPostModal(true)}>+ Request Post</PostBtn>
+          <PostBtn onClick={() => setShowPostModal(true)}>
+            {community.user_role === 'admin' || community.user_role === 'moderator' ? '+ Create Post' : '+ Request Post'}
+          </PostBtn>
         )}
       </SectionRow>
       {posts.length === 0 ? (
@@ -102,6 +104,7 @@ const CommunityDetailPage = () => {
     {showPostModal && (
       <CommunityPostModal
         communityId={community.id}
+        isAdminOrMod={community.user_role === 'admin' || community.user_role === 'moderator'}
         onClose={() => setShowPostModal(false)}
         onSaved={() => {
           setShowPostModal(false);

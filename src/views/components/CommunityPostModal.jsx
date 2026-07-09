@@ -4,7 +4,7 @@ import axios from 'axios';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader } from 'core/api/rest-helper';
 
-const CommunityPostModal = ({ communityId, onClose, onSaved }) => {
+const CommunityPostModal = ({ communityId, isAdminOrMod, onClose, onSaved }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [saving, setSaving] = useState(false);
@@ -39,7 +39,7 @@ const CommunityPostModal = ({ communityId, onClose, onSaved }) => {
     <Overlay onClick={onClose}>
       <Modal onClick={(e) => e.stopPropagation()}>
         <Header>
-          <Title>Request Post</Title>
+          <Title>{isAdminOrMod ? 'Create Post' : 'Request Post'}</Title>
           <CloseBtn onClick={onClose}>&times;</CloseBtn>
         </Header>
 
@@ -54,7 +54,7 @@ const CommunityPostModal = ({ communityId, onClose, onSaved }) => {
 
           <ButtonRow>
             <CancelBtn type="button" onClick={onClose}>Cancel</CancelBtn>
-            <SubmitBtn type="submit" disabled={saving}>{saving ? 'Submitting...' : 'Submit for Review'}</SubmitBtn>
+            <SubmitBtn type="submit" disabled={saving}>{saving ? 'Submitting...' : isAdminOrMod ? 'Create' : 'Submit for Review'}</SubmitBtn>
           </ButtonRow>
         </Form>
       </Modal>
