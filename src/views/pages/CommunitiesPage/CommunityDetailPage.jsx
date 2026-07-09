@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { styled } from '@linaria/react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader } from 'core/api/rest-helper';
 import CommunityFormModal from 'views/components/CommunityFormModal';
 import CommunityPostModal from 'views/components/CommunityPostModal';
+import PostCard from 'views/components/PostCard/PostCard';
 
 const DEFAULT_ICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ctext x='24' y='30' text-anchor='middle' fill='%23999' font-size='20' font-family='sans-serif'%3EC%3C/text%3E%3C/svg%3E";
 
@@ -47,6 +48,44 @@ const CommunityDetailPage = () => {
   if (loading) return <Container><Message>Loading...</Message></Container>;
   if (!community) return <Container><Message>Community not found.</Message></Container>;
 
+  const formatPostTime = (timeStr) => {
+    if (!timeStr) return '';
+    const d = new Date(timeStr);
+    const now = new Date();
+    const diff = (now - d) / 1000;
+    if (diff < 60) return `${Math.floor(diff)}s`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
+    return d.toLocaleDateString();
+  };
+
+  const getFullUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    return `${LITLOOP_API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
+  const handleLike = async (postId) => {
+    try {
+      const res = await axios.post(`${LITLOOP_API_URL}/posts/${postId}/like/`, null, { headers: authHeader() });
+      setPosts((prev) => prev.map((p) =>
+        (p.id || p.post_id) === postId
+          ? { ...p, is_liked: res.data.is_liked, likes_count: res.data.likes_count }
+          : p
+      ));
+    } catch (err) {
+      console.error('Like failed', err);
+    }
+  };
+
+  const handleDelete = async (postId) => {
+    if (!window.confirm('Delete this post?')) return;
+    setPosts((prev) => prev.filter((p) => (p.id || p.post_id) !== postId));
+    try {
+      await axios.delete(`${LITLOOP_API_URL}/posts/delete_no_drf/${postId}/`, { headers: authHeader() });
+    } catch {}
+  };
+
   return (
     <>
     <Container>
@@ -80,10 +119,14 @@ const CommunityDetailPage = () => {
       ) : (
         <PostList>
           {posts.map((p) => (
-            <PostCard key={p.id} to={`/posts/${p.id}`}>
-              <PostTitle>{p.title || 'Untitled'}</PostTitle>
-              {p.description && <PostDesc>{p.description}</PostDesc>}
-            </PostCard>
+            <PostCard
+              key={p.id || p.post_id}
+              post={p}
+              onLike={handleLike}
+              onDelete={handleDelete}
+              formatPostTime={formatPostTime}
+              getFullUrl={getFullUrl}
+            />
           ))}
         </PostList>
       )}
@@ -233,35 +276,6 @@ const Message = styled.p`
 const PostList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 12px;
-`;
-
-const PostCard = styled(Link)`
-  display: block;
-  background: var(--cardBg, #1e1e1e);
-  padding: 16px;
-  border-radius: 10px;
-  text-decoration: none;
-  transition: background 0.2s;
-
-  &:hover {
-    background: var(--hoverBg, #2a2a2a);
-  }
-`;
-
-const PostTitle = styled.div`
-  color: var(--text);
-  font-weight: 600;
-  font-size: 15px;
-  margin-bottom: 4px;
-`;
-
-const PostDesc = styled.div`
-  color: var(--textSecondary, #888);
-  font-size: 13px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 `;
 
 export default CommunityDetailPage;
