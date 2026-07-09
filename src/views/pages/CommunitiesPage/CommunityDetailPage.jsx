@@ -148,12 +148,6 @@ const EditBtn = styled.button`
   }
 `;
 
-const Name = styled.h1`
-  color: var(--text);
-  font-size: 28px;
-  margin: 0 0 8px;
-`;
-
 const Description = styled.p`
   color: var(--textSecondary, #888);
   font-size: 15px;
