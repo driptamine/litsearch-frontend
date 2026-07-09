@@ -6,7 +6,7 @@ import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader } from 'core/api/rest-helper';
 import CommunityFormModal from 'views/components/CommunityFormModal';
 import CommunityPostModal from 'views/components/CommunityPostModal';
-import PostCard from 'views/components/PostCard/PostCard';
+import CommunityPostCard from 'views/components/PostCard/CommunityPostCard';
 
 const DEFAULT_ICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ctext x='24' y='30' text-anchor='middle' fill='%23999' font-size='20' font-family='sans-serif'%3EC%3C/text%3E%3C/svg%3E";
 
@@ -119,7 +119,7 @@ const CommunityDetailPage = () => {
       ) : (
         <PostList>
           {posts.map((p) => (
-            <PostCard
+            <CommunityPostCard
               key={p.id || p.post_id}
               post={p}
               onLike={handleLike}
