@@ -6,8 +6,6 @@ import TrackRow from 'views/components/TrackRow';
 import CustomPlayerV4 from 'views/components/video-player/web/CustomPlayerV4';
 import Impressions from 'views/components/Impressions';
 
-const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
-
 const CommunityPostCard = ({ post, onLike, onDelete, formatPostTime, getFullUrl, observeRef, community }) => {
   const postId = post.id || post.post_id;
   const author = post.author || {};
@@ -39,7 +37,7 @@ const CommunityPostCard = ({ post, onLike, onDelete, formatPostTime, getFullUrl,
 
       <Card>
         <CommunityCol>
-          <CommAvatar src={community?.icon || DEFAULT_AVATAR} alt="" />
+          <CommAvatar src={community?.icon || ''} alt="" />
         </CommunityCol>
         <MainContent>
           <Header>
