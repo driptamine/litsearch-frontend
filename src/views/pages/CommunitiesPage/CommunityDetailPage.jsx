@@ -5,6 +5,7 @@ import axios from 'axios';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader } from 'core/api/rest-helper';
 import CommunityFormModal from 'views/components/CommunityFormModal';
+import CommunityPostModal from 'views/components/CommunityPostModal';
 
 const DEFAULT_ICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ctext x='24' y='30' text-anchor='middle' fill='%23999' font-size='20' font-family='sans-serif'%3EC%3C/text%3E%3C/svg%3E";
 
@@ -14,6 +15,7 @@ const CommunityDetailPage = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showEdit, setShowEdit] = useState(false);
+  const [showPostModal, setShowPostModal] = useState(false);
 
   const isNameLookup = communityId && communityId.startsWith('@');
   const lookupValue = isNameLookup ? communityId.slice(1) : communityId;
@@ -64,7 +66,12 @@ const CommunityDetailPage = () => {
         </Meta>
       </InfoSection>
 
-      <SectionTitle>Posts</SectionTitle>
+      <SectionRow>
+        <SectionTitle>Posts</SectionTitle>
+        {community.user_is_member && (
+          <PostBtn onClick={() => setShowPostModal(true)}>+ Request Post</PostBtn>
+        )}
+      </SectionRow>
       {posts.length === 0 ? (
         <Message>No posts yet.</Message>
       ) : (
@@ -87,6 +94,20 @@ const CommunityDetailPage = () => {
         onSaved={(updated) => {
           setCommunity(updated);
           setShowEdit(false);
+        }}
+      />
+    )}
+
+    {showPostModal && (
+      <CommunityPostModal
+        communityId={community.id}
+        onClose={() => setShowPostModal(false)}
+        onSaved={() => {
+          setShowPostModal(false);
+          const communityIdNum = community.id;
+          axios.get(`${LITLOOP_API_URL}/communities/${communityIdNum}/posts/`, { headers: authHeader() })
+            .then((res) => setPosts(res.data.posts || []))
+            .catch(() => {});
         }}
       />
     )}
@@ -174,7 +195,29 @@ const Badge = styled.span`
 const SectionTitle = styled.h2`
   color: var(--text);
   font-size: 20px;
+  margin: 0;
+`;
+
+const SectionRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin: 24px 0 16px;
+`;
+
+const PostBtn = styled.button`
+  background: var(--accent, #0084ff);
+  border: none;
+  color: #fff;
+  padding: 6px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+
+  &:hover {
+    opacity: 0.85;
+  }
 `;
 
 const Message = styled.p`
