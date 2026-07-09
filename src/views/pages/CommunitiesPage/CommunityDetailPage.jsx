@@ -122,6 +122,7 @@ const CommunityDetailPage = () => {
             <CommunityPostCard
               key={p.id || p.post_id}
               post={p}
+              community={community}
               onLike={handleLike}
               onDelete={handleDelete}
               formatPostTime={formatPostTime}
