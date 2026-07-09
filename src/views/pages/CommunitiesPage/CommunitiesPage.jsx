@@ -4,12 +4,14 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader } from 'core/api/rest-helper';
+import CommunityFormModal from 'views/components/CommunityFormModal';
 
 const DEFAULT_ICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ctext x='24' y='30' text-anchor='middle' fill='%23999' font-size='20' font-family='sans-serif'%3EC%3C/text%3E%3C/svg%3E";
 
 const CommunitiesPage = () => {
   const [communities, setCommunities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showCreate, setShowCreate] = useState(false);
 
   const fetchCommunities = async () => {
     setLoading(true);
@@ -49,7 +51,19 @@ const CommunitiesPage = () => {
     <PageContainer>
       <Header>
         <Title>Communities</Title>
+        <CreateBtn onClick={() => setShowCreate(true)}>+ Create</CreateBtn>
       </Header>
+
+      {showCreate && (
+        <CommunityFormModal
+          mode="create"
+          onClose={() => setShowCreate(false)}
+          onSaved={(community) => {
+            setShowCreate(false);
+            fetchCommunities();
+          }}
+        />
+      )}
 
       {loading ? (
         <Message>Loading communities...</Message>
@@ -183,6 +197,21 @@ const RoleBadge = styled.span`
   padding: 2px 6px;
   border-radius: 4px;
   text-transform: capitalize;
+`;
+
+const CreateBtn = styled.button`
+  background: var(--accent, #0084ff);
+  color: #fff;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+
+  &:hover {
+    opacity: 0.85;
+  }
 `;
 
 const ActionBtn = styled.button`

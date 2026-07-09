@@ -4,6 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader } from 'core/api/rest-helper';
+import CommunityFormModal from 'views/components/CommunityFormModal';
 
 const DEFAULT_ICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ctext x='24' y='30' text-anchor='middle' fill='%23999' font-size='20' font-family='sans-serif'%3EC%3C/text%3E%3C/svg%3E";
 
@@ -12,6 +13,7 @@ const CommunityDetailPage = () => {
   const [community, setCommunity] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showEdit, setShowEdit] = useState(false);
 
   const isNameLookup = communityId && communityId.startsWith('@');
   const lookupValue = isNameLookup ? communityId.slice(1) : communityId;
@@ -48,7 +50,12 @@ const CommunityDetailPage = () => {
         <Icon src={community.icon || DEFAULT_ICON} alt={community.name} />
       </Banner>
       <InfoSection>
-        <Name>{community.name}</Name>
+        <NameRow>
+          <Name>{community.name}</Name>
+          {community.user_role === 'admin' && (
+            <EditBtn onClick={() => setShowEdit(true)}>Edit</EditBtn>
+          )}
+        </NameRow>
         <Description>{community.description}</Description>
         <Meta>
           <span>{community.member_count} member{community.member_count !== 1 ? 's' : ''}</span>
@@ -70,6 +77,18 @@ const CommunityDetailPage = () => {
         </PostList>
       )}
     </Container>
+
+    {showEdit && (
+      <CommunityFormModal
+        mode="edit"
+        community={community}
+        onClose={() => setShowEdit(false)}
+        onSaved={(updated) => {
+          setCommunity(updated);
+          setShowEdit(false);
+        }}
+      />
+    )}
   );
 };
 
@@ -97,6 +116,34 @@ const Icon = styled.img`
 
 const InfoSection = styled.div`
   padding: 20px 0;
+`;
+
+const NameRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+`;
+
+const Name = styled.h1`
+  color: var(--text);
+  font-size: 28px;
+  margin: 0;
+`;
+
+const EditBtn = styled.button`
+  background: transparent;
+  border: 1px solid var(--border, #444);
+  color: var(--text);
+  padding: 4px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+
+  &:hover {
+    background: var(--hoverBg, #2a2a2a);
+  }
 `;
 
 const Name = styled.h1`
