@@ -106,8 +106,8 @@ const CommunityPostModal = ({ communityId, isAdminOrMod, onClose, onSaved }) => 
     e.preventDefault();
     setError('');
 
-    if (!description.trim()) {
-      setError('Description is required');
+    if (!description.trim() && photoIds.length === 0 && videoIds.length === 0 && trackIds.length === 0) {
+      setError('Description or media is required');
       return;
     }
 
