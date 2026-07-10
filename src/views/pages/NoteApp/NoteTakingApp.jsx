@@ -17,6 +17,7 @@ import {
   searchPagesByTags,
   updateBlockTable,
 } from "./notesApi";
+import { db, dbReady } from 'core/db/db';
 
 const DEBOUNCE_MS = 1500;
 
@@ -58,24 +59,68 @@ const NoteTakingApp = () => {
 
   // ── Load pages on mount ───────────────────────
   useEffect(() => {
-    fetchPages()
-      .then((data) => {
+    (async () => {
+      await dbReady;
+      try {
+        const cached = await db.pages.toArray();
+        if (cached.length) {
+          setPages(cached.map(p => ({ ...p, tags: p.tags || [], tag_ids: p.tag_ids || [] })));
+        }
+      } catch {}
+      try {
+        const data = await fetchPages();
         setPages(data);
+        const now = new Date().toISOString();
+        await db.pages.clear();
+        await db.pages.bulkAdd(data.map(p => ({ ...p, tags: p.tags || [], tag_ids: p.tag_ids || [], apiId: p.id, createdAt: now, updatedAt: now })));
         if (data.length > 0 && !pageIdFromUrl) {
           setSelectedId(data[0].id);
         }
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      } catch {
+        const cached = await db.pages.toArray();
+        if (cached.length && !pageIdFromUrl) {
+          setSelectedId(cached[0].apiId || cached[0].id);
+        }
+      }
+      setLoading(false);
+    })();
   }, []);
 
   // ── Fetch page when selected ──────────────────
   useEffect(() => {
     if (!selectedId) return;
     setPageLoading(true);
-    fetchPage(selectedId)
-      .then((data) => {
+    (async () => {
+      await dbReady;
+      try {
+        let cachedPage = await db.pages.where('apiId').equals(selectedId).first();
+        if (!cachedPage) cachedPage = await db.pages.get(selectedId);
+        if (cachedPage) {
+          setTitle(cachedPage.title || '');
+          const cachedBlocks = await db.blocks.where('pageId').equals(cachedPage.id).sortBy('order');
+          if (cachedBlocks.length) {
+            const mapped = cachedBlocks.map((b) => ({
+              _id: b.apiId || b.id,
+              apiId: b.apiId,
+              type: b.type || 'text',
+              content: b.content || '',
+              tableData: b.type === 'table' ? b.tableData : null,
+            }));
+            setBlocks(mapped);
+          } else {
+            setBlocks([{ _id: tempBlockId(), apiId: null, type: 'text', content: '' }]);
+          }
+        }
+      } catch {}
+      try {
+        const data = await fetchPage(selectedId);
         setTitle(data.title);
+        const now = new Date().toISOString();
+        const dexiePage = await db.pages.where('apiId').equals(selectedId).first();
+        const pageDexieId = dexiePage?.id;
+        if (dexiePage) {
+          await db.pages.update(dexiePage.id, { title: data.title, tags: data.tags || [], tag_ids: data.tag_ids || [], updatedAt: now });
+        }
         const mapped = (data.blocks || []).map((b) => ({
           _id: b.id,
           apiId: b.id,
@@ -87,12 +132,27 @@ const NoteTakingApp = () => {
           mapped.push({ _id: tempBlockId(), apiId: null, type: 'text', content: '' });
         }
         setBlocks(mapped);
+        try {
+          if (pageDexieId) await db.blocks.where('pageId').equals(pageDexieId).delete();
+          await db.blocks.bulkAdd((data.blocks || []).map(b => ({
+            ...b,
+            pageId: pageDexieId,
+            apiId: b.id,
+            content: b.content || '',
+            type: b.type || 'text',
+            tableData: b.type === 'table' ? b.table_data : null,
+            order: b.order || 0,
+            updatedAt: now, createdAt: now,
+          })));
+        } catch {}
         const tagNames = data.tags || [];
         const tagIds = data.tag_ids || [];
         setTags(tagNames.map((name, i) => ({ id: tagIds[i], name })));
         setPageLoading(false);
-      })
-      .catch(() => setPageLoading(false));
+      } catch {
+        setPageLoading(false);
+      }
+    })();
   }, [selectedId]);
 
   // ── Search by tags ─────────────────────────────
@@ -126,19 +186,30 @@ const NoteTakingApp = () => {
     const val = e.target.value;
     setTitle(val);
     setPages((prev) => prev.map((p) => p.id === selectedId ? { ...p, title: val } : p));
+    if (selectedId) {
+      dbReady.then(async () => {
+        let p = await db.pages.where('apiId').equals(selectedId).first();
+        if (!p) p = await db.pages.get(selectedId);
+        if (p) await db.pages.update(p.id, { title: val, updatedAt: new Date().toISOString() });
+      }).catch(() => {});
+    }
     scheduleTitleSave(val);
   };
 
   // ── Auto-save block ───────────────────────────
   const scheduleBlockSave = useCallback((blockId, content) => {
+    const block = blocksRef.current.find((b) => b._id === blockId);
+    if (block) {
+      db.blocks.where('apiId').equals(block.apiId || -1).modify({ content, updatedAt: new Date().toISOString() }).catch(() => {});
+    }
     if (blockSaveTimers.current[blockId]) {
       clearTimeout(blockSaveTimers.current[blockId]);
     }
     blockSaveTimers.current[blockId] = setTimeout(() => {
-      const block = blocksRef.current.find((b) => b._id === blockId);
-      if (!block) return;
-      if (block.apiId) {
-        updateBlock(block.apiId, { content });
+      const b = blocksRef.current.find((bl) => bl._id === blockId);
+      if (!b) return;
+      if (b.apiId) {
+        updateBlock(b.apiId, { content });
       }
     }, DEBOUNCE_MS);
   }, []);
@@ -162,12 +233,17 @@ const NoteTakingApp = () => {
       return next;
     });
     const block = blocksRef.current[index];
+    if (block) {
+      db.blocks.where('apiId').equals(block.apiId || -1).modify({ tableData: { columns, rows }, updatedAt: new Date().toISOString() }).catch(() => {});
+    }
     if (block?.apiId) {
       updateBlockTable(block.apiId, columns, rows).catch(() => {});
     } else if (block?._id && selectedId && !pendingTableCreate.current[block._id]) {
       pendingTableCreate.current[block._id] = true;
       createBlock(selectedId, '', null, 'table', { columns, rows }).then((saved) => {
         pendingTableCreate.current[block._id] = false;
+        const now = new Date().toISOString();
+        db.blocks.add({ pageId: selectedId, apiId: saved.id, content: '', type: 'table', tableData: { columns, rows }, order: index, createdAt: now, updatedAt: now }).catch(() => {});
         setBlocks((prev) => prev.map((b) => b._id === block._id ? { ...b, apiId: saved.id, _id: saved.id } : b));
       }).catch(() => {
         pendingTableCreate.current[block._id] = false;
@@ -187,16 +263,26 @@ const NoteTakingApp = () => {
       e.preventDefault();
       const before = currentText.slice(0, cursorPos);
       const after = currentText.slice(cursorPos);
+      const now = new Date().toISOString();
 
       if (block.apiId) {
         await updateBlock(block.apiId, { content: before });
+        db.blocks.where('apiId').equals(block.apiId).modify({ content: before, updatedAt: now }).catch(() => {});
       }
 
       let newApiBlock = null;
+      let dexieBlockId = null;
       if (selectedId) {
+        try {
+          dexieBlockId = await db.blocks.add({ pageId: selectedId, apiId: null, content: after, type: 'text', order: index + 1, createdAt: now, updatedAt: now });
+        } catch {}
         try {
           newApiBlock = await createBlock(selectedId, after, index + 1);
         } catch {}
+      }
+
+      if (newApiBlock && dexieBlockId) {
+        db.blocks.update(dexieBlockId, { apiId: newApiBlock.id }).catch(() => {});
       }
 
       const newBlock = {
@@ -220,7 +306,10 @@ const NoteTakingApp = () => {
       const newPos = prevBlock.content.length;
 
       if (block.apiId) {
-        try { await deleteBlock(block.apiId); } catch {}
+        try {
+          db.blocks.where('apiId').equals(block.apiId).delete().catch(() => {});
+          await deleteBlock(block.apiId);
+        } catch {}
       }
 
       setBlocks((prev) => {
@@ -264,26 +353,52 @@ const NoteTakingApp = () => {
   // ── Tags ────────────────────────────────────────
   const handleAddTag = async (name) => {
     if (!selectedId) return;
+    await dbReady;
     try {
       const newTag = await addTag(selectedId, name);
       setTags((prev) => [...prev, { id: newTag.id, name: newTag.name }]);
+      let page = await db.pages.where('apiId').equals(selectedId).first();
+      if (!page) page = await db.pages.get(selectedId);
+      if (page) {
+        const tags = [...(page.tags || []), newTag.name];
+        const tag_ids = [...(page.tag_ids || []), newTag.id];
+        db.pages.update(page.id, { tags, tag_ids }).catch(() => {});
+      }
     } catch {}
   };
 
   const handleRemoveTag = async (tagId) => {
+    await dbReady;
     try {
       await deleteTag(tagId);
       setTags((prev) => prev.filter((t) => t.id !== tagId));
+      let page = await db.pages.where('apiId').equals(selectedId).first();
+      if (!page) page = await db.pages.get(selectedId);
+      if (page) {
+        const tagIdx = (page.tag_ids || []).indexOf(tagId);
+        const tags = [...(page.tags || [])];
+        const tag_ids = [...(page.tag_ids || [])];
+        if (tagIdx >= 0) { tags.splice(tagIdx, 1); tag_ids.splice(tagIdx, 1); }
+        db.pages.update(page.id, { tags, tag_ids }).catch(() => {});
+      }
     } catch {}
   };
 
   // ── Create new page ──────────────────────────
   const handleCreatePage = async () => {
+    await dbReady;
+    const now = new Date().toISOString();
     try {
-      const newPage = await createPage("Untitled");
+      const newPage = await createPage("");
       setPages((prev) => [...prev, newPage]);
+      await db.pages.add({ ...newPage, tags: newPage.tags || [], tag_ids: newPage.tag_ids || [], apiId: newPage.id, createdAt: now, updatedAt: now });
       history.push(`/notes/${newPage.id}`);
-    } catch {}
+    } catch {
+      const dexieId = await db.pages.add({ title: '', apiId: null, tags: [], tag_ids: [], createdAt: now, updatedAt: now });
+      const localPage = { id: dexieId, title: '', tags: [], tag_ids: [] };
+      setPages((prev) => [...prev, localPage]);
+      history.push(`/notes/${dexieId}`);
+    }
   };
 
   const handleSelectPage = (id) => {
@@ -293,17 +408,22 @@ const NoteTakingApp = () => {
   // ── Delete page ─────────────────────────────
   const handleInsertTable = useCallback(() => {
     const defaultTable = { columns: ["Column 1", "Column 2"], rows: [["", ""]] };
+    const now = new Date().toISOString();
     const newBlock = { _id: tempBlockId(), apiId: null, type: 'table', content: '', tableData: defaultTable };
     setBlocks((prev) => [...prev, newBlock]);
     if (selectedId) {
+      const order = blocks.length;
+      dbReady.then(() => db.blocks.add({ pageId: selectedId, apiId: null, content: '', type: 'table', tableData: defaultTable, order, createdAt: now, updatedAt: now })).catch(() => {});
       createBlock(selectedId, '', null, 'table', defaultTable).then((saved) => {
+        dbReady.then(() => db.blocks.where('pageId').equals(selectedId).filter(b => b.apiId === null).last()).then(rec => { if (rec) db.blocks.update(rec.id, { apiId: saved.id }); }).catch(() => {});
         setBlocks((prev) => prev.map((b) => b._id === newBlock._id ? { ...b, apiId: saved.id, _id: saved.id } : b));
       }).catch(() => {});
     }
-  }, [selectedId]);
+  }, [selectedId, blocks.length]);
 
   const handleInsertTableAt = useCallback((afterIndex) => {
     const defaultTable = { columns: ["Column 1", "Column 2"], rows: [["", ""]] };
+    const now = new Date().toISOString();
     const newBlock = { _id: tempBlockId(), apiId: null, type: 'table', content: '', tableData: defaultTable };
     setBlocks((prev) => {
       const next = [...prev];
@@ -311,25 +431,36 @@ const NoteTakingApp = () => {
       return next;
     });
     if (selectedId) {
+      dbReady.then(() => db.blocks.add({ pageId: selectedId, apiId: null, content: '', type: 'table', tableData: defaultTable, order: afterIndex + 1, createdAt: now, updatedAt: now })).catch(() => {});
       createBlock(selectedId, '', afterIndex + 1, 'table', defaultTable).then((saved) => {
+        dbReady.then(() => db.blocks.where('pageId').equals(selectedId).filter(b => b.apiId === null).last()).then(rec => { if (rec) db.blocks.update(rec.id, { apiId: saved.id }); }).catch(() => {});
         setBlocks((prev) => prev.map((b) => b._id === newBlock._id ? { ...b, apiId: saved.id, _id: saved.id } : b));
       }).catch(() => {});
     }
   }, [selectedId]);
 
   const handleDeletePage = async (pageId) => {
+    await dbReady;
+    setPages((prev) => {
+      const remaining = prev.filter((p) => p.id !== pageId);
+      if (selectedId !== pageId) return remaining;
+      if (remaining.length > 0) {
+        history.push(`/notes/${remaining[0].id}`);
+      } else {
+        history.push('/notes');
+      }
+      return remaining;
+    });
+    try {
+      let page = await db.pages.where('apiId').equals(pageId).first();
+      if (!page) page = await db.pages.get(pageId);
+      if (page) {
+        await db.blocks.where('pageId').equals(page.id).delete();
+        await db.pages.delete(page.id);
+      }
+    } catch {}
     try {
       await deletePage(pageId);
-      setPages((prev) => {
-        const remaining = prev.filter((p) => p.id !== pageId);
-        if (selectedId !== pageId) return remaining;
-        if (remaining.length > 0) {
-          history.push(`/notes/${remaining[0].id}`);
-        } else {
-          history.push('/notes');
-        }
-        return remaining;
-      });
     } catch {}
   };
 
