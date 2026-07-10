@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { styled } from '@linaria/react';
 import axios from 'axios';
 import { LITLOOP_API_URL } from 'core/constants/urls';
@@ -13,6 +13,37 @@ const CommunityFormModal = ({ mode, community, onClose, onSaved }) => {
   const [banner, setBanner] = useState(community?.banner || '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [uploadingIcon, setUploadingIcon] = useState(false);
+  const iconInputRef = useRef(null);
+
+  const handleIconUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !isEdit) return;
+
+    if (!file.type.startsWith('image/')) {
+      setError('File must be an image');
+      return;
+    }
+
+    setUploadingIcon(true);
+    setError('');
+
+    try {
+      const formData = new FormData();
+      formData.append('icon', file);
+      const res = await axios.post(
+        `${LITLOOP_API_URL}/communities/${community.id}/icon/r2/`,
+        formData,
+        { headers: { ...authHeader(), 'Content-Type': 'multipart/form-data' } }
+      );
+      setIcon(res.data.icon);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Upload failed');
+    } finally {
+      setUploadingIcon(false);
+      if (iconInputRef.current) iconInputRef.current.value = '';
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,8 +93,19 @@ const CommunityFormModal = ({ mode, community, onClose, onSaved }) => {
           <Label>Description</Label>
           <TextArea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What's this community about?" rows={3} />
 
-          <Label>Icon URL</Label>
-          <Input value={icon} onChange={(e) => setIcon(e.target.value)} placeholder="https://example.com/icon.jpg" />
+          <Label>Icon</Label>
+          <IconRow>
+            <IconInput value={icon} onChange={(e) => setIcon(e.target.value)} placeholder="https://example.com/icon.jpg" />
+            {isEdit && (
+              <>
+                <UploadBtn type="button" onClick={() => iconInputRef.current?.click()} disabled={uploadingIcon}>
+                  {uploadingIcon ? 'Uploading...' : 'Upload'}
+                </UploadBtn>
+                <HiddenInput ref={iconInputRef} type="file" accept="image/*" onChange={handleIconUpload} />
+              </>
+            )}
+          </IconRow>
+          {icon && <IconPreview src={icon} alt="" />}
 
           <Label>Banner URL</Label>
           <Input value={banner} onChange={(e) => setBanner(e.target.value)} placeholder="https://example.com/banner.jpg" />
@@ -174,6 +216,54 @@ const ErrorMsg = styled.div`
   background: rgba(231, 76, 60, 0.1);
   padding: 8px 12px;
   border-radius: 6px;
+`;
+
+const IconRow = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+const IconInput = styled.input`
+  flex: 1;
+  background: var(--inputBg, #2a2a2a);
+  border: 1px solid var(--border, #444);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+
+  &:focus {
+    border-color: var(--accent, #0084ff);
+  }
+`;
+
+const UploadBtn = styled.button`
+  background: var(--accent, #0084ff);
+  border: none;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.5;
+  }
+`;
+
+const HiddenInput = styled.input`
+  display: none;
+`;
+
+const IconPreview = styled.img`
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-top: 4px;
 `;
 
 const ButtonRow = styled.div`
