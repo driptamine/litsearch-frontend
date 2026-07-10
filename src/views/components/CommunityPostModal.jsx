@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { styled } from '@linaria/react';
 import { FaMusic, FaImage, FaFilm, FaUpload } from 'react-icons/fa';
 import axios from 'axios';
@@ -10,7 +10,6 @@ import PhotoPickerModal from 'views/components/upload/uploader/posts/PhotoPicker
 import VideoPickerModal from 'views/components/upload/uploader/posts/VideoPickerModal';
 
 const CommunityPostModal = ({ communityId, isAdminOrMod, onClose, onSaved }) => {
-  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [photoIds, setPhotoIds] = useState([]);
   const [videoIds, setVideoIds] = useState([]);
@@ -20,6 +19,8 @@ const CommunityPostModal = ({ communityId, isAdminOrMod, onClose, onSaved }) => 
   const [showPhotoPicker, setShowPhotoPicker] = useState(false);
   const [showVideoPicker, setShowVideoPicker] = useState(false);
   const [showTrackPicker, setShowTrackPicker] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const dragCounter = useRef(0);
   const { uploadFiles, isUploading, progress } = useMediaUpload();
 
   const photoInputRef = useRef(null);
@@ -43,12 +44,70 @@ const CommunityPostModal = ({ communityId, isAdminOrMod, onClose, onSaved }) => 
     e.target.value = '';
   };
 
+  const detectMediaType = (file) => {
+    if (file.type.startsWith('image/')) return 'photo';
+    if (file.type.startsWith('video/')) return 'video';
+    if (file.type.startsWith('audio/')) return 'track';
+    return null;
+  };
+
+  const handleDrop = useCallback(async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+    dragCounter.current = 0;
+
+    const files = Array.from(e.dataTransfer.files);
+    if (!files.length) return;
+
+    const byType = { photo: [], video: [], track: [] };
+    files.forEach((f) => {
+      const type = detectMediaType(f);
+      if (type) byType[type].push(f);
+    });
+
+    for (const [mediaType, fileList] of Object.entries(byType)) {
+      if (!fileList.length) continue;
+      try {
+        const results = await uploadFiles(fileList, mediaType);
+        const ids = results.map(r => r.id).filter(Boolean);
+        if (mediaType === 'photo') setPhotoIds(prev => [...prev, ...ids]);
+        if (mediaType === 'video') setVideoIds(prev => [...prev, ...ids]);
+        if (mediaType === 'track') setTrackIds(prev => [...prev, ...ids]);
+      } catch (err) {
+        setError(`Upload failed: ${err.message}`);
+      }
+    }
+  }, [uploadFiles]);
+
+  const handleDragEnter = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current += 1;
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current -= 1;
+    if (dragCounter.current <= 0) {
+      dragCounter.current = 0;
+      setIsDragOver(false);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (!title.trim() && !description.trim()) {
-      setError('Title or description is required');
+    if (!description.trim()) {
+      setError('Description is required');
       return;
     }
 
@@ -57,7 +116,6 @@ const CommunityPostModal = ({ communityId, isAdminOrMod, onClose, onSaved }) => 
       const res = await axios.post(
         `${LITLOOP_API_URL}/communities/${communityId}/posts/request/`,
         {
-          title: title.trim(),
           description: description.trim(),
           photo_ids: photoIds,
           video_ids: videoIds,
@@ -78,17 +136,26 @@ const CommunityPostModal = ({ communityId, isAdminOrMod, onClose, onSaved }) => 
     <Overlay onClick={onClose}>
       <Modal onClick={(e) => e.stopPropagation()}>
         <Header>
-          <Title>{isAdminOrMod ? 'Create Post' : 'Request Post'}</Title>
+          <span>{isAdminOrMod ? 'Create Post' : 'Request Post'}</span>
           <CloseBtn onClick={onClose}>&times;</CloseBtn>
         </Header>
 
-        <Form onSubmit={handleSubmit}>
+        <Form
+          onSubmit={handleSubmit}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
           {error && <ErrorMsg>{error}</ErrorMsg>}
 
-          <Label>Title</Label>
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Post title" />
+          {isDragOver && (
+            <DropOverlay>
+              <DropIcon>+</DropIcon>
+              <DropText>Drop to upload</DropText>
+            </DropOverlay>
+          )}
 
-          <Label>Description</Label>
           <TextArea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What's on your mind?" rows={4} />
 
           <MediaBar>
@@ -188,12 +255,6 @@ const Header = styled.div`
   margin-bottom: 20px;
 `;
 
-const Title = styled.h2`
-  color: var(--text);
-  margin: 0;
-  font-size: 20px;
-`;
-
 const CloseBtn = styled.button`
   background: none;
   border: none;
@@ -208,27 +269,7 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 12px;
-`;
-
-const Label = styled.label`
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 600;
-  margin-top: 4px;
-`;
-
-const Input = styled.input`
-  background: var(--inputBg, #2a2a2a);
-  border: 1px solid var(--border, #444);
-  border-radius: 8px;
-  padding: 10px 12px;
-  color: var(--text);
-  font-size: 14px;
-  outline: none;
-
-  &:focus {
-    border-color: var(--accent, #0084ff);
-  }
+  position: relative;
 `;
 
 const TextArea = styled.textarea`
@@ -247,7 +288,31 @@ const TextArea = styled.textarea`
   }
 `;
 
-const ErrorMsg = styled.div`
+const DropOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 150, 136, 0.1);
+  backdrop-filter: blur(3px);
+  border-radius: 8px;
+  z-index: 10;
+  gap: 8px;
+`;
+
+const DropIcon = styled.span`
+  font-size: 2.5rem;
+  color: #009688;
+  font-weight: 300;
+`;
+
+const DropText = styled.span`
+  color: #009688;
+  font-size: 1rem;
+  font-weight: 600;
+`;
   color: #e74c3c;
   font-size: 13px;
   background: rgba(231, 76, 60, 0.1);
