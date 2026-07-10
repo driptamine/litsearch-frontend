@@ -7,6 +7,7 @@ import { authHeader } from 'core/api/rest-helper';
 import CommunityFormModal from 'views/components/CommunityFormModal';
 import CommunityPostModal from 'views/components/CommunityPostModal';
 import CommunityPostCard from 'views/components/PostCard/CommunityPostCard';
+import TrackRow from 'views/components/TrackRow';
 
 const DEFAULT_ICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ctext x='24' y='30' text-anchor='middle' fill='%23999' font-size='20' font-family='sans-serif'%3EC%3C/text%3E%3C/svg%3E";
 
@@ -140,22 +141,76 @@ const CommunityDetailPage = () => {
           </PostBtn>
         )}
       </SectionRow>
-      {filteredPosts.length === 0 ? (
-        <Message>No posts yet.</Message>
+      {activeTab === 'tracks' ? (
+        filteredPosts.length === 0 ? (
+          <Message>No tracks yet.</Message>
+        ) : (
+          <MediaList>
+            {filteredPosts.map((p) =>
+              (p.tracks || []).map((track, ti) => (
+                <TrackRowItem key={`${p.id}_track_${track.id || ti}`}>
+                  <TrackRow
+                    track={{ ...track, postId: p.id }}
+                    index={ti}
+                  />
+                  <TrackPostMeta>
+                    from <PostLink to={`${basePath}`}>post by {p.author?.username}</PostLink>
+                  </TrackPostMeta>
+                </TrackRowItem>
+              ))
+            )}
+          </MediaList>
+        )
+      ) : activeTab === 'photos' ? (
+        filteredPosts.length === 0 ? (
+          <Message>No photos yet.</Message>
+        ) : (
+          <PhotoGrid>
+            {filteredPosts.map((p) =>
+              (p.photos || []).map((photo) => (
+                <PhotoCard key={`${p.id}_photo_${photo.id}`}>
+                  <PhotoImg src={photo.r2_url || photo.gcs_url || photo.url} alt={photo.title || ''} />
+                </PhotoCard>
+              ))
+            )}
+          </PhotoGrid>
+        )
+      ) : activeTab === 'videos' ? (
+        filteredPosts.length === 0 ? (
+          <Message>No videos yet.</Message>
+        ) : (
+          <PostList>
+            {filteredPosts.map((p) => (
+              <CommunityPostCard
+                key={p.id || p.post_id}
+                post={p}
+                community={community}
+                onLike={handleLike}
+                onDelete={handleDelete}
+                formatPostTime={formatPostTime}
+                getFullUrl={getFullUrl}
+              />
+            ))}
+          </PostList>
+        )
       ) : (
-        <PostList>
-          {filteredPosts.map((p) => (
-            <CommunityPostCard
-              key={p.id || p.post_id}
-              post={p}
-              community={community}
-              onLike={handleLike}
-              onDelete={handleDelete}
-              formatPostTime={formatPostTime}
-              getFullUrl={getFullUrl}
-            />
-          ))}
-        </PostList>
+        filteredPosts.length === 0 ? (
+          <Message>No posts yet.</Message>
+        ) : (
+          <PostList>
+            {filteredPosts.map((p) => (
+              <CommunityPostCard
+                key={p.id || p.post_id}
+                post={p}
+                community={community}
+                onLike={handleLike}
+                onDelete={handleDelete}
+                formatPostTime={formatPostTime}
+                getFullUrl={getFullUrl}
+              />
+            ))}
+          </PostList>
+        )
       )}
     </Container>
 
@@ -334,6 +389,53 @@ const Message = styled.p`
 const PostList = styled.div`
   display: flex;
   flex-direction: column;
+`;
+
+const MediaList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const TrackRowItem = styled.div`
+  background: var(--cardBg, #1e1e1e);
+  border-radius: 8px;
+  overflow: hidden;
+`;
+
+const TrackPostMeta = styled.div`
+  padding: 4px 12px 8px;
+  font-size: 12px;
+  color: var(--textSecondary, #888);
+
+  a {
+    color: var(--accent, #0084ff);
+    text-decoration: none;
+  }
+`;
+
+const PhotoGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+`;
+
+const PhotoCard = styled.div`
+  background: var(--cardBg, #1e1e1e);
+  border-radius: 8px;
+  overflow: hidden;
+`;
+
+const PhotoImg = styled.img`
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+`;
+
+const PostLink = styled(Link)`
+  color: var(--accent, #0084ff);
+  text-decoration: none;
 `;
 
 export default CommunityDetailPage;
