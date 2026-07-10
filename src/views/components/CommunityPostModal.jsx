@@ -313,6 +313,8 @@ const DropText = styled.span`
   font-size: 1rem;
   font-weight: 600;
 `;
+
+const ErrorMsg = styled.div`
   color: #e74c3c;
   font-size: 13px;
   background: rgba(231, 76, 60, 0.1);
