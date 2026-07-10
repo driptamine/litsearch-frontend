@@ -14,7 +14,9 @@ const CommunityFormModal = ({ mode, community, onClose, onSaved }) => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [uploadingIcon, setUploadingIcon] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
   const iconInputRef = useRef(null);
+  const bannerInputRef = useRef(null);
 
   const handleIconUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -34,7 +36,7 @@ const CommunityFormModal = ({ mode, community, onClose, onSaved }) => {
       const res = await axios.post(
         `${LITLOOP_API_URL}/communities/${community.id}/icon/r2/`,
         formData,
-        { headers: { ...authHeader(), 'Content-Type': 'multipart/form-data' } }
+        { headers: authHeader() }
       );
       setIcon(res.data.icon);
     } catch (err) {
@@ -42,6 +44,35 @@ const CommunityFormModal = ({ mode, community, onClose, onSaved }) => {
     } finally {
       setUploadingIcon(false);
       if (iconInputRef.current) iconInputRef.current.value = '';
+    }
+  };
+
+  const handleBannerUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !isEdit) return;
+
+    if (!file.type.startsWith('image/')) {
+      setError('File must be an image');
+      return;
+    }
+
+    setUploadingBanner(true);
+    setError('');
+
+    try {
+      const formData = new FormData();
+      formData.append('banner', file);
+      const res = await axios.post(
+        `${LITLOOP_API_URL}/communities/${community.id}/banner/r2/`,
+        formData,
+        { headers: authHeader() }
+      );
+      setBanner(res.data.banner);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Upload failed');
+    } finally {
+      setUploadingBanner(false);
+      if (bannerInputRef.current) bannerInputRef.current.value = '';
     }
   };
 
@@ -107,8 +138,19 @@ const CommunityFormModal = ({ mode, community, onClose, onSaved }) => {
           </IconRow>
           {icon && <IconPreview src={icon} alt="" />}
 
-          <Label>Banner URL</Label>
-          <Input value={banner} onChange={(e) => setBanner(e.target.value)} placeholder="https://example.com/banner.jpg" />
+          <Label>Banner</Label>
+          <IconRow>
+            <IconInput value={banner} onChange={(e) => setBanner(e.target.value)} placeholder="https://example.com/banner.jpg" />
+            {isEdit && (
+              <>
+                <UploadBtn type="button" onClick={() => bannerInputRef.current?.click()} disabled={uploadingBanner}>
+                  {uploadingBanner ? 'Uploading...' : 'Upload'}
+                </UploadBtn>
+                <HiddenInput ref={bannerInputRef} type="file" accept="image/*" onChange={handleBannerUpload} />
+              </>
+            )}
+          </IconRow>
+          {banner && <BannerPreview src={banner} alt="" />}
 
           <ButtonRow>
             <CancelBtn type="button" onClick={onClose}>Cancel</CancelBtn>
@@ -261,6 +303,14 @@ const HiddenInput = styled.input`
 const IconPreview = styled.img`
   width: 64px;
   height: 64px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-top: 4px;
+`;
+
+const BannerPreview = styled.img`
+  width: 100%;
+  max-height: 120px;
   border-radius: 8px;
   object-fit: cover;
   margin-top: 4px;
