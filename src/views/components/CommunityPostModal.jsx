@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { styled } from '@linaria/react';
-import { FaMusic, FaImage, FaFilm, FaUpload } from 'react-icons/fa';
+import { FaMusic, FaImage, FaFilm } from 'react-icons/fa';
 import axios from 'axios';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader } from 'core/api/rest-helper';
@@ -8,12 +8,14 @@ import { useMediaUpload } from 'views/components/upload/uploader/posts/useMediaU
 import TrackPickerModal from 'views/components/upload/uploader/posts/TrackPickerModal';
 import PhotoPickerModal from 'views/components/upload/uploader/posts/PhotoPickerModal';
 import VideoPickerModal from 'views/components/upload/uploader/posts/VideoPickerModal';
+import TrackRow from 'views/components/TrackRow';
 
 const CommunityPostModal = ({ communityId, isAdminOrMod, onClose, onSaved }) => {
   const [description, setDescription] = useState('');
   const [photoIds, setPhotoIds] = useState([]);
   const [videoIds, setVideoIds] = useState([]);
   const [trackIds, setTrackIds] = useState([]);
+  const [tracks, setTracks] = useState([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [showPhotoPicker, setShowPhotoPicker] = useState(false);
@@ -22,27 +24,6 @@ const CommunityPostModal = ({ communityId, isAdminOrMod, onClose, onSaved }) => 
   const [isDragOver, setIsDragOver] = useState(false);
   const dragCounter = useRef(0);
   const { uploadFiles, isUploading, progress } = useMediaUpload();
-
-  const photoInputRef = useRef(null);
-  const videoInputRef = useRef(null);
-  const trackInputRef = useRef(null);
-
-  const handleFileUpload = async (e, mediaType) => {
-    const files = Array.from(e.target.files);
-    if (!files.length) return;
-
-    try {
-      const results = await uploadFiles(files, mediaType);
-      const ids = results.map(r => r.id).filter(Boolean);
-      if (mediaType === 'photo') setPhotoIds(prev => [...prev, ...ids]);
-      if (mediaType === 'video') setVideoIds(prev => [...prev, ...ids]);
-      if (mediaType === 'track') setTrackIds(prev => [...prev, ...ids]);
-    } catch (err) {
-      setError(`Upload failed: ${err.message}`);
-    }
-
-    e.target.value = '';
-  };
 
   const detectMediaType = (file) => {
     if (file.type.startsWith('image/')) return 'photo';
@@ -73,7 +54,10 @@ const CommunityPostModal = ({ communityId, isAdminOrMod, onClose, onSaved }) => 
         const ids = results.map(r => r.id).filter(Boolean);
         if (mediaType === 'photo') setPhotoIds(prev => [...prev, ...ids]);
         if (mediaType === 'video') setVideoIds(prev => [...prev, ...ids]);
-        if (mediaType === 'track') setTrackIds(prev => [...prev, ...ids]);
+        if (mediaType === 'track') {
+          setTrackIds(prev => [...prev, ...ids]);
+          setTracks(prev => [...prev, ...results.filter(r => r.name)]);
+        }
       } catch (err) {
         setError(`Upload failed: ${err.message}`);
       }
@@ -158,17 +142,15 @@ const CommunityPostModal = ({ communityId, isAdminOrMod, onClose, onSaved }) => 
 
           <TextArea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What's on your mind?" rows={4} />
 
+          {tracks.length > 0 && (
+            <PreviewList>
+              {tracks.map((track, i) => (
+                <TrackRow key={track.pk || track.id || i} track={track} index={i} />
+              ))}
+            </PreviewList>
+          )}
+
           <MediaBar>
-            <AddMediaBtn type="button" onClick={() => photoInputRef.current?.click()} accent="#f0c040" title="Upload photo">
-              <FaUpload size={10} /> <FaImage />
-            </AddMediaBtn>
-            <AddMediaBtn type="button" onClick={() => videoInputRef.current?.click()} accent="#a855f7" title="Upload video">
-              <FaUpload size={10} /> <FaFilm />
-            </AddMediaBtn>
-            <AddMediaBtn type="button" onClick={() => trackInputRef.current?.click()} accent="#1db954" title="Upload track">
-              <FaUpload size={10} /> <FaMusic />
-            </AddMediaBtn>
-            <Divider />
             <PickBtn type="button" onClick={() => setShowPhotoPicker(true)} accent="#f0c040" title="Pick photo">
               <FaImage /> <span>Pick</span>
             </PickBtn>
@@ -190,10 +172,6 @@ const CommunityPostModal = ({ communityId, isAdminOrMod, onClose, onSaved }) => 
               <ProgressFill style={{ width: `${progress}%` }} />
             </ProgressTrack>
           )}
-
-          <HiddenInput ref={photoInputRef} type="file" accept="image/*" multiple onChange={(e) => handleFileUpload(e, 'photo')} />
-          <HiddenInput ref={videoInputRef} type="file" accept="video/*" multiple onChange={(e) => handleFileUpload(e, 'video')} />
-          <HiddenInput ref={trackInputRef} type="file" accept="audio/*" multiple onChange={(e) => handleFileUpload(e, 'track')} />
 
           <ButtonRow>
             <CancelBtn type="button" onClick={onClose}>Cancel</CancelBtn>
@@ -218,6 +196,11 @@ const CommunityPostModal = ({ communityId, isAdminOrMod, onClose, onSaved }) => 
             onSelect={(trackObjects) => {
               const ids = trackObjects.map(t => t.pk || t.id).filter(Boolean);
               setTrackIds(prev => [...new Set([...prev, ...ids])]);
+              setTracks(prev => {
+                const existingIds = new Set(prev.map(t => t.pk || t.id));
+                const newOnes = trackObjects.filter(t => !existingIds.has(t.pk || t.id));
+                return [...prev, ...newOnes];
+              });
               setShowTrackPicker(false);
             }}
             onClose={() => setShowTrackPicker(false)}
@@ -328,36 +311,12 @@ const MediaBar = styled.div`
   gap: 6px;
 `;
 
-const AddMediaBtn = styled.button`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 10px;
-  background: transparent;
-  color: ${({ accent }) => accent || '#888'};
-  border: 1px solid ${({ accent }) => accent || '#444'};
-  border-radius: 6px;
-  font-size: 0.85rem;
-  cursor: pointer;
-
-  &:hover {
-    background: ${({ accent }) => accent ? `${accent}1a` : 'rgba(255,255,255,0.05)'};
-  }
-`;
-
 const MediaCount = styled.div`
   display: flex;
   gap: 8px;
   margin-left: auto;
   font-size: 12px;
   color: var(--textSecondary, #888);
-`;
-
-const Divider = styled.div`
-  width: 1px;
-  height: 20px;
-  background: var(--border, #444);
-  margin: 0 4px;
 `;
 
 const PickBtn = styled.button`
@@ -378,10 +337,6 @@ const PickBtn = styled.button`
   }
 `;
 
-const HiddenInput = styled.input`
-  display: none;
-`;
-
 const ProgressTrack = styled.div`
   height: 4px;
   background: var(--border, #444);
@@ -394,6 +349,12 @@ const ProgressFill = styled.div`
   background: var(--accent, #0084ff);
   border-radius: 2px;
   transition: width 0.3s ease;
+`;
+
+const PreviewList = styled.div`
+  background: #111;
+  border-radius: 8px;
+  overflow: hidden;
 `;
 
 const ButtonRow = styled.div`
