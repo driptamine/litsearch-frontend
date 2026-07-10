@@ -1,14 +1,24 @@
 import React, { useState } from 'react';
 import { styled } from '@linaria/react';
+import { FaMusic, FaImage, FaFilm } from 'react-icons/fa';
 import axios from 'axios';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader } from 'core/api/rest-helper';
+import TrackPickerModal from 'views/components/upload/uploader/posts/TrackPickerModal';
+import PhotoPickerModal from 'views/components/upload/uploader/posts/PhotoPickerModal';
+import VideoPickerModal from 'views/components/upload/uploader/posts/VideoPickerModal';
 
 const CommunityPostModal = ({ communityId, isAdminOrMod, onClose, onSaved }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [photoIds, setPhotoIds] = useState([]);
+  const [videoIds, setVideoIds] = useState([]);
+  const [trackIds, setTrackIds] = useState([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [showPhotoPicker, setShowPhotoPicker] = useState(false);
+  const [showVideoPicker, setShowVideoPicker] = useState(false);
+  const [showTrackPicker, setShowTrackPicker] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,7 +33,13 @@ const CommunityPostModal = ({ communityId, isAdminOrMod, onClose, onSaved }) => 
     try {
       const res = await axios.post(
         `${LITLOOP_API_URL}/communities/${communityId}/posts/request/`,
-        { title: title.trim(), description: description.trim() },
+        {
+          title: title.trim(),
+          description: description.trim(),
+          photo_ids: photoIds,
+          video_ids: videoIds,
+          track_ids: trackIds,
+        },
         { headers: authHeader() }
       );
       onSaved(res.data);
@@ -52,11 +68,53 @@ const CommunityPostModal = ({ communityId, isAdminOrMod, onClose, onSaved }) => 
           <Label>Description</Label>
           <TextArea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What's on your mind?" rows={4} />
 
+          <MediaBar>
+            <AddMediaBtn type="button" onClick={() => setShowPhotoPicker(true)} accent="#f0c040">
+              <FaImage />
+            </AddMediaBtn>
+            <AddMediaBtn type="button" onClick={() => setShowVideoPicker(true)} accent="#a855f7">
+              <FaFilm />
+            </AddMediaBtn>
+            <AddMediaBtn type="button" onClick={() => setShowTrackPicker(true)} accent="#1db954">
+              <FaMusic />
+            </AddMediaBtn>
+            <MediaCount>
+              {photoIds.length > 0 && <span>📷 {photoIds.length}</span>}
+              {videoIds.length > 0 && <span>🎬 {videoIds.length}</span>}
+              {trackIds.length > 0 && <span>🎵 {trackIds.length}</span>}
+            </MediaCount>
+          </MediaBar>
+
           <ButtonRow>
             <CancelBtn type="button" onClick={onClose}>Cancel</CancelBtn>
             <SubmitBtn type="submit" disabled={saving}>{saving ? 'Submitting...' : isAdminOrMod ? 'Create' : 'Submit for Review'}</SubmitBtn>
           </ButtonRow>
         </Form>
+
+        {showPhotoPicker && (
+          <PhotoPickerModal
+            onSelect={(ids) => { setPhotoIds(ids); setShowPhotoPicker(false); }}
+            onClose={() => setShowPhotoPicker(false)}
+          />
+        )}
+        {showVideoPicker && (
+          <VideoPickerModal
+            onSelect={(ids) => { setVideoIds(ids); setShowVideoPicker(false); }}
+            onClose={() => setShowVideoPicker(false)}
+          />
+        )}
+        {showTrackPicker && (
+          <TrackPickerModal
+            onSelect={(trackObjects) => {
+              setTrackIds(prev => {
+                const ids = trackObjects.map(t => t.pk || t.id).filter(Boolean);
+                return [...new Set([...prev, ...ids])];
+              });
+              setShowTrackPicker(false);
+            }}
+            onClose={() => setShowTrackPicker(false)}
+          />
+        )}
       </Modal>
     </Overlay>
   );
@@ -154,6 +212,37 @@ const ErrorMsg = styled.div`
   background: rgba(231, 76, 60, 0.1);
   padding: 8px 12px;
   border-radius: 6px;
+`;
+
+const MediaBar = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const AddMediaBtn = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  background: transparent;
+  color: ${({ accent }) => accent || '#888'};
+  border: 1px solid ${({ accent }) => accent || '#444'};
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+
+  &:hover {
+    background: ${({ accent }) => accent ? `${accent}1a` : 'rgba(255,255,255,0.05)'};
+  }
+`;
+
+const MediaCount = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--textSecondary, #888);
 `;
 
 const ButtonRow = styled.div`
