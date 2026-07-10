@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { styled } from '@linaria/react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader } from 'core/api/rest-helper';
@@ -11,12 +11,13 @@ import CommunityPostCard from 'views/components/PostCard/CommunityPostCard';
 const DEFAULT_ICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ctext x='24' y='30' text-anchor='middle' fill='%23999' font-size='20' font-family='sans-serif'%3EC%3C/text%3E%3C/svg%3E";
 
 const CommunityDetailPage = () => {
-  const { communityId, handle } = useParams();
+  const { communityId, handle, mediaType } = useParams();
   const [community, setCommunity] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showEdit, setShowEdit] = useState(false);
   const [showPostModal, setShowPostModal] = useState(false);
+  const activeTab = mediaType || 'all';
 
   const idOrHandle = handle || communityId;
   const isNameLookup = !!handle;
@@ -65,6 +66,23 @@ const CommunityDetailPage = () => {
     return `${LITLOOP_API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
   };
 
+  const filteredPosts = posts.filter((p) => {
+    if (activeTab === 'all') return true;
+    if (activeTab === 'tracks') return p.tracks?.length > 0;
+    if (activeTab === 'photos') return p.photos?.length > 0;
+    if (activeTab === 'videos') return p.videos?.length > 0;
+    return true;
+  });
+
+  const basePath = handle ? `/communities/@${handle}` : `/communities/${communityId}`;
+
+  const tabs = [
+    { key: 'all', label: 'All', to: basePath },
+    { key: 'tracks', label: 'Tracks', to: `${basePath}/tracks` },
+    { key: 'photos', label: 'Photos', to: `${basePath}/photos` },
+    { key: 'videos', label: 'Videos', to: `${basePath}/videos` },
+  ];
+
   const handleLike = async (postId) => {
     try {
       const res = await axios.post(`${LITLOOP_API_URL}/posts/${postId}/like/`, null, { headers: authHeader() });
@@ -106,6 +124,14 @@ const CommunityDetailPage = () => {
         </Meta>
       </InfoSection>
 
+      <TabsRow>
+        {tabs.map((t) => (
+          <TabLink key={t.key} to={t.to} data-active={activeTab === t.key}>
+            {t.label}
+          </TabLink>
+        ))}
+      </TabsRow>
+
       <SectionRow>
         <SectionTitle>Posts</SectionTitle>
         {community.user_is_member && (
@@ -114,11 +140,11 @@ const CommunityDetailPage = () => {
           </PostBtn>
         )}
       </SectionRow>
-      {posts.length === 0 ? (
+      {filteredPosts.length === 0 ? (
         <Message>No posts yet.</Message>
       ) : (
         <PostList>
-          {posts.map((p) => (
+          {filteredPosts.map((p) => (
             <CommunityPostCard
               key={p.id || p.post_id}
               post={p}
@@ -244,6 +270,37 @@ const SectionTitle = styled.h2`
   color: var(--text);
   font-size: 20px;
   margin: 0;
+`;
+
+const TabsRow = styled.div`
+  display: flex;
+  gap: 4px;
+  margin: 16px 0 0;
+  background: var(--cardBg, #1e1e1e);
+  border-radius: 8px;
+  padding: 4px;
+`;
+
+const TabLink = styled(Link)`
+  flex: 1;
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: var(--textSecondary, #888);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+
+  &[data-active='true'] {
+    background: var(--accent, #0084ff);
+    color: #fff;
+  }
+
+  &:not([data-active='true']):hover {
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+  }
 `;
 
 const SectionRow = styled.div`

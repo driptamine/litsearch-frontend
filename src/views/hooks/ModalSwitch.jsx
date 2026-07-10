@@ -131,7 +131,9 @@ function ModalSwitch({ children, renderModal, stopSong, pauseSong, resumeSong, a
             <Route exact path="/users" component={UsersPage} />
             <Route exact path="/communities" component={CommunitiesPage} />
             <Route exact path="/communities/@:handle" component={CommunityDetailPage} />
+            <Route exact path="/communities/@:handle/:mediaType" component={CommunityDetailPage} />
             <Route exact path="/communities/:communityId" component={CommunityDetailPage} />
+            <Route exact path="/communities/:communityId/:mediaType" component={CommunityDetailPage} />
             <Route exact path="/magazines" component={ModalMagazines} />
             <Route exact path="/albums" component={ModalAlbums} />
             <Route exact path="/" component={SearchAppp} />
