@@ -22,6 +22,7 @@ import { lightTheme, darkTheme } from 'views/components/Toggle/Themes'
 
 import Sidebar from 'views/components/Sidebar';
 import BottomNavbar from 'views/components/Navbar/BottomNavbar';
+import CookieConsent from 'views/components/CookieConsent';
 
 import {
   fetchOAuthUser, fetchCurrentUser, setAccessToken
@@ -236,7 +237,6 @@ const App = () => {
 
   return (
     <>
-      <>
       <GlobalStyleThemeMode />
       <NotificationProvider>
       <StyledWrapper isMobile={isMobile} showBottomNav={showBottomNav}>
@@ -308,7 +308,7 @@ const App = () => {
           <Modal.Footer>Group Chats</Modal.Footer>
         </Modal>
       )}
-      </>
+      <CookieConsent />
     </>
   );
 }
