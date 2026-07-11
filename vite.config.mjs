@@ -2,14 +2,6 @@ import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react-swc';
 import wyw from '@wyw-in-js/vite';
 import { visualizer } from 'rollup-plugin-visualizer'
-import { ghPages } from 'vite-plugin-gh-pages'
-
-
-import { viteCommonjs, esbuildCommonjs } from '@originjs/vite-plugin-commonjs';
-import dns from 'dns'
-
-
-dns.setDefaultResultOrder('verbatim')
 
 function lazyImportTogglePlugin(eager) {
   return {
@@ -90,30 +82,20 @@ function transformLazy(code) {
   return code
 }
 
-export default defineConfig(({ command, mode }) => {
+export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const eager = env.VITE_EAGER_IMPORTS === 'true';
   return {
     base: '/',
+    build: {
+      cssMinify: 'esbuild',
+    },
     plugins: [
-      {
-        ...wyw({
-          include: /src\/.*\.(jsx?|tsx?)$/,
-          babelOptions: {
-            presets: [
-              "@babel/preset-env",
-              "@wyw-in-js/babel-preset",
-            ],
-            plugins: [
-              "@babel/plugin-syntax-jsx",
-            ],
-          },
-        }),
-        enforce: 'pre',
-      },
+      wyw({
+        include: /src\/.*\.(jsx?|tsx?)$/,
+      }),
       react(),
       lazyImportTogglePlugin(eager),
-      ghPages(),
       visualizer({
         open: true,
       }),
@@ -123,11 +105,6 @@ export default defineConfig(({ command, mode }) => {
         src: "/src",
         views: "/src/views",
         core: "/src/core",
-      },
-    },
-    optimizeDeps: {
-      esbuildOptions: {
-        plugins: [esbuildCommonjs(['react-moment'])],
       },
     },
     envPrefix: ['VITE_', 'TMDB_'],

@@ -16,7 +16,7 @@ api.interceptors.request.use((config) => {
 
 export const fetchPages = () => api.get('/pages/').then(r => r.data);
 
-export const createPage = (title = 'Untitled', parentId = null) =>
+export const createPage = (title = '', parentId = null) =>
   api.post('/pages/create/', { title, parent_id: parentId }).then(r => r.data);
 
 export const fetchPage = (pageId) => api.get(`/pages/${pageId}/`).then(r => r.data);

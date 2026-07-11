@@ -114,12 +114,12 @@ const NoteTakingApp = () => {
       } catch {}
       try {
         const data = await fetchPage(selectedId);
-        setTitle(data.title);
+        setTitle(data.title === 'Untitled' ? '' : data.title);
         const now = new Date().toISOString();
         const dexiePage = await db.pages.where('apiId').equals(selectedId).first();
         const pageDexieId = dexiePage?.id;
         if (dexiePage) {
-          await db.pages.update(dexiePage.id, { title: data.title, tags: data.tags || [], tag_ids: data.tag_ids || [], updatedAt: now });
+          await db.pages.update(dexiePage.id, { title: data.title === 'Untitled' ? '' : data.title, tags: data.tags || [], tag_ids: data.tag_ids || [], updatedAt: now });
         }
         const mapped = (data.blocks || []).map((b) => ({
           _id: b.id,
@@ -177,7 +177,7 @@ const NoteTakingApp = () => {
     if (titleSaveTimer.current) clearTimeout(titleSaveTimer.current);
     titleSaveTimer.current = setTimeout(() => {
       if (selectedId) {
-        updatePage(selectedId, { title: newTitle });
+          updatePage(selectedId, { title: newTitle === 'Untitled' ? '' : newTitle });
       }
     }, DEBOUNCE_MS);
   }, [selectedId]);
@@ -390,6 +390,7 @@ const NoteTakingApp = () => {
     const now = new Date().toISOString();
     try {
       const newPage = await createPage("");
+      newPage.title = "";
       setPages((prev) => [...prev, newPage]);
       await db.pages.add({ ...newPage, tags: newPage.tags || [], tag_ids: newPage.tag_ids || [], apiId: newPage.id, createdAt: now, updatedAt: now });
       history.push(`/notes/${newPage.id}`);
