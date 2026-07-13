@@ -9,12 +9,64 @@ import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader } from 'core/api/rest-helper';
 import { db, dbReady } from 'core/db/db';
 
+const PRESET_BG = [
+
+
+  'https://pub-754026a870ae4e79ab4638cda9ea0cdb.r2.dev/todolist-wallpaper/4U2oMF.jpeg',
+  'https://pub-754026a870ae4e79ab4638cda9ea0cdb.r2.dev/todolist-wallpaper/jonathan-bean-8540%20(1).jpg',
+  'https://pub-754026a870ae4e79ab4638cda9ea0cdb.r2.dev/todolist-wallpaper/macOS-Mojave-Night-wallpaper.jpg',
+  'https://pub-754026a870ae4e79ab4638cda9ea0cdb.r2.dev/todolist-wallpaper/wallpaper2you_512508.jpeg',
+
+  'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800',
+  'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800',
+  'https://images.unsplash.com/photo-1470071459604-7b40ec9c5fee?w=800',
+  'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=800',
+  'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800',
+];
+
+async function upsertTodos(table, apiItems, now) {
+  const existing = await table.toArray();
+  const map = new Map(existing.filter(e => e.apiId).map(e => [e.apiId, e]));
+  const adds = [];
+  const updates = [];
+  for (const item of apiItems) {
+    const rec = map.get(item.id);
+    if (rec) {
+      updates.push(table.update(rec.id, { ...item, apiId: item.id, updatedAt: now }));
+    } else {
+      adds.push({ ...item, apiId: item.id, createdAt: now, updatedAt: now });
+    }
+  }
+  const toDelete = existing.filter(e => e.apiId && !apiItems.some(a => a.id === e.apiId));
+  const dels = toDelete.map(e => table.delete(e.id));
+  await Promise.all([...updates, ...dels]);
+  if (adds.length) await table.bulkAdd(adds);
+}
+
+async function upsertLists(table, apiItems, now) {
+  const existing = await table.toArray();
+  const map = new Map(existing.filter(e => e.apiId).map(e => [e.apiId, e]));
+  const adds = [];
+  const updates = [];
+  for (const item of apiItems) {
+    const rec = map.get(item.id);
+    if (rec) {
+      updates.push(table.update(rec.id, { ...item, title: item.name || item.title, apiId: item.id, updatedAt: now }));
+    } else {
+      adds.push({ ...item, title: item.name || item.title, apiId: item.id, createdAt: now, updatedAt: now });
+    }
+  }
+  const toDelete = existing.filter(e => e.apiId && !apiItems.some(a => a.id === e.apiId));
+  const dels = toDelete.map(e => table.delete(e.id));
+  await Promise.all([...updates, ...dels]);
+  if (adds.length) await table.bulkAdd(adds);
+}
+
 const JustDoListV2 = () => {
   const [todos, setTodos] = useState([]);
   const [lists, setLists] = useState([]);
   const [activeListId, setActiveListId] = useState(null);
   const [backgroundImage, setBackgroundImage] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const savedImage = localStorage.getItem('backgroundImage');
@@ -50,15 +102,13 @@ const JustDoListV2 = () => {
       setLists(listsRes.data || []);
       try {
         const now = new Date().toISOString();
-        await db.todos.clear();
-        await db.todolists.clear();
-        await db.todos.bulkAdd(todosData.map(t => ({ ...t, apiId: t.id, createdAt: now, updatedAt: now })));
-        await db.todolists.bulkAdd((listsRes.data || []).map(l => ({ ...l, apiId: l.id, createdAt: now, updatedAt: now })));
+        await Promise.all([
+          upsertTodos(db.todos, todosData, now),
+          upsertLists(db.todolists, listsRes.data || [], now),
+        ]);
       } catch {}
     } catch (err) {
       console.error('Failed to fetch data:', err);
-    } finally {
-      setLoading(false);
     }
   }, []);
 
@@ -249,8 +299,6 @@ const JustDoListV2 = () => {
       ? todos.filter(t => t.todo_list === activeListId)
       : todos;
 
-  if (loading) return null;
-
   return (
     <AppWrapper backgroundImage={backgroundImage}>
       <ContentContainer>
@@ -267,15 +315,55 @@ const JustDoListV2 = () => {
         onReorderLists={handleReorderLists}
       >
         <UploadInput onUploadSuccess={handleUploadSuccess} />
+        <BgGallery>
+          {PRESET_BG.map((url) => (
+            <BgThumb
+              key={url}
+              $active={backgroundImage === url}
+              onClick={() => setBackgroundImage(url)}
+            >
+              <img src={url} alt="" />
+            </BgThumb>
+          ))}
+        </BgGallery>
       </ListSidebar>
     </AppWrapper>
   );
 };
 
+const BgGallery = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 0;
+`;
+
+const BgThumb = styled.div`
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid ${({ $active }) => ($active ? '#bb86fc' : 'transparent')};
+  transition: border-color 0.15s;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &:hover {
+    border-color: #888;
+  }
+`;
+
 const AppWrapper = styled.div`
   display: flex;
   min-height: 100vh;
-  background-image: ${({ backgroundImage }) => backgroundImage ? `url(${backgroundImage})` : 'none'};
+  background-image: ${({ backgroundImage }) => backgroundImage ? `url("${backgroundImage}")` : 'none'};
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

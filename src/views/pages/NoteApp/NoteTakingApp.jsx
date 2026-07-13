@@ -38,7 +38,6 @@ const NoteTakingApp = () => {
   const [title, setTitle] = useState("");
   const [blocks, setBlocks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [pageLoading, setPageLoading] = useState(false);
   const [tags, setTags] = useState([]);
   const [filterTags, setFilterTags] = useState([]);
   const [filteredPages, setFilteredPages] = useState(null);
@@ -51,6 +50,27 @@ const NoteTakingApp = () => {
   const refs = useRef([]);
 
   blocksRef.current = blocks;
+
+async function upsertPages(table, apiItems, now) {
+  const existing = await table.toArray();
+  const map = new Map(existing.filter(e => e.apiId).map(e => [e.apiId, e]));
+  const adds = [];
+  const updates = [];
+  for (const item of apiItems) {
+    const rec = map.get(item.id);
+    if (rec) {
+      updates.push(table.update(rec.id, { ...item, tags: item.tags || [], tag_ids: item.tag_ids || [], apiId: item.id, updatedAt: now }));
+    } else {
+      adds.push({ ...item, tags: item.tags || [], tag_ids: item.tag_ids || [], apiId: item.id, createdAt: now, updatedAt: now });
+    }
+  }
+  const toDelete = existing.filter(e => e.apiId && !apiItems.some(a => a.id === e.apiId));
+  await Promise.all([
+    ...updates,
+    ...toDelete.map(e => table.delete(e.id)),
+  ]);
+  if (adds.length) await table.bulkAdd(adds);
+}
 
   // ── Sync selectedId from URL ─────────────────
   useEffect(() => {
@@ -71,8 +91,7 @@ const NoteTakingApp = () => {
         const data = await fetchPages();
         setPages(data);
         const now = new Date().toISOString();
-        await db.pages.clear();
-        await db.pages.bulkAdd(data.map(p => ({ ...p, tags: p.tags || [], tag_ids: p.tag_ids || [], apiId: p.id, createdAt: now, updatedAt: now })));
+        await upsertPages(db.pages, data, now);
         if (data.length > 0 && !pageIdFromUrl) {
           setSelectedId(data[0].id);
         }
@@ -89,15 +108,16 @@ const NoteTakingApp = () => {
   // ── Fetch page when selected ──────────────────
   useEffect(() => {
     if (!selectedId) return;
-    setPageLoading(true);
     (async () => {
       await dbReady;
+      let dexiePage, pageDexieId;
       try {
-        let cachedPage = await db.pages.where('apiId').equals(selectedId).first();
-        if (!cachedPage) cachedPage = await db.pages.get(selectedId);
-        if (cachedPage) {
-          setTitle(cachedPage.title || '');
-          const cachedBlocks = await db.blocks.where('pageId').equals(cachedPage.id).sortBy('order');
+        dexiePage = await db.pages.where('apiId').equals(selectedId).first();
+        if (!dexiePage) dexiePage = await db.pages.get(selectedId);
+        if (dexiePage) {
+          pageDexieId = dexiePage.id;
+          setTitle(dexiePage.title || '');
+          const cachedBlocks = await db.blocks.where('pageId').equals(dexiePage.id).sortBy('order');
           if (cachedBlocks.length) {
             const mapped = cachedBlocks.map((b) => ({
               _id: b.apiId || b.id,
@@ -116,8 +136,6 @@ const NoteTakingApp = () => {
         const data = await fetchPage(selectedId);
         setTitle(data.title === 'Untitled' ? '' : data.title);
         const now = new Date().toISOString();
-        const dexiePage = await db.pages.where('apiId').equals(selectedId).first();
-        const pageDexieId = dexiePage?.id;
         if (dexiePage) {
           await db.pages.update(dexiePage.id, { title: data.title === 'Untitled' ? '' : data.title, tags: data.tags || [], tag_ids: data.tag_ids || [], updatedAt: now });
         }
@@ -148,10 +166,7 @@ const NoteTakingApp = () => {
         const tagNames = data.tags || [];
         const tagIds = data.tag_ids || [];
         setTags(tagNames.map((name, i) => ({ id: tagIds[i], name })));
-        setPageLoading(false);
-      } catch {
-        setPageLoading(false);
-      }
+      } catch {}
     })();
   }, [selectedId]);
 
@@ -465,8 +480,6 @@ const NoteTakingApp = () => {
     } catch {}
   };
 
-  if (loading) return <LoadingText>Loading...</LoadingText>;
-
   return (
     <AppContainer>
       <Sidebar
@@ -486,7 +499,6 @@ const NoteTakingApp = () => {
           updateBlock={updateBlockContent}
           handleKeyDown={handleKeyDown}
           refs={refs}
-          pageLoading={pageLoading}
           tags={tags}
           onAddTag={handleAddTag}
           onRemoveTag={handleRemoveTag}

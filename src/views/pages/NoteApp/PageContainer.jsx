@@ -3,7 +3,7 @@ import PageTitle from "./PageTitle";
 import Block from "./Block";
 import TableBlock from "./TableBlock";
 import TagInput from "./TagInput";
-import { PageContainerWrapper, LoadingText, Toolbar, ToolbarBtn } from "./styledComponents";
+import { PageContainerWrapper, Toolbar, ToolbarBtn } from "./styledComponents";
 
 const PageContainer = ({
   title,
@@ -12,7 +12,6 @@ const PageContainer = ({
   updateBlock,
   handleKeyDown,
   refs,
-  pageLoading,
   tags,
   onAddTag,
   onRemoveTag,
@@ -20,8 +19,6 @@ const PageContainer = ({
   onTableChange,
   onInsertTableAt,
 }) => {
-  if (pageLoading) return <PageContainerWrapper><LoadingText>Loading page...</LoadingText></PageContainerWrapper>;
-
   return (
     <PageContainerWrapper>
       <Toolbar>
