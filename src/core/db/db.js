@@ -1,6 +1,6 @@
 import Dexie from 'dexie';
 
-export const db = new Dexie('litsearch');
+export const db = new Dexie('litloop');
 
 db.version(1).stores({
   todos: '++id, title, completed, todolistId, apiId, createdAt, updatedAt',
