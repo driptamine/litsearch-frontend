@@ -105,6 +105,17 @@ async function upsertPages(table, apiItems, now) {
     })();
   }, []);
 
+  function mapDbBlockToState(b) {
+    return {
+      dexieId: b.id,
+      _id: b.apiId || b.id,
+      apiId: b.apiId,
+      type: b.type || 'text',
+      content: b.content || '',
+      tableData: b.type === 'table' ? b.tableData : null,
+    };
+  }
+
   // ── Fetch page when selected ──────────────────
   useEffect(() => {
     if (!selectedId) return;
@@ -118,18 +129,10 @@ async function upsertPages(table, apiItems, now) {
           pageDexieId = dexiePage.id;
           setTitle(dexiePage.title || '');
           const cachedBlocks = await db.blocks.where('pageId').equals(dexiePage.id).sortBy('order');
-          if (cachedBlocks.length) {
-            const mapped = cachedBlocks.map((b) => ({
-              _id: b.apiId || b.id,
-              apiId: b.apiId,
-              type: b.type || 'text',
-              content: b.content || '',
-              tableData: b.type === 'table' ? b.tableData : null,
-            }));
-            setBlocks(mapped);
-          } else {
-            setBlocks([{ _id: tempBlockId(), apiId: null, type: 'text', content: '' }]);
-          }
+          const mapped = cachedBlocks.length
+            ? cachedBlocks.map(mapDbBlockToState)
+            : [{ dexieId: null, _id: tempBlockId(), apiId: null, type: 'text', content: '' }];
+          setBlocks(mapped);
         }
       } catch {}
       try {
@@ -139,29 +142,34 @@ async function upsertPages(table, apiItems, now) {
         if (dexiePage) {
           await db.pages.update(dexiePage.id, { title: data.title === 'Untitled' ? '' : data.title, tags: data.tags || [], tag_ids: data.tag_ids || [], updatedAt: now });
         }
-        const mapped = (data.blocks || []).map((b) => ({
+        const apiMapped = (data.blocks || []).map((b) => ({
           _id: b.id,
           apiId: b.id,
           type: b.type || 'text',
           content: b.content,
           tableData: b.type === 'table' ? b.table_data : null,
+          dexieId: null,
         }));
-        if (mapped.length === 0) {
-          mapped.push({ _id: tempBlockId(), apiId: null, type: 'text', content: '' });
+        if (apiMapped.length === 0) {
+          apiMapped.push({ dexieId: null, _id: tempBlockId(), apiId: null, type: 'text', content: '' });
         }
-        setBlocks(mapped);
+        setBlocks(apiMapped);
         try {
           if (pageDexieId) await db.blocks.where('pageId').equals(pageDexieId).delete();
-          await db.blocks.bulkAdd((data.blocks || []).map(b => ({
-            ...b,
-            pageId: pageDexieId,
-            apiId: b.id,
-            content: b.content || '',
-            type: b.type || 'text',
-            tableData: b.type === 'table' ? b.table_data : null,
-            order: b.order || 0,
-            updatedAt: now, createdAt: now,
-          })));
+          if (data.blocks?.length) {
+            await db.blocks.bulkAdd(data.blocks.map(b => ({
+              ...b,
+              pageId: pageDexieId,
+              apiId: b.id,
+              content: b.content || '',
+              type: b.type || 'text',
+              tableData: b.type === 'table' ? b.table_data : null,
+              order: b.order || 0,
+              updatedAt: now, createdAt: now,
+            })));
+            const fresh = await db.blocks.where('pageId').equals(pageDexieId).sortBy('order');
+            setBlocks(fresh.map(mapDbBlockToState));
+          }
         } catch {}
         const tagNames = data.tags || [];
         const tagIds = data.tag_ids || [];
@@ -215,7 +223,13 @@ async function upsertPages(table, apiItems, now) {
   const scheduleBlockSave = useCallback((blockId, content) => {
     const block = blocksRef.current.find((b) => b._id === blockId);
     if (block) {
-      db.blocks.where('apiId').equals(block.apiId || -1).modify({ content, updatedAt: new Date().toISOString() }).catch(() => {});
+      dbReady.then(async () => {
+        if (block.dexieId) {
+          await db.blocks.update(block.dexieId, { content, updatedAt: new Date().toISOString() });
+        } else if (block.apiId) {
+          await db.blocks.where('apiId').equals(block.apiId).modify({ content, updatedAt: new Date().toISOString() });
+        }
+      }).catch(() => {});
     }
     if (blockSaveTimers.current[blockId]) {
       clearTimeout(blockSaveTimers.current[blockId]);
@@ -224,7 +238,7 @@ async function upsertPages(table, apiItems, now) {
       const b = blocksRef.current.find((bl) => bl._id === blockId);
       if (!b) return;
       if (b.apiId) {
-        updateBlock(b.apiId, { content });
+        updateBlock(b.apiId, { content }).catch(() => {});
       }
     }, DEBOUNCE_MS);
   }, []);
@@ -249,7 +263,13 @@ async function upsertPages(table, apiItems, now) {
     });
     const block = blocksRef.current[index];
     if (block) {
-      db.blocks.where('apiId').equals(block.apiId || -1).modify({ tableData: { columns, rows }, updatedAt: new Date().toISOString() }).catch(() => {});
+      dbReady.then(async () => {
+        if (block.dexieId) {
+          await db.blocks.update(block.dexieId, { tableData: { columns, rows }, updatedAt: new Date().toISOString() });
+        } else if (block.apiId) {
+          await db.blocks.where('apiId').equals(block.apiId).modify({ tableData: { columns, rows }, updatedAt: new Date().toISOString() });
+        }
+      }).catch(() => {});
     }
     if (block?.apiId) {
       updateBlockTable(block.apiId, columns, rows).catch(() => {});
@@ -258,8 +278,9 @@ async function upsertPages(table, apiItems, now) {
       createBlock(selectedId, '', null, 'table', { columns, rows }).then((saved) => {
         pendingTableCreate.current[block._id] = false;
         const now = new Date().toISOString();
-        db.blocks.add({ pageId: selectedId, apiId: saved.id, content: '', type: 'table', tableData: { columns, rows }, order: index, createdAt: now, updatedAt: now }).catch(() => {});
-        setBlocks((prev) => prev.map((b) => b._id === block._id ? { ...b, apiId: saved.id, _id: saved.id } : b));
+        db.blocks.add({ pageId: selectedId, apiId: saved.id, content: '', type: 'table', tableData: { columns, rows }, order: index, createdAt: now, updatedAt: now }).then((dexieId) => {
+          setBlocks((prev) => prev.map((b) => b._id === block._id ? { ...b, apiId: saved.id, _id: saved.id, dexieId } : b));
+        }).catch(() => {});
       }).catch(() => {
         pendingTableCreate.current[block._id] = false;
       });
@@ -280,36 +301,37 @@ async function upsertPages(table, apiItems, now) {
       const after = currentText.slice(cursorPos);
       const now = new Date().toISOString();
 
-      if (block.apiId) {
-        await updateBlock(block.apiId, { content: before });
-        db.blocks.where('apiId').equals(block.apiId).modify({ content: before, updatedAt: now }).catch(() => {});
+      if (block.dexieId) {
+        await db.blocks.update(block.dexieId, { content: before, updatedAt: now });
       }
 
       let newApiBlock = null;
-      let dexieBlockId = null;
+      let newDexieId = null;
+      let newBlockState = null;
       if (selectedId) {
         try {
-          dexieBlockId = await db.blocks.add({ pageId: selectedId, apiId: null, content: after, type: 'text', order: index + 1, createdAt: now, updatedAt: now });
+          newDexieId = await db.blocks.add({ pageId: selectedId, apiId: null, content: after, type: 'text', order: index + 1, createdAt: now, updatedAt: now });
         } catch {}
         try {
           newApiBlock = await createBlock(selectedId, after, index + 1);
         } catch {}
       }
 
-      if (newApiBlock && dexieBlockId) {
-        db.blocks.update(dexieBlockId, { apiId: newApiBlock.id }).catch(() => {});
+      if (newDexieId && newApiBlock) {
+        await db.blocks.update(newDexieId, { apiId: newApiBlock.id });
       }
 
-      const newBlock = {
-        _id: newApiBlock ? newApiBlock.id : tempBlockId(),
-        apiId: newApiBlock ? newApiBlock.id : null,
+      newBlockState = {
+        dexieId: newDexieId,
+        _id: newApiBlock?.id || (newDexieId || tempBlockId()),
+        apiId: newApiBlock?.id || null,
         content: after,
       };
 
       setBlocks((prev) => {
         const next = [...prev];
         next[index] = { ...next[index], content: before };
-        next.splice(index + 1, 0, newBlock);
+        next.splice(index + 1, 0, newBlockState);
         return next;
       });
 
@@ -320,11 +342,16 @@ async function upsertPages(table, apiItems, now) {
       const merged = prevBlock.content + currentText;
       const newPos = prevBlock.content.length;
 
+      if (block.dexieId) {
+        await db.blocks.delete(block.dexieId);
+      }
+
+      if (prevBlock.dexieId) {
+        await db.blocks.update(prevBlock.dexieId, { content: merged, updatedAt: new Date().toISOString() });
+      }
+
       if (block.apiId) {
-        try {
-          db.blocks.where('apiId').equals(block.apiId).delete().catch(() => {});
-          await deleteBlock(block.apiId);
-        } catch {}
+        deleteBlock(block.apiId).catch(() => {});
       }
 
       setBlocks((prev) => {
@@ -415,6 +442,15 @@ async function upsertPages(table, apiItems, now) {
       setPages((prev) => [...prev, localPage]);
       history.push(`/notes/${dexieId}`);
     }
+    // Ensure at least one empty block exists in Dexie for the new page
+    const targetId = await db.pages.toCollection().last();
+    if (targetId) {
+      const existingBlocks = await db.blocks.where('pageId').equals(targetId.id).count();
+      if (existingBlocks === 0) {
+        const bId = await db.blocks.add({ pageId: targetId.id, apiId: null, content: '', type: 'text', order: 0, createdAt: now, updatedAt: now });
+        setBlocks([{ dexieId: bId, _id: bId, apiId: null, type: 'text', content: '' }]);
+      }
+    }
   };
 
   const handleSelectPage = (id) => {
@@ -425,14 +461,22 @@ async function upsertPages(table, apiItems, now) {
   const handleInsertTable = useCallback(() => {
     const defaultTable = { columns: ["Column 1", "Column 2"], rows: [["", ""]] };
     const now = new Date().toISOString();
-    const newBlock = { _id: tempBlockId(), apiId: null, type: 'table', content: '', tableData: defaultTable };
+    let dexieId = null;
+    const order = blocks.length;
+    const tempId = tempBlockId();
+    if (selectedId) {
+      db.blocks.add({ pageId: selectedId, apiId: null, content: '', type: 'table', tableData: defaultTable, order, createdAt: now, updatedAt: now }).then((id) => { dexieId = id; }).catch(() => {});
+    }
+    const newBlock = { dexieId: null, _id: tempId, apiId: null, type: 'table', content: '', tableData: defaultTable };
     setBlocks((prev) => [...prev, newBlock]);
     if (selectedId) {
-      const order = blocks.length;
-      dbReady.then(() => db.blocks.add({ pageId: selectedId, apiId: null, content: '', type: 'table', tableData: defaultTable, order, createdAt: now, updatedAt: now })).catch(() => {});
       createBlock(selectedId, '', null, 'table', defaultTable).then((saved) => {
-        dbReady.then(() => db.blocks.where('pageId').equals(selectedId).filter(b => b.apiId === null).last()).then(rec => { if (rec) db.blocks.update(rec.id, { apiId: saved.id }); }).catch(() => {});
-        setBlocks((prev) => prev.map((b) => b._id === newBlock._id ? { ...b, apiId: saved.id, _id: saved.id } : b));
+        const savedId = saved.id;
+        db.blocks.where('pageId').equals(selectedId).filter(b => b.apiId === null).last().then(rec => {
+          if (rec) db.blocks.update(rec.id, { apiId: savedId }).then(() => {
+            setBlocks((prev) => prev.map((b) => b._id === tempId ? { ...b, apiId: savedId, _id: savedId, dexieId: rec.id } : b));
+          });
+        }).catch(() => {});
       }).catch(() => {});
     }
   }, [selectedId, blocks.length]);
@@ -440,17 +484,23 @@ async function upsertPages(table, apiItems, now) {
   const handleInsertTableAt = useCallback((afterIndex) => {
     const defaultTable = { columns: ["Column 1", "Column 2"], rows: [["", ""]] };
     const now = new Date().toISOString();
-    const newBlock = { _id: tempBlockId(), apiId: null, type: 'table', content: '', tableData: defaultTable };
+    const tempId = tempBlockId();
+    if (selectedId) {
+      db.blocks.add({ pageId: selectedId, apiId: null, content: '', type: 'table', tableData: defaultTable, order: afterIndex + 1, createdAt: now, updatedAt: now }).catch(() => {});
+    }
+    const newBlock = { dexieId: null, _id: tempId, apiId: null, type: 'table', content: '', tableData: defaultTable };
     setBlocks((prev) => {
       const next = [...prev];
       next.splice(afterIndex + 1, 0, newBlock);
       return next;
     });
     if (selectedId) {
-      dbReady.then(() => db.blocks.add({ pageId: selectedId, apiId: null, content: '', type: 'table', tableData: defaultTable, order: afterIndex + 1, createdAt: now, updatedAt: now })).catch(() => {});
       createBlock(selectedId, '', afterIndex + 1, 'table', defaultTable).then((saved) => {
-        dbReady.then(() => db.blocks.where('pageId').equals(selectedId).filter(b => b.apiId === null).last()).then(rec => { if (rec) db.blocks.update(rec.id, { apiId: saved.id }); }).catch(() => {});
-        setBlocks((prev) => prev.map((b) => b._id === newBlock._id ? { ...b, apiId: saved.id, _id: saved.id } : b));
+        db.blocks.where('pageId').equals(selectedId).filter(b => b.apiId === null).last().then(rec => {
+          if (rec) db.blocks.update(rec.id, { apiId: saved.id }).then(() => {
+            setBlocks((prev) => prev.map((b) => b._id === tempId ? { ...b, apiId: saved.id, _id: saved.id, dexieId: rec.id } : b));
+          });
+        }).catch(() => {});
       }).catch(() => {});
     }
   }, [selectedId]);
