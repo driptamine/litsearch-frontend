@@ -4,6 +4,7 @@ import { watchAlbumSagas } from './albumSaga';
 import { watchArtistSagas } from './artistSaga';
 import { watchMovieSagas } from './movieSaga';
 import { watchPersonSagas } from './personSaga';
+import { watchFeedSagas } from './feedSaga';
 import { watchPostSagas } from './postSaga';
 import { watchPlaylistSagas } from './playlistSaga';
 import { watchSearchSagas } from './searchSaga';
@@ -18,6 +19,7 @@ export default function* rootSaga() {
     fork(watchArtistSagas),
     fork(watchMovieSagas),
     fork(watchPersonSagas),
+    fork(watchFeedSagas),
     fork(watchPostSagas),
     fork(watchPlaylistSagas),
     fork(watchSearchSagas),

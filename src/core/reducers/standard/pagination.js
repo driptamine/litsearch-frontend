@@ -59,6 +59,7 @@ const initialState = {
   albumSearchResultsByQuery: {},
   trackSearchResultsByQuery: {},
   playlistTracksByPlaylistId: {},
+  feedPosts: initialPaginationState,
 };
 
 const paginationSlice = createSlice({
@@ -95,6 +96,7 @@ const paginationSlice = createSlice({
     };
 
     handlePagination(actions.fetchPopularMovies, 'popularMovies');
+    handlePagination(actions.fetchPopularPosts, 'feedPosts');
     handlePagination(actions.fetchPopularPeople, 'popularPeople');
     handlePagination(actions.fetchPopularArtists, 'popularArtists');
     handlePagination(actions.fetchPopularAlbums, 'popularAlbums');
@@ -119,6 +121,11 @@ const paginationSlice = createSlice({
         actionHandlers[type].forEach(handler => handler(state, action));
       });
     });
+
+    builder.addCase('POST/DELETE/SUCCEEDED', (state, action) => {
+      const { postId } = action.payload;
+      state.feedPosts.ids = state.feedPosts.ids.filter(id => id !== postId);
+    });
   }
 });
 
@@ -132,6 +139,9 @@ export const selectors = {
 
   selectPopularMovieIds: state => selectors.selectPageItems(state.popularMovies),
   selectPopularMoviesNextPage: state => selectors.selectNextPage(state.popularMovies),
+
+  selectFeedPostIds: state => selectors.selectPageItems(state.feedPosts),
+  selectFeedPostsNextPage: state => selectors.selectNextPage(state.feedPosts),
 
   selectTrackIds: state => selectors.selectPageItems(state.playlistTracksByPlaylistId),
   selectTracksNextPage: state => selectors.selectNextPage(state.playlistTracksByPlaylistId),

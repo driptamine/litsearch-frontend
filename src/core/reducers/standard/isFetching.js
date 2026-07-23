@@ -19,6 +19,7 @@ const initialState = {
   artistImagesByPersonId: {},
   personCreditsByPersonId: {},
   popularMovies: false,
+  feedPosts: false,
   popularPeople: false,
   popularAlbums: false,
   search: false,
@@ -86,6 +87,7 @@ const isFetchingSlice = createSlice({
     handleLoading(actions.fetchPersonCredits, 'personCreditsByPersonId', true, action => action.payload?.personId);
 
     handleLoading(actions.fetchPopularMovies, 'popularMovies');
+    handleLoading(actions.fetchPopularPosts, 'feedPosts');
     handleLoading(actions.fetchPopularPeople, 'popularPeople');
     handleLoading(actions.fetchPopularAlbums, 'popularAlbums');
     handleLoading(actions.fetchSearch, 'search');
@@ -130,6 +132,7 @@ export const selectors = {
   selectIsFetchingPlaylist: (state, playlistId) => state.playlistsById[playlistId],
   selectIsFetchingTrack: (state, trackId) => state.tracksById[trackId],
   selectIsFetchingPopularMovies: state => state.popularMovies,
+  selectIsFetchingFeedPosts: state => state.feedPosts,
   selectIsFetchingPopularPeople: state => state.popularPeople,
   selectIsFetchingPopularAlbums: state => state.popularAlbums,
   selectIsFetchingMovieCredits: (state, movieId) => state.movieCreditsByMovieId[movieId],

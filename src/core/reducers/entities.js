@@ -164,22 +164,32 @@ const entities = (state = initialState, action) => {
 
       case "INCREASE_SONG_TIME":
         return {
-          // playlistTracks: {
-          //   ...state,
-          //   timeElapsed: action.time
-          // }
-          // ...state,
-          // timeElapsed: action.time
-
           ...state,
           playlistTracks: {
             ...state.playlistTracks,
-
             timeElapsed: action.time
           }
         };
-      // default:
-      //   return state
+
+      case "POST/LIKE/SUCCEEDED": {
+        const { postId, liked, likes_count } = action.payload;
+        if (state.posts[postId]) {
+          return {
+            ...state,
+            posts: {
+              ...state.posts,
+              [postId]: { ...state.posts[postId], is_liked: liked, likes_count },
+            },
+          };
+        }
+        return state;
+      }
+
+      case "POST/DELETE/SUCCEEDED": {
+        const { postId } = action.payload;
+        const { [postId]: _, ...rest } = state.posts;
+        return { ...state, posts: rest };
+      }
     }
 
   });
