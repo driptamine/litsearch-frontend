@@ -19,7 +19,7 @@ const LikeButton = ({
   const handleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    vibrateHeavy();
+    vibrateMedium();
     if (onClick) onClick();
   };
 
