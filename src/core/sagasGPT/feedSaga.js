@@ -7,7 +7,7 @@ import { callTrackAPI } from './apiSaga';
 function processFeedResponse(data) {
   const posts = data.posts || [];
   return {
-    results: posts.map(p => p.id),
+    results: posts,
     total_pages: data.has_next ? Infinity : 0,
     total_results: posts.length,
   };
