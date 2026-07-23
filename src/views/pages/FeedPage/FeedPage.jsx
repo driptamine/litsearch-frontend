@@ -4,8 +4,31 @@ import { styled } from "@linaria/react";
 import { Link } from "react-router-dom";
 import { LITLOOP_API_URL } from "core/constants/urls";
 import { authHeader } from "core/api/rest-helper";
+import PostCardRedesign from "views/components/PostCard/PostCardRedesign";
 import PostCard from "views/components/PostCard/PostCard";
 import Impressions from 'views/components/Impressions';
+import { db, dbReady } from 'core/db/db';
+
+async function upsertFeedPosts(posts, now) {
+  const existing = await db.posts.toArray();
+  const map = new Map(existing.map(e => [e.apiId, e]));
+  const adds = [];
+  const updates = [];
+  for (const item of posts) {
+    const apiId = item.id || item.post_id;
+    const rec = map.get(apiId);
+    if (rec) {
+      updates.push(db.posts.update(rec.id, { ...item, apiId, updatedAt: now }));
+    } else {
+      adds.push({ ...item, apiId, createdAt: item.created_at || now, updatedAt: now });
+    }
+  }
+  await Promise.all(updates);
+  if (adds.length) await db.posts.bulkAdd(adds);
+  const apiIds = new Set(posts.map(p => p.id || p.post_id));
+  const stale = existing.filter(e => !apiIds.has(e.apiId));
+  if (stale.length) await Promise.all(stale.map(e => db.posts.delete(e.id)));
+}
 
 const FeedPage = () => {
   const [posts, setPosts] = useState([]);
@@ -61,13 +84,24 @@ const FeedPage = () => {
   }, []);
 
   useEffect(() => {
-    axios.get(`${LITLOOP_API_URL}/posts/feed/`, { params: { page: 1 }, headers: authHeader() })
-      .then((res) => {
-        setPosts(res.data.posts || []);
+    (async () => {
+      await dbReady;
+      try {
+        const cached = await db.posts.orderBy('createdAt').reverse().toArray();
+        if (cached.length) {
+          setPosts(cached.map(p => { const { apiId, ...rest } = p; return { ...rest, id: apiId }; }));
+        }
+      } catch {}
+      try {
+        const res = await axios.get(`${LITLOOP_API_URL}/posts/feed/`, { params: { page: 1 }, headers: authHeader() });
+        const feedPosts = res.data.posts || [];
+        setPosts(feedPosts);
         setHasNext(res.data.has_next);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+        const now = new Date().toISOString();
+        await upsertFeedPosts(feedPosts, now);
+      } catch {}
+      setLoading(false);
+    })();
   }, []);
 
   const loadMore = () => {
@@ -75,11 +109,14 @@ const FeedPage = () => {
     setLoadingMore(true);
     const nextPage = page + 1;
     axios.get(`${LITLOOP_API_URL}/posts/feed/`, { params: { page: nextPage }, headers: authHeader() })
-      .then((res) => {
-        setPosts((prev) => [...prev, ...(res.data.posts || [])]);
+      .then(async (res) => {
+        const newPosts = res.data.posts || [];
+        setPosts((prev) => [...prev, ...newPosts]);
         setPage(nextPage);
         setHasNext(res.data.has_next);
         setLoadingMore(false);
+        const now = new Date().toISOString();
+        await upsertFeedPosts(newPosts, now);
       })
       .catch(() => setLoadingMore(false));
   };
@@ -117,6 +154,13 @@ const FeedPage = () => {
         return p;
       })
     );
+    dbReady.then(async () => {
+      const rec = await db.posts.where('apiId').equals(postId).first();
+      if (rec) {
+        const isLiked = !(rec.is_liked);
+        await db.posts.update(rec.id, { is_liked: isLiked, likes_count: (rec.likes_count || 0) + (isLiked ? 1 : -1) });
+      }
+    }).catch(() => {});
     try {
       const res = await axios.post(`${LITLOOP_API_URL}/posts/${postId}/like/`, null, { headers: authHeader() });
       const { liked, likes_count } = res.data;
@@ -125,6 +169,10 @@ const FeedPage = () => {
           (p.id || p.post_id) === postId ? { ...p, is_liked: liked, likes_count } : p
         )
       );
+      dbReady.then(async () => {
+        const rec = await db.posts.where('apiId').equals(postId).first();
+        if (rec) await db.posts.update(rec.id, { is_liked: liked, likes_count });
+      }).catch(() => {});
     } catch (err) {
       console.error('Like failed:', err);
       setPosts((prev) =>
@@ -142,6 +190,10 @@ const FeedPage = () => {
   const handleDelete = async (postId) => {
     if (!window.confirm("Delete this post?")) return;
     setPosts((prev) => prev.filter((p) => (p.id || p.post_id) !== postId));
+    dbReady.then(async () => {
+      const rec = await db.posts.where('apiId').equals(postId).first();
+      if (rec) await db.posts.delete(rec.id);
+    }).catch(() => {});
     try {
       await axios.delete(`${LITLOOP_API_URL}/posts/delete_no_drf/${postId}/`, { headers: authHeader() });
     } catch {}
@@ -159,7 +211,8 @@ const FeedPage = () => {
       ) : (
         <>
           {posts.map((post) => (
-            <PostCard
+            <PostCardRedesign
+            // <PostCard
               key={post.id || post.post_id}
               post={post}
               onLike={handleLike}

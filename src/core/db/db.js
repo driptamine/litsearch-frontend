@@ -10,4 +10,8 @@ db.version(1).stores({
   blocks: '++id, pageId, apiId, content, type, order, tableData, createdAt, updatedAt',
 });
 
+db.version(2).stores({
+  posts: '++id, apiId, author_id, createdAt, updatedAt',
+});
+
 export const dbReady = db.open();
