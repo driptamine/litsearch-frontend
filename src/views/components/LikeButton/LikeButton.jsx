@@ -2,20 +2,24 @@ import React from 'react';
 import { styled } from '@linaria/react';
 import LikeIcon from 'views/components/LikeIcon';
 import { white, likeColor } from 'views/style/colors';
+import useVibrate from 'core/hooks2/useVibrate';
 
-const LikeButton = ({ 
-  isLiked, 
-  likesCount, 
-  onClick, 
-  size = 18, 
+const LikeButton = ({
+  isLiked,
+  likesCount,
+  onClick,
+  size = 18,
   showCount = true,
   activeColor = likeColor,
   inactiveColor = '#71767b',
   hoverColor = '#1d9bf0'
 }) => {
+  const { vibrateLight } = useVibrate();
+
   const handleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    vibrateLight();
     if (onClick) onClick();
   };
 
