@@ -8,8 +8,8 @@ const useVibrate = () => {
   }, []);
 
   const vibrateLight = useCallback(() => vibrate(10), [vibrate]);
-  const vibrateMedium = useCallback(() => vibrate(20), [vibrate]);
-  const vibrateHeavy = useCallback(() => vibrate(40), [vibrate]);
+  const vibrateMedium = useCallback(() => vibrate(50), [vibrate]);
+  const vibrateHeavy = useCallback(() => vibrate(100), [vibrate]);
 
   return { vibrate, vibrateLight, vibrateMedium, vibrateHeavy };
 };

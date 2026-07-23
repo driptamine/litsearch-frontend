@@ -14,26 +14,26 @@ const LikeButton = ({
   inactiveColor = '#71767b',
   hoverColor = '#1d9bf0'
 }) => {
-  const { vibrateLight } = useVibrate();
+  const { vibrateLight, vibrateMedium, vibrateHeavy } = useVibrate();
 
   const handleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    vibrateLight();
+    vibrateHeavy();
     if (onClick) onClick();
   };
 
   return (
-    <LikeWrapper 
-      onClick={handleClick} 
-      active={isLiked} 
+    <LikeWrapper
+      onClick={handleClick}
+      active={isLiked}
       activeColor={activeColor}
       hoverColor={hoverColor}
       inactiveColor={inactiveColor}
     >
-      <LikeIcon 
-        size={size} 
-        color={isLiked ? activeColor : 'currentColor'} 
+      <LikeIcon
+        size={size}
+        color={isLiked ? activeColor : 'currentColor'}
         fill={isLiked ? activeColor : 'none'}
       />
       {showCount && <LikesCounter>{likesCount || 0}</LikesCounter>}
