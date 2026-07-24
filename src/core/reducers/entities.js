@@ -171,6 +171,7 @@ const entities = (state = initialState, action) => {
           }
         };
 
+      case "POST/LIKE_OPTIMISTIC":
       case "POST/LIKE/SUCCEEDED": {
         const { postId, liked, likes_count } = action.payload;
         if (state.posts[postId]) {

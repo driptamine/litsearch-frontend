@@ -95,15 +95,27 @@ const FeedPage = () => {
   };
 
   const handleLike = async (postId) => {
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+    const wasLiked = post.is_liked;
+    const prevCount = post.likes_count || 0;
+    dispatch({
+      type: "POST/LIKE_OPTIMISTIC",
+      payload: {
+        postId,
+        liked: !wasLiked,
+        likes_count: prevCount + (wasLiked ? -1 : 1),
+      },
+    });
     try {
       const res = await axios.post(`${LITLOOP_API_URL}/posts/${postId}/like/`, null, { headers: authHeader() });
       const { liked, likes_count } = res.data;
-      dispatch({
-        type: "POST/LIKE/SUCCEEDED",
-        payload: { postId, liked, likes_count },
-      });
+      dispatch({ type: "POST/LIKE_SUCCEEDED", payload: { postId, liked, likes_count } });
     } catch (err) {
-      console.error("Like failed:", err);
+      dispatch({
+        type: "POST/LIKE_SUCCEEDED",
+        payload: { postId, liked: wasLiked, likes_count: prevCount },
+      });
     }
   };
 
