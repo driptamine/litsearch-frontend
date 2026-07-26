@@ -31,7 +31,7 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
         <CollapseBtn onClick={toggleReplies}>
           {showReplies ? '−' : '+'}
         </CollapseBtn>
-        {showReplies && <Threadline />}
+        {showReplies && <Threadline onClick={toggleReplies} />}
       </LeftBar>
 
       <Right>
@@ -182,6 +182,8 @@ const Threadline = styled.div`
   flex: 1;
   border-radius: 0.5rem;
   margin-top: 0.25rem;
+  cursor: pointer;
+  &:hover { opacity: 0.6; }
 `;
 const VoteBtn = styled.button`
   background: none;
