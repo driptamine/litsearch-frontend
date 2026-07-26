@@ -3,7 +3,7 @@ import { styled } from '@linaria/react';
 
 const ShowReplies = ({ show, onClick }) => (
   <ShowRepliesWrap onClick={onClick}>
-    <ShowRepliesIcon>{show ? '▾' : '▸'}</ShowRepliesIcon>
+    <ShowRepliesIcon>{show ? '−' : '+'}</ShowRepliesIcon>
   </ShowRepliesWrap>
 );
 
@@ -57,9 +57,9 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
             <CommentText>{comment.text}</CommentText>
             <Stats>
               <ShowReplies show={showReplies} onClick={toggleReplies} />
-              <VoteBtn onClick={() => handleVote(-1)} active={vote === -1}>−</VoteBtn>
-              <VoteScore>{(comment.score || 0) + vote}</VoteScore>
-              <VoteBtn onClick={() => handleVote(1)} active={vote === 1}>+</VoteBtn>
+              <VoteBtn direction="up" onClick={() => handleVote(1)} active={vote === 1}>↑</VoteBtn>
+              <VoteScore vote={vote}>{(comment.score || 0) + vote}</VoteScore>
+              <VoteBtn direction="down" onClick={() => handleVote(-1)} active={vote === -1}>↓</VoteBtn>
               {onReply && (
                 <ReplyBtn onClick={() => onReply(comment.id)}>Reply</ReplyBtn>
               )}
@@ -200,20 +200,22 @@ const CollapsedText = styled.span`
 const VoteBtn = styled.button`
   background: none;
   border: none;
-  color: ${p => p.active ? '#ff4500' : 'var(--textColor2)'};
+  color: ${p => p.direction === 'up'
+    ? (p.active ? '#ff4500' : 'var(--textColor2)')
+    : (p.active ? '#7193ff' : 'var(--textColor2)')};
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   padding: 0 4px;
   line-height: 1;
   border-radius: 2px;
-  &:hover { color: #ff4500; }
+  &:hover { color: ${p => p.direction === 'up' ? '#ff4500' : '#7193ff'}; }
 `;
 
 const VoteScore = styled.span`
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--textColor1);
+  color: ${p => p.vote === 1 ? '#ff4500' : p.vote === -1 ? '#7193ff' : 'var(--textColor1)'};
   min-width: 1.5em;
   text-align: center;
 `;
