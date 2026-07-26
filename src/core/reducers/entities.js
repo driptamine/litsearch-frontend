@@ -174,12 +174,17 @@ const entities = (state = initialState, action) => {
       case "POST/LIKE_OPTIMISTIC":
       case "POST/LIKE/SUCCEEDED": {
         const { postId, liked, likes_count } = action.payload;
-        if (state.posts[postId]) {
+        const existing = state.posts[postId];
+        if (existing) {
           return {
             ...state,
             posts: {
               ...state.posts,
-              [postId]: { ...state.posts[postId], is_liked: liked, likes_count },
+              [postId]: {
+                ...existing,
+                is_liked: liked,
+                likes_count: likes_count != null ? likes_count : existing.likes_count,
+              },
             },
           };
         }
@@ -190,6 +195,19 @@ const entities = (state = initialState, action) => {
         const { postId } = action.payload;
         const { [postId]: _, ...rest } = state.posts;
         return { ...state, posts: rest };
+      }
+
+      case "POST/IMPRESSIONS/SUCCEEDED": {
+        const { postIds } = action.payload;
+        let changed = false;
+        const next = { ...state.posts };
+        for (const id of postIds) {
+          if (next[id]) {
+            next[id] = { ...next[id], impressions_count: (next[id].impressions_count || 0) + 1 };
+            changed = true;
+          }
+        }
+        return changed ? { ...state, posts: next } : state;
       }
     }
 

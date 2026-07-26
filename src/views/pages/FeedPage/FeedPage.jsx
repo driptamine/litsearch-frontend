@@ -28,8 +28,9 @@ const FeedPage = () => {
     impressionQueueRef.current = new Set();
     try {
       await axios.post(`${LITLOOP_API_URL}/posts/impressions/batch/`, { post_ids: ids }, { headers: authHeader() });
+      dispatch({ type: "POST/IMPRESSIONS/SUCCEEDED", payload: { postIds: ids } });
     } catch (_) {}
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     flushTimerRef.current = setInterval(flushImpressions, 3000);
