@@ -1,7 +1,7 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react-swc';
 import wyw from '@wyw-in-js/vite';
-import { visualizer } from 'rollup-plugin-visualizer'
+// import { visualizer } from 'rollup-plugin-visualizer'
 
 function lazyImportTogglePlugin(eager) {
   return {
@@ -96,9 +96,7 @@ export default defineConfig(({ mode }) => {
       }),
       react(),
       lazyImportTogglePlugin(eager),
-      visualizer({
-        open: true,
-      }),
+      // visualizer({ open: true }),
     ],
     resolve: {
       alias: {
