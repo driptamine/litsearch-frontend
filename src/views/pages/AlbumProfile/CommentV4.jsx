@@ -197,7 +197,7 @@ const Collapse = styled.div`
   position: absolute;
 `;
 const Threadline = styled.div`
-  background-color: currentColor;
+  background-color: var(--textColor1);
   opacity: 0.3;
   width: 0.125rem;
   border-radius: 0.5rem;
