@@ -35,7 +35,7 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
   return (
     <StyledComment>
       <LeftBar>
-        <UserPic src={comment.avatar} onError={(e) => { e.target.style.display = 'none'; }} />
+        {!collapsed && <UserPic src={comment.avatar} onError={(e) => { e.target.style.display = 'none'; }} />}
         <Threadline onClick={toggleCollapse} />
       </LeftBar>
 
@@ -130,8 +130,8 @@ const Threadline = styled.div`
 `;
 
 const ShowRepliesWrap = styled.div`
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.45rem;
+  height: 1.45rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,7 +142,7 @@ const ShowRepliesWrap = styled.div`
   border-radius: 50%;
   border: 1px solid var(--textColor2);
   user-select: none;
-  margin-left: -1.75rem;
+  margin-left: -1.7rem;
   flex-shrink: 0;
   background: var(--backgroundColor);
   z-index: 1;
