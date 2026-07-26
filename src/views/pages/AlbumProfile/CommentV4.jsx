@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { styled } from '@linaria/react';
 
+const ShowReplies = ({ show, onClick }) => (
+  <ShowRepliesWrap onClick={onClick}>
+    <ShowRepliesIcon>{show ? '−' : '+'}</ShowRepliesIcon>
+  </ShowRepliesWrap>
+);
+
 const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote }) => {
   const [showReplies, setShowReplies] = useState(true);
   const [replyText, setReplyText] = useState('');
@@ -28,9 +34,6 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
     <StyledComment>
       <LeftBar>
         <UserPic src={comment.avatar} onError={(e) => { e.target.style.display = 'none'; }} />
-        <CollapseBtn onClick={toggleReplies}>
-          {showReplies ? '−' : '+'}
-        </CollapseBtn>
         {showReplies && <Threadline onClick={toggleReplies} />}
       </LeftBar>
 
@@ -40,6 +43,7 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
             <Username>{comment.username || 'Anonymous'}</Username>
             <CommentText>{comment.text}</CommentText>
             <Stats>
+              <ShowReplies show={showReplies} onClick={toggleReplies} />
               <VoteBtn onClick={() => handleVote(-1)} active={vote === -1}>−</VoteBtn>
               <VoteScore>{(comment.score || 0) + vote}</VoteScore>
               <VoteBtn onClick={() => handleVote(1)} active={vote === 1}>+</VoteBtn>
@@ -64,81 +68,40 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
           </CommentContainer>
         )}
 
-        {comment.replies && comment.replies.length > 0 && (
-          <>
-            {showReplies && (
-              <NestedCommentsContainer>
-                {comment.replies.map((reply) => (
-                  <Comment
-                    key={reply.id}
-                    comment={reply}
-                    depth={depth + 1}
-                    onReply={onReply}
-                    replyToId={replyToId}
-                    onSubmitReply={onSubmitReply}
-                  />
-                ))}
-              </NestedCommentsContainer>
-            )}
-          </>
+        {comment.replies && comment.replies.length > 0 && showReplies && (
+          <NestedCommentsContainer>
+            {comment.replies.map((reply) => (
+              <Comment
+                key={reply.id}
+                comment={reply}
+                depth={depth + 1}
+                onReply={onReply}
+                replyToId={replyToId}
+                onSubmitReply={onSubmitReply}
+              />
+            ))}
+          </NestedCommentsContainer>
         )}
       </Right>
     </StyledComment>
-
   );
 };
 
 const StyledComment = styled.div`
   display: flex;
   margin-top: 2em;
-
 `;
 
-const commentContainerStyles = props => `
-  margin-left: ${props.depth > 0 ? 20 : 0}px;
-  padding: 10px 10px 10px ${props.showReplies && props.depth > 0 ? 20 : 0}px;
-`;
-
-const CommentContainer = styled.div`
-  position: relative;
-  ${commentContainerStyles}
-  border: 1px solid grey;
-  width: fit-content;
-`;
-
-// const CommentContainer = styled.div`
-//   position: relative;
-//   margin-left: ${(props) => (props.depth > 0 ? 20 : 0)}px;
-//   padding: 10px 10px 10px ${(props) => (props.showReplies && props.depth > 0 ? 20 : 0)}px;
-//   border-left: ${(props) => (props.showReplies && props.depth > 0 ? '2px solid #ddd' : 'none')};
-//
-// `;
-
-const CommentText = styled.p`
-  margin: 0;
-`;
-
-const Username = styled.span`
-  display: block;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 4px;
-`;
-
-const ToggleButton = styled.button`
+const LeftBar = styled.div`
+  margin-right: 0.125rem;
   display: flex;
-  margin-top: 35px;
-  background-color: transparent;
-  border: none;
-  color: #0073e6;
-  cursor: pointer;
-  font-size: 0.9em;
-
+  flex-direction: column;
+  align-items: center;
 `;
 
-const NestedCommentsContainer = styled.div`
-  margin-top: 10px;
+const Right = styled.div`
+  flex: 1 1 auto;
+  max-width: 100%;
 `;
 
 const UserPic = styled.img`
@@ -147,21 +110,20 @@ const UserPic = styled.img`
   border-radius: 50%;
   display: inline-block;
   object-fit: cover;
-`
-
-
-const LeftBar = styled.div`
-  margin-right: 0.125rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-const Right = styled.div`
-  flex: 1 1 auto;
-  max-width: 100%;
 `;
 
-const CollapseBtn = styled.div`
+const Threadline = styled.div`
+  background-color: var(--textColor1);
+  opacity: 0.3;
+  width: 0.125rem;
+  flex: 1;
+  border-radius: 0.5rem;
+  margin-top: 0.25rem;
+  cursor: pointer;
+  &:hover { opacity: 0.6; }
+`;
+
+const ShowRepliesWrap = styled.div`
   width: 1.25rem;
   height: 1.25rem;
   display: flex;
@@ -175,16 +137,31 @@ const CollapseBtn = styled.div`
   user-select: none;
   &:hover { color: var(--textColor1); }
 `;
-const Threadline = styled.div`
-  background-color: var(--textColor1);
-  opacity: 0.3;
-  width: 0.125rem;
-  flex: 1;
-  border-radius: 0.5rem;
-  margin-top: 0.25rem;
-  cursor: pointer;
-  &:hover { opacity: 0.6; }
+
+const ShowRepliesIcon = styled.span``;
+
+const CommentContainer = styled.div`
+  position: relative;
+  border: 1px solid grey;
+  width: fit-content;
 `;
+
+const CommentText = styled.p`
+  margin: 0;
+`;
+
+const Username = styled.span`
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+`;
+
+const NestedCommentsContainer = styled.div`
+  margin-top: 10px;
+`;
+
 const VoteBtn = styled.button`
   background: none;
   border: none;
@@ -197,6 +174,7 @@ const VoteBtn = styled.button`
   border-radius: 2px;
   &:hover { color: #ff4500; }
 `;
+
 const VoteScore = styled.span`
   font-size: 0.75rem;
   font-weight: 600;
@@ -204,6 +182,7 @@ const VoteScore = styled.span`
   min-width: 1.5em;
   text-align: center;
 `;
+
 const Stats = styled.div`
   display: flex;
   align-items: center;
@@ -219,10 +198,7 @@ const ReplyBtn = styled.button`
   font-size: 0.8rem;
   padding: 2px 8px;
   border-radius: 4px;
-
-  &:hover {
-    background: rgba(26, 115, 232, 0.1);
-  }
+  &:hover { background: rgba(26, 115, 232, 0.1); }
 `;
 
 const ReplyForm = styled.form`
@@ -239,10 +215,7 @@ const ReplyInput = styled.input`
   font-size: 0.9rem;
   outline: none;
   box-sizing: border-box;
-
-  &:focus {
-    border-color: #1a73e8;
-  }
+  &:focus { border-color: #1a73e8; }
 `;
 
 const ReplyActionRow = styled.div`
@@ -259,10 +232,7 @@ const CancelBtn = styled.button`
   cursor: pointer;
   font-size: 0.85rem;
   padding: 4px 12px;
-
-  &:hover {
-    color: var(--text);
-  }
+  &:hover { color: var(--text); }
 `;
 
 const ReplyPostBtn = styled.button`
@@ -274,15 +244,8 @@ const ReplyPostBtn = styled.button`
   font-weight: 600;
   cursor: pointer;
   font-size: 0.85rem;
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: default;
-  }
-
-  &:hover:not(:disabled) {
-    background: #1557b0;
-  }
+  &:disabled { opacity: 0.4; cursor: default; }
+  &:hover:not(:disabled) { background: #1557b0; }
 `;
 
 export default Comment;
