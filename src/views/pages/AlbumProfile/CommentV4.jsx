@@ -3,7 +3,7 @@ import { styled } from '@linaria/react';
 
 const ShowReplies = ({ show, onClick }) => (
   <ShowRepliesWrap onClick={onClick}>
-    <ShowRepliesIcon>{show ? '−' : '+'}</ShowRepliesIcon>
+    <ShowRepliesIcon>{show ? '▾' : '▸'}</ShowRepliesIcon>
   </ShowRepliesWrap>
 );
 
