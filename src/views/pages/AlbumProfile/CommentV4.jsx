@@ -11,6 +11,7 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
   const [collapsed, setCollapsed] = useState(false);
   const [showReplies, setShowReplies] = useState(true);
   const [replyText, setReplyText] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const [vote, setVote] = useState(0);
 
   const toggleCollapse = () => setCollapsed(c => !c);
@@ -24,12 +25,17 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
 
   const isReplying = replyToId === comment.id;
 
-  const handleReplySubmit = (e) => {
+  const handleReplySubmit = async (e) => {
     e.preventDefault();
     const val = replyText.trim();
     if (!val) return;
-    onSubmitReply(val, comment.id);
-    setReplyText('');
+    setSubmitting(true);
+    try {
+      await onSubmitReply(val, comment.id);
+      setReplyText('');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -68,7 +74,9 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
                 />
                 <ReplyActionRow>
                   <CancelBtn type="button" onClick={() => onReply(null)}>Cancel</CancelBtn>
-                  <ReplyPostBtn type="submit" disabled={!replyText.trim()}>Reply</ReplyPostBtn>
+                  <ReplyPostBtn type="submit" disabled={!replyText.trim() || submitting}>
+                    {submitting ? <Spinner /> : 'Reply'}
+                  </ReplyPostBtn>
                 </ReplyActionRow>
               </ReplyForm>
             )}
@@ -271,8 +279,22 @@ const ReplyPostBtn = styled.button`
   font-weight: 600;
   cursor: pointer;
   font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.5rem;
   &:disabled { opacity: 0.4; cursor: default; }
   &:hover:not(:disabled) { background: #1557b0; }
+`;
+
+const Spinner = styled.span`
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  @keyframes spin { to { transform: rotate(360deg); } }
 `;
 
 export default Comment;
