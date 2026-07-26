@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import { styled } from '@linaria/react';
-import { FullScreenIcon } from 'views/components/Sidebar/Icons';
 
-const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply }) => {
+const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote }) => {
   const [showReplies, setShowReplies] = useState(true);
   const [replyText, setReplyText] = useState('');
+  const [vote, setVote] = useState(0);
 
-  const toggleReplies = () => {
-    setShowReplies(!showReplies);
+  const toggleReplies = () => setShowReplies(!showReplies);
+
+  const handleVote = (dir) => {
+    const next = vote === dir ? 0 : dir;
+    setVote(next);
+    onVote?.(comment.id, next);
   };
 
   const isReplying = replyToId === comment.id;
@@ -23,21 +27,11 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply }) => {
   return (
     <StyledComment>
       <LeftBar>
-        <UserPic src={comment.avatar} onError={(e) => { e.target.style.display = 'none'; }} /> 
-        {showReplies ? (
-          <>
-            <Collapse onClick={toggleReplies}>
-              <Threadline />
-            </Collapse>
-          </>
-        ) : (
-          <>
-            <Collapse onClick={toggleReplies}>
-              <FullScreenIcon />
-            </Collapse>
-          </>
-        )}
-
+        <UserPic src={comment.avatar} onError={(e) => { e.target.style.display = 'none'; }} />
+        <CollapseBtn onClick={toggleReplies}>
+          {showReplies ? '−' : '+'}
+        </CollapseBtn>
+        {showReplies && <Threadline />}
       </LeftBar>
 
       <Right>
@@ -46,8 +40,9 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply }) => {
             <Username>{comment.username || 'Anonymous'}</Username>
             <CommentText>{comment.text}</CommentText>
             <Stats>
-              <Like />
-              <Dislike />
+              <VoteBtn onClick={() => handleVote(-1)} active={vote === -1}>−</VoteBtn>
+              <VoteScore>{(comment.score || 0) + vote}</VoteScore>
+              <VoteBtn onClick={() => handleVote(1)} active={vote === 1}>+</VoteBtn>
               {onReply && (
                 <ReplyBtn onClick={() => onReply(comment.id)}>Reply</ReplyBtn>
               )}
@@ -146,20 +141,6 @@ const NestedCommentsContainer = styled.div`
   margin-top: 10px;
 `;
 
-const Minus = styled.div`
-  height: 25px;
-  width: 25px;
-  background-color: white;
-  border-radius: 50%;
-  display: inline-block;
-`
-const Plus = styled.div`
-  height: 25px;
-  width: 25px;
-  background-color: white;
-  border-radius: 50%;
-  display: inline-block;
-`
 const UserPic = styled.img`
   height: 25px;
   width: 25px;
@@ -171,53 +152,55 @@ const UserPic = styled.img`
 
 const LeftBar = styled.div`
   margin-right: 0.125rem;
-  font-size: 1rem;
-  text-align: center;
-  position: relative;
-  /* display: flex; */
+  display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
 `;
 const Right = styled.div`
   flex: 1 1 auto;
   max-width: 100%;
 `;
 
-const Collapse = styled.div`
-  height: 100%;
-  margin-left: 10px;
-  width: 1rem;
+const CollapseBtn = styled.div`
+  width: 1.25rem;
+  height: 1.25rem;
   display: flex;
+  align-items: center;
   justify-content: center;
   cursor: pointer;
-  :hover > * {
-    opacity: 0.5;
-  }
-  position: absolute;
+  color: var(--textColor2);
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 2px;
+  user-select: none;
+  &:hover { color: var(--textColor1); }
 `;
 const Threadline = styled.div`
   background-color: var(--textColor1);
   opacity: 0.3;
   width: 0.125rem;
+  flex: 1;
   border-radius: 0.5rem;
   margin-top: 0.25rem;
-  margin-bottom: 0.25rem;
-
 `;
-const Like = styled.div`
-  border-radius: 25px;
-  background: green;
-
-  width: 30px;
-  height: 20px;
+const VoteBtn = styled.button`
+  background: none;
+  border: none;
+  color: ${p => p.active ? '#ff4500' : 'var(--textColor2)'};
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  border-radius: 2px;
+  &:hover { color: #ff4500; }
 `;
-const Dislike = styled.div`
-  border-radius: 25px;
-  background: purple;
-
-  width: 30px;
-  height: 20px;
+const VoteScore = styled.span`
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--textColor1);
+  min-width: 1.5em;
+  text-align: center;
 `;
 const Stats = styled.div`
   display: flex;
