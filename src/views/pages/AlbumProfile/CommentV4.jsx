@@ -41,7 +41,7 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
 
       {collapsed ? (
         <CollapsedRow onClick={toggleCollapse}>
-          <ShowReplies show={false} onClick={toggleCollapse} />
+          <ShowReplies show={false} />
           <CollapsedText>{comment.username || 'Anonymous'} — {comment.text}</CollapsedText>
         </CollapsedRow>
       ) : (
