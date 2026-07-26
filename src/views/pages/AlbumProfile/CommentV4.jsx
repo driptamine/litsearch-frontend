@@ -37,6 +37,7 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
       <LeftBar>
         <UserPic src={comment.avatar} onError={(e) => { e.target.style.display = 'none'; }} />
         <ThreadlineRow>
+          <Threadline onClick={toggleCollapse} />
           <ShowReplies show={showReplies} onClick={toggleReplies} />
           <Threadline onClick={toggleCollapse} />
         </ThreadlineRow>
@@ -134,7 +135,6 @@ const Threadline = styled.div`
   width: 0.125rem;
   flex: 1;
   border-radius: 0.5rem;
-  margin-top: 0.25rem;
   cursor: pointer;
   &:hover { opacity: 0.6; }
 `;
