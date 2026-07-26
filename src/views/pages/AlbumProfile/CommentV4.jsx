@@ -36,11 +36,7 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
     <StyledComment>
       <LeftBar>
         <UserPic src={comment.avatar} onError={(e) => { e.target.style.display = 'none'; }} />
-        <ThreadlineRow>
-          <Threadline onClick={toggleCollapse} />
-          <ShowReplies show={showReplies} onClick={toggleReplies} />
-          <Threadline onClick={toggleCollapse} />
-        </ThreadlineRow>
+        <Threadline onClick={toggleCollapse} />
       </LeftBar>
 
       {collapsed ? (
@@ -54,6 +50,7 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
             <Username>{comment.username || 'Anonymous'}</Username>
             <CommentText>{comment.text}</CommentText>
             <Stats>
+              <ShowReplies show={showReplies} onClick={toggleReplies} />
               <VoteBtn onClick={() => handleVote(-1)} active={vote === -1}>−</VoteBtn>
               <VoteScore>{(comment.score || 0) + vote}</VoteScore>
               <VoteBtn onClick={() => handleVote(1)} active={vote === 1}>+</VoteBtn>
@@ -122,13 +119,6 @@ const UserPic = styled.img`
   object-fit: cover;
 `;
 
-const ThreadlineRow = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-`;
-
 const Threadline = styled.div`
   background-color: var(--textColor1);
   opacity: 0.3;
@@ -152,6 +142,10 @@ const ShowRepliesWrap = styled.div`
   border-radius: 50%;
   border: 1px solid var(--textColor2);
   user-select: none;
+  margin-left: -1.75rem;
+  flex-shrink: 0;
+  background: var(--backgroundColor);
+  z-index: 1;
   &:hover { color: var(--textColor1); border-color: var(--textColor1); }
 `;
 
