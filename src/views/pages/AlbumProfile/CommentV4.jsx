@@ -36,7 +36,10 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
     <StyledComment>
       <LeftBar>
         <UserPic src={comment.avatar} onError={(e) => { e.target.style.display = 'none'; }} />
-        {!collapsed && <Threadline onClick={toggleCollapse} />}
+        <ThreadlineRow>
+          <ShowReplies show={showReplies} onClick={toggleReplies} />
+          <Threadline onClick={toggleCollapse} />
+        </ThreadlineRow>
       </LeftBar>
 
       {collapsed ? (
@@ -50,7 +53,6 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
             <Username>{comment.username || 'Anonymous'}</Username>
             <CommentText>{comment.text}</CommentText>
             <Stats>
-              <ShowReplies show={showReplies} onClick={toggleReplies} />
               <VoteBtn onClick={() => handleVote(-1)} active={vote === -1}>−</VoteBtn>
               <VoteScore>{(comment.score || 0) + vote}</VoteScore>
               <VoteBtn onClick={() => handleVote(1)} active={vote === 1}>+</VoteBtn>
@@ -117,6 +119,13 @@ const UserPic = styled.img`
   border-radius: 50%;
   display: inline-block;
   object-fit: cover;
+`;
+
+const ThreadlineRow = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
 `;
 
 const Threadline = styled.div`
