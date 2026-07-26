@@ -38,35 +38,33 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
       </LeftBar>
 
       <Right>
-        {showReplies && (
-          <CommentContainer>
-            <Username>{comment.username || 'Anonymous'}</Username>
-            <CommentText>{comment.text}</CommentText>
-            <Stats>
-              <ShowReplies show={showReplies} onClick={toggleReplies} />
-              <VoteBtn onClick={() => handleVote(-1)} active={vote === -1}>−</VoteBtn>
-              <VoteScore>{(comment.score || 0) + vote}</VoteScore>
-              <VoteBtn onClick={() => handleVote(1)} active={vote === 1}>+</VoteBtn>
-              {onReply && (
-                <ReplyBtn onClick={() => onReply(comment.id)}>Reply</ReplyBtn>
-              )}
-            </Stats>
-            {isReplying && (
-              <ReplyForm onSubmit={handleReplySubmit}>
-                <ReplyInput
-                  autoFocus
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  placeholder="Write a reply..."
-                />
-                <ReplyActionRow>
-                  <CancelBtn type="button" onClick={() => onReply(null)}>Cancel</CancelBtn>
-                  <ReplyPostBtn type="submit" disabled={!replyText.trim()}>Reply</ReplyPostBtn>
-                </ReplyActionRow>
-              </ReplyForm>
+        <CommentContainer>
+          <Username>{comment.username || 'Anonymous'}</Username>
+          <CommentText>{comment.text}</CommentText>
+          <Stats>
+            <ShowReplies show={showReplies} onClick={toggleReplies} />
+            <VoteBtn onClick={() => handleVote(-1)} active={vote === -1}>−</VoteBtn>
+            <VoteScore>{(comment.score || 0) + vote}</VoteScore>
+            <VoteBtn onClick={() => handleVote(1)} active={vote === 1}>+</VoteBtn>
+            {onReply && (
+              <ReplyBtn onClick={() => onReply(comment.id)}>Reply</ReplyBtn>
             )}
-          </CommentContainer>
-        )}
+          </Stats>
+          {isReplying && (
+            <ReplyForm onSubmit={handleReplySubmit}>
+              <ReplyInput
+                autoFocus
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                placeholder="Write a reply..."
+              />
+              <ReplyActionRow>
+                <CancelBtn type="button" onClick={() => onReply(null)}>Cancel</CancelBtn>
+                <ReplyPostBtn type="submit" disabled={!replyText.trim()}>Reply</ReplyPostBtn>
+              </ReplyActionRow>
+            </ReplyForm>
+          )}
+        </CommentContainer>
 
         {comment.replies && comment.replies.length > 0 && showReplies && (
           <NestedCommentsContainer>
