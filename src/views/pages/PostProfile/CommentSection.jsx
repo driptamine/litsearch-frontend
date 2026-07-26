@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { styled } from '@linaria/react';
+import CommentV3 from 'views/pages/AlbumProfile/CommentV3';
 import CommentV4 from 'views/pages/AlbumProfile/CommentV4';
+import CommentV5 from 'views/pages/AlbumProfile/CommentV5';
 import { fetchPostComments, createPostComment } from './postCommentsApi';
 
 const buildTree = (flat) => {
@@ -23,6 +25,7 @@ const CommentSection = ({ postId }) => {
   const [comments, setComments] = useState([]);
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [replyToId, setReplyToId] = useState(null);
 
   useEffect(() => {
@@ -38,11 +41,13 @@ const CommentSection = ({ postId }) => {
     e.preventDefault();
     const val = text.trim();
     if (!val) return;
+    setSubmitting(true);
     try {
       const saved = await createPostComment(postId, val);
       setComments((prev) => [...prev, saved]);
       setText('');
     } catch {}
+    setSubmitting(false);
   };
 
   const handleReplySubmit = async (val, parentId) => {
@@ -64,7 +69,9 @@ const CommentSection = ({ postId }) => {
           onChange={(e) => setText(e.target.value)}
           placeholder="Write a comment..."
         />
-        <Button type="submit" disabled={!text.trim()}>Post</Button>
+        <Button type="submit" disabled={!text.trim() || submitting}>
+          {submitting ? <Spinner /> : 'Post'}
+        </Button>
       </Form>
       {loading ? (
         <p style={{ color: '#888' }}>Loading comments...</p>
@@ -133,6 +140,19 @@ const Button = styled.button`
 
   &:hover:not(:disabled) {
     background: #1557b0;
+  }
+`;
+
+const Spinner = styled.div`
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 `;
 
