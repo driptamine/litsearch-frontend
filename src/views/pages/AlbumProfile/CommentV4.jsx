@@ -140,9 +140,10 @@ const ShowRepliesWrap = styled.div`
   color: var(--textColor2);
   font-size: 1rem;
   font-weight: 700;
-  border-radius: 2px;
+  border-radius: 50%;
+  border: 1px solid var(--textColor2);
   user-select: none;
-  &:hover { color: var(--textColor1); }
+  &:hover { color: var(--textColor1); border-color: var(--textColor1); }
 `;
 
 const ShowRepliesIcon = styled.span``;
