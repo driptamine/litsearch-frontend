@@ -8,11 +8,13 @@ const ShowReplies = ({ show, onClick }) => (
 );
 
 const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote }) => {
+  const [collapsed, setCollapsed] = useState(false);
   const [showReplies, setShowReplies] = useState(true);
   const [replyText, setReplyText] = useState('');
   const [vote, setVote] = useState(0);
 
-  const toggleReplies = () => setShowReplies(!showReplies);
+  const toggleCollapse = () => setCollapsed(c => !c);
+  const toggleReplies = () => setShowReplies(s => !s);
 
   const handleVote = (dir) => {
     const next = vote === dir ? 0 : dir;
@@ -34,53 +36,60 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
     <StyledComment>
       <LeftBar>
         <UserPic src={comment.avatar} onError={(e) => { e.target.style.display = 'none'; }} />
-        {showReplies && <Threadline onClick={toggleReplies} />}
+        {!collapsed && <Threadline onClick={toggleCollapse} />}
       </LeftBar>
 
-      <Right>
-        <CommentContainer>
-          <Username>{comment.username || 'Anonymous'}</Username>
-          <CommentText>{comment.text}</CommentText>
-          <Stats>
-            <ShowReplies show={showReplies} onClick={toggleReplies} />
-            <VoteBtn onClick={() => handleVote(-1)} active={vote === -1}>−</VoteBtn>
-            <VoteScore>{(comment.score || 0) + vote}</VoteScore>
-            <VoteBtn onClick={() => handleVote(1)} active={vote === 1}>+</VoteBtn>
-            {onReply && (
-              <ReplyBtn onClick={() => onReply(comment.id)}>Reply</ReplyBtn>
+      {collapsed ? (
+        <CollapsedRow onClick={toggleCollapse}>
+          <ShowReplies show={false} onClick={toggleCollapse} />
+          <CollapsedText>{comment.username || 'Anonymous'} — {comment.text}</CollapsedText>
+        </CollapsedRow>
+      ) : (
+        <Right>
+          <CommentContainer>
+            <Username>{comment.username || 'Anonymous'}</Username>
+            <CommentText>{comment.text}</CommentText>
+            <Stats>
+              <ShowReplies show={showReplies} onClick={toggleReplies} />
+              <VoteBtn onClick={() => handleVote(-1)} active={vote === -1}>−</VoteBtn>
+              <VoteScore>{(comment.score || 0) + vote}</VoteScore>
+              <VoteBtn onClick={() => handleVote(1)} active={vote === 1}>+</VoteBtn>
+              {onReply && (
+                <ReplyBtn onClick={() => onReply(comment.id)}>Reply</ReplyBtn>
+              )}
+            </Stats>
+            {isReplying && (
+              <ReplyForm onSubmit={handleReplySubmit}>
+                <ReplyInput
+                  autoFocus
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder="Write a reply..."
+                />
+                <ReplyActionRow>
+                  <CancelBtn type="button" onClick={() => onReply(null)}>Cancel</CancelBtn>
+                  <ReplyPostBtn type="submit" disabled={!replyText.trim()}>Reply</ReplyPostBtn>
+                </ReplyActionRow>
+              </ReplyForm>
             )}
-          </Stats>
-          {isReplying && (
-            <ReplyForm onSubmit={handleReplySubmit}>
-              <ReplyInput
-                autoFocus
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                placeholder="Write a reply..."
-              />
-              <ReplyActionRow>
-                <CancelBtn type="button" onClick={() => onReply(null)}>Cancel</CancelBtn>
-                <ReplyPostBtn type="submit" disabled={!replyText.trim()}>Reply</ReplyPostBtn>
-              </ReplyActionRow>
-            </ReplyForm>
-          )}
-        </CommentContainer>
+          </CommentContainer>
 
-        {comment.replies && comment.replies.length > 0 && showReplies && (
-          <NestedCommentsContainer>
-            {comment.replies.map((reply) => (
-              <Comment
-                key={reply.id}
-                comment={reply}
-                depth={depth + 1}
-                onReply={onReply}
-                replyToId={replyToId}
-                onSubmitReply={onSubmitReply}
-              />
-            ))}
-          </NestedCommentsContainer>
-        )}
-      </Right>
+          {comment.replies && comment.replies.length > 0 && showReplies && (
+            <NestedCommentsContainer>
+              {comment.replies.map((reply) => (
+                <Comment
+                  key={reply.id}
+                  comment={reply}
+                  depth={depth + 1}
+                  onReply={onReply}
+                  replyToId={replyToId}
+                  onSubmitReply={onSubmitReply}
+                />
+              ))}
+            </NestedCommentsContainer>
+          )}
+        </Right>
+      )}
     </StyledComment>
   );
 };
@@ -158,6 +167,22 @@ const Username = styled.span`
 
 const NestedCommentsContainer = styled.div`
   margin-top: 10px;
+`;
+
+const CollapsedRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 0;
+`;
+
+const CollapsedText = styled.span`
+  font-size: 0.8rem;
+  color: var(--textColor2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const VoteBtn = styled.button`
