@@ -113,22 +113,21 @@ const StyledComment = styled.div`
 const LeftBar = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   margin-right: 0.125rem;
 `;
 
 const BranchRow = styled.div`
   display: flex;
   align-items: center;
-  width: 100%;
 `;
 
 const HorizLine = styled.div`
-  flex: 1;
+  width: 1rem;
   height: 0.125rem;
   background-color: var(--textColor1);
   opacity: 0.3;
-  min-width: 0.75rem;
+  flex-shrink: 0;
 `;
 
 const Right = styled.div`
