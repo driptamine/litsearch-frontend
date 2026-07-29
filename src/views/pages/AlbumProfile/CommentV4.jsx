@@ -41,6 +41,7 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
   return (
     <StyledComment>
       <LeftBar>
+        {depth > 0 && <HorizLine />}
         <UserPic src={comment.avatar} onError={(e) => { e.target.style.display = 'none'; }} />
         <Threadline onClick={toggleCollapse} />
       </LeftBar>
@@ -112,6 +113,19 @@ const LeftBar = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  overflow: visible;
+`;
+
+const HorizLine = styled.div`
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  width: 1.5rem;
+  height: 0.125rem;
+  background-color: var(--textColor1);
+  opacity: 0.3;
+  pointer-events: none;
 `;
 
 const Right = styled.div`
