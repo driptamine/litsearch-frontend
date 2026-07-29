@@ -112,6 +112,8 @@ const LeftBar = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-width: 25px;
+  flex-shrink: 0;
 `;
 
 const Right = styled.div`
