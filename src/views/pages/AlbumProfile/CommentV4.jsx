@@ -41,8 +41,10 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
   return (
     <StyledComment>
       <LeftBar>
-        {depth > 0 && <HorizLine />}
-        <UserPic src={comment.avatar} onError={(e) => { e.target.style.display = 'none'; }} />
+        <BranchRow>
+          {depth > 0 && <HorizLine />}
+          <UserPic src={comment.avatar} onError={(e) => { e.target.style.display = 'none'; }} />
+        </BranchRow>
         <Threadline onClick={toggleCollapse} />
       </LeftBar>
 
@@ -109,23 +111,24 @@ const StyledComment = styled.div`
 `;
 
 const LeftBar = styled.div`
-  margin-right: 0.125rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
-  overflow: visible;
+  margin-right: 0.125rem;
+`;
+
+const BranchRow = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
 `;
 
 const HorizLine = styled.div`
-  position: absolute;
-  top: 12px;
-  left: 50%;
-  width: 1.5rem;
+  flex: 1;
   height: 0.125rem;
   background-color: var(--textColor1);
   opacity: 0.3;
-  pointer-events: none;
+  min-width: 0.75rem;
 `;
 
 const Right = styled.div`
