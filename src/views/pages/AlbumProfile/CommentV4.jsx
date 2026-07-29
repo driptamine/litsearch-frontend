@@ -1,12 +1,6 @@
 import React, { useState } from 'react';
 import { styled } from '@linaria/react';
 
-const BRANCH_COLORS = [
-  '#ff4500', '#ff8717', '#ffb000', '#d4af37',
-  '#4caf50', '#2196f3', '#7b68ee', '#e040fb',
-];
-const branchColor = (depth) => BRANCH_COLORS[depth % BRANCH_COLORS.length];
-
 const ShowReplies = ({ show, onClick }) => (
   <ShowRepliesWrap onClick={onClick}>
     <ShowRepliesIcon>{show ? '−' : '+'}</ShowRepliesIcon>
@@ -47,11 +41,8 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
   return (
     <StyledComment>
       <LeftBar>
-        <BranchRow>
-          {depth > 0 && <HorizLine depth={depth} />}
-          <UserPic src={comment.avatar} onError={(e) => { e.target.style.display = 'none'; }} />
-        </BranchRow>
-        <Threadline depth={depth} onClick={toggleCollapse} />
+        <UserPic src={comment.avatar} onError={(e) => { e.target.style.display = 'none'; }} />
+        <Threadline onClick={toggleCollapse} />
       </LeftBar>
 
       {collapsed ? (
@@ -117,23 +108,10 @@ const StyledComment = styled.div`
 `;
 
 const LeftBar = styled.div`
+  margin-right: 0.125rem;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  margin-right: 0.125rem;
-`;
-
-const BranchRow = styled.div`
-  display: flex;
   align-items: center;
-`;
-
-const HorizLine = styled.div`
-  width: 1rem;
-  height: 0.125rem;
-  background-color: ${p => branchColor(p.depth)};
-  opacity: 0.5;
-  flex-shrink: 0;
 `;
 
 const Right = styled.div`
@@ -150,12 +128,13 @@ const UserPic = styled.img`
 `;
 
 const Threadline = styled.div`
-  background-color: ${p => branchColor(p.depth)};
-  opacity: 0.5;
+  background-color: var(--textColor1);
+  opacity: 0.3;
   width: 0.125rem;
   flex: 1;
+  border-radius: 0.5rem;
   cursor: pointer;
-  &:hover { opacity: 0.8; }
+  &:hover { opacity: 0.6; }
 `;
 
 const ShowRepliesWrap = styled.div`
