@@ -15,6 +15,7 @@ import Introduktion from 'views/components/Introduktion';
 import AlbumGenreChip from './AlbumGenreChip';
 import BaseImage from 'views/components/BaseImage';
 import LikeButton from 'views/components/LikeButton/LikeButton';
+import Comment from 'views/components/Comment';
 
 // CORE
 import { selectors } from 'core/reducers/index';
@@ -340,7 +341,7 @@ function AlbumIntroduction({ albumId, handleLikePhoto, handleUnLikePhoto }) {
       commentSection={
         <Section>
           {comments.map((comment) => (
-            <CommentV4 key={comment.id} comment={comment} />
+            <Comment key={comment.id} comment={comment} />
           ))}
         </Section>
       }

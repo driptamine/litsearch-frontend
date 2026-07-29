@@ -9,7 +9,7 @@ import Profile from 'views/components/Profile';
 import VideoIntroduction from 'views/pages/VideoProfile/VideoIntroduction';
 import CustomPlayerV4 from 'views/components/video-player/web/CustomPlayerV4';
 import RecommendedVideo from 'views/components/video-player/web/RecommendedVideo';
-import CommentV4 from 'views/pages/AlbumProfile/CommentV4';
+import Comment from 'views/components/Comment';
 import App from 'views/pages/AlbumProfile/Tree/App';
 import RedditApp from 'views/pages/AlbumProfile/Tree/RedditApp';
 

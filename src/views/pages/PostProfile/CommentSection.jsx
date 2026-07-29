@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { styled } from '@linaria/react';
-import CommentV4 from 'views/pages/AlbumProfile/CommentV4';
+import Comment from 'views/components/Comment';
 import { fetchPostComments, createPostComment } from './postCommentsApi';
 
 const buildTree = (flat) => {
@@ -77,7 +77,7 @@ const CommentSection = ({ postId }) => {
         <p style={{ color: '#888' }}>No comments yet.</p>
       ) : (
         tree.map((c) => (
-          <CommentV4
+          <Comment
             key={c.id}
             comment={c}
             onReply={setReplyToId}

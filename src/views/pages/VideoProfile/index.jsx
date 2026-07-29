@@ -6,7 +6,7 @@ import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader } from 'core/api/rest-helper';
 import VideoIntroduction from './VideoIntroduction';
 import RecommendedVideo from 'views/components/video-player/web/RecommendedVideo';
-import CommentV4 from 'views/pages/AlbumProfile/CommentV4';
+import Comment from 'views/components/Comment';
 import api_dataV2 from 'views/utils/api_data.json';
 import { comments } from 'views/pages/VideoProfile/data/api_data';
 
@@ -49,7 +49,7 @@ function VideoProfile() {
         </MetaRow>
         <p>Comments</p>
         {comments.map((comment) => (
-          <CommentV4 key={comment.id} comment={comment} />
+          <Comment key={comment.id} comment={comment} />
         ))}
       </MainContent>
 

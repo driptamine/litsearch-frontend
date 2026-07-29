@@ -152,7 +152,7 @@ const ShowRepliesWrap = styled.div`
   border-radius: 50%;
   border: 1px solid var(--textColor2);
   user-select: none;
-  margin-left: -1.75rem;
+  margin-left: -1.6rem;
   flex-shrink: 0;
   background: var(--backgroundColor);
   z-index: 1;
