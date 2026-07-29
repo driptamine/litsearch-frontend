@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { styled } from '@linaria/react';
-import CommentV3 from 'views/pages/AlbumProfile/CommentV3';
 import CommentV4 from 'views/pages/AlbumProfile/CommentV4';
-import CommentV5 from 'views/pages/AlbumProfile/CommentV5';
 import { fetchPostComments, createPostComment } from './postCommentsApi';
 
 const buildTree = (flat) => {
