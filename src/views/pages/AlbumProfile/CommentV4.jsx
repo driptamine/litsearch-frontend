@@ -148,7 +148,6 @@ const Threadline = styled.div`
   opacity: 0.3;
   width: 0.125rem;
   flex: 1;
-  border-radius: 0.5rem;
   cursor: pointer;
   &:hover { opacity: 0.6; }
 `;
