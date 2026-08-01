@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import { styled } from '@linaria/react';
 
 const ShowReplies = ({ show, onClick }) => (
@@ -9,7 +9,7 @@ const ShowReplies = ({ show, onClick }) => (
 
 const BranchLine = () => (
   <BranchSvg viewBox="0 0 27 25">
-    <path d="M 0 12.5 L 27 12.5" />
+    <path d="M 1 0 L 1 25 M 1 12 C 1 18 3 20 6 20 L 27 20" />
   </BranchSvg>
 );
 
@@ -26,6 +26,24 @@ const Comment = ({
   const [replyText, setReplyText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [vote, setVote] = useState(0);
+
+  const threadlineRef = useRef(null);
+  const nestedRef = useRef(null);
+
+  useLayoutEffect(() => {
+    const tl = threadlineRef.current;
+    if (!tl) return;
+    const nl = nestedRef.current;
+    if (!nl || nl.children.length === 0) {
+      tl.style.flex = '';
+      tl.style.height = '';
+      return;
+    }
+    const lastTop = nl.children[nl.children.length - 1].getBoundingClientRect().top;
+    const tlTop = tl.getBoundingClientRect().top;
+    tl.style.flex = '0 0 auto';
+    tl.style.height = `${Math.max(lastTop - tlTop, 0)}px`;
+  });
 
   const toggleCollapse = () => setCollapsed(c => !c);
   const toggleReplies = () => setShowReplies(s => !s);
@@ -56,7 +74,7 @@ const Comment = ({
       <LeftBar>
         {depth > 0 && <BranchLine />}
         <UserPic src={comment.avatar} onError={(e) => { e.target.style.display = 'none'; }} />
-        <Threadline onClick={toggleCollapse} />
+        <Threadline ref={threadlineRef} onClick={toggleCollapse} />
       </LeftBar>
 
       {collapsed ? (
@@ -97,7 +115,7 @@ const Comment = ({
           </CommentContainer>
 
           {comment.replies && comment.replies.length > 0 && showReplies && (
-            <NestedCommentsContainer>
+            <NestedCommentsContainer ref={nestedRef}>
               {comment.replies.map((reply) => (
                 <Comment
                   key={reply.id}
@@ -135,9 +153,9 @@ const LeftBar = styled.div`
 const BranchSvg = styled.svg`
   position: absolute;
   top: 0;
-  left: -14px;
-  width: 27px;
-  height: 25px;
+  left: -19px;
+  width: 26px;
+  height: 17px;
   pointer-events: none;
 
   path {
