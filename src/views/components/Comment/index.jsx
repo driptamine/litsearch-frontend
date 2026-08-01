@@ -9,7 +9,7 @@ const ShowReplies = ({ show, onClick }) => (
 
 const BranchLine = () => (
   <BranchSvg viewBox="0 0 27 25">
-    <path d="M 0 12.5 Q 13.5 21 27 12.5" />
+    <path d="M 0 12.5 L 27 12.5" />
   </BranchSvg>
 );
 
