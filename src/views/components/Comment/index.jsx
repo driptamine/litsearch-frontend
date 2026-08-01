@@ -7,7 +7,20 @@ const ShowReplies = ({ show, onClick }) => (
   </ShowRepliesWrap>
 );
 
-const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote }) => {
+const BranchLine = () => (
+  <BranchSvg viewBox="0 0 27 25">
+    <path d="M 0 12.5 Q 13.5 21 27 12.5" />
+  </BranchSvg>
+);
+
+const Comment = ({
+  comment,
+  depth = 0,
+  onReply,
+  replyToId,
+  onSubmitReply,
+  onVote
+}) => {
   const [collapsed, setCollapsed] = useState(false);
   const [showReplies, setShowReplies] = useState(true);
   const [replyText, setReplyText] = useState('');
@@ -41,6 +54,7 @@ const Comment = ({ comment, depth = 0, onReply, replyToId, onSubmitReply, onVote
   return (
     <StyledComment>
       <LeftBar>
+        {depth > 0 && <BranchLine />}
         <UserPic src={comment.avatar} onError={(e) => { e.target.style.display = 'none'; }} />
         <Threadline onClick={toggleCollapse} />
       </LeftBar>
@@ -114,6 +128,25 @@ const LeftBar = styled.div`
   align-items: center;
   min-width: 25px;
   flex-shrink: 0;
+  position: relative;
+  overflow: visible;
+`;
+
+const BranchSvg = styled.svg`
+  position: absolute;
+  top: 0;
+  left: -14px;
+  width: 27px;
+  height: 25px;
+  pointer-events: none;
+
+  path {
+    stroke: var(--textColor1);
+    stroke-width: 2;
+    stroke-linecap: round;
+    fill: none;
+    opacity: 0.5;
+  }
 `;
 
 const Right = styled.div`
