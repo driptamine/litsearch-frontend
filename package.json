@@ -21,6 +21,7 @@
     "immutable": "^4.0.0-rc.14",
     "katex": "^0.17.0",
     "lodash": "^4.17.15",
+    "maplibre-gl": "^6.1.0",
     "marked": "^15.0.12",
     "moment": "^2.29.1",
     "normalizr": "^3.5.0",

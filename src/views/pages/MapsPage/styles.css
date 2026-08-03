@@ -1,0 +1,10 @@
+.litloop-user-marker {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #1d9bf0;
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+  pointer-events: none;
+}

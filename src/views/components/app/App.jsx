@@ -232,6 +232,7 @@ const App = () => {
   const themeMode = theme === 'light' ? lightTheme : darkTheme;
   const isMobile = useDetectMobile();
   const showChatList = pathname.startsWith('/chat');
+  const isMapsPath = pathname === '/maps';
   const isAuthPage = pathname === '/' || pathname === '/login' || pathname === '/signup';
   const showBottomNav = isMobile && !isAuthPage;
 
@@ -262,7 +263,16 @@ const App = () => {
         ) : (
           <ContentWrapper>
             {!isMobile && <Sidebar />}
-            {showChatList ? (
+            {isMapsPath ? (
+              <BaseContainer flush>
+                <ModalRoutes
+                  stopSong={stopSongz}
+                  pauseSong={pauseSongz}
+                  resumeSong={resumeSongz}
+                  audioControl={audioControlz}
+                />
+              </BaseContainer>
+            ) : showChatList ? (
               <BaseContainer isChat={true} >
                 <ChatFlexWrapper>
                   <ModalRoutes
@@ -287,7 +297,7 @@ const App = () => {
         )}
 
         {showBottomNav && <BottomNavbar />}
-        {!/^\/(todo|notes|users)(\/|$)/.test(pathname) && (/^\/[^/]+$/.test(pathname) || pathname.startsWith('/feed')) && (
+        {!/^\/(todo|notes|users|maps)(\/|$)/.test(pathname) && (/^\/[^/]+$/.test(pathname) || pathname.startsWith('/feed')) && (
           isMobile ? (
             <CreateButton to="/create_post">
               <FaPlus size={22} />
