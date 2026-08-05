@@ -134,6 +134,14 @@ export default defineConfig(({ mode }) => {
       },
     },
     envPrefix: ['VITE_', 'TMDB_'],
+    // maplibre-gl locates its worker via `new URL('./maplibre-gl-worker.mjs',
+    // import.meta.url)`. Vite's dep prebundling rewrites import.meta.url to the
+    // .vite/deps copy where the worker file does not exist, breaking the worker
+    // (and all vector-tile loading) in `npm run dev`. Serve it from node_modules
+    // as-is so the relative worker URL resolves.
+    optimizeDeps: {
+      exclude: ['maplibre-gl'],
+    },
     server: {
       host: true,
       port: 3001,
