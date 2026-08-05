@@ -19,6 +19,72 @@ export const TILE_STYLE = {
   layers: [{ id: 'osm-raster', type: 'raster', source: 'osm' }],
 };
 
+// Vector style for /mapsv2 (OpenFreeMap). No API key / registration needed.
+// Note: openmaptiles vector tiles stop at zoom 14; above that MapLibre
+// overzooms the zoom-14 tiles. The host is also prone to connection resets,
+// so /mapsv2 shows a load error instead of falling back to raster.
+export const VECTOR_TILE_STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
+
+// Inline vector style — same tiles as VECTOR_TILE_STYLE_URL but self-contained
+// (own glyphs + a minimal layer set), so nothing depends on the remote style.
+export const VECTOR_TILE_STYLE = {
+  version: 8,
+  glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
+  sources: {
+    openmaptiles: {
+      type: 'vector',
+      url: 'https://tiles.openfreemap.org/planet',
+      maxzoom: 14,
+    },
+  },
+  layers: [
+    { id: 'background', type: 'background', paint: { 'background-color': '#e8eef4' } },
+    {
+      id: 'water',
+      type: 'fill',
+      source: 'openmaptiles',
+      'source-layer': 'water',
+      paint: { 'fill-color': '#9dc3e6' },
+    },
+    {
+      id: 'landcover',
+      type: 'fill',
+      source: 'openmaptiles',
+      'source-layer': 'landcover',
+      paint: { 'fill-color': '#e1e1e1' },
+    },
+    {
+      id: 'road',
+      type: 'line',
+      source: 'openmaptiles',
+      'source-layer': 'transportation',
+      paint: { 'line-color': '#ffffff', 'line-width': ['interpolate', ['linear'], ['zoom'], 5, 1, 18, 6] },
+    },
+    {
+      id: 'place-label',
+      type: 'symbol',
+      source: 'openmaptiles',
+      'source-layer': 'place',
+      layout: {
+        'text-field': ['coalesce', ['get', 'name:en'], ['get', 'name']],
+        'text-font': ['Noto Sans Regular'],
+        'text-size': 12,
+      },
+      paint: { 'text-color': '#333333', 'text-halo-color': '#ffffff', 'text-halo-width': 1 },
+    },
+  ],
+};
+
+// Stable empty array — avoid re-creating a new one per render (would re-run
+// the useMap effect and recreate the map).
+export const NO_VECTOR_SOURCES = [];
+
+// Tile-load errors reaching this count trigger the raster fallback.
+export const TILE_ERROR_THRESHOLD = 6;
+
+export const RASTER_FALLBACK_MESSAGE =
+  'Векторные тайлы недоступны в вашей сети — карта переключена на растровый режим.';
+
 // Almaty, Kazakhstan — [lng, lat] as expected by MapLibre.
 export const ALMATY_CENTER = { lat: 43.222015, lng: 76.851248 };
 export const INITIAL_CENTER = [ALMATY_CENTER.lng, ALMATY_CENTER.lat];

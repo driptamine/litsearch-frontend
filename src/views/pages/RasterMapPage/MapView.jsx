@@ -9,14 +9,21 @@ import LocateButton from './components/LocateButton';
 import StatusBar from './components/StatusBar';
 import ErrorBanner from './components/ErrorBanner';
 
-import { USER_ZOOM } from './constants';
+import { USER_ZOOM, RASTER_FALLBACK_MESSAGE, NO_VECTOR_SOURCES } from './constants';
 import './styles.css';
 
-// Maps page: full-screen MapLibre map (except the Sidebar) centered on Almaty,
-// with live user tracking via navigator.geolocation.watchPosition().
-const MapsPage = () => {
+// Shared map page layout. `style` selects the tile provider: raster OSM
+// (/maps) or OpenFreeMap vector tiles (/mapsv2). `vectorSourceIds` identifies
+// the vector source(s) inside `style` for the fallback watchdog.
+// `enableFallback` controls whether unavailable tiles fall back to OSM raster.
+const MapView = ({ style, vectorSourceIds = NO_VECTOR_SOURCES, enableFallback = true }) => {
   const containerRef = useRef(null);
-  const { map, isLoaded, loadError, reload } = useMap(containerRef);
+  const { map, isLoaded, loadError, isFallback, reload } = useMap(
+    containerRef,
+    style,
+    vectorSourceIds,
+    enableFallback,
+  );
   const { position, status, error, start } = useGeolocation({ autoStart: true });
   const hasCenteredRef = useRef(false);
 
@@ -61,6 +68,9 @@ const MapsPage = () => {
       />
       {error && <ErrorBanner message={error.message} />}
       {!error && loadError && <ErrorBanner message={loadError} onRetry={reload} />}
+      {!error && !loadError && isFallback && (
+        <ErrorBanner message={RASTER_FALLBACK_MESSAGE} tone="info" />
+      )}
     </Root>
   );
 };
@@ -84,4 +94,4 @@ const MapContainer = styled.div`
   background: #1a1a1a;
 `;
 
-export default MapsPage;
+export default MapView;

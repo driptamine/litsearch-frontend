@@ -232,7 +232,7 @@ const App = () => {
   const themeMode = theme === 'light' ? lightTheme : darkTheme;
   const isMobile = useDetectMobile();
   const showChatList = pathname.startsWith('/chat');
-  const isMapsPath = pathname === '/maps';
+  const isMapsPath = pathname === '/maps' || pathname === '/mapsv2';
   const isAuthPage = pathname === '/' || pathname === '/login' || pathname === '/signup';
   const showBottomNav = isMobile && !isAuthPage;
 
@@ -297,7 +297,7 @@ const App = () => {
         )}
 
         {showBottomNav && <BottomNavbar />}
-        {!/^\/(todo|notes|users|maps)(\/|$)/.test(pathname) && (/^\/[^/]+$/.test(pathname) || pathname.startsWith('/feed')) && (
+        {!/^\/(todo|notes|users|maps|mapsv2)(\/|$)/.test(pathname) && (/^\/[^/]+$/.test(pathname) || pathname.startsWith('/feed')) && (
           isMobile ? (
             <CreateButton to="/create_post">
               <FaPlus size={22} />

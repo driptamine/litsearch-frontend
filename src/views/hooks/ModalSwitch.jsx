@@ -78,7 +78,8 @@ const RatingsPage = lazyImport(() => import('views/pages/Ratings'));
 const CreditsPage = lazyImport(() => import('views/pages/Credits'));
 const FYPPage = lazyImport(() => import('views/pages/FYP'));
 const MemePage = lazyImport(() => import('views/pages/MemePage'));
-const MapsPage = lazyImport(() => import('views/pages/MapsPage'));
+const RasterMapPage = lazyImport(() => import('views/pages/RasterMapPage'));
+const VectorMapPage = lazyImport(() => import('views/pages/VectorMapPage'));
 
 const CommunitiesPage = lazyImport(() => import('views/pages/CommunitiesPage/CommunitiesPage'));
 const CommunityDetailPage = lazyImport(() => import('views/pages/CommunitiesPage/CommunityDetailPage'));
@@ -137,7 +138,8 @@ function ModalSwitch({ children, renderModal, stopSong, pauseSong, resumeSong, a
             <Route exact path="/communities/:communityId/:mediaType" component={CommunityDetailPage} />
             <Route exact path="/magazines" component={ModalMagazines} />
             <Route exact path="/albums" component={ModalAlbums} />
-            <Route exact path="/maps" component={MapsPage} />
+            <Route exact path="/maps" component={RasterMapPage} />
+            <Route exact path="/mapsv2" component={VectorMapPage} />
             <Route exact path="/" component={SearchAppp} />
 
             {/* Chat Routes */}

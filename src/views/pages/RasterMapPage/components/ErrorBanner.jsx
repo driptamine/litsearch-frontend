@@ -1,11 +1,12 @@
 import React from 'react';
 import { styled } from '@linaria/react';
 
-// Centered banner for geolocation errors and map-load failures.
-// `onRetry` renders an optional "Повторить" button.
-const ErrorBanner = ({ message, onRetry }) => (
-  <Banner role="alert">
-    <WarningIcon>!</WarningIcon>
+// Centered banner for geolocation errors, map-load failures, and the raster
+// fallback notice. `onRetry` renders an optional "Повторить" button.
+// `tone` is 'error' (default) or 'info' (amber).
+const ErrorBanner = ({ message, onRetry, tone = 'error' }) => (
+  <Banner tone={tone} role="alert">
+    <WarningIcon tone={tone}>!</WarningIcon>
     <Text>{message}</Text>
     {onRetry && <RetryButton onClick={onRetry}>Повторить</RetryButton>}
   </Banner>
@@ -23,7 +24,7 @@ const Banner = styled.div`
   gap: 10px;
   padding: 8px 14px;
   border-radius: 10px;
-  background: rgba(180, 42, 42, 0.92);
+  background: ${({ tone }) => (tone === 'info' ? 'rgba(150, 110, 20, 0.95)' : 'rgba(180, 42, 42, 0.92)')};
   color: #fff;
   font-size: 13px;
   font-family: Helvetica, Arial, sans-serif;
@@ -36,7 +37,7 @@ const WarningIcon = styled.span`
   height: 18px;
   border-radius: 50%;
   background: #fff;
-  color: #b42a2a;
+  color: ${({ tone }) => (tone === 'info' ? '#966e14' : '#b42a2a')};
   display: flex;
   align-items: center;
   justify-content: center;

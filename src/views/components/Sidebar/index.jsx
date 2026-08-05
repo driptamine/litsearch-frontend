@@ -7,7 +7,7 @@ import axios from 'axios';
 import { HomeIcon, TrendingIcon, SubIcon, LibIcon, HistoryIcon, VidIcon, LikeIcon, EarthIcon } from './Icons';
 import { FiClock, FiBookmark, FiMessageCircle } from 'react-icons/fi';
 import { FaFilm, FaUsers } from 'react-icons/fa';
-import { FaMusic, FaImage, FaRocket, FaMapMarkedAlt } from 'react-icons/fa';
+import { FaMusic, FaImage, FaRocket, FaMapMarkedAlt, FaVectorSquare } from 'react-icons/fa';
 
 import { TbMessageCircle } from 'react-icons/tb';
 import { FaHistory, FaWpexplorer } from 'react-icons/fa';
@@ -78,6 +78,15 @@ const Sidebar = () => {
               <FaMapMarkedAlt />
             </StyledDivIcon>
             <span>Maps</span>
+          </LinkStyled>
+        </StyledLi>
+
+        <StyledLi id="MapsV2">
+          <LinkStyled to="/mapsv2">
+            <StyledDivIcon className="icon">
+              <FaVectorSquare />
+            </StyledDivIcon>
+            <span>Maps V2</span>
           </LinkStyled>
         </StyledLi>
 

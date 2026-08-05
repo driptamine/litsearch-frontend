@@ -1,7 +1,34 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react-swc';
 import wyw from '@wyw-in-js/vite';
+import { readFileSync } from 'node:fs';
 // import { visualizer } from 'rollup-plugin-visualizer'
+
+// maplibre-gl builds its worker URL dynamically
+// (`new URL('./maplibre-gl-worker.mjs', import.meta.url)`), which bundlers
+// cannot statically detect, so the worker asset is never emitted. Without it
+// the map silently fails to request ANY tiles in the production build. Emit
+// the worker AND its imported module (`maplibre-gl-shared.mjs`) next to the
+// bundled chunks so the relative URLs resolve.
+function emitMaplibreWorker() {
+  return {
+    name: 'emit-maplibre-worker',
+    apply: 'build',
+    generateBundle() {
+      for (const file of ['maplibre-gl-worker.mjs', 'maplibre-gl-shared.mjs']) {
+        const source = readFileSync(
+          new URL(`./node_modules/maplibre-gl/dist/${file}`, import.meta.url),
+          'utf8',
+        );
+        this.emitFile({
+          type: 'asset',
+          fileName: `assets/${file}`,
+          source,
+        });
+      }
+    },
+  }
+}
 
 function lazyImportTogglePlugin(eager) {
   return {
@@ -96,6 +123,7 @@ export default defineConfig(({ mode }) => {
       }),
       react(),
       lazyImportTogglePlugin(eager),
+      emitMaplibreWorker(),
       // visualizer({ open: true }),
     ],
     resolve: {
