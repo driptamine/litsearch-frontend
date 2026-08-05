@@ -8,7 +8,7 @@ import useUserMarker from '../../RasterMapPage/hooks/useUserMarker';
 
 import {
   VECTOR_TILE_STYLE_URL,
-  HOUSENUMBER_LAYER,
+  VECTOR_TILE_STYLE,
   INITIAL_CENTER,
   INITIAL_ZOOM,
   MIN_ZOOM,
@@ -45,16 +45,17 @@ function round(value, digits) {
 }
 
 // The remote liberty style has no housenumber layer (and being remote it can't
-// be edited in place), so it is fetched once, given one, and passed to
-// react-map-gl as a style object.
+// be edited in place), so it is fetched once, given one (from VECTOR_TILE_STYLE),
+// and passed to react-map-gl as a style object.
 async function loadVectorStyle() {
   const res = await fetch(VECTOR_TILE_STYLE_URL);
   if (!res.ok) {
     throw new Error(`Failed to load map style (${res.status})`);
   }
   const style = await res.json();
-  if (!style.layers.some((layer) => layer.id === HOUSENUMBER_LAYER.id)) {
-    style.layers = [...style.layers, HOUSENUMBER_LAYER];
+  const housenumberLayer = VECTOR_TILE_STYLE.layers.find((layer) => layer.id === 'housenumber');
+  if (housenumberLayer && !style.layers.some((layer) => layer.id === 'housenumber')) {
+    style.layers = [...style.layers, housenumberLayer];
   }
   return style;
 }

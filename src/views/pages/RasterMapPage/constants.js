@@ -72,29 +72,25 @@ export const VECTOR_TILE_STYLE = {
       },
       paint: { 'text-color': '#333333', 'text-halo-color': '#ffffff', 'text-halo-width': 1 },
     },
+    {
+      id: 'housenumber',
+      type: 'symbol',
+      source: 'openmaptiles',
+      'source-layer': 'housenumber',
+      minzoom: 16,
+      layout: {
+        'text-field': ['get', 'housenumber'],
+        'text-font': ['Noto Sans Regular'],
+        'text-size': 11,
+        'text-optional': true,
+      },
+      paint: {
+        'text-color': '#333333',
+        'text-halo-color': '#ffffff',
+        'text-halo-width': 1.2,
+      },
+    },
   ],
-};
-
-// House/building numbers (OSM addr:housenumber -> the "housenumber"
-// source-layer of the OpenMapTiles schema). Shown from zoom 16 so the numbers
-// don't clutter lower zoom levels; the data only exists in zoom >= 14 tiles.
-export const HOUSENUMBER_LAYER = {
-  id: 'housenumber',
-  type: 'symbol',
-  source: 'openmaptiles',
-  'source-layer': 'housenumber',
-  minzoom: 16,
-  layout: {
-    'text-field': ['get', 'housenumber'],
-    'text-font': ['Noto Sans Regular'],
-    'text-size': 11,
-    'text-optional': true,
-  },
-  paint: {
-    'text-color': '#333333',
-    'text-halo-color': '#ffffff',
-    'text-halo-width': 1.2,
-  },
 };
 
 // Stable empty array — avoid re-creating a new one per render (would re-run
