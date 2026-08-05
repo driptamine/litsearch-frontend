@@ -8,6 +8,7 @@ import useUserMarker from '../../RasterMapPage/hooks/useUserMarker';
 
 import {
   VECTOR_TILE_STYLE_URL,
+  HOUSENUMBER_LAYER,
   INITIAL_CENTER,
   INITIAL_ZOOM,
   MIN_ZOOM,
@@ -43,6 +44,21 @@ function round(value, digits) {
   return Math.round(value * factor) / factor;
 }
 
+// The remote liberty style has no housenumber layer (and being remote it can't
+// be edited in place), so it is fetched once, given one, and passed to
+// react-map-gl as a style object.
+async function loadVectorStyle() {
+  const res = await fetch(VECTOR_TILE_STYLE_URL);
+  if (!res.ok) {
+    throw new Error(`Failed to load map style (${res.status})`);
+  }
+  const style = await res.json();
+  if (!style.layers.some((layer) => layer.id === HOUSENUMBER_LAYER.id)) {
+    style.layers = [...style.layers, HOUSENUMBER_LAYER];
+  }
+  return style;
+}
+
 // Vector map built on react-map-gl/maplibre (declarative wrapper around
 // MapLibre). Returns the Map component + props for the page to render, plus
 // the loaded maplibre instance and geolocation state, mirroring the imperative
@@ -54,6 +70,7 @@ export default function useVectorMap() {
   const [map, setMap] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [loadError, setLoadError] = useState(null);
+  const [style, setStyle] = useState(null);
   const hasCenteredRef = useRef(false);
 
   // Read once on mount — the URL only seeds the initial camera; afterwards the
@@ -66,6 +83,25 @@ export default function useVectorMap() {
     : DEFAULT_VIEW_STATE;
 
   const { position, status, error, start } = useGeolocation({ autoStart: true });
+
+  useEffect(() => {
+    let cancelled = false;
+    loadVectorStyle()
+      .then((loaded) => {
+        if (cancelled) return;
+        setStyle(loaded);
+        setLoadError(null);
+      })
+      .catch((err) => {
+        console.error('[VectorMapPage] style load failed:', err);
+        if (!cancelled) {
+          setLoadError('Не удалось загрузить карту. Проверьте подключение к интернету и обновите страницу.');
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const onLoad = useCallback((evt) => {
     setMap(evt.target);
@@ -125,7 +161,7 @@ export default function useVectorMap() {
     Map,
     mapProps: {
       ref: mapRef,
-      mapStyle: VECTOR_TILE_STYLE_URL,
+      mapStyle: style,
       initialViewState,
       minZoom: MIN_ZOOM,
       maxZoom: MAX_ZOOM,
