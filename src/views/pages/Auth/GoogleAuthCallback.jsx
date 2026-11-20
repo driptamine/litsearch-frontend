@@ -2,13 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 
 import { GOOGLE_CALLBACK_URL, LITLOOP_API_URL } from 'core/constants/urls';
-import { saveAuthCookies } from 'core/utils/authCookies';
+import { googleSignInCookie, googleSignInResultKey, saveAuthCookies } from 'core/utils/authCookies';
 import Alert from 'views/pages/Alert';
 import LoadingIndicatorz from 'views/pages/LoadingIndicatorz';
 import { AddCookie, getCookie, RemoveCookie } from 'views/utils';
 
 const GoogleAuthCallback = () => {
   const [error, setError] = useState('');
+  const [signedIn, setSignedIn] = useState(false);
   const started = useRef(false);
 
   useEffect(() => {
@@ -18,11 +19,11 @@ const GoogleAuthCallback = () => {
     const completeSignIn = async () => {
       const params = new URLSearchParams(window.location.search);
       const state = params.get('state');
-      if (!state || state !== getCookie('Google-myState')) {
+      if (!state || !/^[0-9a-f-]{36}$/.test(state) || getCookie(googleSignInCookie(state)) !== 'pending') {
         setError('This sign-in request expired. Start a new Google sign-in.');
         return;
       }
-      RemoveCookie('Google-myState');
+      RemoveCookie(googleSignInCookie(state));
 
       const code = params.get('code');
       if (params.has('error') || !code) {
@@ -41,25 +42,12 @@ const GoogleAuthCallback = () => {
           return;
         }
 
-        const session = {
-          service: 'google',
-          access_token: access,
-          refresh_token: refresh,
-          username: user.username,
-          avatar: user.avatar,
-          email: user.email,
-          userId: user.id,
-        };
         AddCookie('Google-access_token', access);
         AddCookie('Google-refresh_token', refresh);
-
-        if (window.opener && !window.opener.closed) {
-          window.opener.postMessage(session, window.location.origin);
-          window.close();
-        } else {
-          saveAuthCookies(session);
-          window.location.replace('/feed');
-        }
+        saveAuthCookies({ access, refresh });
+        window.localStorage.setItem(googleSignInResultKey(state), JSON.stringify({ id: user.id, username: user.username, avatar: user.avatar }));
+        setSignedIn(true);
+        window.setTimeout(() => window.close(), 300);
       } catch (requestError) {
         const message = requestError.response?.data?.error;
         setError(typeof message === 'string' ? message : 'Could not complete Google sign-in. Try again.');
@@ -71,6 +59,9 @@ const GoogleAuthCallback = () => {
 
   if (error) {
     return <Alert type="error" title="Google sign-in failed" message={error} />;
+  }
+  if (signedIn) {
+    return <Alert type="success" title="Signed in to LitLoop" message="You can close this window." />;
   }
 
   return (

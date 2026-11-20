@@ -2,6 +2,10 @@ import { AddCookie, RemoveCookie, getCookie } from '../../views/utils';
 
 const COOKIE_OPTIONS = { 'max-age': 86400 * 30 };
 
+export const GOOGLE_SIGN_IN_STATE_KEY = 'litloop-google-sign-in';
+export const googleSignInCookie = (state) => `Google-myState-${state}`;
+export const googleSignInResultKey = (state) => `litloop-google-sign-in-result:${state}`;
+
 export const saveAuthCookies = (data) => {
   const access_token = data?.access_token || data?.access || data?.token;
   const refresh_token = data?.refresh_token || data?.refresh;

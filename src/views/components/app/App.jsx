@@ -1,6 +1,6 @@
 import React, { useEffect, useContext, useCallback, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { Route, useHistory, useLocation, Link } from 'react-router-dom';
+import { Route, useLocation, Link } from 'react-router-dom';
 import ModalLink from 'views/components/ModalLink';
 import { useDispatch, useSelector } from 'react-redux';
 import { RecoilRoot } from 'recoil';
@@ -28,7 +28,6 @@ import {
 } from 'core/actions';
 import { getAuthTokensFromCookies, saveAuthCookies } from 'core/utils/authCookies';
 import useSelectAuthUser from 'core/hooks/useSelectAuthUser';
-import { GoogleContext } from 'views/pages/Auth/google/useToken';
 import { VkContext } from 'views/pages/Auth/vk/useToken';
 import { MusicPlayerContext } from 'views/components/context/MusicPlayerContext';
 import useEventListenerMemo from 'core/hooks2/useEventListenerMemo';
@@ -116,7 +115,6 @@ const AppRoutesContainer = () => {
 
 const App = () => {
   const { pathname } = useLocation();
-  const history = useHistory();
   const dispatch = useDispatch();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -164,10 +162,6 @@ const App = () => {
 
   const { stopSongz, pauseSongz, resumeSongz, audioControlz } = useContext(MusicPlayerContext) || {};
   const {
-    setGoogleAccessToken, setGoogleRefreshToken, setGoogleUsername,
-    setGoogleProfileImage, setGoogleEmail, setGoogleUserId
-  } = useContext(GoogleContext) || {};
-  const {
     setVkAccessToken, setVkRefreshToken, setVkUsername,
     setVkProfileImage, setVkEmail, setVkUserId
   } = useContext(VkContext) || {};
@@ -177,40 +171,20 @@ const App = () => {
   useEventListenerMemo('message', receiveMessage, window, true, { capture: false });
 
   function receiveMessage(e) {
-    if (e.origin === window.location.origin && e.data?.access_token && e.data?.service) {
-      const { service, access_token, refresh_token, username, userId, email } = e.data;
-      const profileImg = e.data.profileImg || e.data.profile_img || e.data.picture || e.data.avatar_url || e.data.avatar;
+    if (e.origin !== window.location.origin || e.data?.service !== 'vk' || !e.data.access_token) return;
+    const { access_token, refresh_token, username, userId, email } = e.data;
+    const profileImg = e.data.profileImg || e.data.profile_img || e.data.picture || e.data.avatar_url || e.data.avatar;
+    if (setVkAccessToken) setVkAccessToken(access_token);
+    if (refresh_token && setVkRefreshToken) setVkRefreshToken(refresh_token);
+    if (username && setVkUsername) setVkUsername(username);
+    if (profileImg && setVkProfileImage) setVkProfileImage(profileImg);
+    if (email && setVkEmail) setVkEmail(email);
+    if (userId && setVkUserId) setVkUserId(userId);
 
-      if (service === 'google') {
-        if (access_token && setGoogleAccessToken) setGoogleAccessToken(access_token);
-        if (refresh_token && setGoogleRefreshToken) setGoogleRefreshToken(refresh_token);
-        if (username && setGoogleUsername) setGoogleUsername(username);
-        if (profileImg && setGoogleProfileImage) setGoogleProfileImage(profileImg);
-        if (email && setGoogleEmail) setGoogleEmail(email);
-        if (userId && setGoogleUserId) setGoogleUserId(userId);
-
-        setChildMessage(profileImg);
-
-        saveAuthCookies(e.data);
-        dispatch(fetchOAuthUser({ ...e.data, profileImg }));
-        dispatch(fetchCurrentUser());
-        if (pathname === '/login') history.replace('/feed');
-        if (pathname === '/signup') history.replace('/');
-      } else if (service === 'vk') {
-        if (access_token && setVkAccessToken) setVkAccessToken(access_token);
-        if (refresh_token && setVkRefreshToken) setVkRefreshToken(refresh_token);
-        if (username && setVkUsername) setVkUsername(username);
-        if (profileImg && setVkProfileImage) setVkProfileImage(profileImg);
-        if (email && setVkEmail) setVkEmail(email);
-        if (userId && setVkUserId) setVkUserId(userId);
-
-        setChildMessage(profileImg);
-
-        dispatch(fetchOAuthUser({ ...e.data, profileImg }));
-        dispatch(fetchCurrentUser());
-        saveAuthCookies(e.data);
-      }
-    }
+    setChildMessage(profileImg);
+    dispatch(fetchOAuthUser({ ...e.data, profileImg }));
+    dispatch(fetchCurrentUser());
+    saveAuthCookies(e.data);
   }
 
   const { isSignedIn } = useSelectAuthUser();

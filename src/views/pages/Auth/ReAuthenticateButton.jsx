@@ -1,8 +1,12 @@
 import React, { useContext } from 'react';
+import { useDispatch } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import { styled } from '@linaria/react';
 import uniqid from 'uniqid';
 
 import { FRONTEND_CALLBACK_URL, GOOGLE_CALLBACK_URL } from 'core/constants/urls';
+import { fetchCurrentUser, fetchOAuthUser } from 'core/actions';
+import { GOOGLE_SIGN_IN_STATE_KEY, getAuthTokensFromCookies, googleSignInCookie, googleSignInResultKey } from 'core/utils/authCookies';
 
 import { FaYoutube, FaVk } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
@@ -10,7 +14,7 @@ import { FcGoogle } from 'react-icons/fc';
 import { FiLogOut } from 'react-icons/fi';
 
 import { StyledConnectYoutube, StyledConnectGoogle, StyledConnectContainer, StyledReconnectIcon, } from './StyledComponents';
-import { AddCookie } from 'views/utils';
+import { AddCookie, RemoveCookie } from 'views/utils';
 
 import { YoutubeContext } from './youtube/useToken';
 import { GoogleContext } from './google/useToken';
@@ -27,6 +31,51 @@ const googleAuthParams = new URLSearchParams({
 });
 const GoogleBaseAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?${googleAuthParams}`;
 
+const startGoogleSignIn = (onSignIn) => {
+  const state = window.crypto.randomUUID();
+  const previousState = window.sessionStorage.getItem(GOOGLE_SIGN_IN_STATE_KEY);
+  if (previousState) {
+    RemoveCookie(googleSignInCookie(previousState));
+    window.localStorage.removeItem(googleSignInResultKey(previousState));
+  }
+  const resultKey = googleSignInResultKey(state);
+  const ttlSeconds = 600;
+  const expiresAt = Date.now() + ttlSeconds * 1000;
+  window.sessionStorage.setItem(GOOGLE_SIGN_IN_STATE_KEY, state);
+  AddCookie(googleSignInCookie(state), 'pending', { 'max-age': ttlSeconds });
+
+  const url = new URL(GoogleBaseAuthUrl);
+  url.searchParams.set('state', state);
+  const popup = window.open(url.href, 'Connect Google', 'popup,width=600,height=700,resizable,scrollbars');
+  if (!popup) {
+    RemoveCookie(googleSignInCookie(state));
+    window.sessionStorage.removeItem(GOOGLE_SIGN_IN_STATE_KEY);
+    window.alert('Allow popups for LitLoop to sign in with Google.');
+    return;
+  }
+
+  // Google can detach the popup's opener during its cross-origin redirects.
+  const timer = window.setInterval(() => {
+    if (window.sessionStorage.getItem(GOOGLE_SIGN_IN_STATE_KEY) !== state) {
+      window.clearInterval(timer);
+      return;
+    }
+    if (Date.now() >= expiresAt) {
+      window.clearInterval(timer);
+      window.sessionStorage.removeItem(GOOGLE_SIGN_IN_STATE_KEY);
+      window.localStorage.removeItem(resultKey);
+      return;
+    }
+    const result = window.localStorage.getItem(resultKey);
+    if (!result) return;
+    window.clearInterval(timer);
+    window.sessionStorage.removeItem(GOOGLE_SIGN_IN_STATE_KEY);
+    window.localStorage.removeItem(resultKey);
+    const tokens = getAuthTokensFromCookies();
+    if (tokens) onSignIn(tokens, JSON.parse(result));
+  }, 300);
+};
+
 const VkBaseAuthUrl = `https://oauth.vk.com/authorize?client_id=5390c4f2dd203dcdb31faceaef1878e76d14042e5352eebc33de97850c3ec02e&redirect_uri=${FRONTEND_CALLBACK_URL}/auth/vk/callback&response_type=code&scope=email`;
 
 //to unfollow: scope=https://www.googleapis.com/auth/youtube
@@ -39,9 +88,8 @@ const YoutubeBaseAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?
 
 
 const authenticatePopup = (domain, urlParam) => {
-  const isGoogle = domain === 'Google';
-  const state = isGoogle ? window.crypto.randomUUID() : uniqid();
-  AddCookie(`${domain}-myState`, state, isGoogle ? { 'max-age': 600 } : {});
+  const state = uniqid();
+  AddCookie(`${domain}-myState`, state);
 
   const url = urlParam + `&state=${encodeURIComponent(state)}`;
   const LeftPosition = window.innerWidth ? (window.innerWidth - 700) / 2 : 0;
@@ -49,8 +97,7 @@ const authenticatePopup = (domain, urlParam) => {
   const settings = `height=700,width=600,top=${TopPosition},left=50,scrollbars=yes,resizable`;
 
   try {
-    const popup = window.open(url, `Connect ${domain}`, settings);
-    if (!popup && isGoogle) window.location.assign(url);
+    window.open(url, `Connect ${domain}`, settings);
   } catch (e) {
     alert('Another Authendicate popup window might already be open.');
     console.error('Another Authendicate popup window might already be open.');
@@ -65,11 +112,20 @@ const OAuthBtn = styled.button`
 `;
 
 const ReAuthenticateButton = ({ disconnect, serviceName, style, title: customTitle }) => {
+  const dispatch = useDispatch();
+  const history = useHistory();
   const { youtubeUsername, setYoutubeProfileImage, youtubeAccessToken } = useContext(YoutubeContext) || {};
 
   const { googleUsername, googleProfileImage, googleAccessToken } = useContext(GoogleContext) || {};
 
   const { vkUsername, vkProfileImage, vkAccessToken } = useContext(VkContext) || {};
+
+  const openGooglePopup = () => startGoogleSignIn((tokens, user) => {
+    dispatch(fetchOAuthUser({ ...tokens, service: 'google', userId: user.id, username: user.username, profileImg: user.avatar }));
+    dispatch(fetchCurrentUser());
+    if (history.location.pathname === '/login') history.replace('/feed');
+    if (history.location.pathname === '/signup') history.replace('/');
+  });
 
   const AuthButton = {
     Youtube: !youtubeAccessToken ? (
@@ -108,7 +164,7 @@ const ReAuthenticateButton = ({ disconnect, serviceName, style, title: customTit
         <OAuthBtn
           type="button"
           id='connect'
-          onClick={() => authenticatePopup('Google', `${GoogleBaseAuthUrl}`)}
+          onClick={openGooglePopup}
         >
           <FcGoogle size={24} />
           {customTitle || 'Connect Google'}
@@ -119,7 +175,7 @@ const ReAuthenticateButton = ({ disconnect, serviceName, style, title: customTit
         <div className='username' id='Google'>
           <div
             title='Re-authenticate'
-            onClick={() => authenticatePopup('Google', `${GoogleBaseAuthUrl}`)}
+            onClick={openGooglePopup}
           >
             <StyledReconnectIcon id='reconnectIcon' />
             <img title='Re-authenticate' src={googleProfileImage} alt='' />
