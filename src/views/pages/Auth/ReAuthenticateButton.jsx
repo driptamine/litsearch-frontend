@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { styled } from '@linaria/react';
 import uniqid from 'uniqid';
 
-import { FRONTEND_CALLBACK_URL } from 'core/constants/urls';
+import { FRONTEND_CALLBACK_URL, GOOGLE_CALLBACK_URL } from 'core/constants/urls';
 
 import { FaYoutube, FaVk } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
@@ -19,7 +19,13 @@ import { VkContext } from './vk/useToken';
 import ToolTip from 'views/pages/Auth/tooltip/ToolTip';
 
 
-const GoogleBaseAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=570066117191-b0ob663u6klf2a7v80381h570jsagkqe.apps.googleusercontent.com&redirect_uri=${FRONTEND_CALLBACK_URL}/auth/google/callback&response_type=code&scope=profile email`;
+const googleAuthParams = new URLSearchParams({
+  client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || '570066117191-b0ob663u6klf2a7v80381h570jsagkqe.apps.googleusercontent.com',
+  redirect_uri: GOOGLE_CALLBACK_URL,
+  response_type: 'code',
+  scope: 'openid email profile',
+});
+const GoogleBaseAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?${googleAuthParams}`;
 
 const VkBaseAuthUrl = `https://oauth.vk.com/authorize?client_id=5390c4f2dd203dcdb31faceaef1878e76d14042e5352eebc33de97850c3ec02e&redirect_uri=${FRONTEND_CALLBACK_URL}/auth/vk/callback&response_type=code&scope=email`;
 
@@ -32,20 +38,19 @@ const YoutubeBaseAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?
   access_type=offline`;
 
 
-const authenticatePopup = async (domain, urlParam) => {
-  const generateOrginState = async () => uniqid();
+const authenticatePopup = (domain, urlParam) => {
+  const isGoogle = domain === 'Google';
+  const state = isGoogle ? window.crypto.randomUUID() : uniqid();
+  AddCookie(`${domain}-myState`, state, isGoogle ? { 'max-age': 600 } : {});
 
-  const orginState = await generateOrginState();
-
-  AddCookie(`${domain}-myState`, orginState);
-
-  const url = urlParam + `&state=${orginState}`;
+  const url = urlParam + `&state=${encodeURIComponent(state)}`;
   const LeftPosition = window.innerWidth ? (window.innerWidth - 700) / 2 : 0;
   const TopPosition = window.innerHeight ? (window.innerHeight - 850) / 2 : 0;
   const settings = `height=700,width=600,top=${TopPosition},left=50,scrollbars=yes,resizable`;
 
   try {
-    window.open(url, `Connect ${domain}`, settings);
+    const popup = window.open(url, `Connect ${domain}`, settings);
+    if (!popup && isGoogle) window.location.assign(url);
   } catch (e) {
     alert('Another Authendicate popup window might already be open.');
     console.error('Another Authendicate popup window might already be open.');

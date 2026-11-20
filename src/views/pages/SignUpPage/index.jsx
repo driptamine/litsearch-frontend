@@ -27,7 +27,6 @@ import disconnectYoutube from 'views/pages/Auth/youtube/disconnectYoutube';
 
 // CONTEXT PROVIDER
 import { YoutubeContext } from 'views/pages/Auth/youtube/useToken';
-import { GoogleContext } from 'views/pages/Auth/google/useToken';
 import { VkContext } from 'views/pages/Auth/vk/useToken';
 
 import litloopLogo from 'views/assets/litloopLogo3.png';
@@ -141,37 +140,21 @@ function SignUpForm () {
 
   // const { setTwitchAccessToken, setTwitchRefreshToken, setTwitchUserId, setTwitchUsername, setTwitchProfileImage, } = useContext(TwitchContext) || {};
   // const { setYoutubeAccessToken, setYoutubeRefreshToken, setYoutubeUsername, setYoutubeProfileImage } = useContext(YoutubeContext) || {};
-  const { setGoogleAccessToken, setGoogleRefreshToken, setGoogleUsername, setGoogleProfileImage } = useContext(GoogleContext) || {};
   const { setVkAccessToken, setVkRefreshToken, setVkUsername, setVkProfileImage } = useContext(VkContext) || {};
 
 
 
   function receiveMessage(e) {
-    if (e.origin.startsWith(`${FRONTEND_CALLBACK_URL}`) && e.data?.access_token && e.data?.service) {
-      const { service, access_token, refresh_token, username, userId } = e.data;
-      const profileImg = e.data.profileImg || e.data.profile_img || e.data.picture || e.data.avatar_url || e.data.avatar;
+    if (e.origin !== window.location.origin || e.data?.service !== 'vk' || !e.data.access_token) return;
+    const { access_token, username } = e.data;
+    const profileImg = e.data.profileImg || e.data.profile_img || e.data.picture || e.data.avatar_url || e.data.avatar;
+    if (setVkAccessToken) setVkAccessToken(access_token);
+    if (username && setVkUsername) setVkUsername(username);
+    if (profileImg && setVkProfileImage) setVkProfileImage(profileImg);
 
-      if (service === 'google') {
-        console.log("Receive postMessage GOOGLE TOKEN");
-        console.log(e.data);
-        if (access_token && setGoogleAccessToken) setGoogleAccessToken(access_token);
-        if (username && setGoogleUsername) setGoogleUsername(username);
-        if (profileImg && setGoogleProfileImage) setGoogleProfileImage(profileImg);
-
-        dispatch(fetchOAuthUser({ ...e.data, profileImg }));
-        dispatch(fetchCurrentUser());
-        history.push('/');
-      } else if (service === 'vk') {
-        if (access_token && setVkAccessToken) setVkAccessToken(access_token);
-        if (username && setVkUsername) setVkUsername(username);
-        if (profileImg && setVkProfileImage) setVkProfileImage(profileImg);
-
-        dispatch(fetchOAuthUser({ ...e.data, profileImg }));
-        dispatch(fetchCurrentUser());
-        history.push('/');
-      }
-
-    }
+    dispatch(fetchOAuthUser({ ...e.data, profileImg }));
+    dispatch(fetchCurrentUser());
+    history.push('/');
   }
 
 

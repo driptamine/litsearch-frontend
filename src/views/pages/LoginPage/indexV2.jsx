@@ -2,13 +2,11 @@ import React, { useState, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useHistory } from 'react-router-dom';
 import { styled } from '@linaria/react';
-import { FRONTEND_CALLBACK_URL } from 'core/constants/urls';
 
 import {
   googleSignInAction, unsplashSignInAction, deezerSignInAction, instagramSignInAction
 } from 'views/pages/LoginPage/action';
 import { YoutubeContext } from 'views/pages/Auth/youtube/useToken';
-import { GoogleContext } from 'views/pages/Auth/google/useToken';
 import { VkContext } from 'views/pages/Auth/vk/useToken';
 
 import litloopLogo from 'views/assets/litloopLogo3.png';
@@ -25,7 +23,6 @@ import { StyledGrid as Grid } from 'views/styledComponents';
 const LoginForm = () => {
   const dispatch = useDispatch();
   // const history = useHistory();
-  const { setGoogleAccessToken, setGoogleUsername, setGoogleProfileImage } = useContext(GoogleContext) || {};
   const { setVkAccessToken, setVkUsername, setVkProfileImage } = useContext(VkContext) || {};
 
   const [email, setEmail] = useState("");
@@ -48,30 +45,11 @@ const LoginForm = () => {
   };
 
   const receiveMessage = (e) => {
-    if (!e.origin.startsWith(`${FRONTEND_CALLBACK_URL}`)) return;
-    const { access_token, refresh_token, username, userId, profileImg, service } = e.data;
-    if (!access_token || !service) return;
-
-    if (service === 'google') {
-      console.log("Receive postMessage GOOGLE TOKEN");
-      console.log(e.data);
-
-      // setGoogleAccessToken(access_token);
-      // setGoogleUsername(username);
-      // setGoogleProfileImage(profileImg);
-
-
-      if (e.data.access_token && setGoogleAccessToken) setGoogleAccessToken(e.data.access_token);
-      if (e.data.username && setGoogleUsername) setGoogleUsername(e.data.username);
-      if (e.data.profileImg && setGoogleProfileImage) setGoogleProfileImage(e.data.profileImg);
-      history.push('/feed');
-    } else if (service === 'vk') {
-      if (e.data.access_token && setVkAccessToken) setVkAccessToken(e.data.access_token);
-      if (e.data.username && setVkUsername) setVkUsername(e.data.username);
-      if (e.data.profileImg && setVkProfileImage) setVkProfileImage(e.data.profileImg);
-      history.push('/feed');
-    }
-    // history.push('/');
+    if (e.origin !== window.location.origin || e.data?.service !== 'vk' || !e.data.access_token) return;
+    if (setVkAccessToken) setVkAccessToken(e.data.access_token);
+    if (e.data.username && setVkUsername) setVkUsername(e.data.username);
+    if (e.data.profileImg && setVkProfileImage) setVkProfileImage(e.data.profileImg);
+    history.push('/feed');
   };
 
   useEventListenerMemo('message', receiveMessage, window, true, { capture: false });

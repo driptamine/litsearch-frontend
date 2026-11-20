@@ -1,129 +1,85 @@
-import React, { useEffect, useState, useCallback, useContext } from 'react';
-import { useSetRecoilState } from 'recoil';
-import { styled } from '@linaria/react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-import { LITLOOP_API_URL } from 'core/constants/urls';
 
-import { AddCookie, getCookie } from 'views/utils';
-import LoadingIndicatorz from 'views/pages/LoadingIndicatorz';
-import GoogleAPI from './google/API';
-import litloopAPI from './litloop/API';
-import { GoogleContext } from './google/useToken';
+import { GOOGLE_CALLBACK_URL, LITLOOP_API_URL } from 'core/constants/urls';
+import { saveAuthCookies } from 'core/utils/authCookies';
 import Alert from 'views/pages/Alert';
-import { footerVisibleAtom, navigationBarVisibleAtom } from 'views/pages/Auth/navigation/atoms';
-
-
-const GOOGLE_CLIENT_ID = "570066117191-b0ob663u6klf2a7v80381h570jsagkqe.apps.googleusercontent.com";
+import LoadingIndicatorz from 'views/pages/LoadingIndicatorz';
+import { AddCookie, getCookie, RemoveCookie } from 'views/utils';
 
 const GoogleAuthCallback = () => {
-  const [error, setError] = useState();
-  const { setGoogleEmail, setGoogleAccessToken, setGoogleRefreshToken, setGoogleUserId, setGoogleUsername, setGoogleProfileImage, } = useContext(GoogleContext) || {};
-  // const setNavigationBarVisible = useSetRecoilState(navigationBarVisibleAtom);
-  // const setFooterVisible = useSetRecoilState(footerVisibleAtom);
-
-  const getAccessToken = useCallback(
-    async (url) => {
-      const authCode = url.searchParams.get('code');
-      console.log(authCode);
-      const res = await axios.post(`${LITLOOP_API_URL}/auth/google/token/`, { code: authCode });
-
-      console.log(res)
-      const accessToken = res.data.access;
-      const refreshToken = res.data.refresh;
-      const user = res.data.user;
-
-      return {
-        access_token: accessToken,
-        refresh_token: refreshToken,
-        user: user,
-      };
-    },
-    [
-      setGoogleAccessToken,
-      setGoogleRefreshToken,
-      setGoogleUserId,
-      setGoogleUsername,
-      setGoogleProfileImage,
-    ]
-  );
-
-  const handleRes = (res) => {
-    console.log('successfully authenticated to Google.');
-    if (res.access_token) AddCookie('Google-access_token', res.access_token);
-    if (res.refresh_token) AddCookie('Google-refresh_token', res.refresh_token);
-
-    window.opener.postMessage(
-      {
-        service: 'google',
-        access_token: res.access_token,
-        refresh_token: res.refresh_token,
-        username: res.user?.username,
-        avatar: res.user?.avatar,
-        email: res.user?.email,
-        userId: res.user?.id,
-      },
-      '*'
-    );
-
-    if (res.access_token) {
-      // setTimeout(() => window.close(), 100);
-      window.close()
-    }
-  }
+  const [error, setError] = useState('');
+  const started = useRef(false);
 
   useEffect(() => {
-    console.log("DAMNED");
-    // setNavigationBarVisible(false);
-    // if (setFooterVisible) setFooterVisible(false);
-    (async function () {
+    if (started.current) return;
+    started.current = true;
+
+    const completeSignIn = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const state = params.get('state');
+      if (!state || state !== getCookie('Google-myState')) {
+        setError('This sign-in request expired. Start a new Google sign-in.');
+        return;
+      }
+      RemoveCookie('Google-myState');
+
+      const code = params.get('code');
+      if (params.has('error') || !code) {
+        setError('Google did not complete the sign-in request.');
+        return;
+      }
+
       try {
-        const url = new URL(window.location.href);
-        console.log(`URL IS : `);
-        if (url.pathname === '/auth/google/callback') {
-          console.log(`URL IS : CALLBACK `);
-
-          if (url.searchParams.get('state') === getCookie('Google-myState')) {
-            console.log(`URL IS : STATE COOKIE `);
-            console.log(url);
-
-            await getAccessToken(url).then((res) => { handleRes(res) })
-
-
-          } else {
-            setError({
-              title: 'Google authentication failed.',
-              message: "Request didn't come from this website.!",
-            });
-          }
-        } else {
-          setError({
-            title: 'Google authentication failed.',
-            message: 'Authenticate to Google failed.',
-          });
+        const { data } = await axios.post(`${LITLOOP_API_URL}/auth/google/token/`, {
+          code,
+          redirect_uri: GOOGLE_CALLBACK_URL,
+        });
+        const { access, refresh, user } = data;
+        if (!access || !refresh || !user?.id) {
+          setError('LitLoop did not return a complete sign-in session.');
+          return;
         }
 
-      } catch (error) {
-        setError(error);
-      }
-    })();
-  }, [getAccessToken ]);
+        const session = {
+          service: 'google',
+          access_token: access,
+          refresh_token: refresh,
+          username: user.username,
+          avatar: user.avatar,
+          email: user.email,
+          userId: user.id,
+        };
+        AddCookie('Google-access_token', access);
+        AddCookie('Google-refresh_token', refresh);
 
-  console.log('google auth callback error:', error);
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage(session, window.location.origin);
+          window.close();
+        } else {
+          saveAuthCookies(session);
+          window.location.replace('/feed');
+        }
+      } catch (requestError) {
+        const message = requestError.response?.data?.error;
+        setError(typeof message === 'string' ? message : 'Could not complete Google sign-in. Try again.');
+      }
+    };
+
+    completeSignIn();
+  }, []);
+
   if (error) {
-    return (
-      <Alert data={error} />
-    )
+    return <Alert type="error" title="Google sign-in failed" message={error} />;
   }
+
   return (
-    <div>
-      {console.log("AYO CONDUCTOR")}
-      <LoadingIndicatorz
-        height={150}
-        width={150}
-        text={'Authenticating..'}
-        smallText={'Talking with Google..'}
-      />
-    </div>
+    <LoadingIndicatorz
+      height={150}
+      width={150}
+      text="Authenticating…"
+      smallText="Talking with Google…"
+    />
   );
 };
 

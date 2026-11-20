@@ -1,11 +1,10 @@
 import React, { useEffect, useContext, useCallback, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { Route, useLocation, Link } from 'react-router-dom';
+import { Route, useHistory, useLocation, Link } from 'react-router-dom';
 import ModalLink from 'views/components/ModalLink';
 import { useDispatch, useSelector } from 'react-redux';
 import { RecoilRoot } from 'recoil';
 import { styled } from '@linaria/react';
-import { FRONTEND_CALLBACK_URL } from 'core/constants/urls';
 import { FaPlus } from 'react-icons/fa';
 
 import { useThemeMode } from 'views/components/Toggle/useThemeMode'
@@ -117,6 +116,7 @@ const AppRoutesContainer = () => {
 
 const App = () => {
   const { pathname } = useLocation();
+  const history = useHistory();
   const dispatch = useDispatch();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -177,7 +177,7 @@ const App = () => {
   useEventListenerMemo('message', receiveMessage, window, true, { capture: false });
 
   function receiveMessage(e) {
-    if (e.origin.startsWith(`${FRONTEND_CALLBACK_URL}`) && e.data?.access_token && e.data?.service) {
+    if (e.origin === window.location.origin && e.data?.access_token && e.data?.service) {
       const { service, access_token, refresh_token, username, userId, email } = e.data;
       const profileImg = e.data.profileImg || e.data.profile_img || e.data.picture || e.data.avatar_url || e.data.avatar;
 
@@ -191,9 +191,11 @@ const App = () => {
 
         setChildMessage(profileImg);
 
+        saveAuthCookies(e.data);
         dispatch(fetchOAuthUser({ ...e.data, profileImg }));
         dispatch(fetchCurrentUser());
-        saveAuthCookies(e.data);
+        if (pathname === '/login') history.replace('/feed');
+        if (pathname === '/signup') history.replace('/');
       } else if (service === 'vk') {
         if (access_token && setVkAccessToken) setVkAccessToken(access_token);
         if (refresh_token && setVkRefreshToken) setVkRefreshToken(refresh_token);
