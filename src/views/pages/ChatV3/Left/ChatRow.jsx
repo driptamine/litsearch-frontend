@@ -10,18 +10,20 @@ const GROUP_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/sv
 const ChatRow = ({ chat, onClick }) => {
   const isSaved = chat.is_saved_messages;
   const isGroup = chat.chat_type === 'groupchat';
+  const participant = chat.other_participant ?? chat.target_user;
+  if (!isSaved && !isGroup && participant?.id == null) return null;
 
   const displayName = isSaved
     ? 'Saved Messages'
     : isGroup
       ? (chat.name || 'Group')
-      : (chat.target_user?.username || chat.other_participant?.username || 'User');
+      : (participant?.username || 'User');
 
-  const linkTo = isSaved ? '/chat/saved' : (isGroup ? `/chat/group/${chat.id}` : `/chat/${(chat.target_user || chat.other_participant || {}).id}`);
+  const linkTo = isSaved ? '/chat/saved' : isGroup ? `/chat/group/${chat.id}` : `/chat/${participant?.id}`;
 
   let avatarUrl = chat.image_url;
   if (!avatarUrl && !isGroup && !isSaved) {
-    avatarUrl = (chat.target_user || chat.other_participant || {}).avatar;
+    avatarUrl = participant?.avatar;
   }
 
   if (avatarUrl) {

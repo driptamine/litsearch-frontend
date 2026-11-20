@@ -20,12 +20,15 @@ const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/
 const GROUP_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%232e7d32' rx='8'/%3E%3Ccircle cx='24' cy='16' r='7' fill='%23a5d6a7'/%3E%3Ccircle cx='14' cy='34' r='5' fill='%23a5d6a7'/%3E%3Ccircle cx='34' cy='34' r='5' fill='%23a5d6a7'/%3E%3C/svg%3E";
 
 const ChatWindow = () => {
-  const { authUser } = useSelectAuthUser();
+  const { authUser, isSignedIn } = useSelectAuthUser();
   const { userId, chatId: groupChatId } = useParams();
   const isGroupMatch = useRouteMatch('/chat/group/:chatId');
   const isGroup = !!isGroupMatch;
   const isSavedMatch = useRouteMatch('/chat/saved');
   const isSaved = !!isSavedMatch;
+  const chatDetailPath = isSaved ? '/chats/saved/' : isGroup
+    ? `/chats/group/${groupChatId}/`
+    : userId ? `/chats/direct/${userId}/` : null;
   const history = useHistory();
   const { setUnreadChatCount, notifications, incomingCall, clearIncomingCall } = useNotifications();
 
@@ -45,6 +48,7 @@ const ChatWindow = () => {
   const menuRef = useRef(null);
   const messagesEndRef = useRef(null);
   const voiceCacheRef = useRef(null);
+  const nextTempId = useRef(0);
 
   const getVoiceCache = () => {
     if (voiceCacheRef.current) return voiceCacheRef.current;
@@ -119,13 +123,14 @@ const ChatWindow = () => {
   }, [messages]);
 
   const handleNewMessage = useCallback((message) => {
-    setMessages((prev) => {
-      if (prev.some(m => m.tempId === message.tempId || m.id === message.id)) return prev;
-      const msg = { ...message, sentByMe: false };
-      return [...prev, msg];
-    });
-    scrollToBottom();
-  }, []);
+    if (message?.id == null || (message.chat_id != null && message.chat_id !== activeChatId)) return;
+    const username = authUser?.username || authUser?.user?.username || authUser?.user__username;
+    const sentByMe = message.username === username;
+    setMessages(prev => prev.some(m => m.id === message.id) ? prev : [...prev, { ...message, sentByMe }]);
+    if (!isSaved && !sentByMe) {
+      postAxiosReq(`${LITLOOP_API_URL}/chats/${activeChatId}/read/`, {}).catch(() => {});
+    }
+  }, [activeChatId, authUser, isSaved]);
 
   const handleTyping = useCallback((userId, isTyping) => {
     setPartnerTyping(isTyping);
@@ -208,24 +213,18 @@ const ChatWindow = () => {
   sendVoipWebRtcSignalRef.current = sendVoipWebRtcSignal;
 
   useEffect(() => {
-    const id = isGroup ? groupChatId : (isSaved ? 'saved' : userId);
-    if (!id) {
-      setChatInfo(null);
-      setMessages([]);
-      setActiveChatId(null);
-      setPartnerTyping(false);
-      return;
-    }
+    setChatInfo(null);
+    setMessages([]);
+    setActiveChatId(null);
+    setPartnerTyping(false);
+    if (!chatDetailPath || !isSignedIn) return;
 
+    let cancelled = false;
     const fetchChatDetail = async () => {
       setLoading(true);
       try {
-        const url = isSaved
-          ? `${LITLOOP_API_URL}/chats/saved/`
-          : isGroup
-            ? `${LITLOOP_API_URL}/chats/group/${groupChatId}/`
-            : `${LITLOOP_API_URL}/chats/direct/${userId}/`;
-        const response = await getAxiosReq(url);
+        const response = await getAxiosReq(LITLOOP_API_URL + chatDetailPath);
+        if (cancelled) return;
         const data = response.data;
 
         setChatInfo(data);
@@ -233,43 +232,29 @@ const ChatWindow = () => {
         setActiveChatId(data.id);
 
         if (data.id && !isSaved) {
-          try {
-            await postAxiosReq(`${LITLOOP_API_URL}/chats/${data.id}/read/`, {});
-            setUnreadChatCount(0);
-          } catch (_) {}
+          postAxiosReq(`${LITLOOP_API_URL}/chats/${data.id}/read/`, {}).catch(() => {});
         }
       } catch (err) {
         console.error("Failed to fetch chat details:", err);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
     fetchChatDetail();
-  }, [userId, groupChatId, isGroup, isSaved]);
+    return () => { cancelled = true; };
+  }, [chatDetailPath, isSaved, isSignedIn]);
 
   useEffect(() => {
-    if (isSaved) return;
-    if (!notifications?.length || (!userId && !groupChatId)) return;
-    const latest = notifications[0];
-    const matches = isGroup
-      ? (latest.type === 'new_message' && String(latest.chat_id) === String(groupChatId))
-      : (latest.type === 'new_message' && String(latest.chat_user_id) === String(userId));
-    if (matches) {
-      const refetch = async () => {
-        try {
-          const url = isGroup
-            ? `${LITLOOP_API_URL}/chats/group/${activeChatId}/`
-            : `${LITLOOP_API_URL}/chats/direct/${userId}/`;
-          const response = await getAxiosReq(url);
-          const data = response.data;
-          if (data.id === activeChatId) {
-            setMessages(normalizeMessages(data.messages));
-          }
-        } catch (_) {}
-      };
-      refetch();
-    }
-  }, [notifications, userId, groupChatId, activeChatId, isGroup, isSaved]);
+    const latest = notifications?.[0];
+    if (isConnected || isSaved || !activeChatId || latest?.chat_id !== activeChatId) return;
+    let cancelled = false;
+    getAxiosReq(LITLOOP_API_URL + chatDetailPath).then(({ data }) => {
+      if (cancelled || data.id !== activeChatId) return;
+      setMessages(prev => [...normalizeMessages(data.messages), ...prev.filter(m => m.isTemp)]);
+      return postAxiosReq(`${LITLOOP_API_URL}/chats/${activeChatId}/read/`, {});
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [notifications, activeChatId, chatDetailPath, isConnected, isSaved]);
 
   // User search for adding group members
   const memberTimerRef = useRef(null);
@@ -326,7 +311,7 @@ const ChatWindow = () => {
   }, [showMenu]);
 
   const handleSendMessage = async (text, attachments = [], voiceMessageData = null) => {
-    if (!userId && !groupChatId && !isSaved) return;
+    if (!activeChatId) return;
 
     const messageText = (text || '').trim();
     const voiceMessageId = voiceMessageData?.id;
@@ -335,7 +320,7 @@ const ChatWindow = () => {
     if (voiceMessageData) saveVoiceToCache(voiceMessageData.id, voiceMessageData);
 
     const currentUserName = authUser?.username || authUser?.user?.username || 'You';
-    const tempId = Date.now();
+    const tempId = `pending-${++nextTempId.current}`;
     const tempMessage = {
       username: currentUserName,
       text: messageText,
@@ -349,7 +334,6 @@ const ChatWindow = () => {
     };
     setMessages((prev) => [...prev, tempMessage]);
 
-    if (!activeChatId) return;
     try {
       const url = `${LITLOOP_API_URL}/chats/${activeChatId}/send/`;
 
@@ -357,11 +341,13 @@ const ChatWindow = () => {
       if (voiceMessageId != null) body.voice_message_id = voiceMessageId;
       const response = await postAxiosReq(url, body);
 
-      const newData = response.data;
+      const newData = response.data.message || response.data;
       if (newData.voice_message) saveVoiceToCache(newData.voice_message.id, newData.voice_message);
-      setMessages((prev) => prev.map(msg =>
-        (msg.tempId === tempId) ? { ...msg, ...newData, isTemp: false, sentByMe: true } : msg
-      ));
+      setMessages(prev => {
+        const received = prev.find(m => m.id === newData.id);
+        if (received) return prev.filter(m => m.tempId !== tempId);
+        return prev.map(m => m.tempId === tempId ? { ...m, ...newData, isTemp: false } : m);
+      });
     } catch (err) {
       console.error("Failed to send message:", err);
       setMessages((prev) => prev.filter(msg => msg.tempId !== tempId));

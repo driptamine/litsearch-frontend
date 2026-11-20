@@ -21,11 +21,12 @@ export const NotificationProvider = ({ children }) => {
   const handleMessage = useCallback((data) => {
     switch (data.type) {
       case 'new_message': {
-        const { chat_user_id, preview, unread_count } = data;
+        const { chat_id, chat_user_id, preview, unread_count } = data;
         setUnreadChatCount(unread_count);
         setNotifications(prev => [{
           id: Date.now(),
           type: 'new_message',
+          chat_id,
           chat_user_id,
           preview,
           timestamp: new Date().toISOString(),
