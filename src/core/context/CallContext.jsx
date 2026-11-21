@@ -5,9 +5,11 @@ import { chatRequest, tokenUser } from 'core/api/chatSession';
 import { useNotifications } from 'core/context/NotificationContext';
 import useChatSocket from 'core/hooks/useChatSocket';
 import useVoip from 'core/hooks/useVoip';
+import useGroupVoice from 'core/hooks/useGroupVoice';
 import getAuthToken from 'core/utils/getAuthToken';
 import CallOverlay from 'views/pages/ChatV3/Main/CallOverlay';
 import IncomingCallOverlay from 'views/pages/ChatV3/Main/IncomingCallOverlay';
+import GroupVoicePanel from 'views/pages/ChatV3/Main/GroupVoicePanel';
 
 const CallContext = createContext(null);
 
@@ -36,9 +38,6 @@ export function CallProvider({ children }) {
   const eventHandler = useRef(null);
   const audioContextRef = useRef(null);
   const ringTimeout = useRef(null);
-  const pending = account && !call ? incomingCall : null;
-  const roomId = account ? call?.chatId ?? pending?.chatId : null;
-
   const sendSignal = useCallback(signal => {
     const current = callRef.current;
     if (!current?.id || !current.accepted) return;
@@ -48,9 +47,12 @@ export function CallProvider({ children }) {
   }, []);
 
   const {
-    localStream, remoteStream, callError, connected, createOffer,
+    iceServers, localStream, remoteStream, callError, connected, createOffer,
     handleRemoteSignal, startMedia, endCall: stopMedia,
   } = useVoip({ enabled: Boolean(account), onSignal: sendSignal });
+  const groupVoice = useGroupVoice(account, iceServers);
+  const pending = account && !call && !groupVoice.session ? incomingCall : null;
+  const roomId = account ? call?.chatId ?? pending?.chatId : null;
 
   const resetCall = useCallback(() => {
     clearTimeout(ringTimeout.current);
@@ -270,7 +272,11 @@ export function CallProvider({ children }) {
   };
 
   const startCall = (details) => {
-    if (account && details.chatId && !pending) prepareCall(details, 'outgoing');
+    if (account && details.chatId && !pending && !groupVoice.session) prepareCall(details, 'outgoing');
+  };
+
+  const joinGroupVoice = (details) => {
+    if (!callRef.current && !pending) groupVoice.join(details);
   };
 
   const acceptCall = () => {
@@ -295,8 +301,9 @@ export function CallProvider({ children }) {
   };
 
   return (
-    <CallContext.Provider value={{ startCall, busy: Boolean(call || pending) }}>
+    <CallContext.Provider value={{ startCall, joinGroupVoice, busy: Boolean(call || pending || groupVoice.session) }}>
       {children}
+      {groupVoice.session && createPortal(<GroupVoicePanel voice={groupVoice} account={account} />, document.body)}
       {pending && createPortal(
         <IncomingCallOverlay
           callType={pending.callType}

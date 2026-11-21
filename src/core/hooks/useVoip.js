@@ -3,7 +3,7 @@ import { chatRequest } from 'core/api/chatSession';
 
 const defaultIceServers = [{ urls: 'stun:stun.l.google.com:19302' }];
 
-async function addCandidate(pc, candidate) {
+export async function addCandidate(pc, candidate) {
   try {
     await pc.addIceCandidate(candidate);
   } catch (error) {
@@ -147,7 +147,7 @@ const useVoip = ({ enabled, onSignal }) => {
     }
   }, [createPeerConnection, onSignal]);
 
-  return { localStream, remoteStream, callError, connected, createOffer, handleRemoteSignal, startMedia, endCall };
+  return { iceServers, localStream, remoteStream, callError, connected, createOffer, handleRemoteSignal, startMedia, endCall };
 };
 
 export default useVoip;

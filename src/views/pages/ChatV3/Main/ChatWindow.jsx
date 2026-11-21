@@ -36,11 +36,12 @@ const ChatWindow = () => {
     : null;
   const history = useHistory();
   const { setUnreadChatCount, isOnline, presence, requestPresence, subscribeToMessages } = useNotifications();
-  const { startCall, busy: callBusy } = useCalls();
+  const { startCall, joinGroupVoice, busy: callBusy } = useCalls();
 
   const [messages, setMessages] = useState([]);
   const [chatInfo, setChatInfo] = useState(null);
   const [activeChatId, setActiveChatId] = useState(null);
+  const [voiceRoom, setVoiceRoom] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState(null);
   const [retry, setRetry] = useState(0);
@@ -149,6 +150,27 @@ const ChatWindow = () => {
   }, [activeChatId, handleNewMessage, subscribeToMessages]);
 
   useEffect(() => () => clearTimeout(typingTimeout.current), [activeChatId]);
+
+  useEffect(() => {
+    setVoiceRoom(null);
+    if (!isGroup || !activeChatId) return;
+    const controller = new AbortController();
+    let timer;
+    const refreshRoom = async () => {
+      try {
+        const { data } = await chatRequest(`/chats/${activeChatId}/voice/`, { signal: controller.signal });
+        if (!controller.signal.aborted) setVoiceRoom(data.room);
+      } catch {
+        // Starting or joining the room also fetches the latest state.
+      }
+      if (!controller.signal.aborted) timer = setTimeout(refreshRoom, 5000);
+    };
+    refreshRoom();
+    return () => {
+      controller.abort();
+      clearTimeout(timer);
+    };
+  }, [activeChatId, isGroup]);
 
   useEffect(() => {
     historyRef.current = null;
@@ -520,9 +542,19 @@ const ChatWindow = () => {
             <RightActions>
               {!isSaved && (
                 <>
-                  <CallButton onClick={() => handleVoipCall('audio')} title="Voice call" disabled={!activeChatId || callBusy}>
-                    <FaPhone />
-                  </CallButton>
+                  {isGroup ? (
+                    <CallButton
+                      onClick={() => joinGroupVoice({ chatId: activeChatId, name: chatInfo?.name })}
+                      title={voiceRoom ? 'Join group voice' : 'Start group voice'}
+                      disabled={!activeChatId || callBusy}
+                    >
+                      <FaPhone />{voiceRoom && <span>{voiceRoom.members.length}</span>}
+                    </CallButton>
+                  ) : (
+                    <CallButton onClick={() => handleVoipCall('audio')} title="Voice call" disabled={!activeChatId || callBusy}>
+                      <FaPhone />
+                    </CallButton>
+                  )}
                   <CallButton onClick={() => handleVoipCall('video')} title="Video call" disabled={!activeChatId || callBusy}>
                     <FaVideo />
                   </CallButton>
