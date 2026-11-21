@@ -20,7 +20,8 @@ const useWebSocket = (path, { onOpen, onMessage, onClose, onError, enabled = tru
   const onCloseRef = useRef(onClose);
   const onErrorRef = useRef(onError);
   const rehydrated = useSelector(state => state._persist?.rehydrated === true);
-  const accessToken = getAuthToken();
+  const storeToken = useSelector(state => state.users?.access_token);
+  const accessToken = storeToken || getAuthToken();
 
   onMessageRef.current = onMessage;
   onOpenRef.current = onOpen;
@@ -132,7 +133,7 @@ const useWebSocket = (path, { onOpen, onMessage, onClose, onError, enabled = tru
 
     connect();
     return disconnect;
-  }, [path, canConnect, connect, disconnect, accessToken]);
+  }, [path, canConnect, connect, disconnect, requireAuth ? accessToken : null]);
 
   const send = useCallback((data) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {

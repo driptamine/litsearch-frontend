@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { styled } from '@linaria/react';
-import { useParams, useHistory, useRouteMatch } from 'react-router-dom';
-import axios from 'axios';
+import { Link, useParams, useHistory, useRouteMatch } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { FaArrowLeft, FaBookmark, FaTrash, FaPhone, FaVideo, FaPhoneSlash, FaPaperclip, FaEllipsisV } from 'react-icons/fa';
 import { LITLOOP_API_URL } from 'core/constants/urls';
-import { authHeader, getAxiosReq, postAxiosReq } from 'core/api/rest-helper';
+import { fetchLogout } from 'core/actions';
+import { getAxiosReq } from 'core/api/rest-helper';
+import { chatRequest } from 'core/api/chatSession';
 import ChatInput from 'views/pages/ChatV3/Main/ChatInput';
 import { SkeletonLine } from 'views/styles/Skeleton';
 import useSelectAuthUser from 'core/hooks/useSelectAuthUser';
@@ -21,14 +23,17 @@ const GROUP_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/sv
 
 const ChatWindow = () => {
   const { authUser, isSignedIn } = useSelectAuthUser();
+  const dispatch = useDispatch();
+  const sessionRestored = useSelector(state => state._persist?.rehydrated === true);
   const { userId, chatId: groupChatId } = useParams();
   const isGroupMatch = useRouteMatch('/chat/group/:chatId');
   const isGroup = !!isGroupMatch;
   const isSavedMatch = useRouteMatch('/chat/saved');
   const isSaved = !!isSavedMatch;
-  const chatDetailPath = isSaved ? '/chats/saved/' : isGroup
-    ? `/chats/group/${groupChatId}/`
-    : userId ? `/chats/direct/${userId}/` : null;
+  const chatTarget = isGroup ? groupChatId : userId;
+  const chatDetailPath = isSaved ? '/chats/saved/' : /^[1-9]\d*$/.test(chatTarget || '')
+    ? `/chats/${isGroup ? 'group' : 'direct'}/${chatTarget}/`
+    : null;
   const history = useHistory();
   const { setUnreadChatCount, notifications, incomingCall, clearIncomingCall } = useNotifications();
 
@@ -36,6 +41,8 @@ const ChatWindow = () => {
   const [chatInfo, setChatInfo] = useState(null);
   const [activeChatId, setActiveChatId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(null);
+  const [retry, setRetry] = useState(0);
   const [partnerTyping, setPartnerTyping] = useState(false);
   const [callState, setCallState] = useState('idle');
   const [callType, setCallType] = useState(null);
@@ -128,7 +135,7 @@ const ChatWindow = () => {
     const sentByMe = message.username === username;
     setMessages(prev => prev.some(m => m.id === message.id) ? prev : [...prev, { ...message, sentByMe }]);
     if (!isSaved && !sentByMe) {
-      postAxiosReq(`${LITLOOP_API_URL}/chats/${activeChatId}/read/`, {}).catch(() => {});
+      chatRequest(`/chats/${activeChatId}/read/`, { method: 'post', data: {} }).catch(() => {});
     }
   }, [activeChatId, authUser, isSaved]);
 
@@ -217,14 +224,18 @@ const ChatWindow = () => {
     setMessages([]);
     setActiveChatId(null);
     setPartnerTyping(false);
-    if (!chatDetailPath || !isSignedIn) return;
+    setLoadError(null);
+    if (!chatDetailPath || !isSignedIn || !sessionRestored) {
+      setLoading(false);
+      return;
+    }
 
-    let cancelled = false;
+    const controller = new AbortController();
     const fetchChatDetail = async () => {
       setLoading(true);
       try {
-        const response = await getAxiosReq(LITLOOP_API_URL + chatDetailPath);
-        if (cancelled) return;
+        const response = await chatRequest(chatDetailPath, { signal: controller.signal });
+        if (controller.signal.aborted) return;
         const data = response.data;
 
         setChatInfo(data);
@@ -232,26 +243,26 @@ const ChatWindow = () => {
         setActiveChatId(data.id);
 
         if (data.id && !isSaved) {
-          postAxiosReq(`${LITLOOP_API_URL}/chats/${data.id}/read/`, {}).catch(() => {});
+          chatRequest(`/chats/${data.id}/read/`, { method: 'post', data: {} }).catch(() => {});
         }
       } catch (err) {
-        console.error("Failed to fetch chat details:", err);
+        if (!controller.signal.aborted) setLoadError(err.response?.status || 0);
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
     fetchChatDetail();
-    return () => { cancelled = true; };
-  }, [chatDetailPath, isSaved, isSignedIn]);
+    return () => controller.abort();
+  }, [chatDetailPath, isSaved, isSignedIn, sessionRestored, retry]);
 
   useEffect(() => {
     const latest = notifications?.[0];
     if (isConnected || isSaved || !activeChatId || latest?.chat_id !== activeChatId) return;
     let cancelled = false;
-    getAxiosReq(LITLOOP_API_URL + chatDetailPath).then(({ data }) => {
+    chatRequest(chatDetailPath).then(({ data }) => {
       if (cancelled || data.id !== activeChatId) return;
       setMessages(prev => [...normalizeMessages(data.messages), ...prev.filter(m => m.isTemp)]);
-      return postAxiosReq(`${LITLOOP_API_URL}/chats/${activeChatId}/read/`, {});
+      return chatRequest(`/chats/${activeChatId}/read/`, { method: 'post', data: {} });
     }).catch(() => {});
     return () => { cancelled = true; };
   }, [notifications, activeChatId, chatDetailPath, isConnected, isSaved]);
@@ -278,7 +289,7 @@ const ChatWindow = () => {
   const handleAddMember = async (user) => {
     setAddingMember(true);
     try {
-      await postAxiosReq(`${LITLOOP_API_URL}/chats/group/${activeChatId}/add/`, { user_id: user.id });
+      await chatRequest(`/chats/group/${activeChatId}/add/`, { method: 'post', data: { user_id: user.id } });
       setChatInfo(prev => ({
         ...prev,
         participants: [...(prev?.participants || []), user],
@@ -335,11 +346,9 @@ const ChatWindow = () => {
     setMessages((prev) => [...prev, tempMessage]);
 
     try {
-      const url = `${LITLOOP_API_URL}/chats/${activeChatId}/send/`;
-
       const body = { text: messageText, attachments };
       if (voiceMessageId != null) body.voice_message_id = voiceMessageId;
-      const response = await postAxiosReq(url, body);
+      const response = await chatRequest(`/chats/${activeChatId}/send/`, { method: 'post', data: body });
 
       const newData = response.data.message || response.data;
       if (newData.voice_message) saveVoiceToCache(newData.voice_message.id, newData.voice_message);
@@ -358,7 +367,7 @@ const ChatWindow = () => {
     if (!activeChatId) return;
     if (!window.confirm('Delete this conversation?')) return;
     try {
-      await axios.delete(`${LITLOOP_API_URL}/chats/${activeChatId}/delete/`, { headers: authHeader() });
+      await chatRequest(`/chats/${activeChatId}/delete/`, { method: 'delete' });
       setUnreadChatCount(prev => Math.max(0, prev - 1));
       history.push('/chat/im');
     } catch (err) {
@@ -444,7 +453,7 @@ const ChatWindow = () => {
 
   const inCall = callState !== 'idle';
 
-  if (loading) {
+  if (!sessionRestored || loading || (isSignedIn && chatDetailPath && !chatInfo && loadError === null)) {
     return (
       <ChatWindowContainer>
         <Header>
@@ -459,6 +468,23 @@ const ChatWindow = () => {
           <SkeletonLine width="40%" height="40px" mb="10px" style={{ alignSelf: 'flex-end' }} />
           <SkeletonLine width="50%" height="40px" mb="10px" style={{ alignSelf: 'flex-start' }} />
         </MessagesContainer>
+      </ChatWindowContainer>
+    );
+  }
+
+  if (!chatInfo) {
+    const needsLogin = !isSignedIn || loadError === 401;
+    const unavailable = !chatDetailPath || loadError === 400 || loadError === 403 || loadError === 404;
+    return (
+      <ChatWindowContainer>
+        <ChatStatus role="status">
+          <p>{needsLogin ? 'Log in to open this conversation.' : unavailable
+            ? 'This conversation is unavailable.' : 'Could not load this conversation.'}</p>
+          {loadError === 401 ? <button type="button" onClick={() => dispatch(fetchLogout())}>Log in again</button>
+            : needsLogin ? <Link to="/login">Log in</Link> : unavailable
+            ? <Link to="/chat/im">Back to chats</Link>
+            : <button type="button" onClick={() => setRetry(count => count + 1)}>Try again</button>}
+        </ChatStatus>
       </ChatWindowContainer>
     );
   }
@@ -644,6 +670,14 @@ const CenteredContent = styled.div`
   align-items: center;
   height: 100%;
   color: #888;
+`;
+
+const ChatStatus = styled.div`
+  margin: auto;
+  text-align: center;
+
+  p { margin-bottom: 12px; }
+  a { color: var(--titleColor); }
 `;
 
 const BackButton = styled.button`

@@ -13,6 +13,8 @@ export const useNotifications = () => {
 
 export const NotificationProvider = ({ children }) => {
   const rehydrated = useSelector(state => state._persist?.rehydrated);
+  const storeToken = useSelector(state => state.users?.access_token);
+  const accessToken = storeToken || getAuthToken();
   const [unreadChatCount, setUnreadChatCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
   const [chatUpdateTick, setChatUpdateTick] = useState(0);
@@ -54,7 +56,7 @@ export const NotificationProvider = ({ children }) => {
     setIncomingCall(null);
   }, []);
 
-  const enabled = rehydrated && !!getAuthToken();
+  const enabled = rehydrated && !!accessToken;
   const { send, isConnected } = useWebSocket('/ws/notifications/', {
     onMessage: handleMessage,
     onError: useCallback(() => {
@@ -64,13 +66,10 @@ export const NotificationProvider = ({ children }) => {
   });
 
   useEffect(() => {
-    if (isConnected) {
-      const token = getAuthToken();
-      if (token) {
-        send({ type: 'auth', token });
-      }
+    if (isConnected && accessToken) {
+      send({ type: 'auth', token: accessToken });
     }
-  }, [isConnected, send]);
+  }, [isConnected, send, accessToken]);
 
   const clearNotifications = useCallback(() => {
     setNotifications([]);

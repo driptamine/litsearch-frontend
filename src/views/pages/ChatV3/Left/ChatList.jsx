@@ -2,9 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { styled } from '@linaria/react';
 import { FaBookmark, FaPlus, FaEllipsisV } from 'react-icons/fa';
-import axios from 'axios';
-import { LITLOOP_API_URL } from 'core/constants/urls';
-import { authHeader, getAxiosReq } from 'core/api/rest-helper';
+import { chatRequest } from 'core/api/chatSession';
 
 import useSelectAuthUser from 'core/hooks/useSelectAuthUser';
 import { useNotifications } from 'core/context/NotificationContext';
@@ -24,7 +22,7 @@ const ChatList = ({ emojiData }) => {
 
   const fetchChats = useCallback(async () => {
     try {
-      const response = await getAxiosReq(`${LITLOOP_API_URL}/chats/me/`);
+      const response = await chatRequest('/chats/me/');
       const apiChats = response.data?.chats || [];
       setChats(apiChats);
     } catch (err) {
@@ -42,19 +40,19 @@ const ChatList = ({ emojiData }) => {
       setInitialLoadDone(true);
     };
     load();
-  }, [isSignedIn, initialLoadDone]);
+  }, [isSignedIn, initialLoadDone, fetchChats]);
 
   useEffect(() => {
-    if (location.pathname === '/chat/im') {
+    if (isSignedIn && initialLoadDone && location.pathname === '/chat/im') {
       fetchChats();
     }
-  }, [location.pathname]);
+  }, [initialLoadDone, isSignedIn, location.pathname, fetchChats]);
 
   useEffect(() => {
-    if (chatUpdateTick > 0) {
+    if (isSignedIn && chatUpdateTick > 0) {
       fetchChats();
     }
-  }, [chatUpdateTick]);
+  }, [chatUpdateTick, isSignedIn, fetchChats]);
 
   const currentUserAvatar = authUser?.profileImg || authUser?.avatar || DEFAULT_AVATAR;
   const currentUsername = authUser?.username || authUser?.user?.username || authUser?.user__username || 'User';
@@ -105,11 +103,13 @@ const ChatList = ({ emojiData }) => {
         </LinkStyledSaved>
       </SavedMessagesRow>
 
-      {loading && chats.length === 0 && (
+      {!isSignedIn && <Link to="/login">Log in to see your chats</Link>}
+
+      {isSignedIn && loading && chats.length === 0 && (
         <div style={{ padding: '20px', color: '#888' }}>Loading chats...</div>
       )}
 
-      {!loading && chats.length === 0 && (
+      {isSignedIn && !loading && chats.length === 0 && (
         <div style={{ padding: '20px', color: '#888' }}>No conversations yet.</div>
       )}
 
