@@ -238,6 +238,7 @@ export function CallProvider({ children }) {
 
   return (
     <CallContext.Provider value={{ startCall, busy: Boolean(call || pending) }}>
+      {children}
       {pending && createPortal(
         <IncomingCallOverlay
           callType={pending.callType}
