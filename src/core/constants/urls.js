@@ -19,7 +19,9 @@ export const TRACK_API_URL = import.meta.env.VITE_API_URL || defaultApiUrl;
 export const LITLOOP_API_URL = import.meta.env.VITE_API_URL || defaultApiUrl;
 export const WS_URL = import.meta.env.VITE_WS_URL || deriveWsUrl(import.meta.env.VITE_API_URL) || defaultWsUrl;
 export const FRONTEND_CALLBACK_URL = import.meta.env.VITE_FRONTEND_URL || defaultFrontendUrl;
-export const GOOGLE_CALLBACK_URL = new URL('/auth/google/callback', FRONTEND_CALLBACK_URL).href;
+const layeroFrontendUrl = 'https://litloop.layero.app';
+const googleCallbackOrigin = globalThis.location?.origin === layeroFrontendUrl ? layeroFrontendUrl : FRONTEND_CALLBACK_URL;
+export const GOOGLE_CALLBACK_URL = new URL('/auth/google/callback', googleCallbackOrigin).href;
 // export const FRONTEND_CALLBACK_URL = import.meta.env.MODE === 'production' ? 'http://localhost:3001' : 'https://litloop.netlify.app'
 // export const TRACK_API_URL = import.meta.env.MODE === 'development' ? 'http://localhost:8000' : 'https://api.litloop.co'
 // export const TRACK_API_URL = import.meta.env.MODE === 'development' ? 'localhost:8000' : 'api.litloop.co'
