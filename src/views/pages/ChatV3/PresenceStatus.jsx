@@ -1,12 +1,17 @@
 import React from 'react';
 import { styled } from '@linaria/react';
 
-export default function PresenceStatus({ online, compact = false }) {
-  const label = online == null ? 'Status unavailable' : online ? 'Online' : 'Offline';
+const lastSeenFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+
+export default function PresenceStatus({ online, lastSeenAt }) {
+  const timestamp = Date.parse(lastSeenAt);
+  const label = online
+    ? 'Online'
+    : Number.isFinite(timestamp) ? `Last seen ${lastSeenFormat.format(timestamp)}` : 'Last seen unknown';
   return (
-    <Status title={label} role={compact ? 'img' : undefined} aria-label={compact ? label : undefined}>
+    <Status title={label}>
       <Dot data-online={online === true} aria-hidden="true" />
-      {!compact && label}
+      {label}
     </Status>
   );
 }
@@ -17,12 +22,12 @@ const Status = styled.span`
   gap: 5px;
   color: var(--mutedText, #888);
   font-size: 0.75rem;
-  white-space: nowrap;
 `;
 
 const Dot = styled.span`
   width: 7px;
   height: 7px;
+  flex-shrink: 0;
   border-radius: 50%;
   background: #888;
 

@@ -483,7 +483,10 @@ const ChatWindow = () => {
                   chatInfo?.username && (
                     <>
                       <UserHandle>@{chatInfo.username}</UserHandle>
-                      <PresenceStatus online={presence?.[chatInfo.other_participant?.id]} />
+                      <PresenceStatus
+                        online={presence[chatInfo.other_participant?.id]?.online}
+                        lastSeenAt={presence[chatInfo.other_participant?.id]?.lastSeenAt || chatInfo.other_participant?.last_seen_at}
+                      />
                     </>
                   )
                 )}
@@ -650,6 +653,7 @@ const StatusRow = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 `;
 
 const Username = styled.h2`

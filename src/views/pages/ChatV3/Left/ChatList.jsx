@@ -14,7 +14,7 @@ const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/
 
 const ChatList = ({ emojiData }) => {
   const { authUser, isSignedIn } = useSelectAuthUser();
-  const { unreadChatCount, setUnreadChatCount, chatUpdateTick, isOnline, presence, requestPresence } = useNotifications();
+  const { unreadChatCount, setUnreadChatCount, chatUpdateTick, selfPresence, presence, requestPresence } = useNotifications();
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
@@ -77,7 +77,7 @@ const ChatList = ({ emojiData }) => {
           </ImgWrap>
           <UserWrapper>
             <User>{currentUsername}</User>
-            {isSignedIn && <PresenceStatus online={isOnline} />}
+            {isSignedIn && <PresenceStatus {...selfPresence} />}
           </UserWrapper>
           {unreadChatCount > 0 && (
             <GlobalUnreadBadge>{unreadChatCount}</GlobalUnreadBadge>
@@ -122,7 +122,7 @@ const ChatList = ({ emojiData }) => {
         <div key={chat.id}>
           <ChatRow
             chat={chat}
-            online={presence?.[chat.other_participant?.id]}
+            presence={presence[chat.other_participant?.id]}
             onClick={() => {
               const clickedUnread = chat.unread_count || 0;
               setChats(prev => prev.map(c =>

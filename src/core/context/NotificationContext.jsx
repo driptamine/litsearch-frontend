@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
+import { v4 as newSessionId } from 'uuid';
 import useWebSocket from 'core/hooks/useWebSocket';
 import { getAuthToken } from 'core/utils/getAuthToken';
-import { refreshAccess, tokenUser } from 'core/api/chatSession';
+import { chatRequest, refreshAccess, tokenUser } from 'core/api/chatSession';
+import { LITLOOP_API_URL } from 'core/constants/urls';
 
 const NotificationContext = createContext(null);
 
@@ -24,6 +26,8 @@ export const NotificationProvider = ({ children }) => {
   const [closedCall, setClosedCall] = useState(null);
   const [authenticatedAccount, setAuthenticatedAccount] = useState(null);
   const [presence, setPresence] = useState({});
+  const [httpPresence, setHTTPPresence] = useState(false);
+  const [selfLastSeenAt, setSelfLastSeenAt] = useState(null);
   const messageListeners = useRef(new Map());
   const callListeners = useRef(new Set());
   const lastClosedCall = useRef(null);
@@ -34,6 +38,8 @@ export const NotificationProvider = ({ children }) => {
     setUnreadChatCount(0);
     setNotifications([]);
     setPresence({});
+    setHTTPPresence(false);
+    setSelfLastSeenAt(null);
     lastClosedCall.current = null;
   }, [account]);
 
@@ -60,6 +66,19 @@ export const NotificationProvider = ({ children }) => {
     setIncomingCall({
       chatId: event.chat_id, id: event.call_id, callerId: event.caller_id,
       callerName: event.caller_name, callType: event.call_type, expiresAt: event.expires_at,
+    });
+  }, []);
+
+  const applyPresence = useCallback((users, timestamps = {}) => {
+    setPresence(previous => {
+      const next = { ...previous };
+      for (const [id, online] of Object.entries(users || {})) {
+        const at = timestamps[id];
+        const old = previous[id];
+        if (at && old?.lastSeenAt && Date.parse(at) < Date.parse(old.lastSeenAt)) continue;
+        next[id] = { online, lastSeenAt: at || old?.lastSeenAt };
+      }
+      return next;
     });
   }, []);
 
@@ -90,6 +109,7 @@ export const NotificationProvider = ({ children }) => {
       }
       case 'auth_ok': {
         setAuthenticatedAccount(tokenUser(getAuthToken()));
+        setSelfLastSeenAt(new Date().toISOString());
         setChatUpdateTick(t => t + 1);
         break;
       }
@@ -98,13 +118,11 @@ export const NotificationProvider = ({ children }) => {
         break;
       }
       case 'presence_snapshot': {
-        setPresence(data.users || {});
+        applyPresence(data.users, data.last_seen_at);
         break;
       }
       case 'presence_update': {
-        setPresence(previous => previous[data.user_id] === data.online
-          ? previous
-          : { ...previous, [data.user_id]: data.online });
+        applyPresence({ [data.user_id]: data.online }, { [data.user_id]: data.last_seen_at });
         break;
       }
       case 'incoming_call': {
@@ -127,7 +145,7 @@ export const NotificationProvider = ({ children }) => {
         break;
       }
     }
-  }, [receiveIncomingCall]);
+  }, [applyPresence, receiveIncomingCall]);
 
   const clearIncomingCall = useCallback((call) => {
     setIncomingCall(current => current === call ? null : current);
@@ -135,9 +153,13 @@ export const NotificationProvider = ({ children }) => {
 
   const enabled = rehydrated && !!accessToken;
   const resetAuthentication = useCallback(() => setAuthenticatedAccount(null), []);
+  const handleClose = useCallback(() => {
+    if (authenticatedAccount) setSelfLastSeenAt(new Date().toISOString());
+    resetAuthentication();
+  }, [authenticatedAccount, resetAuthentication]);
   const { send, isConnected } = useWebSocket('/ws/notifications/', {
     onOpen: resetAuthentication,
-    onClose: resetAuthentication,
+    onClose: handleClose,
     onMessage: handleMessage,
     onError: useCallback(() => {
       console.warn('Notification WebSocket error - will auto-reconnect');
@@ -154,8 +176,68 @@ export const NotificationProvider = ({ children }) => {
 
   const isOnline = Boolean(isConnected && account && authenticatedAccount === account);
   const requestPresence = useCallback(() => {
-    if (isOnline) send({ type: 'presence' });
-  }, [isOnline, send]);
+    if (!account) return;
+    chatRequest('/chats/presence/').then(({ data }) => {
+      if (tokenUser(getAuthToken()) === account) applyPresence(data.users, data.last_seen_at);
+    }).catch(() => {});
+  }, [account, applyPresence]);
+
+  useEffect(() => {
+    if (!enabled || !account || isOnline) return;
+    const sessionId = newSessionId();
+    let stopped = false;
+    let inFlight = false;
+    let registered = false;
+    let expiryTimer;
+
+    const release = () => {
+      if (registered && tokenUser(getAuthToken()) === account) {
+        chatRequest('/chats/presence/', { method: 'delete', params: { session_id: sessionId } }).catch(() => {});
+      }
+    };
+    const releaseOnPageHide = (event) => {
+      const access = getAuthToken();
+      if (event.persisted || !registered || tokenUser(access) !== account) return;
+      const url = new URL(`${LITLOOP_API_URL}/chats/presence/`);
+      url.searchParams.set('session_id', sessionId);
+      fetch(url, { method: 'DELETE', keepalive: true, headers: { Authorization: `Bearer ${access}` } }).catch(() => {});
+    };
+    const heartbeat = async () => {
+      if (stopped || inFlight || document.visibilityState !== 'visible') return;
+      inFlight = true;
+      try {
+        const { data } = await chatRequest('/chats/presence/', {
+          method: 'post', data: { session_id: sessionId },
+        });
+        registered = true;
+        if (stopped || tokenUser(getAuthToken()) !== account) return;
+        applyPresence(data.users, data.last_seen_at);
+        setHTTPPresence(true);
+        setSelfLastSeenAt(new Date().toISOString());
+        clearTimeout(expiryTimer);
+        expiryTimer = setTimeout(() => setHTTPPresence(false), 35000);
+      } catch {
+        // The next heartbeat refreshes the session when HTTPS is reachable again.
+      } finally {
+        inFlight = false;
+        if (stopped) release();
+      }
+    };
+    const firstHeartbeat = setTimeout(heartbeat, 2500);
+    const interval = setInterval(heartbeat, 10000);
+    document.addEventListener('visibilitychange', heartbeat);
+    window.addEventListener('pagehide', releaseOnPageHide);
+    return () => {
+      stopped = true;
+      setHTTPPresence(false);
+      clearTimeout(firstHeartbeat);
+      clearTimeout(expiryTimer);
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', heartbeat);
+      window.removeEventListener('pagehide', releaseOnPageHide);
+      if (!inFlight) release();
+    };
+  }, [account, applyPresence, enabled, isOnline]);
 
   const clearNotifications = useCallback(() => {
     setNotifications([]);
@@ -168,7 +250,8 @@ export const NotificationProvider = ({ children }) => {
       chatUpdateTick,
       isConnected,
       isOnline,
-      presence: isOnline ? presence : null,
+      selfPresence: { online: isOnline || httpPresence, lastSeenAt: selfLastSeenAt },
+      presence,
       requestPresence,
       subscribeToMessages,
       subscribeToCalls,
