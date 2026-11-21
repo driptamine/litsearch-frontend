@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import useWebSocket from 'core/hooks/useWebSocket';
+import { tokenUser } from 'core/api/chatSession';
+import getAuthToken from 'core/utils/getAuthToken';
 
 const useChatSocket = (chatId, { onNewMessage, onTyping, onReadReceipt, onVoipCallStart, onVoipCallEnd, onVoipCallAccept, onVoipCallReject, onVoipWebRtcSignal, enabled = true } = {}) => {
   const onNewMessageRef = useRef(onNewMessage);
@@ -22,6 +24,10 @@ const useChatSocket = (chatId, { onNewMessage, onTyping, onReadReceipt, onVoipCa
   onVoipWebRtcSignalRef.current = onVoipWebRtcSignal;
 
   const handleMessage = useCallback((data) => {
+    if (typeof data?.type !== 'string') return;
+    if (data.type.startsWith('voip_') && data.from_user_id != null &&
+        String(data.from_user_id) === String(tokenUser(getAuthToken()))) return;
+
     switch (data.type) {
       case 'new_message':
         if (onNewMessageRef.current) onNewMessageRef.current(data.message);

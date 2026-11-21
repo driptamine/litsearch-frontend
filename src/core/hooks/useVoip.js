@@ -1,131 +1,99 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { LITLOOP_API_URL } from 'core/constants/urls';
-import { authHeader } from 'core/api/rest-helper';
+import { chatRequest } from 'core/api/chatSession';
 
-const useVoip = ({ onSignal, callType }) => {
-  const [iceServers, setIceServers] = useState([]);
+const defaultIceServers = [{ urls: 'stun:stun.l.google.com:19302' }];
+
+async function addCandidate(pc, candidate) {
+  try {
+    await pc.addIceCandidate(candidate);
+  } catch (error) {
+    console.warn('Failed to add call ICE candidate:', error);
+  }
+}
+
+const useVoip = ({ enabled, onSignal }) => {
+  const [iceServers, setIceServers] = useState(defaultIceServers);
   const [localStream, setLocalStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
-  const [mediaError, setMediaError] = useState(null);
-  const [connecting, setConnecting] = useState(false);
+  const [callError, setCallError] = useState(null);
   const [connected, setConnected] = useState(false);
   const pcRef = useRef(null);
   const localStreamRef = useRef(null);
+  const mediaRequestRef = useRef(0);
   const pendingCandidatesRef = useRef([]);
 
   useEffect(() => {
-    const fetchIceServers = async () => {
-      try {
-        const res = await fetch(`${LITLOOP_API_URL}/chats/ice_servers/`, {
-          headers: { ...authHeader() },
-        });
-        const data = await res.json();
-        const servers = Array.isArray(data) ? data : data.iceServers || data.ice_servers || [];
-        setIceServers(servers);
-      } catch (err) {
-        console.error('Failed to fetch ICE servers:', err);
-        setIceServers([{ urls: 'stun:stun.l.google.com:19302' }]);
-      }
-    };
-    fetchIceServers();
-  }, []);
+    if (!enabled) return;
+    const controller = new AbortController();
+    chatRequest('/chats/ice_servers/', { signal: controller.signal })
+      .then(({ data }) => {
+        const servers = Array.isArray(data) ? data : data?.iceServers || data?.ice_servers;
+        if (servers?.length) setIceServers(servers);
+      })
+      .catch(error => {
+        if (!controller.signal.aborted) console.warn('Failed to fetch call ICE servers:', error);
+      });
+    return () => controller.abort();
+  }, [enabled]);
 
   const startMedia = useCallback(async (type) => {
+    setCallError(null);
+    const request = ++mediaRequestRef.current;
     try {
-      const constraints = {
-        audio: true,
-        video: type === 'video',
-      };
-      console.log('[useVoip] startMedia', type, constraints);
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      console.log('[useVoip] got stream, audio tracks:', stream.getAudioTracks().length, 'video tracks:', stream.getVideoTracks().length);
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: type === 'video' });
+      if (request !== mediaRequestRef.current) {
+        stream.getTracks().forEach(track => track.stop());
+        return false;
+      }
       localStreamRef.current = stream;
       setLocalStream(stream);
-      setMediaError(null);
-      return stream;
-    } catch (err) {
-      console.error('[useVoip] getUserMedia error:', err);
-      setMediaError(err.message || 'Media access denied');
-      return null;
+      return true;
+    } catch (error) {
+      if (request === mediaRequestRef.current) {
+        setCallError(error.message || 'Could not access your microphone.');
+      }
+      return false;
     }
   }, []);
 
-  const stopMedia = useCallback(() => {
-    if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach(t => t.stop());
-      localStreamRef.current = null;
-    }
+  const endCall = useCallback(() => {
+    mediaRequestRef.current++;
+    const pc = pcRef.current;
+    pcRef.current = null;
+    pc?.close();
+    pendingCandidatesRef.current = [];
+    localStreamRef.current?.getTracks().forEach(track => track.stop());
+    localStreamRef.current = null;
     setLocalStream(null);
     setRemoteStream(null);
-    setMediaError(null);
-    setConnecting(false);
+    setCallError(null);
     setConnected(false);
   }, []);
 
-  const cleanupPeerConnection = useCallback(() => {
-    if (pcRef.current) {
-      pcRef.current.close();
-      pcRef.current = null;
-    }
-    pendingCandidatesRef.current = [];
-  }, []);
-
   const createPeerConnection = useCallback((stream) => {
-    if (pcRef.current) {
-      pcRef.current.close();
-    }
-
-    const config = {
-      iceServers: iceServers.length > 0 ? iceServers : [{ urls: 'stun:stun.l.google.com:19302' }],
-    };
-
-    const pc = new RTCPeerConnection(config);
+    const pc = new RTCPeerConnection({ iceServers });
     pcRef.current = pc;
-    setConnecting(true);
 
-    if (stream) {
-      stream.getTracks().forEach(track => {
-        pc.addTrack(track, stream);
-      });
-    }
+    stream.getTracks().forEach(track => pc.addTrack(track, stream));
 
-    pc.onicecandidate = (event) => {
-      if (event.candidate) {
-        onSignal({
-          type: 'candidate',
-          candidate: event.candidate.candidate,
-          sdpMid: event.candidate.sdpMid,
-          sdpMLineIndex: event.candidate.sdpMLineIndex,
-        });
+    pc.onicecandidate = ({ candidate }) => {
+      if (candidate && pcRef.current === pc) {
+        onSignal({ type: 'candidate', ...candidate.toJSON() });
       }
     };
 
-    pc.ontrack = (event) => {
-      console.log('[useVoip] ontrack fired', {
-        trackKind: event.track?.kind,
-        streamId: event.streams[0]?.id,
-        audioTracks: event.streams[0]?.getAudioTracks().length,
-        videoTracks: event.streams[0]?.getVideoTracks().length,
-      });
-      setRemoteStream(event.streams[0]);
+    const remote = new MediaStream();
+    pc.ontrack = ({ track, streams }) => {
+      if (pcRef.current !== pc) return;
+      if (!streams.length) remote.addTrack(track);
+      setRemoteStream(streams[0] || remote);
     };
 
     pc.onconnectionstatechange = () => {
-      console.log('[useVoip] connectionState:', pc.connectionState);
-      if (pc.connectionState === 'connected') {
-        setConnected(true);
-        setConnecting(false);
-      } else if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
-        setConnected(false);
-        setConnecting(false);
-      }
-    };
-
-    pc.oniceconnectionstatechange = () => {
-      console.log('[useVoip] iceConnectionState:', pc.iceConnectionState);
-      if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
-        setConnected(false);
-        setConnecting(false);
+      if (pcRef.current !== pc) return;
+      setConnected(pc.connectionState === 'connected');
+      if (pc.connectionState === 'failed') {
+        setCallError('Could not establish a call connection.');
       }
     };
 
@@ -133,126 +101,53 @@ const useVoip = ({ onSignal, callType }) => {
   }, [iceServers, onSignal]);
 
   const createOffer = useCallback(async () => {
-    if (pcRef.current) {
-      console.log('[useVoip] createOffer skipped - pc already exists');
-      return null;
-    }
-
-    const stream = localStreamRef.current || await startMedia(callType);
-    if (!stream) {
-      console.log('[useVoip] createOffer failed - no stream');
-      return null;
-    }
-
-    console.log('[useVoip] creating offer, stream audio tracks:', stream.getAudioTracks().length);
-
-    const pc = createPeerConnection(stream);
+    const stream = localStreamRef.current;
+    if (!stream || pcRef.current) return;
     try {
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-      console.log('[useVoip] offer created');
-      return offer;
-    } catch (err) {
-      console.error('[useVoip] Failed to create offer:', err);
-      return null;
-    }
-  }, [callType, startMedia, createPeerConnection]);
-
-  const handleRemoteSignal = useCallback(async (signalData) => {
-    console.log('[useVoip] handleRemoteSignal', signalData.type, signalData.type === 'offer' ? '(offer)' : signalData.type === 'answer' ? '(answer)' : signalData.candidate ? '(candidate)' : '');
-
-    if (signalData.type === 'offer' && signalData.sdp) {
-      if (!pcRef.current) {
-        const stream = localStreamRef.current;
-        if (!stream) {
-          console.log('[useVoip] handleRemoteSignal: no local stream for offer');
-          return null;
-        }
-        console.log('[useVoip] creating PC for incoming offer, stream audio tracks:', stream.getAudioTracks().length);
-        createPeerConnection(stream);
-      }
-
-      const pc = pcRef.current;
-      if (!pc) return null;
-
-      try {
-        await pc.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: signalData.sdp }));
-        console.log('[useVoip] set remote description (offer), pending candidates:', pendingCandidatesRef.current.length);
-        for (const c of pendingCandidatesRef.current) {
-          await pc.addIceCandidate(new RTCIceCandidate(c));
-        }
-        pendingCandidatesRef.current = [];
-
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
-        console.log('[useVoip] created and sent answer');
-        onSignal({ type: 'answer', sdp: answer.sdp });
-        return answer;
-      } catch (err) {
-        console.error('[useVoip] Failed to handle remote offer:', err);
-        return null;
-      }
-    }
-
-    const pc = pcRef.current;
-    if (!pc) {
-      console.log('[useVoip] handleRemoteSignal: no PC for', signalData.type, signalData.candidate ? '(candidate)' : '');
-      return null;
-    }
-
-    if (signalData.type === 'answer' && signalData.sdp) {
-      try {
-        await pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: signalData.sdp }));
-        console.log('[useVoip] set remote description (answer), pending candidates:', pendingCandidatesRef.current.length);
-        for (const c of pendingCandidatesRef.current) {
-          await pc.addIceCandidate(new RTCIceCandidate(c));
-        }
-        pendingCandidatesRef.current = [];
-      } catch (err) {
-        console.error('[useVoip] Failed to set remote answer:', err);
-      }
-    } else if (signalData.candidate) {
-      if (pc.remoteDescription) {
-        try {
-          await pc.addIceCandidate(new RTCIceCandidate(signalData));
-        } catch (err) {
-          console.error('[useVoip] Failed to add ICE candidate:', err);
-        }
-      } else {
-        console.log('[useVoip] queuing candidate, no remote desc yet');
-        pendingCandidatesRef.current.push(signalData);
-      }
+      const pc = createPeerConnection(stream);
+      await pc.setLocalDescription(await pc.createOffer());
+      if (pcRef.current === pc) onSignal(pc.localDescription.toJSON());
+    } catch (error) {
+      if (localStreamRef.current === stream) setCallError('Could not start the call connection.');
+      console.warn('Failed to create call offer:', error);
     }
   }, [createPeerConnection, onSignal]);
 
-  const startCall = useCallback(async () => {
-    await startMedia(callType);
-  }, [callType, startMedia]);
+  const handleRemoteSignal = useCallback(async (signal) => {
+    const stream = localStreamRef.current;
+    if (!stream || !signal) return;
+    let pc = pcRef.current;
+    if (signal.type === 'candidate' && signal.candidate) {
+      if (!pc?.remoteDescription) pendingCandidatesRef.current.push(signal);
+      else await addCandidate(pc, signal);
+      return;
+    }
 
-  const acceptCall = useCallback(async () => {
-    await startMedia(callType);
-  }, [callType, startMedia]);
+    const isOffer = signal.type === 'offer';
+    if (!signal.sdp) return;
+    if (isOffer && pc) return;
+    if (!isOffer && (signal.type !== 'answer' || pc?.signalingState !== 'have-local-offer')) return;
 
-  const endCall = useCallback(() => {
-    cleanupPeerConnection();
-    stopMedia();
-  }, [cleanupPeerConnection, stopMedia]);
+    try {
+      if (isOffer) pc = createPeerConnection(stream);
+      await pc.setRemoteDescription({ type: signal.type, sdp: signal.sdp });
+      if (pcRef.current !== pc) return;
 
-  return {
-    localStream,
-    remoteStream,
-    mediaError,
-    connecting,
-    connected,
-    createOffer,
-    handleRemoteSignal,
-    startCall,
-    acceptCall,
-    endCall,
-    startMedia,
-    stopMedia,
-    cleanupPeerConnection,
-  };
+      const candidates = pendingCandidatesRef.current;
+      pendingCandidatesRef.current = [];
+      for (const candidate of candidates) await addCandidate(pc, candidate);
+
+      if (isOffer && pcRef.current === pc) {
+        await pc.setLocalDescription(await pc.createAnswer());
+        if (pcRef.current === pc) onSignal(pc.localDescription.toJSON());
+      }
+    } catch (error) {
+      if (localStreamRef.current === stream) setCallError('Could not negotiate the call connection.');
+      console.warn('Failed to process call signal:', error);
+    }
+  }, [createPeerConnection, onSignal]);
+
+  return { localStream, remoteStream, callError, connected, createOffer, handleRemoteSignal, startMedia, endCall };
 };
 
 export default useVoip;

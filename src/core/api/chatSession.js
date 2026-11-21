@@ -7,7 +7,7 @@ import getAuthToken from 'core/utils/getAuthToken';
 
 let refreshInFlight;
 
-function tokenUser(token) {
+export function tokenUser(token) {
   try {
     const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
     return JSON.parse(atob(payload)).user_id;

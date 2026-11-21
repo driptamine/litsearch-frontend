@@ -1,141 +1,93 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { styled } from '@linaria/react';
-import { FaPhoneSlash, FaMicrophoneSlash, FaVideo, FaPhone, FaSpinner, FaVolumeUp, FaMicrophone } from 'react-icons/fa';
+import { FaPhoneSlash, FaMicrophoneSlash, FaPhone, FaSpinner, FaVolumeUp, FaMicrophone } from 'react-icons/fa';
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
 
-const CallOverlay = ({ callState, callType, callerName, callerAvatar, localStream, remoteStream, mediaError, onEndCall, audioContextRef }) => {
+const CallOverlay = ({ callState, callType, callerName, callerAvatar, localStream, remoteStream, callError, onEndCall, audioContextRef }) => {
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
+  const remoteAudioRef = useRef(null);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [micLevel, setMicLevel] = useState(0);
-  const timerRef = useRef(null);
-  const analyserRef = useRef(null);
-  const animFrameRef = useRef(null);
+  const [playbackBlocked, setPlaybackBlocked] = useState(false);
+  const isVideoCall = callType === 'video';
+  const showVideo = isVideoCall && callState === 'connected' && !callError;
 
-  const playStream = useCallback((element, label) => {
-    if (!element) return;
-    element.play().then(() => {
-      console.log(`[CallOverlay] ${label} play() succeeded`);
-    }).catch(err => {
-      console.warn(`[CallOverlay] ${label} play() failed:`, err.message);
-    });
+  useEffect(() => {
+    if (localVideoRef.current) localVideoRef.current.srcObject = localStream;
+    if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
+  }, [localStream, remoteStream, showVideo]);
+
+  const playAudio = useCallback(async () => {
+    const audio = remoteAudioRef.current;
+    if (!audio?.srcObject) return;
+    try {
+      await audio.play();
+    } catch (error) {
+      if (error.name === 'NotAllowedError' && remoteAudioRef.current === audio) {
+        setPlaybackBlocked(true);
+      }
+    }
   }, []);
 
   useEffect(() => {
-    if (localVideoRef.current && localStream) {
-      console.log('[CallOverlay] attaching local stream to video');
-      localVideoRef.current.srcObject = localStream;
-    }
-  }, [localStream]);
-
-  useEffect(() => {
-    if (!remoteStream) return;
-    console.log('[CallOverlay] remoteStream effect, audio tracks:', remoteStream.getAudioTracks().length);
-    if (remoteVideoRef.current) {
-      remoteVideoRef.current.srcObject = remoteStream;
-      remoteVideoRef.current.volume = volume;
-      playStream(remoteVideoRef.current, 'remoteVideo');
-    }
-  }, [remoteStream, volume, playStream]);
-
-  useEffect(() => {
-    if (callState === 'connected') {
-      timerRef.current = setInterval(() => {
-        setDuration(prev => prev + 1);
-      }, 1000);
-    } else {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-      setDuration(0);
-    }
-
+    const audio = remoteAudioRef.current;
+    if (!audio || !remoteStream) return;
+    audio.srcObject = remoteStream;
+    playAudio();
     return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
+      audio.pause();
+      audio.srcObject = null;
+      setPlaybackBlocked(false);
     };
+  }, [remoteStream, playAudio]);
+
+  useEffect(() => {
+    if (remoteAudioRef.current) remoteAudioRef.current.volume = volume;
+  }, [volume, remoteStream]);
+
+  useEffect(() => {
+    if (callState !== 'connected') {
+      setDuration(0);
+      return;
+    }
+    const timer = setInterval(() => setDuration(prev => prev + 1), 1000);
+    return () => clearInterval(timer);
   }, [callState]);
 
   useEffect(() => {
-    console.log('[CallOverlay] mic level effect running');
-    const ctx = audioContextRef?.current;
-    if (!localStream || !ctx) {
-      console.log('[CallOverlay] mic level: no stream or no ctx', !!localStream, !!ctx);
+    const context = audioContextRef?.current;
+    if (!localStream || !context || !localStream.getAudioTracks().length) {
       setMicLevel(0);
       return;
     }
-    const audioTrack = localStream.getAudioTracks()[0];
-    if (!audioTrack) {
-      console.log('[CallOverlay] mic level: no audio track');
-      return;
-    }
-    console.log('[CallOverlay] mic level: track enabled:', audioTrack.enabled, 'muted:', audioTrack.muted, 'readyState:', audioTrack.readyState);
 
-    const source = ctx.createMediaStreamSource(localStream);
-    const analyser = ctx.createAnalyser();
+    const source = context.createMediaStreamSource(localStream);
+    const analyser = context.createAnalyser();
     analyser.fftSize = 256;
     source.connect(analyser);
-    analyserRef.current = analyser;
-
-    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    const samples = new Uint8Array(analyser.fftSize);
+    let frame;
 
     const tick = () => {
-      analyser.getByteTimeDomainData(dataArray);
+      analyser.getByteTimeDomainData(samples);
       let sum = 0;
-      for (let i = 0; i < dataArray.length; i++) {
-        const v = (dataArray[i] - 128) / 128;
-        sum += v * v;
+      for (const sample of samples) {
+        const value = (sample - 128) / 128;
+        sum += value * value;
       }
-      const rms = Math.sqrt(sum / dataArray.length);
-      setMicLevel(Math.min(1, rms * 3));
-      if (Math.random() < 0.02) {
-        console.log('[CallOverlay] mic rms:', rms.toFixed(4), 'sample:', dataArray[0], dataArray[64], dataArray[128]);
-      }
-      animFrameRef.current = requestAnimationFrame(tick);
+      setMicLevel(Math.min(1, Math.sqrt(sum / samples.length) * 3));
+      frame = requestAnimationFrame(tick);
     };
     tick();
 
     return () => {
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-      analyserRef.current = null;
+      cancelAnimationFrame(frame);
       source.disconnect();
     };
   }, [localStream, audioContextRef]);
-
-  useEffect(() => {
-    console.log('[CallOverlay] remote audio effect running, remoteStream:', !!remoteStream, 'ctx:', !!audioContextRef?.current);
-    const ctx = audioContextRef?.current;
-    if (!remoteStream || !ctx) {
-      console.log('[CallOverlay] remote audio: no stream or no ctx');
-      return;
-    }
-    console.log('[CallOverlay] remote audio: ctx state:', ctx.state, 'volume:', volume);
-    if (ctx.state === 'suspended') {
-      console.log('[CallOverlay] remote audio: resuming suspended ctx');
-      ctx.resume();
-    }
-
-    const source = ctx.createMediaStreamSource(remoteStream);
-    const gain = ctx.createGain();
-    gain.gain.value = volume;
-    source.connect(gain);
-    gain.connect(ctx.destination);
-    console.log('[CallOverlay] remote audio: pipeline connected');
-
-    if (remoteVideoRef.current) {
-      remoteVideoRef.current.volume = volume;
-    }
-
-    return () => {
-      source.disconnect();
-      gain.disconnect();
-    };
-  }, [remoteStream, volume, playStream]);
 
   const formatDuration = (seconds) => {
     const m = Math.floor(seconds / 60);
@@ -148,18 +100,18 @@ const CallOverlay = ({ callState, callType, callerName, callerAvatar, localStrea
   const getLabel = () => {
     switch (callState) {
       case 'calling': return 'Calling...';
-      case 'ringing': return 'Incoming Call';
       case 'connecting': return 'Connecting...';
       case 'connected': return callType === 'video' ? 'Video Call' : 'Voice Call';
       default: return '';
     }
   };
 
-  const isVideoCall = callType === 'video';
-
   return (
     <Overlay>
       <OverlayContent>
+        {remoteStream && (
+          <audio ref={remoteAudioRef} autoPlay playsInline data-call-audio onPlaying={() => setPlaybackBlocked(false)} />
+        )}
         <CallHeader>
           <Avatar
             src={callerAvatar || DEFAULT_AVATAR}
@@ -172,27 +124,25 @@ const CallOverlay = ({ callState, callType, callerName, callerAvatar, localStrea
           <CallLabel>{getLabel()}</CallLabel>
         </CallHeader>
 
-        {mediaError && (
+        {callError && (
           <CenterSection>
             <FaMicrophoneSlash size={40} />
-            <ErrorText>Microphone access denied</ErrorText>
-            <ErrorSubtext>{mediaError}</ErrorSubtext>
+            <ErrorText>Call error</ErrorText>
+            <ErrorSubtext>{callError}</ErrorSubtext>
             <RetryButton onClick={onEndCall}>Close</RetryButton>
           </CenterSection>
         )}
 
-        {!mediaError && (callState === 'calling' || callState === 'ringing') && (
+        {!callError && callState === 'calling' && (
           <CenterSection>
             <Spinner>
               <FaSpinner />
             </Spinner>
-            <StatusText>
-              {callState === 'calling' ? 'Ringing...' : ''}
-            </StatusText>
+            <StatusText>Waiting for an answer…</StatusText>
           </CenterSection>
         )}
 
-        {!mediaError && callState === 'connecting' && (
+        {!callError && callState === 'connecting' && (
           <CenterSection>
             <Spinner>
               <FaSpinner />
@@ -201,12 +151,12 @@ const CallOverlay = ({ callState, callType, callerName, callerAvatar, localStrea
           </CenterSection>
         )}
 
-        {!mediaError && callState === 'connected' && (
+        {!callError && callState === 'connected' && (
           <CallContent>
             {isVideoCall ? (
               <VideoGrid>
                 {remoteStream && (
-                  <RemoteVideo ref={remoteVideoRef} autoPlay playsInline />
+                  <RemoteVideo ref={remoteVideoRef} autoPlay muted playsInline />
                 )}
                 {localStream && (
                   <LocalVideo ref={localVideoRef} autoPlay muted playsInline />
@@ -222,6 +172,7 @@ const CallOverlay = ({ callState, callType, callerName, callerAvatar, localStrea
         )}
 
         <CallFooter>
+          {playbackBlocked && <RetryButton onClick={playAudio}>Enable call audio</RetryButton>}
           {callState === 'connected' && (
             <>
               <DurationText>{formatDuration(duration)}</DurationText>

@@ -46,6 +46,7 @@ const ChatWindow = () => {
   const [partnerTyping, setPartnerTyping] = useState(false);
   const [callState, setCallState] = useState('idle');
   const [callType, setCallType] = useState(null);
+  const [callSignalError, setCallSignalError] = useState(null);
   const [demoDelay, setDemoDelay] = useState(false);
   const [addMemberOpen, setAddMemberOpen] = useState(false);
   const [memberSearch, setMemberSearch] = useState('');
@@ -91,7 +92,7 @@ const ChatWindow = () => {
     });
   };
 
-  const callTypeRef = useRef(null);
+  const callRef = useRef(null);
   const sendVoipWebRtcSignalRef = useRef(null);
   const audioContextRef = useRef(null);
 
@@ -99,27 +100,22 @@ const ChatWindow = () => {
     if (demoDelay) await new Promise(r => setTimeout(r, 2000));
   }, [demoDelay]);
 
+  const sendCallSignal = useCallback((signalData) => {
+    if (!sendVoipWebRtcSignalRef.current?.(signalData)) {
+      setCallSignalError('Chat disconnected. Close the call and try again.');
+    }
+  }, []);
+
   const {
     localStream,
     remoteStream,
-    mediaError: voipMediaError,
-    connecting: voipConnecting,
+    callError: voipError,
     connected: voipConnected,
     createOffer,
     handleRemoteSignal,
-    startCall: voipStartCall,
-    acceptCall: voipAcceptCall,
+    startMedia,
     endCall: voipEndCall,
-  } = useVoip({
-    onSignal: (signalData) => {
-      sendVoipWebRtcSignalRef.current?.(signalData);
-    },
-    callType: callTypeRef.current,
-  });
-
-  useEffect(() => {
-    callTypeRef.current = callType;
-  }, [callType]);
+  } = useVoip({ enabled: !!activeChatId, onSignal: sendCallSignal });
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -149,51 +145,36 @@ const ChatWindow = () => {
     ));
   }, []);
 
-  const handleVoipCallAccept = useCallback(async () => {
-    if (!callTypeRef.current) {
-      console.log('[ChatWindow] handleVoipCallAccept: no callType');
-      return;
-    }
-    console.log('[ChatWindow] handleVoipCallAccept: creating offer...');
-    await delay();
-    const offer = await createOffer();
-    if (offer) {
-      console.log('[ChatWindow] handleVoipCallAccept: sending offer');
-      await delay();
-      sendVoipWebRtcSignalRef.current?.({ type: 'offer', sdp: offer.sdp });
-      setCallState('connecting');
-    } else {
-      console.log('[ChatWindow] handleVoipCallAccept: createOffer returned null');
-    }
-  }, [createOffer, delay]);
-
-  const handleVoipCallReject = useCallback(() => {
-    console.log('[ChatWindow] call rejected');
-    setCallState('idle');
-    setCallType(null);
-  }, []);
-
-  const handleVoipCallEnd = useCallback(() => {
-    console.log('[ChatWindow] call ended by remote');
+  const resetCall = useCallback(() => {
+    callRef.current = null;
     voipEndCall();
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
-      audioContextRef.current = null;
-    }
+    const context = audioContextRef.current;
+    audioContextRef.current = null;
+    if (context) context.close().catch(() => {});
     setCallState('idle');
     setCallType(null);
+    setCallSignalError(null);
   }, [voipEndCall]);
 
-  const handleVoipWebRtcSignal = useCallback(async (signalData) => {
-    const isOffer = signalData.type === 'offer' && signalData.sdp;
-    console.log('[ChatWindow] handleVoipWebRtcSignal', signalData.type, isOffer ? '(offer)' : '');
-    await delay();
-    await handleRemoteSignal(signalData);
-    if (isOffer) {
-      await delay();
-      setCallState('connecting');
-    }
-  }, [handleRemoteSignal, delay]);
+  const handleVoipCallEnd = useCallback(() => {
+    if (incomingCall?.chatId === activeChatId) clearIncomingCall();
+    if (callRef.current) resetCall();
+  }, [activeChatId, clearIncomingCall, incomingCall, resetCall]);
+
+  const handleVoipCallAccept = useCallback(async () => {
+    const call = callRef.current;
+    if (call?.direction !== 'outgoing' || !call.signaled || call.accepted) return;
+    call.accepted = true;
+    setCallState('connecting');
+    await createOffer();
+  }, [createOffer]);
+
+  const handleVoipWebRtcSignal = useCallback((signal) => {
+    const call = callRef.current;
+    if (!call?.accepted) return;
+    if (signal?.type === 'offer' && call.direction !== 'incoming') return;
+    return handleRemoteSignal(signal);
+  }, [handleRemoteSignal]);
 
   const {
     sendMessage: wsSendMessage,
@@ -209,10 +190,9 @@ const ChatWindow = () => {
     onNewMessage: handleNewMessage,
     onTyping: handleTyping,
     onReadReceipt: handleReadReceipt,
-    onVoipCallStart: null,
     onVoipCallEnd: handleVoipCallEnd,
     onVoipCallAccept: handleVoipCallAccept,
-    onVoipCallReject: handleVoipCallReject,
+    onVoipCallReject: handleVoipCallEnd,
     onVoipWebRtcSignal: handleVoipWebRtcSignal,
     enabled: !!activeChatId,
   });
@@ -301,14 +281,10 @@ const ChatWindow = () => {
     setAddingMember(false);
   };
 
-  useEffect(() => {
-    if (incomingCall && activeChatId && activeChatId === incomingCall.chatId) {
-      setCallState('ringing');
-    }
-  }, [incomingCall, activeChatId]);
+  useEffect(() => resetCall, [chatDetailPath, resetCall]);
 
   useEffect(() => {
-    if (voipConnected) setCallState('connected');
+    if (voipConnected && callRef.current) setCallState('connected');
   }, [voipConnected]);
 
   useEffect(() => {
@@ -380,51 +356,57 @@ const ChatWindow = () => {
     sendTyping(isTyping);
   };
 
-  const handleVoipCall = async (type) => {
-    console.log('[ChatWindow] starting call:', type);
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    await ctx.resume();
-    console.log('[ChatWindow] AudioContext created, state:', ctx.state);
-    audioContextRef.current = ctx;
-    await delay();
-    sendVoipCallStart(type);
+  const prepareCall = async (type, direction) => {
+    if (!isConnected || callRef.current) return null;
+    const call = { direction, signaled: false, accepted: false };
+    callRef.current = call;
     setCallType(type);
-    setCallState('calling');
+    setCallState(direction === 'outgoing' ? 'calling' : 'connecting');
+
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) {
+      try {
+        const context = new AudioContext();
+        audioContextRef.current = context;
+        context.resume().catch(() => {});
+      } catch (_) {}
+    }
+
+    const ready = await startMedia(type);
+    if (!ready) return null;
     await delay();
-    await voipStartCall();
+    return callRef.current === call ? call : null;
+  };
+
+  const handleVoipCall = async (type) => {
+    const call = await prepareCall(type, 'outgoing');
+    if (!call) return;
+    call.signaled = sendVoipCallStart(type);
+    if (!call.signaled) setCallSignalError('Chat disconnected. Close the call and try again.');
   };
 
   const handleEndCall = () => {
-    console.log('[ChatWindow] ending call');
-    sendVoipCallEnd();
-    voipEndCall();
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
-      audioContextRef.current = null;
-    }
-    setCallState('idle');
-    setCallType(null);
+    const call = callRef.current;
+    if (call?.signaled) sendVoipCallEnd();
+    else if (call?.direction === 'incoming') sendVoipCallReject();
+    if (incomingCall?.chatId === activeChatId) clearIncomingCall();
+    resetCall();
   };
 
   const handleAcceptCall = async () => {
-    const type = incomingCall?.callType || 'video';
-    console.log('[ChatWindow] accepting call:', type);
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    await ctx.resume();
-    console.log('[ChatWindow] AudioContext created, state:', ctx.state);
-    audioContextRef.current = ctx;
-    setCallType(type);
-    await delay();
-    await voipAcceptCall();
-    await delay();
-    sendVoipCallAccept();
+    const type = incomingCall?.callType === 'video' ? 'video' : 'audio';
+    const call = await prepareCall(type, 'incoming');
+    if (!call) return;
+    call.signaled = sendVoipCallAccept();
+    call.accepted = call.signaled;
     clearIncomingCall();
+    if (!call.signaled) {
+      setCallSignalError('Chat disconnected. Close the call and try again.');
+    }
   };
 
   const handleDeclineCall = () => {
-    console.log('[ChatWindow] declining call');
-    sendVoipCallReject();
-    clearIncomingCall();
+    if (sendVoipCallReject()) clearIncomingCall();
   };
 
   const targetAvatar = (() => {
@@ -489,7 +471,7 @@ const ChatWindow = () => {
     );
   }
 
-  const showIncomingOverlay = incomingCall && activeChatId && incomingCall.chatId === activeChatId && callState === 'ringing';
+  const showIncomingOverlay = incomingCall && activeChatId && incomingCall.chatId === activeChatId && callState === 'idle';
 
   return (
     <ChatWindowContainer>
@@ -578,10 +560,10 @@ const ChatWindow = () => {
                 </EndCallButton>
               ) : (
                 <>
-                  <CallButton onClick={() => handleVoipCall('audio')} title="Voice call">
+                  <CallButton onClick={() => handleVoipCall('audio')} title="Voice call" disabled={!isConnected}>
                     <FaPhone />
                   </CallButton>
-                  <CallButton onClick={() => handleVoipCall('video')} title="Video call">
+                  <CallButton onClick={() => handleVoipCall('video')} title="Video call" disabled={!isConnected}>
                     <FaVideo />
                   </CallButton>
                 </>
@@ -641,7 +623,7 @@ const ChatWindow = () => {
             callerAvatar={targetAvatar}
             localStream={localStream}
             remoteStream={remoteStream}
-            mediaError={voipMediaError}
+            callError={callSignalError || voipError}
             onEndCall={handleEndCall}
             audioContextRef={audioContextRef}
           />
@@ -650,6 +632,7 @@ const ChatWindow = () => {
               callType={incomingCall.callType}
               callerName={incomingCall.callerName || chatInfo?.name || chatInfo?.username}
               callerAvatar={targetAvatar}
+              ready={isConnected}
               onAccept={handleAcceptCall}
               onDecline={handleDeclineCall}
             />
