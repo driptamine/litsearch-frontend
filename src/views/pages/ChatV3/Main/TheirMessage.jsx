@@ -1,6 +1,7 @@
 import React from 'react';
 import { styled } from '@linaria/react';
 import { LITLOOP_API_URL } from 'core/constants/urls';
+import ChatTrackAttachment, { isTrackAttachment } from './ChatTrackAttachment';
 import VoiceMessagePlayer from './VoiceMessagePlayer';
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
@@ -43,11 +44,8 @@ const TheirMessage = ({ message, formatTime }) => {
                 {att.type === 'video' && (
                   <VideoAtt src={resolveUrl(att.url)} controls preload="metadata" />
                 )}
-                {att.type === 'track' && (
-                  <TrackAtt>
-                    <TrackName>{att.name}</TrackName>
-                    <audio src={resolveUrl(att.url)} controls preload="none" />
-                  </TrackAtt>
+                {isTrackAttachment(att) && (
+                  <ChatTrackAttachment attachment={att} inMessage />
                 )}
               </AttachmentItem>
             ))}
@@ -148,26 +146,6 @@ const VideoAtt = styled.video`
   max-height: 260px;
   border-radius: 10px;
   display: block;
-`;
-
-const TrackAtt = styled.div`
-  background: rgba(0,0,0,0.15);
-  border-radius: 10px;
-  padding: 8px;
-  min-width: 200px;
-  audio {
-    width: 100%;
-    height: 36px;
-  }
-`;
-
-const TrackName = styled.div`
-  font-size: 0.8rem;
-  margin-bottom: 4px;
-  opacity: 0.8;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 `;
 
 export default TheirMessage;

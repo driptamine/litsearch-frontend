@@ -11,6 +11,7 @@ import useMediaRecorder from 'core/hooks/useMediaRecorder';
 import PhotoPickerModal from 'views/components/upload/uploader/posts/PhotoPickerModal';
 import VideoPickerModal from 'views/components/upload/uploader/posts/VideoPickerModal';
 import TrackPickerModal from 'views/components/upload/uploader/posts/TrackPickerModal';
+import { isTrackAttachment } from './ChatTrackAttachment';
 
 const resolveUrl = (url) => {
   if (!url) return '';
@@ -200,7 +201,11 @@ const ChatInput = ({ onSendMessage, onTyping }) => {
     const newAtt = tracks.map((t) => ({
       url: t.r2_url || t.gcs_url || t.url || t.preview_url,
       type: 'track',
-      name: t.name || 'track',
+      name: t.name || t.title || 'Track',
+      artist: typeof t.artist === 'string' ? t.artist : undefined,
+      artists: Array.isArray(t.artists)
+        ? t.artists.map((artist) => (typeof artist === 'string' ? artist : artist?.name)).filter(Boolean)
+        : undefined,
     }));
     if (newAtt.length) setAttachments((prev) => [...prev, ...newAtt]);
   }, []);
@@ -268,7 +273,7 @@ const ChatInput = ({ onSendMessage, onTyping }) => {
           <AttachmentChip key={idx}>
             {att.type === 'photo' && <ThumbPreview src={resolveUrl(att.url)} alt={att.name} />}
             {att.type === 'video' && <FileIcon>V</FileIcon>}
-            {att.type === 'track' && <FileIcon>A</FileIcon>}
+            {isTrackAttachment(att) && <FileIcon>A</FileIcon>}
             <AttachmentName>{att.name}</AttachmentName>
             <RemoveAttBtn onClick={() => removeAttachment(idx)}>
               <IoClose size={14} />

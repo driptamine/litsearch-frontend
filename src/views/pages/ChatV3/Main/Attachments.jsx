@@ -4,6 +4,7 @@ import { styled } from '@linaria/react';
 import { FaArrowLeft } from 'react-icons/fa';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { getAxiosReq } from 'core/api/rest-helper';
+import ChatTrackAttachment, { isTrackAttachment } from './ChatTrackAttachment';
 
 const TABS = ['Photos', 'Videos', 'Tracks'];
 const TAB_TYPE = { Photos: 'photo', Videos: 'video', Tracks: 'track' };
@@ -38,7 +39,7 @@ const Attachments = () => {
     for (const msg of messages) {
       if (!msg.attachments?.length) continue;
       for (const att of msg.attachments) {
-        if (att.type === type) {
+        if (type === 'track' ? isTrackAttachment(att) : att.type === type) {
           items.push({ ...att, created_at: msg.created_at });
         }
       }
@@ -81,14 +82,7 @@ const Attachments = () => {
             ))}
           </List>
         ) : (
-          <List>
-            {attachments.map((att, i) => (
-              <TrackItem key={i}>
-                <TrackName>{att.name}</TrackName>
-                <audio src={resolveUrl(att.url)} controls preload="none" />
-              </TrackItem>
-            ))}
-          </List>
+          attachments.map((att, i) => <ChatTrackAttachment key={i} attachment={att} index={i} />)
         )}
       </Content>
     </Container>
@@ -192,22 +186,6 @@ const List = styled.div`
 
 const VideoItem = styled.div`
   video { width: 100%; max-height: 300px; border-radius: 8px; }
-`;
-
-const TrackItem = styled.div`
-  background: #2a2a2a;
-  border-radius: 8px;
-  padding: 12px;
-  audio { width: 100%; }
-`;
-
-const TrackName = styled.div`
-  font-size: 13px;
-  margin-bottom: 6px;
-  color: #ccc;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 `;
 
 export default Attachments;

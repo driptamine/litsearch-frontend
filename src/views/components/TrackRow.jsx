@@ -17,11 +17,13 @@ const Row = styled.div`
   }
 `;
 
-const PlayBtn = styled.div`
+const PlayBtn = styled.button`
   user-select: none;
   width: 40px;
   height: 40px;
   margin-right: 10px;
+  padding: 0;
+  border: 0;
   font-size: 18px;
   display: flex;
   align-items: center;
@@ -99,7 +101,7 @@ const Artist = styled.span`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex-shrink: 0;
+  min-width: 0;
 `;
 
 const ContentColumn = styled.div`
@@ -208,7 +210,7 @@ const EditBtn = styled.button`
   }
 `;
 
-function TrackRow({ track, index, showEdit = false, onTrackUpdated, onTrackDeleted }) {
+function TrackRow({ track, index = 0, showNumber = true, preload = 'metadata', showEdit = false, onTrackUpdated, onTrackDeleted }) {
   const audioRef = useRef(null);
   const [playing, setPlaying] = useState(false);
   const [hasPlayed, setHasPlayed] = useState(false);
@@ -218,38 +220,36 @@ function TrackRow({ track, index, showEdit = false, onTrackUpdated, onTrackDelet
   const [showEditModal, setShowEditModal] = useState(false);
 
   const src = track.r2_url || track.gcs_url || track.url || track.preview_url;
-  const title = track.title || track.name || `Track ${index + 1}`;
-  const artist = track.artist || (Array.isArray(track.artists) ? track.artists.map(a => a.name || a).join(', ') : '') || '';
+  const title = track.title || track.name || (showNumber ? `Track ${index + 1}` : 'Track');
+  const artist = (typeof track.artist === 'string' && track.artist) || (Array.isArray(track.artists)
+    ? track.artists.map(item => typeof item === 'string' ? item : item?.name).filter(Boolean).join(', ')
+    : '');
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   useEffect(() => {
     const handleOtherTrackPlay = (e) => {
-      if (e.detail !== src && audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-        setPlaying(false);
-        setHasPlayed(false);
-        setCurrentTime(0);
-      }
+      const audio = audioRef.current;
+      if (!audio || e.detail === audio) return;
+      audio.pause();
+      if (audio.currentTime) audio.currentTime = 0;
+      setPlaying(false);
+      setHasPlayed(false);
+      setCurrentTime(0);
     };
     document.addEventListener('track-started', handleOtherTrackPlay);
     return () => document.removeEventListener('track-started', handleOtherTrackPlay);
-  }, [src]);
+  }, []);
 
   const togglePlay = (e) => {
     e.stopPropagation();
     e.preventDefault();
     const audio = audioRef.current;
     if (!audio) return;
-    if (playing) {
+    if (!audio.paused) {
       audio.pause();
-      setPlaying(false);
     } else {
-      document.dispatchEvent(new CustomEvent('track-started', { detail: src }));
-      audio.play().catch(() => {});
-      setPlaying(true);
-      setHasPlayed(true);
+      audio.play().catch(() => setPlaying(false));
     }
   };
 
@@ -298,16 +298,19 @@ function TrackRow({ track, index, showEdit = false, onTrackUpdated, onTrackDelet
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={handleEnded}
-                onPlay={() => {
-                  setHasPlayed(true);
-                  document.dispatchEvent(new CustomEvent('track-started', { detail: src }));
-                }}
-        preload="metadata"
+        onPlay={(e) => {
+          setPlaying(true);
+          setHasPlayed(true);
+          document.dispatchEvent(new CustomEvent('track-started', { detail: e.currentTarget }));
+        }}
+        onPause={() => setPlaying(false)}
+        onError={() => setPlaying(false)}
+        preload={preload}
       />
-      <PlayBtn onClick={togglePlay}>
+      <PlayBtn type="button" onClick={togglePlay} aria-label={`${playing ? 'Pause' : 'Play'} ${title}`} disabled={!src}>
         {playing ? <PauseIcon /> : <PlayIcon />}
       </PlayBtn>
-      <TrackNumber>{index + 1}</TrackNumber>
+      {showNumber && <TrackNumber>{index + 1}</TrackNumber>}
       <ContentColumn>
         {hasPlayed ? (
           <TrackInfoRow>
@@ -324,6 +327,7 @@ function TrackRow({ track, index, showEdit = false, onTrackUpdated, onTrackDelet
           <ProgressArea>
             <ProgressWrapper>
               <ProgressBar
+                aria-label={`Seek in ${title}`}
                 value={currentTime}
                 max={duration || 1}
                 progress={progress}
