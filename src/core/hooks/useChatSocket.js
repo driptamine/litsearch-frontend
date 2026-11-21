@@ -93,16 +93,16 @@ const useChatSocket = (chatId, { onNewMessage, onTyping, onReadReceipt, onVoipCa
     return send({ type: 'voip_webrtc_signal', signal_data: signalData });
   }, [send]);
 
-  const sendVoipCallEnd = useCallback(() => {
-    return send({ type: 'voip_call_end' });
+  const sendVoipCallEnd = useCallback((callId) => {
+    return send({ type: 'voip_call_end', call_id: callId });
   }, [send]);
 
-  const sendVoipCallAccept = useCallback(() => {
-    return send({ type: 'voip_call_accept' });
+  const sendVoipCallAccept = useCallback((callId) => {
+    return send({ type: 'voip_call_accept', call_id: callId });
   }, [send]);
 
-  const sendVoipCallReject = useCallback(() => {
-    return send({ type: 'voip_call_reject' });
+  const sendVoipCallReject = useCallback((callId) => {
+    return send({ type: 'voip_call_reject', call_id: callId });
   }, [send]);
 
   useEffect(() => {

@@ -2,21 +2,20 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { styled } from '@linaria/react';
 import { Link, useParams, useHistory, useRouteMatch } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaArrowLeft, FaBookmark, FaTrash, FaPhone, FaVideo, FaPhoneSlash, FaPaperclip, FaEllipsisV } from 'react-icons/fa';
+import { FaArrowLeft, FaBookmark, FaTrash, FaPhone, FaVideo, FaPaperclip, FaEllipsisV } from 'react-icons/fa';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { fetchLogout } from 'core/actions';
 import { getAxiosReq } from 'core/api/rest-helper';
-import { chatRequest } from 'core/api/chatSession';
+import { chatRequest, tokenUser } from 'core/api/chatSession';
+import { useCalls } from 'core/context/CallContext';
+import getAuthToken from 'core/utils/getAuthToken';
 import ChatInput from 'views/pages/ChatV3/Main/ChatInput';
 import { SkeletonLine } from 'views/styles/Skeleton';
 import useSelectAuthUser from 'core/hooks/useSelectAuthUser';
 import useChatSocket from 'core/hooks/useChatSocket';
-import useVoip from 'core/hooks/useVoip';
 import { useNotifications } from 'core/context/NotificationContext';
 import MyMessage from 'views/pages/ChatV3/Main/MyMessage';
 import TheirMessage from 'views/pages/ChatV3/Main/TheirMessage';
-import CallOverlay from 'views/pages/ChatV3/Main/CallOverlay';
-import IncomingCallOverlay from 'views/pages/ChatV3/Main/IncomingCallOverlay';
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
 const GROUP_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%232e7d32' rx='8'/%3E%3Ccircle cx='24' cy='16' r='7' fill='%23a5d6a7'/%3E%3Ccircle cx='14' cy='34' r='5' fill='%23a5d6a7'/%3E%3Ccircle cx='34' cy='34' r='5' fill='%23a5d6a7'/%3E%3C/svg%3E";
@@ -35,7 +34,8 @@ const ChatWindow = () => {
     ? `/chats/${isGroup ? 'group' : 'direct'}/${chatTarget}/`
     : null;
   const history = useHistory();
-  const { setUnreadChatCount, notifications, incomingCall, clearIncomingCall } = useNotifications();
+  const { setUnreadChatCount, notifications } = useNotifications();
+  const { startCall, busy: callBusy } = useCalls();
 
   const [messages, setMessages] = useState([]);
   const [chatInfo, setChatInfo] = useState(null);
@@ -44,9 +44,6 @@ const ChatWindow = () => {
   const [loadError, setLoadError] = useState(null);
   const [retry, setRetry] = useState(0);
   const [partnerTyping, setPartnerTyping] = useState(false);
-  const [callState, setCallState] = useState('idle');
-  const [callType, setCallType] = useState(null);
-  const [callSignalError, setCallSignalError] = useState(null);
   const [demoDelay, setDemoDelay] = useState(false);
   const [addMemberOpen, setAddMemberOpen] = useState(false);
   const [memberSearch, setMemberSearch] = useState('');
@@ -57,6 +54,7 @@ const ChatWindow = () => {
   const messagesEndRef = useRef(null);
   const voiceCacheRef = useRef(null);
   const nextTempId = useRef(0);
+  const historyRef = useRef(null);
 
   const getVoiceCache = () => {
     if (voiceCacheRef.current) return voiceCacheRef.current;
@@ -92,31 +90,6 @@ const ChatWindow = () => {
     });
   };
 
-  const callRef = useRef(null);
-  const sendVoipWebRtcSignalRef = useRef(null);
-  const audioContextRef = useRef(null);
-
-  const delay = useCallback(async () => {
-    if (demoDelay) await new Promise(r => setTimeout(r, 2000));
-  }, [demoDelay]);
-
-  const sendCallSignal = useCallback((signalData) => {
-    if (!sendVoipWebRtcSignalRef.current?.(signalData)) {
-      setCallSignalError('Chat disconnected. Close the call and try again.');
-    }
-  }, []);
-
-  const {
-    localStream,
-    remoteStream,
-    callError: voipError,
-    connected: voipConnected,
-    createOffer,
-    handleRemoteSignal,
-    startMedia,
-    endCall: voipEndCall,
-  } = useVoip({ enabled: !!activeChatId, onSignal: sendCallSignal });
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -128,7 +101,9 @@ const ChatWindow = () => {
   const handleNewMessage = useCallback((message) => {
     if (message?.id == null || (message.chat_id != null && message.chat_id !== activeChatId)) return;
     const username = authUser?.username || authUser?.user?.username || authUser?.user__username;
-    const sentByMe = message.username === username;
+    const sentByMe = message.user_id != null
+      ? String(message.user_id) === String(tokenUser(getAuthToken()))
+      : message.username === username;
     setMessages(prev => prev.some(m => m.id === message.id) ? prev : [...prev, { ...message, sentByMe }]);
     if (!isSaved && !sentByMe) {
       chatRequest(`/chats/${activeChatId}/read/`, { method: 'post', data: {} }).catch(() => {});
@@ -145,61 +120,14 @@ const ChatWindow = () => {
     ));
   }, []);
 
-  const resetCall = useCallback(() => {
-    callRef.current = null;
-    voipEndCall();
-    const context = audioContextRef.current;
-    audioContextRef.current = null;
-    if (context) context.close().catch(() => {});
-    setCallState('idle');
-    setCallType(null);
-    setCallSignalError(null);
-  }, [voipEndCall]);
-
-  const handleVoipCallEnd = useCallback(() => {
-    if (incomingCall?.chatId === activeChatId) clearIncomingCall();
-    if (callRef.current) resetCall();
-  }, [activeChatId, clearIncomingCall, incomingCall, resetCall]);
-
-  const handleVoipCallAccept = useCallback(async () => {
-    const call = callRef.current;
-    if (call?.direction !== 'outgoing' || !call.signaled || call.accepted) return;
-    call.accepted = true;
-    setCallState('connecting');
-    await createOffer();
-  }, [createOffer]);
-
-  const handleVoipWebRtcSignal = useCallback((signal) => {
-    const call = callRef.current;
-    if (!call?.accepted) return;
-    if (signal?.type === 'offer' && call.direction !== 'incoming') return;
-    return handleRemoteSignal(signal);
-  }, [handleRemoteSignal]);
-
-  const {
-    sendMessage: wsSendMessage,
-    sendTyping,
-    sendReadReceipt,
-    sendVoipCallStart,
-    sendVoipCallEnd,
-    sendVoipWebRtcSignal,
-    sendVoipCallAccept,
-    sendVoipCallReject,
-    isConnected,
-  } = useChatSocket(activeChatId, {
+  const { sendTyping, isConnected } = useChatSocket(activeChatId, {
     onNewMessage: handleNewMessage,
     onTyping: handleTyping,
     onReadReceipt: handleReadReceipt,
-    onVoipCallEnd: handleVoipCallEnd,
-    onVoipCallAccept: handleVoipCallAccept,
-    onVoipCallReject: handleVoipCallEnd,
-    onVoipWebRtcSignal: handleVoipWebRtcSignal,
-    enabled: !!activeChatId,
   });
 
-  sendVoipWebRtcSignalRef.current = sendVoipWebRtcSignal;
-
   useEffect(() => {
+    historyRef.current = null;
     setChatInfo(null);
     setMessages([]);
     setActiveChatId(null);
@@ -219,7 +147,9 @@ const ChatWindow = () => {
         const data = response.data;
 
         setChatInfo(data);
-        setMessages(normalizeMessages(data.messages || []));
+        const messages = normalizeMessages(data.messages);
+        historyRef.current = { id: data.id, cursor: messages.at(-1)?.id || 0 };
+        setMessages(messages);
         setActiveChatId(data.id);
 
         if (data.id && !isSaved) {
@@ -235,17 +165,50 @@ const ChatWindow = () => {
     return () => controller.abort();
   }, [chatDetailPath, isSaved, isSignedIn, sessionRestored, retry]);
 
+  const latestNotification = notifications[0];
+  const missedMessage = !isConnected && latestNotification?.chat_id === activeChatId
+    ? latestNotification.id
+    : null;
+
   useEffect(() => {
-    const latest = notifications?.[0];
-    if (isConnected || isSaved || !activeChatId || latest?.chat_id !== activeChatId) return;
-    let cancelled = false;
-    chatRequest(chatDetailPath).then(({ data }) => {
-      if (cancelled || data.id !== activeChatId) return;
-      setMessages(prev => [...normalizeMessages(data.messages), ...prev.filter(m => m.isTemp)]);
-      return chatRequest(`/chats/${activeChatId}/read/`, { method: 'post', data: {} });
-    }).catch(() => {});
-    return () => { cancelled = true; };
-  }, [notifications, activeChatId, chatDetailPath, isConnected, isSaved]);
+    const history = historyRef.current;
+    if (!history || history.id !== activeChatId || (!isConnected && !missedMessage)) return;
+    const controller = new AbortController();
+    const syncMessages = async () => {
+      let hasMore;
+      let shouldMarkRead = false;
+      const account = String(tokenUser(getAuthToken()));
+      do {
+        const { data } = await chatRequest(`/chats/${history.id}/messages/`, {
+          params: { after: history.cursor }, signal: controller.signal,
+        });
+        if (controller.signal.aborted || historyRef.current !== history) return;
+        const messages = normalizeMessages(data.messages);
+        if (messages.length === 0) break;
+        history.cursor = messages.at(-1).id;
+        hasMore = data.has_more;
+        if (messages.some(message => !message.is_read && String(message.user_id) !== account)) {
+          shouldMarkRead = true;
+        }
+        setMessages(previous => {
+          const existing = new Map(previous.filter(message => message.id != null).map(message => [message.id, message]));
+          for (const message of messages) {
+            const known = existing.get(message.id);
+            existing.set(message.id, known ? { ...known, is_read: known.is_read || message.is_read } : message);
+          }
+          const ordered = [...existing.values()].sort((left, right) => left.id - right.id);
+          return [...ordered, ...previous.filter(message => message.isTemp)];
+        });
+      } while (hasMore && !controller.signal.aborted);
+      if (shouldMarkRead && !isSaved && !controller.signal.aborted) {
+        await chatRequest(`/chats/${history.id}/read/`, {
+          method: 'post', data: {}, signal: controller.signal,
+        });
+      }
+    };
+    syncMessages().catch(() => {});
+    return () => controller.abort();
+  }, [activeChatId, chatDetailPath, isConnected, isSaved, missedMessage]);
 
   // User search for adding group members
   const memberTimerRef = useRef(null);
@@ -280,12 +243,6 @@ const ChatWindow = () => {
     } catch (_) {}
     setAddingMember(false);
   };
-
-  useEffect(() => resetCall, [chatDetailPath, resetCall]);
-
-  useEffect(() => {
-    if (voipConnected && callRef.current) setCallState('connected');
-  }, [voipConnected]);
 
   useEffect(() => {
     const handleClick = (e) => {
@@ -356,58 +313,13 @@ const ChatWindow = () => {
     sendTyping(isTyping);
   };
 
-  const prepareCall = async (type, direction) => {
-    if (!isConnected || callRef.current) return null;
-    const call = { direction, signaled: false, accepted: false };
-    callRef.current = call;
-    setCallType(type);
-    setCallState(direction === 'outgoing' ? 'calling' : 'connecting');
-
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (AudioContext) {
-      try {
-        const context = new AudioContext();
-        audioContextRef.current = context;
-        context.resume().catch(() => {});
-      } catch (_) {}
-    }
-
-    const ready = await startMedia(type);
-    if (!ready) return null;
-    await delay();
-    return callRef.current === call ? call : null;
-  };
-
-  const handleVoipCall = async (type) => {
-    const call = await prepareCall(type, 'outgoing');
-    if (!call) return;
-    call.signaled = sendVoipCallStart(type);
-    if (!call.signaled) setCallSignalError('Chat disconnected. Close the call and try again.');
-  };
-
-  const handleEndCall = () => {
-    const call = callRef.current;
-    if (call?.signaled) sendVoipCallEnd();
-    else if (call?.direction === 'incoming') sendVoipCallReject();
-    if (incomingCall?.chatId === activeChatId) clearIncomingCall();
-    resetCall();
-  };
-
-  const handleAcceptCall = async () => {
-    const type = incomingCall?.callType === 'video' ? 'video' : 'audio';
-    const call = await prepareCall(type, 'incoming');
-    if (!call) return;
-    call.signaled = sendVoipCallAccept();
-    call.accepted = call.signaled;
-    clearIncomingCall();
-    if (!call.signaled) {
-      setCallSignalError('Chat disconnected. Close the call and try again.');
-    }
-  };
-
-  const handleDeclineCall = () => {
-    if (sendVoipCallReject()) clearIncomingCall();
-  };
+  const handleVoipCall = callType => startCall({
+    chatId: activeChatId,
+    callType,
+    callerName: chatInfo?.name || chatInfo?.username,
+    callerAvatar: targetAvatar,
+    delayMs: demoDelay ? 2000 : 0,
+  });
 
   const targetAvatar = (() => {
     if (isGroup) {
@@ -433,7 +345,6 @@ const ChatWindow = () => {
     return `${date} ${time}`;
   };
 
-  const inCall = callState !== 'idle';
 
   if (!sessionRestored || loading || (isSignedIn && chatDetailPath && !chatInfo && loadError === null)) {
     return (
@@ -471,7 +382,6 @@ const ChatWindow = () => {
     );
   }
 
-  const showIncomingOverlay = incomingCall && activeChatId && incomingCall.chatId === activeChatId && callState === 'idle';
 
   return (
     <ChatWindowContainer>
@@ -554,20 +464,16 @@ const ChatWindow = () => {
               )}
           </UserInfo>
             <RightActions>
-              {!isSaved && !showIncomingOverlay && (inCall ? (
-                <EndCallButton onClick={handleEndCall} title="End call">
-                  <FaPhoneSlash />
-                </EndCallButton>
-              ) : (
+              {!isSaved && (
                 <>
-                  <CallButton onClick={() => handleVoipCall('audio')} title="Voice call" disabled={!isConnected}>
+                  <CallButton onClick={() => handleVoipCall('audio')} title="Voice call" disabled={!isConnected || callBusy}>
                     <FaPhone />
                   </CallButton>
-                  <CallButton onClick={() => handleVoipCall('video')} title="Video call" disabled={!isConnected}>
+                  <CallButton onClick={() => handleVoipCall('video')} title="Video call" disabled={!isConnected || callBusy}>
                     <FaVideo />
                   </CallButton>
                 </>
-              ))}
+              )}
               <MenuWrap ref={menuRef}>
                 <KebabBtn onClick={() => setShowMenu(s => !s)} title="More">
                   <FaEllipsisV />
@@ -582,7 +488,7 @@ const ChatWindow = () => {
                       {demoDelay ? '2s Delay ON' : '1x Delay OFF'}
                     </DropItem>
                     )}
-                    {activeChatId && !showIncomingOverlay && !isSaved && (
+                    {activeChatId && !callBusy && !isSaved && (
                       <DropItem danger onClick={() => { setShowMenu(false); handleDeleteChat(); }}>
                         <FaTrash /> Delete chat
                       </DropItem>
@@ -592,7 +498,7 @@ const ChatWindow = () => {
               </MenuWrap>
             </RightActions>
           </Header>
-          <MessagesContainer>
+          <MessagesContainer role="log" aria-label="Chat messages">
             {messages?.map((message, index) => {
               const currentUserName = authUser?.username || authUser?.user?.username || authUser?.user__username || '';
               const isMe = message.isTemp ||
@@ -616,27 +522,7 @@ const ChatWindow = () => {
             <div ref={messagesEndRef} />
           </MessagesContainer>
           <ChatInput onSendMessage={handleSendMessage} onTyping={handleInputChange} />
-          <CallOverlay
-            callState={callState}
-            callType={callType}
-            callerName={chatInfo?.name || chatInfo?.username}
-            callerAvatar={targetAvatar}
-            localStream={localStream}
-            remoteStream={remoteStream}
-            callError={callSignalError || voipError}
-            onEndCall={handleEndCall}
-            audioContextRef={audioContextRef}
-          />
-          {showIncomingOverlay && (
-            <IncomingCallOverlay
-              callType={incomingCall.callType}
-              callerName={incomingCall.callerName || chatInfo?.name || chatInfo?.username}
-              callerAvatar={targetAvatar}
-              ready={isConnected}
-              onAccept={handleAcceptCall}
-              onDecline={handleDeclineCall}
-            />
-          )}
+
         </>
       ) : (
         <CenteredContent>
@@ -920,23 +806,6 @@ const CallButton = styled.button`
   &:hover {
     color: #009688;
     background-color: rgba(0, 150, 136, 0.1);
-  }
-`;
-
-const EndCallButton = styled.button`
-  background: none;
-  border: none;
-  color: #ff4444;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-
-  &:hover {
-    background-color: rgba(255, 68, 68, 0.1);
   }
 `;
 

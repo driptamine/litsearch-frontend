@@ -32,6 +32,7 @@ import { MusicPlayerContext } from 'views/components/context/MusicPlayerContext'
 import useEventListenerMemo from 'core/hooks2/useEventListenerMemo';
 import useDetectMobile from 'core/hooks/useDetectMobile';
 import { NotificationProvider } from 'core/context/NotificationContext';
+import { CallProvider } from 'core/context/CallContext';
 
 const ModalContext = React.createContext();
 
@@ -224,6 +225,7 @@ const App = () => {
     <>
       <GlobalStyleThemeMode />
       <NotificationProvider>
+      <CallProvider>
       <StyledWrapper className="litloop-shell" data-sidebar-layout={sidebarLayout} isMobile={isMobile} showBottomNav={showBottomNav}>
         {showNavigation && (
           <AppHeader
@@ -291,6 +293,7 @@ const App = () => {
           </CreateButton>
         )}
       </StyledWrapper>
+      </CallProvider>
       </NotificationProvider>
 
       {isModalVisible && (

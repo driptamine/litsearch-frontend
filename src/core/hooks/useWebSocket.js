@@ -8,13 +8,13 @@ const buildWsUrl = (path, token) => {
   return `${WS_URL}${path}${query}`;
 };
 
-const useWebSocket = (path, { onOpen, onMessage, onClose, onError, enabled = true, requireAuth = false } = {}) => {
+const useWebSocket = (path, { onOpen, onMessage, onClose, onError, enabled = true, requireAuth = false, connectionKey } = {}) => {
   const wsRef = useRef(null);
   const reconnectTimeoutRef = useRef(null);
   const activeUrlRef = useRef(null);
   const allowReconnectRef = useRef(false);
   const enabledRef = useRef(false);
-  const [isConnected, setIsConnected] = useState(false);
+  const [connectedPath, setConnectedPath] = useState(null);
   const onMessageRef = useRef(onMessage);
   const onOpenRef = useRef(onOpen);
   const onCloseRef = useRef(onClose);
@@ -42,7 +42,7 @@ const useWebSocket = (path, { onOpen, onMessage, onClose, onError, enabled = tru
     const ws = wsRef.current;
     wsRef.current = null;
     activeUrlRef.current = null;
-    setIsConnected(false);
+    setConnectedPath(null);
 
     if (!ws) return;
 
@@ -83,7 +83,7 @@ const useWebSocket = (path, { onOpen, onMessage, onClose, onError, enabled = tru
 
     ws.onopen = () => {
       if (wsRef.current !== ws) return;
-      setIsConnected(true);
+      setConnectedPath(path);
       if (onOpenRef.current) onOpenRef.current();
     };
 
@@ -101,7 +101,7 @@ const useWebSocket = (path, { onOpen, onMessage, onClose, onError, enabled = tru
       if (wsRef.current !== ws) return;
       wsRef.current = null;
       activeUrlRef.current = null;
-      setIsConnected(false);
+      setConnectedPath(null);
       if (onCloseRef.current) onCloseRef.current();
 
       if (allowReconnectRef.current && enabledRef.current) {
@@ -133,17 +133,18 @@ const useWebSocket = (path, { onOpen, onMessage, onClose, onError, enabled = tru
 
     connect();
     return disconnect;
-  }, [path, canConnect, connect, disconnect, requireAuth ? accessToken : null]);
+  }, [path, canConnect, connect, disconnect, requireAuth ? accessToken : null, connectionKey]);
 
   const send = useCallback((data) => {
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+    if (path && activeUrlRef.current === buildWsUrl(path, requireAuth ? getAuthToken() : null) &&
+        wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify(data));
       return true;
     }
     return false;
-  }, []);
+  }, [path, requireAuth]);
 
-  return { send, isConnected, disconnect };
+  return { send, isConnected: connectedPath !== null && connectedPath === path, disconnect };
 };
 
 export default useWebSocket;

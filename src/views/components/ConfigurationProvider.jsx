@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useContext } from 'react';
 import axios from 'axios';
 
-import LoadingIndicator from './LoadingIndicator';
 import placeholderPng from 'views/assets/placeholder.png';
 import { createUrl, createAPIUrl, createAPIUrlFromSpotify } from 'core/utils';
 
@@ -106,16 +105,10 @@ function ConfigurationProvider({ children }) {
     [configuration, configurationz, loading, error, getImageUrl, getImageUrlz]
   );
 
-  if (error) {
-    return null;
-  }
-
   return (
-    <LoadingIndicator loading={loading}>
-      <ConfigurationContext.Provider value={value}>
-        {children}
-      </ConfigurationContext.Provider>
-    </LoadingIndicator>
+    <ConfigurationContext.Provider value={value}>
+      {children}
+    </ConfigurationContext.Provider>
   );
 }
 

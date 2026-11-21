@@ -4,10 +4,10 @@ import { FaPhone, FaPhoneSlash } from 'react-icons/fa';
 
 const IncomingCallOverlay = ({ callType, callerName, callerAvatar, ready, onAccept, onDecline }) => {
   return (
-    <Overlay>
+    <Overlay role="dialog" aria-modal="true" aria-label="Incoming call">
       <OverlayContent>
         <Avatar
-          src={callerAvatar}
+          src={callerAvatar || DEFAULT_AVATAR}
           alt={callerName || 'Caller'}
           onError={(e) => {
             if (e.target.src !== DEFAULT_AVATAR) e.target.src = DEFAULT_AVATAR;
@@ -15,6 +15,7 @@ const IncomingCallOverlay = ({ callType, callerName, callerAvatar, ready, onAcce
         />
         <CallerName>{callerName || 'Incoming Call'}</CallerName>
         <CallLabel>Incoming {callType === 'video' ? 'Video' : 'Voice'} Call</CallLabel>
+        {!ready && <CallLabel>Connecting…</CallLabel>}
 
         <Actions>
           <DeclineButton onClick={onDecline} disabled={!ready} title="Decline">
@@ -38,7 +39,7 @@ const Overlay = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 10001;
 `;
 
 const OverlayContent = styled.div`

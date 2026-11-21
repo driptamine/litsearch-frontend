@@ -26,7 +26,8 @@ function refreshTokenFor(access) {
   return account && account === tokenUser(refresh) ? refresh : null;
 }
 
-async function refreshAccess(access) {
+export async function refreshAccess(access) {
+  if (!access) return null;
   const current = getAuthToken();
   if (current !== access) {
     const account = tokenUser(access);

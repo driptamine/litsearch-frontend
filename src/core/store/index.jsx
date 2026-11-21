@@ -1,7 +1,6 @@
 import rootReducer from 'core/reducers/index';
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
-import { persistStore } from 'redux-persist';
 import axios from 'axios';
 import storeV6, { getState as getV6State } from './storeV6_gemini';
 
@@ -27,7 +26,7 @@ export const store = storeV6;
 // const persistedReducer = persistReducer(persistConfig, rootReducer);
 // const sagaMiddleware = createSagaMiddleware();
 // let store = createStore(persistedReducer, applyMiddleware(sagaMiddleware));
-export const persistor = persistStore(store);
+export { persistor } from './storeV6_gemini';
 
 export const getState = getV6State;
 
