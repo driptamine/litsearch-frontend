@@ -2,7 +2,7 @@ import React from 'react';
 import { styled } from '@linaria/react';
 import { FaPhone, FaPhoneSlash } from 'react-icons/fa';
 
-const IncomingCallOverlay = ({ callType, callerName, callerAvatar, ready, onAccept, onDecline }) => {
+const IncomingCallOverlay = ({ callType, callerName, callerAvatar, onAccept, onDecline }) => {
   return (
     <Overlay role="dialog" aria-modal="true" aria-label="Incoming call">
       <OverlayContent>
@@ -15,13 +15,12 @@ const IncomingCallOverlay = ({ callType, callerName, callerAvatar, ready, onAcce
         />
         <CallerName>{callerName || 'Incoming Call'}</CallerName>
         <CallLabel>Incoming {callType === 'video' ? 'Video' : 'Voice'} Call</CallLabel>
-        {!ready && <CallLabel>Connecting to calls…</CallLabel>}
 
         <Actions>
           <DeclineButton onClick={onDecline} title="Decline">
             <FaPhoneSlash />
           </DeclineButton>
-          <AcceptButton onClick={onAccept} disabled={!ready} title="Accept">
+          <AcceptButton onClick={onAccept} title="Accept">
             <FaPhone />
           </AcceptButton>
         </Actions>
