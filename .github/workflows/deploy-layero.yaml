@@ -1,0 +1,44 @@
+name: Deploy Frontend to Layero
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: layero-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+
+      - name: Deploy to Layero
+        uses: LayeroInfra/deploy-action@e22ae1eceedfd213b9e5bd955a8f3ade8aaa52a1 # v1
+        with:
+          token: ${{ secrets.LAYERO_TOKEN }}
+          project: 89d51e97-4dfd-4012-b258-5a9b4f4e6d6d
+          prebuilt: dist
+          version: '0.11.34'
