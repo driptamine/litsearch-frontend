@@ -4,12 +4,11 @@ import { styled } from '@linaria/react';
 import { css } from '@linaria/core';
 import { FaUpload, FaCloudUploadAlt, FaSearch, FaTimes } from 'react-icons/fa';
 import { ImContrast } from 'react-icons/im';
-import { LuPanelLeftClose, LuPanelLeftOpen } from "react-icons/lu";
+import { LuPanelLeftOpen } from 'react-icons/lu';
 
 import { fetchQuerySearch, fetchLogout } from 'core/actions';
 import { selectors } from 'core/reducers/index';
 import history from 'core/services/history';
-import { toggleSidebar } from 'core/reducers/sidebar';
 
 import Autocomplete from 'views/pages/MainSearch/AppHeader/Autocomplete';
 import { SearchBar } from 'views/pages/MainSearch/searchbar/SearchBar';
@@ -38,7 +37,6 @@ import themeVars from 'views/styles/theme-vars';
 
 const AppHeader = React.forwardRef((props, ref) => {
   const dispatch = useDispatch();
-  const sidebarOpen = useSelector((state) => state.sidebar?.sidebar);
   const { authUser, isSignedIn } = useSelectAuthUser();
   const user = useSelector((state) => state.users) || {};
 
@@ -154,14 +152,18 @@ const AppHeader = React.forwardRef((props, ref) => {
   return (
     <StyledAppBar ref={ref}>
       <StyledToolbar>
-        {(!isMobile || !isMobileSearch) && (
+        {((isMobile && !isMobileSearch) || (!isMobile && !props.onOpenNavigation)) && (
           <HeaderLeftSection>
-            {!isMobile && (
-              <SidebarToggleWrapper gotsidebar={sidebarOpen}>
-                <StyledIconButton onClick={() => dispatch(toggleSidebar())}>
-                  {sidebarOpen ? <LuPanelLeftClose size={24} /> : <LuPanelLeftOpen size={24} />}
-                </StyledIconButton>
-              </SidebarToggleWrapper>
+            {isMobile && props.onOpenNavigation && (
+              <StyledIconButton
+                type="button"
+                onClick={props.onOpenNavigation}
+                aria-label="Open navigation"
+                aria-expanded={props.navigationOpen}
+                aria-controls="litloop-sidebar"
+              >
+                <LuPanelLeftOpen size={21} aria-hidden="true" />
+              </StyledIconButton>
             )}
 
             <LogoWrapper>
@@ -272,7 +274,8 @@ const StyledDiv = styled.div`
 const StyledAppBar = styled.div`
   box-sizing: border-box;
   user-select: none;
-  width: 100%;
+  inset-inline-start: var(--litloop-sidebar-width, 0px);
+  inset-inline-end: 0;
   /* background: #0a0a0a; */
   /* background: white; */
   height: 60px;
@@ -280,6 +283,11 @@ const StyledAppBar = styled.div`
   position: fixed;
   background-color: var(--navBg);
   border-bottom: var(--navBorderColor);
+  transition: inset-inline-start 180ms ease;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 
 `;
 const StyledAppBarCSS = css`
@@ -323,8 +331,7 @@ const StyledBox = styled.div`
   ${styledBoxStyles}
 
   @media screen and (min-width: 1200px) {
-    padding-left: 9em;
-    padding-right: 12em;
+    padding-inline: clamp(24px, 6vw, 96px);
   }
 `;
 const StyledIconButton = styled.button`
@@ -371,26 +378,13 @@ const HeaderLeftSection = styled.div`
   display: flex;
   align-items: center;
   height: 100%;
-`;
-
-const sidebarToggleWrapperStyles = props => `
-  padding-left: ${props.gotsidebar ? '0' : '1em'};
-  margin-left: ${props.gotsidebar ? '240px' : '0'};
-`;
-
-const SidebarToggleWrapper = styled.div`
-  display: flex;
-  height: 100%;
-  ${sidebarToggleWrapperStyles}
-  transition: margin-left 0.3s ease-in-out;
-  align-items: center;
-  flex-shrink: 0;
+  padding-inline-start: 8px;
 `;
 
 const LogoWrapper = styled.div`
   display: flex;
   align-items: center;
-  padding-left: 1em;
+  padding-inline-start: 4px;
   height: 100%;
 `;
 

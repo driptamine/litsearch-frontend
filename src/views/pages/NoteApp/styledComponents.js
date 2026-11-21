@@ -5,10 +5,6 @@ export const AppContainer = styled.div`
   height: 100vh;
   font-family: Arial, sans-serif;
 
-  @media (min-width: 768px) {
-    padding-left: 240px;
-  }
-
   @media screen and (max-width: 768px) {
     flex-direction: column;
   }

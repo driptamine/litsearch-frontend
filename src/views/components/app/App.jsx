@@ -1,7 +1,6 @@
 import React, { useEffect, useContext, useCallback, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Route, useLocation, Link } from 'react-router-dom';
-import ModalLink from 'views/components/ModalLink';
 import { useDispatch, useSelector } from 'react-redux';
 import { RecoilRoot } from 'recoil';
 import { styled } from '@linaria/react';
@@ -210,18 +209,29 @@ const App = () => {
   const showChatList = pathname.startsWith('/chat');
   const isMapsPath = pathname === '/maps' || pathname === '/mapsv2';
   const isAuthPage = pathname === '/' || pathname === '/login' || pathname === '/signup';
+  const showNavigation = !isAuthPage && pathname !== '/auth/google/callback';
+  const sidebarExpanded = useSelector(state => state.sidebar.sidebar);
+  const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
+  const closeNavigation = useCallback(() => setMobileNavigationOpen(false), []);
+  const sidebarLayout = showNavigation && !isMobile ? (sidebarExpanded ? 'expanded' : 'compact') : undefined;
   const showBottomNav = isMobile && !isAuthPage;
+
+  useEffect(() => {
+    closeNavigation();
+  }, [pathname, isMobile, closeNavigation]);
 
   return (
     <>
       <GlobalStyleThemeMode />
       <NotificationProvider>
-      <StyledWrapper isMobile={isMobile} showBottomNav={showBottomNav}>
-        {(!isAuthPage && pathname !== '/auth/google/callback') && (
+      <StyledWrapper className="litloop-shell" data-sidebar-layout={sidebarLayout} isMobile={isMobile} showBottomNav={showBottomNav}>
+        {showNavigation && (
           <AppHeader
             imgSrc={childMessage || user.profileImg}
             themeToggler={themeToggler}
             themez={theme}
+            onOpenNavigation={() => setMobileNavigationOpen(true)}
+            navigationOpen={mobileNavigationOpen}
             >
             <Toggle theme={theme} toggleTheme={themeToggler} />
           </AppHeader>
@@ -238,7 +248,9 @@ const App = () => {
           </WrapperContainer>
         ) : (
           <ContentWrapper>
-            {!isMobile && <Sidebar />}
+            {showNavigation && (
+              <Sidebar mobile={isMobile} drawerOpen={mobileNavigationOpen} onDismiss={closeNavigation} />
+            )}
             {isMapsPath ? (
               <BaseContainer flush>
                 <ModalRoutes
@@ -273,16 +285,10 @@ const App = () => {
         )}
 
         {showBottomNav && <BottomNavbar />}
-        {!/^\/(todo|notes|users|maps|mapsv2)(\/|$)/.test(pathname) && (/^\/[^/]+$/.test(pathname) || pathname.startsWith('/feed')) && (
-          isMobile ? (
-            <CreateButton to="/create_post">
-              <FaPlus size={22} />
-            </CreateButton>
-          ) : (
-            <CreateBtnModal to="/create_post">
-              <FaPlus size={22} />
-            </CreateBtnModal>
-          )
+        {isMobile && !/^\/(todo|notes|users|maps|mapsv2)(\/|$)/.test(pathname) && (/^\/[^/]+$/.test(pathname) || pathname.startsWith('/feed')) && (
+          <CreateButton to="/create_post">
+            <FaPlus size={22} />
+          </CreateButton>
         )}
       </StyledWrapper>
       </NotificationProvider>
@@ -309,19 +315,24 @@ const ChatFlexWrapper = styled.div`
   display: flex;
   width: 100%;
   height: 100%;
-  padding-left: 240px;
 
   @media screen and (max-width: 768px) {
     flex-direction: column;
     height: auto;
-    padding-left: 0;
   }
 `;
 
 const ContentWrapper = styled.div`
+  box-sizing: border-box;
   flex: 1;
   min-height: 0;
   padding-top: 5em;
+  padding-inline-start: var(--litloop-sidebar-width, 0px);
+  transition: padding-inline-start 180ms ease;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 
   @media screen and (max-width: 768px) {
     padding-top: 70px;
@@ -369,6 +380,5 @@ const btnStyles = `
 `;
 
 const CreateButton = styled(Link)`${btnStyles}`;
-const CreateBtnModal = styled(ModalLink)`${btnStyles}`;
 
 export default AppRoutesContainer;

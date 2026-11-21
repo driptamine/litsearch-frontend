@@ -1,591 +1,232 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { styled } from '@linaria/react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, NavLink } from 'react-router-dom';
 import axios from 'axios';
-// import Subscriptions from './Subscriptions';
-import { HomeIcon, TrendingIcon, SubIcon, LibIcon, HistoryIcon, VidIcon, LikeIcon, EarthIcon } from './Icons';
-import { FiClock, FiBookmark, FiMessageCircle } from 'react-icons/fi';
-import { FaFilm, FaUsers } from 'react-icons/fa';
-import { FaMusic, FaImage, FaRocket, FaMapMarkedAlt, FaVectorSquare } from 'react-icons/fa';
+import {
+  LuChevronRight, LuCompass, LuDisc3, LuFileText, LuFilm, LuHash, LuHouse,
+  LuImages, LuLayers3, LuListTodo, LuLogIn, LuMap, LuMessageCircle,
+  LuMusic2, LuOrbit, LuPanelLeftClose, LuPanelLeftOpen, LuPencilLine,
+  LuUsersRound, LuVideo, LuX,
+} from 'react-icons/lu';
 
-import { TbMessageCircle } from 'react-icons/tb';
-import { FaHistory, FaWpexplorer } from 'react-icons/fa';
-import { MdVideoLibrary, MdAlbum } from 'react-icons/md';
-import { BsBook } from 'react-icons/bs';
-import { BsFillFileRichtextFill } from "react-icons/bs";
-import { CiHashtag } from "react-icons/ci";
-import { FaHashtag } from "react-icons/fa";
-import { CiBoxList } from "react-icons/ci";
-import { BsUiChecks } from "react-icons/bs";
-import { LuLayoutList } from "react-icons/lu";
+import { toggleSidebar } from 'core/reducers/sidebar';
 import { useNotifications } from 'core/context/NotificationContext';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader } from 'core/api/rest-helper';
+import useSelectAuthUser from 'core/hooks/useSelectAuthUser';
+import ModalLink from 'views/components/ModalLink';
+import './sidebar.css';
 
+const mainLinks = [
+  { id: 'UserPosts', to: '/feed', label: 'Feed', icon: LuHouse, exact: true },
+  { id: 'Feed', to: '/feed/movies', label: 'Discover', icon: LuCompass },
+  { id: 'FYP', to: '/fyp', label: 'For you', icon: LuOrbit },
+  { id: 'Messages', to: '/chat/im', label: 'Messages', icon: LuMessageCircle,
+    isActive: (_, { pathname }) => pathname.startsWith('/chat/') },
+  { id: 'Communities', to: '/communities', label: 'Communities', icon: LuUsersRound, exact: true },
+];
 
-const Sidebar = () => {
-  const open = useSelector((state) => state.sidebar.sidebar);
-  const username = useSelector((state) => state.users?.username || state.users?.user__username);
-  const isSignedIn = useSelector((state) => state.users?.isAuthorized || !!state.users?.access_token);
+const exploreLinks = [
+  { id: 'VideosSidebar', to: '/videos', label: 'Videos', icon: LuFilm },
+  { id: 'Users', to: '/users', label: 'People', icon: LuUsersRound },
+  { id: 'Maps', to: '/maps', label: 'Maps', icon: LuMap },
+  { id: 'MapsV2', to: '/mapsv2', label: 'Vector map', icon: LuLayers3 },
+];
+
+const workspaceLinks = [
+  { id: 'WarpNode', to: '/notes', label: 'NetNode', icon: LuFileText },
+  { id: 'JustDoList', to: '/todo', label: 'JustDoList', icon: LuListTodo },
+  { id: 'LinkTag', to: '/linktag/all', label: 'LinkTag', icon: LuHash },
+];
+
+function assetURL(path) {
+  if (!path || /^(https?:|data:|\/\/)/i.test(path)) return path;
+  return `${LITLOOP_API_URL}/${path.replace(/^\//, '')}`;
+}
+
+function SidebarLinks({ title, items, onNavigate, unreadCount, compact }) {
+  return (
+    <section className="litloop-sidebar-section" aria-label={title}>
+      {title && <h2 className="litloop-sidebar-heading">{title}</h2>}
+      <ul>
+        {items.map(({ id, to, label, icon: Icon, exact, isActive }) => {
+          const unread = id === 'Messages' ? unreadCount : 0;
+          const name = unread ? `${label}, ${unread} unread` : label;
+          return (
+            <li id={id} key={id}>
+              <NavLink
+                className="litloop-sidebar-link"
+                activeClassName="litloop-sidebar-current"
+                to={to}
+                exact={exact}
+                isActive={isActive}
+                aria-label={name}
+                title={compact ? name : undefined}
+                onClick={onNavigate}
+              >
+                <Icon aria-hidden="true" />
+                <span className="litloop-sidebar-label">{label}</span>
+                {unread > 0 && (
+                  <span className="litloop-sidebar-unread" aria-hidden="true">
+                    {unread > 99 ? '99+' : unread}
+                  </span>
+                )}
+              </NavLink>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+const Sidebar = ({ mobile = false, drawerOpen = false, onDismiss }) => {
+  const expanded = useSelector(state => state.sidebar.sidebar);
+  const dispatch = useDispatch();
+  const { authUser, isSignedIn } = useSelectAuthUser();
   const { unreadChatCount } = useNotifications();
   const [communities, setCommunities] = useState([]);
+  const panelRef = useRef(null);
+  const toggleRef = useRef(null);
+  const compact = !mobile && !expanded;
+  const username = authUser?.username || authUser?.user?.username || authUser?.user__username;
+  const profile = username && isSignedIn ? `/${encodeURIComponent(username)}` : null;
+  const avatar = assetURL(authUser?.avatar || authUser?.user?.avatar || authUser?.profileImg);
+  const navigate = mobile ? onDismiss : undefined;
 
   useEffect(() => {
-    if (!isSignedIn) return;
-    axios.get(`${LITLOOP_API_URL}/communities/`, { headers: authHeader() })
-      .then((res) => {
-        const mine = (res.data.communities || []).filter((c) => c.user_is_member);
-        setCommunities(mine);
-      })
+    if (!isSignedIn) {
+      setCommunities([]);
+      return;
+    }
+    const load = new AbortController();
+    axios.get(`${LITLOOP_API_URL}/communities/`, { headers: authHeader(), signal: load.signal })
+      .then(({ data }) => setCommunities((data.communities || []).filter(community => community.user_is_member)))
       .catch(() => {});
-  }, [isSignedIn]);
+    return () => load.abort();
+  }, [isSignedIn, username]);
+
+  useEffect(() => {
+    if (!mobile || !drawerOpen) return;
+
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    toggleRef.current?.focus();
+
+    const handleKey = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onDismiss();
+      }
+      if (event.key !== 'Tab') return;
+      const focusable = panelRef.current?.querySelectorAll('a[href], button:not([disabled])');
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('keydown', handleKey);
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus();
+    };
+  }, [mobile, drawerOpen, onDismiss]);
+
+  if (mobile && !drawerOpen) return null;
+
+  const library = profile ? [
+    { id: 'Music', to: `${profile}/tracks`, label: 'My music', icon: LuMusic2 },
+    { id: 'Albums', to: `${profile}/albums`, label: 'My albums', icon: LuDisc3 },
+    { id: 'Photos', to: `${profile}/photos`, label: 'My photos', icon: LuImages },
+    { id: 'Videos', to: `${profile}/videos`, label: 'My videos', icon: LuVideo },
+  ] : [];
 
   return (
-    <SidebarWrapper open={open}>
-      <StyledUl>
-        <StyledLi id="Feed">
-          <LinkStyled  to="/feed/movies">
-            <StyledDivIcon className="icon">
-              <SCEarthIcon />
-
-            </StyledDivIcon>
-            <span>Feed</span>
-          </LinkStyled>
-        </StyledLi>
-
-        <StyledLi id="UserPosts">
-          <LinkStyled to="/feed">
-            <StyledDivIcon className="icon">
-              <FaRocket />
-            </StyledDivIcon>
-            <span>User Posts</span>
-          </LinkStyled>
-        </StyledLi>
-
-        <StyledLi id="FYP">
-          <LinkStyled to="/fyp">
-            <StyledDivIcon className="icon">
-              <FaRocket />
-            </StyledDivIcon>
-            <span>FYP</span>
-          </LinkStyled>
-        </StyledLi>
-
-        <StyledLi id="Maps">
-          <LinkStyled to="/maps">
-            <StyledDivIcon className="icon">
-              <FaMapMarkedAlt />
-            </StyledDivIcon>
-            <span>Maps</span>
-          </LinkStyled>
-        </StyledLi>
-
-        <StyledLi id="MapsV2">
-          <LinkStyled to="/mapsv2">
-            <StyledDivIcon className="icon">
-              <FaVectorSquare />
-            </StyledDivIcon>
-            <span>Maps V2</span>
-          </LinkStyled>
-        </StyledLi>
-
-        <StyledLi id="WarpNode">
-          <LinkStyled
-
-            to="/notes"
-            // activeClassName="active"
+    <>
+      {mobile && <div className="litloop-sidebar-scrim" onClick={onDismiss} aria-hidden="true" />}
+      <aside
+        ref={panelRef}
+        id="litloop-sidebar"
+        className="litloop-sidebar"
+        data-compact={compact}
+        data-mobile={mobile}
+        role={mobile ? 'dialog' : undefined}
+        aria-modal={mobile ? true : undefined}
+        aria-label="LitLoop navigation"
+      >
+        <div className="litloop-sidebar-top">
+          <Link className="litloop-sidebar-brand" to="/" onClick={navigate} aria-label="LitLoop home" title={compact ? 'LitLoop' : undefined}>
+            <span className="litloop-sidebar-mark"><img src={`${import.meta.env.BASE_URL}purple-tiny-favicon.png`} alt="" /></span>
+            <span className="litloop-sidebar-brand-label">LitLoop</span>
+          </Link>
+          <button
+            ref={toggleRef}
+            type="button"
+            className="litloop-sidebar-toggle"
+            onClick={mobile ? onDismiss : () => dispatch(toggleSidebar())}
+            aria-label={mobile ? 'Close navigation' : compact ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-expanded={mobile ? undefined : expanded}
+            aria-controls={mobile ? undefined : 'litloop-sidebar-links'}
+            title={mobile ? 'Close navigation' : compact ? 'Expand sidebar' : 'Collapse sidebar'}
           >
-            <StyledDivIcon className="icon">
-              {/*<FiBookmark />*/}
-              {/*<FaHistory />*/}
-              <BsFillFileRichtextFill />
+            {mobile ? <LuX aria-hidden="true" /> : compact ? <LuPanelLeftOpen aria-hidden="true" /> : <LuPanelLeftClose aria-hidden="true" />}
+          </button>
+        </div>
 
+        <div className="litloop-sidebar-action">
+          <ModalLink className="litloop-sidebar-link litloop-sidebar-create" to="/create_post" onClick={navigate} aria-label="Create post" title={compact ? 'Create post' : undefined}>
+            <LuPencilLine aria-hidden="true" />
+            <span className="litloop-sidebar-label">Create post</span>
+          </ModalLink>
+        </div>
 
-            </StyledDivIcon>
-            <span className="mymusic">NetNode</span>
-          </LinkStyled>
-        </StyledLi>
-
-
-
-        <StyledLi id="JustDoList">
-          <LinkStyled
-
-            to="/todo"
-            // activeClassName="active"
-          >
-            <StyledDivIcon className="icon">
-              {/*<FiBookmark />*/}
-              {/*<FaHistory />*/}
-              {/*<CiBoxList />*/}
-              {/*<BsUiChecks />*/}
-              <LuLayoutList />
-
-            </StyledDivIcon>
-            <span className="mymusic">JustDoList</span>
-          </LinkStyled>
-        </StyledLi>
-
-        {/*<StyledLi id="Trending">
-          <LinkStyled to="/feed/trending">
-            <StyledDivIcon className="icon">
-              <SCTrendingIcon />
-
-            </StyledDivIcon>
-            <span>Trending</span>
-          </LinkStyled>
-        </StyledLi>*/}
-
-        {/*<StyledLi id="Explore">
-          <LinkStyled
-            to="/explore"
-            // activeClassName="active"
-          >
-            <StyledDivIcon className="icon">
-              <VidIcon />
-              <FaWpexplorer />
-
-            </StyledDivIcon>
-            <span>Explore</span>
-          </LinkStyled>
-        </StyledLi>*/}
-
-        <StyledLi id="Messages">
-          <LinkStyled  to="/chat/im">
-            <StyledDivIcon className="icon">
-              {/*<MessagesIcon />*/}
-              {/*<FiMessageCircle />*/}
-              <TbMessageCircle />
-
-            </StyledDivIcon>
-            <span>Messages</span>
-            {unreadChatCount > 0 && <Badge>{unreadChatCount}</Badge>}
-          </LinkStyled>
-        </StyledLi>
-        {/*<div className="ruler"></div>*/}
-
-        {/*<LinkStyled
-          to="/feed/library"
-          // activeClassName="active"
-        >
-          <div className="icon">
-            <LibIcon />
-            <MdVideoLibrary />
-            <span>Library</span>
-          </div>
-        </LinkStyled>*/}
-
-        {/*<StyledLi id="History">
-          <LinkStyled
-            to="/feed/history"
-            // activeClassName="active"
-          >
-            <StyledDivIcon className="icon">
-
-              <FiClock />
-
-
-            </StyledDivIcon>
-            <span>History</span>
-          </LinkStyled>
-        </StyledLi>*/}
-
-        {/*<StyledLi id="Albums">
-          <LinkStyled
-            to="/albums"
-          >
-            <StyledDivIcon className="icon">
-              <MdAlbum />
-
-
-            </StyledDivIcon>
-            <span>New Albums</span>
-          </LinkStyled>
-        </StyledLi>*/}
-
-        {/*<StyledLi id="Bookmarks">
-          <LinkStyled
-            to="/bookmarks"
-            // activeClassName="active"
-          >
-            <StyledDivIcon className="icon">
-              <FiBookmark />
-              <FaHistory />
-
-            </StyledDivIcon>
-            <span>Bookmarks</span>
-          </LinkStyled>
-        </StyledLi>*/}
-
-        <StyledLi id="VideosSidebar">
-          <LinkStyled
-
-            to="/videos"
-            // activeClassName="active"
-          >
-            <StyledDivIcon className="icon">
-              {/*<FiBookmark />*/}
-              {/*<FaHistory />*/}
-              <FaFilm />
-            </StyledDivIcon>
-            <span>Videos</span>
-          </LinkStyled>
-        </StyledLi>
-
-        <StyledLi id="Music">
-          <LinkStyled
-
-            to={`/${username}/tracks`}
-            // activeClassName="active"
-          >
-            <StyledDivIcon className="icon">
-              {/*<FiBookmark />*/}
-              {/*<FaHistory />*/}
-              <FaMusic />
-
-            </StyledDivIcon>
-            <span className="mymusic">Music</span>
-          </LinkStyled>
-        </StyledLi>
-        <StyledLi id="Albums">
-          <LinkStyled
-            to={`/${username}/albums`}
-          >
-            <StyledDivIcon className="icon">
-              <MdAlbum />
-            </StyledDivIcon>
-            <span className="mymusic">Albums</span>
-          </LinkStyled>
-        </StyledLi>
-
-        <StyledLi id="Photos">
-          <LinkStyled
-            to={`/${username}/photos`}
-          >
-            <StyledDivIcon className="icon">
-              <FaImage />
-            </StyledDivIcon>
-            <span className="mymusic">Photos</span>
-          </LinkStyled>
-        </StyledLi>
-
-        <StyledLi id="Videos">
-          <LinkStyled
-            to={`/${username}/videos`}
-          >
-            <StyledDivIcon className="icon">
-              <FaFilm />
-            </StyledDivIcon>
-            <span className="mymusic">Videos</span>
-          </LinkStyled>
-        </StyledLi>
-
-        <StyledLi id="Users">
-          <LinkStyled
-
-            to="/users"
-            // activeClassName="active"
-          >
-            <StyledDivIcon className="icon">
-              <FaUsers />
-            </StyledDivIcon>
-            <span className="mymusic">Users</span>
-          </LinkStyled>
-        </StyledLi>
-
-        <StyledLi id="LinkTag">
-          <LinkStyled
-
-            to="/linktag/all"
-            // activeClassName="active"
-          >
-            <StyledDivIcon className="icon">
-              {/*<FiBookmark />*/}
-              {/*<FaHistory />*/}
-              <FaHashtag />
-
-
-            </StyledDivIcon>
-            <span className="mymusic">LinkTag</span>
-          </LinkStyled>
-        </StyledLi>
-
-        <StyledLi id="Communities">
-          <LinkStyled to="/communities">
-            <StyledDivIcon className="icon">
-              <FaUsers />
-            </StyledDivIcon>
-            <span className="mymusic">Communities</span>
-          </LinkStyled>
-          {open && communities.length > 0 && (
-            <SubUl>
-              {communities.map((c) => (
-                <StyledSubLi key={c.id}>
-                  <SubLink to={`/communities/@${c.handle}`}>
-                    {c.icon ? (
-                      <SubIconImg src={c.icon} alt="" />
-                    ) : (
-                      <SubIconPlaceholder />
-                    )}
-                    <span>{c.name}</span>
-                  </SubLink>
-                </StyledSubLi>
-              ))}
-            </SubUl>
+        <nav id="litloop-sidebar-links" aria-label="Main navigation" className="litloop-sidebar-links">
+          <SidebarLinks items={mainLinks} unreadCount={unreadChatCount} onNavigate={navigate} compact={compact} />
+          {!compact && isSignedIn && communities.length > 0 && (
+            <section className="litloop-sidebar-section litloop-sidebar-communities" aria-label="Your communities">
+              <h2 className="litloop-sidebar-heading">Your communities</h2>
+              <ul>
+                {communities.map(({ id, handle, icon, name }) => (
+                  <li key={id}>
+                    <NavLink className="litloop-sidebar-link" activeClassName="litloop-sidebar-current" to={`/communities/@${encodeURIComponent(handle)}`} onClick={navigate}>
+                      <span className="litloop-sidebar-community-icon" aria-hidden="true">
+                        {icon ? <img src={assetURL(icon)} alt="" /> : name.slice(0, 1).toUpperCase()}
+                      </span>
+                      <span className="litloop-sidebar-label">{name}</span>
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
-          {open && communities.length === 0 && isSignedIn && (
-            <EmptyText>No communities yet</EmptyText>
-          )}
-        </StyledLi>
+          <SidebarLinks title="Explore" items={profile ? exploreLinks : [
+            ...exploreLinks, { id: 'Music', to: '/musicv2', label: 'Music', icon: LuMusic2 },
+          ]} onNavigate={navigate} compact={compact} />
+          <SidebarLinks title="Workspace" items={workspaceLinks} onNavigate={navigate} compact={compact} />
+          {profile && <SidebarLinks title="Library" items={library} onNavigate={navigate} compact={compact} />}
+        </nav>
 
-
-
-        {/*<StyledLi>
-          <LinkStyled
-            to="/feed/liked"
-            // activeClassName="active"
-          >
-            <div className="icon">
-              // <LikeIcon />
-
-            </div>
-            <span>Liked</span>
-          </LinkStyled>
-        </StyledLi>*/}
-
-
-
-
-
-
-
-        <div className="ruler"></div>
-
-        {/*<Subscriptions />*/}
-      </StyledUl>
-    </SidebarWrapper>
+        <div className="litloop-sidebar-footer">
+          <Link className="litloop-sidebar-link litloop-sidebar-account" to={profile || '/login'} onClick={navigate} aria-label={profile ? `Open profile for ${username}` : 'Log in'} title={compact ? (profile ? username : 'Log in') : undefined}>
+            <span className="litloop-sidebar-avatar" aria-hidden="true">
+              {profile ? username.slice(0, 1).toUpperCase() : <LuLogIn />}
+              {profile && avatar && <img src={avatar} alt="" onError={event => { event.currentTarget.hidden = true; }} />}
+            </span>
+            <span className="litloop-sidebar-label">{profile ? username : 'Log in'}</span>
+            <LuChevronRight className="litloop-sidebar-account-arrow" aria-hidden="true" />
+          </Link>
+        </div>
+      </aside>
+    </>
   );
 };
-
-
-const StyledDivIcon = styled.div`
-  display: flex;
-  align-items: center;
-
-  svg {
-    height: 16px;
-    width: 16px;
-    color: var(--text);
-  }
-`;
-const Badge = styled.span`
-  background-color: #0084ff;
-  color: white;
-  font-size: 10px;
-  font-weight: 700;
-  min-width: 16px;
-  height: 16px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 4px;
-  margin-left: auto;
-  margin-right: 10px;
-`;
-
-const SCEarthIcon = styled(EarthIcon)`
-
-
-    height: 16px;
-    width: 16px;
-
-
-
-`;
-const SCTrendingIcon = styled(TrendingIcon)`
-
-
-    height: 16px;
-    width: 16px;
-    fill: var(--text);
-
-
-`;
-const SidebarWrapper = styled.div`
-  position: fixed;
-  left: 0;
-  top: 5em;
-  bottom: 0;
-  z-index: 2;
-  height: auto;
-  width: ${({ open }) => open ? '240px' : '0'};
-  overflow: hidden;
-  white-space: nowrap;
-  background: var(--sideBarColor);
-
-  overflow-y: auto;
-
-  padding-bottom: 1.5rem;
-  transition: width 0.3s ease-in-out;
-
-  &::-webkit-scrollbar {
-    width: 0;
-  }
-
-  .icon:not(.hover-disable):hover {
-    background: var(--darkGrey);
-    cursor: pointer;
-  }
-
-  .active div {
-    background: var(--darkGrey);
-    cursor: pointer;
-  }
-
-  .active svg {
-    fill: #fff;
-  }
-`;
-
-const StyledUl = styled.ul`
-  align-items: flex-start;
-  list-style: none;
-  padding-right: 10px;
-`;
-
-const StyledLi = styled.li`
-  margin-top: 15px;
-  &:hover {
-    background-color: var(--sideBarHoverColor);
-    border-radius: 12px;
-  }
-  /* border-style: dotted */
-`;
-
-const LinkStyled = styled(Link)`
-  align-items: center;
-  color: var(--text);
-  text-decoration: none;
-  display: flex;
-  gap: 12px;
-  padding: 0.7rem 0;
-  padding-left: 1.5rem;
-
-  &:hover {
-    text-decoration: underline;
-  }
-
-  span {
-    font-family: Helvetica;
-  }
-`;
-
-const SubUl = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
-`;
-
-const StyledSubLi = styled.li`
-  &:hover {
-    background-color: var(--sideBarHoverColor);
-    border-radius: 8px;
-  }
-`;
-
-const SubLink = styled(Link)`
-  align-items: center;
-  color: var(--text);
-  text-decoration: none;
-  display: flex;
-  gap: 10px;
-  padding: 0.4rem 0;
-  padding-left: 2.8rem;
-  font-size: 0.85rem;
-
-  &:hover {
-    text-decoration: underline;
-  }
-
-  span {
-    font-family: Helvetica;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-`;
-
-const SubIconImg = styled.img`
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  object-fit: cover;
-  flex-shrink: 0;
-`;
-
-const SubIconPlaceholder = styled.div`
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  background: var(--darkGrey);
-  flex-shrink: 0;
-`;
-
-const EmptyText = styled.span`
-  display: block;
-  padding: 0.3rem 0 0.3rem 2.8rem;
-  font-size: 0.8rem;
-  color: var(--textSecondary, #888);
-  font-family: Helvetica;
-`;
-
-// const links = [
-//   {
-//     iconName:"",
-//     path: "/trending"
-//   },
-//   {
-//     path: "/explore"
-//   },
-//   {
-//     path: "/messages"
-//   },
-//   {
-//     path: "/history"
-//   },
-//   {
-//     path: "/"
-//   },
-//
-//
-//   {
-//     path: "/playlists"
-//   },
-//   {
-//     path: "/playlist/1iC9VT69XLLRPtrkBA7tCT"
-//   },
-//   {
-//     path: "/playlist/1a4WG4Bm6WsfcXMxQ3F1Zr"
-//   },
-//   {
-//     path: "/playlist/3NcpCaLNsoz4HOjzUCWwSl"
-//   },
-//   {
-//     path: "/playlist/7I38G6zePIPIBaV1WvjFOI"
-//   },
-//   {
-//     path: "/playlist/2T2srNcQWBiVj6v0CYOD2n"
-//   }
-// ];
-
-// const link_to = links.map((link) => {
-//   <LinkStyled
-//     to={link.path}
-//     >
-//     <${link.iconName}Icon/>
-//   </LinkStyled
-// })
 
 export default Sidebar;
