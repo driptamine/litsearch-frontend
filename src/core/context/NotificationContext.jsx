@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import useWebSocket from 'core/hooks/useWebSocket';
 import { getAuthToken } from 'core/utils/getAuthToken';
@@ -22,15 +22,34 @@ export const NotificationProvider = ({ children }) => {
   const [chatUpdateTick, setChatUpdateTick] = useState(0);
   const [incomingCall, setIncomingCall] = useState(null);
   const [closedCall, setClosedCall] = useState(null);
+  const [authenticatedAccount, setAuthenticatedAccount] = useState(null);
+  const [presence, setPresence] = useState({});
+  const messageListeners = useRef(new Map());
 
   useEffect(() => {
     setIncomingCall(null);
     setClosedCall(null);
     setUnreadChatCount(0);
     setNotifications([]);
+    setPresence({});
   }, [account]);
 
+  const subscribeToMessages = useCallback((chatId, listener) => {
+    const listeners = messageListeners.current;
+    const key = String(chatId);
+    const subscribers = listeners.get(key) || new Set();
+    subscribers.add(listener);
+    listeners.set(key, subscribers);
+    return () => {
+      subscribers.delete(listener);
+      if (subscribers.size === 0) listeners.delete(key);
+    };
+  }, []);
+
   const handleMessage = useCallback((data) => {
+    if (data?.message && (data.type === 'new_message' || data.type === 'chat_updated')) {
+      messageListeners.current.get(String(data.chat_id))?.forEach(listener => listener(data.message));
+    }
     switch (data.type) {
       case 'new_message': {
         const { chat_id, chat_user_id, message_id, preview, unread_count } = data;
@@ -51,9 +70,23 @@ export const NotificationProvider = ({ children }) => {
         if (data.chat_id != null) setChatUpdateTick(t => t + 1);
         break;
       }
-      case 'chat_updated':
       case 'auth_ok': {
+        setAuthenticatedAccount(tokenUser(getAuthToken()));
         setChatUpdateTick(t => t + 1);
+        break;
+      }
+      case 'chat_updated': {
+        setChatUpdateTick(t => t + 1);
+        break;
+      }
+      case 'presence_snapshot': {
+        setPresence(data.users || {});
+        break;
+      }
+      case 'presence_update': {
+        setPresence(previous => previous[data.user_id] === data.online
+          ? previous
+          : { ...previous, [data.user_id]: data.online });
         break;
       }
       case 'incoming_call': {
@@ -82,7 +115,10 @@ export const NotificationProvider = ({ children }) => {
   }, []);
 
   const enabled = rehydrated && !!accessToken;
+  const resetAuthentication = useCallback(() => setAuthenticatedAccount(null), []);
   const { send, isConnected } = useWebSocket('/ws/notifications/', {
+    onOpen: resetAuthentication,
+    onClose: resetAuthentication,
     onMessage: handleMessage,
     onError: useCallback(() => {
       console.warn('Notification WebSocket error - will auto-reconnect');
@@ -97,6 +133,11 @@ export const NotificationProvider = ({ children }) => {
     }
   }, [isConnected, send, accessToken]);
 
+  const isOnline = Boolean(isConnected && account && authenticatedAccount === account);
+  const requestPresence = useCallback(() => {
+    if (isOnline) send({ type: 'presence' });
+  }, [isOnline, send]);
+
   const clearNotifications = useCallback(() => {
     setNotifications([]);
   }, []);
@@ -107,6 +148,10 @@ export const NotificationProvider = ({ children }) => {
       notifications,
       chatUpdateTick,
       isConnected,
+      isOnline,
+      presence: isOnline ? presence : null,
+      requestPresence,
+      subscribeToMessages,
       clearNotifications,
       setUnreadChatCount,
       incomingCall,

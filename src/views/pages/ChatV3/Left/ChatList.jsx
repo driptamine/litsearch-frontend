@@ -8,12 +8,13 @@ import useSelectAuthUser from 'core/hooks/useSelectAuthUser';
 import { useNotifications } from 'core/context/NotificationContext';
 import ChatRow from './ChatRow';
 import CreateGroupModal from './CreateGroupModal';
+import PresenceStatus from '../PresenceStatus';
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
 
 const ChatList = ({ emojiData }) => {
   const { authUser, isSignedIn } = useSelectAuthUser();
-  const { unreadChatCount, setUnreadChatCount, chatUpdateTick } = useNotifications();
+  const { unreadChatCount, setUnreadChatCount, chatUpdateTick, isOnline, presence, requestPresence } = useNotifications();
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
@@ -54,6 +55,10 @@ const ChatList = ({ emojiData }) => {
     }
   }, [chatUpdateTick, isSignedIn, fetchChats]);
 
+  useEffect(() => {
+    if (isSignedIn && initialLoadDone) requestPresence();
+  }, [initialLoadDone, isSignedIn, requestPresence]);
+
   const currentUserAvatar = authUser?.profileImg || authUser?.avatar || DEFAULT_AVATAR;
   const currentUsername = authUser?.username || authUser?.user?.username || authUser?.user__username || 'User';
 
@@ -72,7 +77,7 @@ const ChatList = ({ emojiData }) => {
           </ImgWrap>
           <UserWrapper>
             <User>{currentUsername}</User>
-            <Status>Online</Status>
+            {isSignedIn && <PresenceStatus online={isOnline} />}
           </UserWrapper>
           {unreadChatCount > 0 && (
             <GlobalUnreadBadge>{unreadChatCount}</GlobalUnreadBadge>
@@ -117,6 +122,7 @@ const ChatList = ({ emojiData }) => {
         <div key={chat.id}>
           <ChatRow
             chat={chat}
+            online={presence?.[chat.other_participant?.id]}
             onClick={() => {
               const clickedUnread = chat.unread_count || 0;
               setChats(prev => prev.map(c =>
@@ -183,12 +189,6 @@ const CurrentUserProfile = styled(Link)`
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
-`;
-
-const Status = styled.div`
-  font-size: 11px;
-  color: #4caf50;
-  font-weight: 600;
 `;
 
 const UserWrapper = styled.div`

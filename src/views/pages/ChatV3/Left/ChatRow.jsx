@@ -3,11 +3,12 @@ import { Link } from 'react-router-dom';
 import { styled } from '@linaria/react';
 import { FaBookmark } from 'react-icons/fa';
 import { LITLOOP_API_URL } from 'core/constants/urls';
+import PresenceStatus from '../PresenceStatus';
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
 const GROUP_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%232e7d32' rx='8'/%3E%3Ccircle cx='24' cy='16' r='7' fill='%23a5d6a7'/%3E%3Ccircle cx='14' cy='34' r='5' fill='%23a5d6a7'/%3E%3Ccircle cx='34' cy='34' r='5' fill='%23a5d6a7'/%3E%3C/svg%3E";
 
-const ChatRow = ({ chat, onClick }) => {
+const ChatRow = ({ chat, online, onClick }) => {
   const isSaved = chat.is_saved_messages;
   const isGroup = chat.chat_type === 'groupchat';
   const participant = chat.other_participant ?? chat.target_user;
@@ -58,6 +59,7 @@ const ChatRow = ({ chat, onClick }) => {
           <Row>
             <User>{displayName}</User>
             {isGroup && <GroupBadge>Group</GroupBadge>}
+            {!isGroup && !isSaved && <PresenceStatus online={online} compact />}
           </Row>
           <LastMessage>{lastMsgText}</LastMessage>
         </UserWrapper>

@@ -16,6 +16,7 @@ import useChatSocket from 'core/hooks/useChatSocket';
 import { useNotifications } from 'core/context/NotificationContext';
 import MyMessage from 'views/pages/ChatV3/Main/MyMessage';
 import TheirMessage from 'views/pages/ChatV3/Main/TheirMessage';
+import PresenceStatus from 'views/pages/ChatV3/PresenceStatus';
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
 const GROUP_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%232e7d32' rx='8'/%3E%3Ccircle cx='24' cy='16' r='7' fill='%23a5d6a7'/%3E%3Ccircle cx='14' cy='34' r='5' fill='%23a5d6a7'/%3E%3Ccircle cx='34' cy='34' r='5' fill='%23a5d6a7'/%3E%3C/svg%3E";
@@ -34,7 +35,7 @@ const ChatWindow = () => {
     ? `/chats/${isGroup ? 'group' : 'direct'}/${chatTarget}/`
     : null;
   const history = useHistory();
-  const { setUnreadChatCount, notifications } = useNotifications();
+  const { setUnreadChatCount, isOnline, presence, requestPresence, subscribeToMessages } = useNotifications();
   const { startCall, busy: callBusy } = useCalls();
 
   const [messages, setMessages] = useState([]);
@@ -55,6 +56,7 @@ const ChatWindow = () => {
   const voiceCacheRef = useRef(null);
   const nextTempId = useRef(0);
   const historyRef = useRef(null);
+  const typingTimeout = useRef(null);
 
   const getVoiceCache = () => {
     if (voiceCacheRef.current) return voiceCacheRef.current;
@@ -99,19 +101,31 @@ const ChatWindow = () => {
   }, [messages]);
 
   const handleNewMessage = useCallback((message) => {
-    if (message?.id == null || (message.chat_id != null && message.chat_id !== activeChatId)) return;
+    const current = historyRef.current;
+    if (!current || current.id !== activeChatId || message?.id == null ||
+        (message.chat_id != null && message.chat_id !== activeChatId) || current.seen.has(message.id)) return;
+    current.seen.add(message.id);
     const username = authUser?.username || authUser?.user?.username || authUser?.user__username;
     const sentByMe = message.user_id != null
       ? String(message.user_id) === String(tokenUser(getAuthToken()))
       : message.username === username;
-    setMessages(prev => prev.some(m => m.id === message.id) ? prev : [...prev, { ...message, sentByMe }]);
+    setMessages(previous => {
+      const next = { ...message, sentByMe };
+      const index = previous.findIndex(item => item.isTemp || item.id > message.id);
+      return index === -1
+        ? [...previous, next]
+        : [...previous.slice(0, index), next, ...previous.slice(index)];
+    });
     if (!isSaved && !sentByMe) {
       chatRequest(`/chats/${activeChatId}/read/`, { method: 'post', data: {} }).catch(() => {});
     }
   }, [activeChatId, authUser, isSaved]);
 
   const handleTyping = useCallback((userId, isTyping) => {
+    if (String(userId) === String(tokenUser(getAuthToken()))) return;
+    clearTimeout(typingTimeout.current);
     setPartnerTyping(isTyping);
+    if (isTyping) typingTimeout.current = setTimeout(() => setPartnerTyping(false), 4000);
   }, []);
 
   const handleReadReceipt = useCallback((readBy, messageIds) => {
@@ -125,6 +139,16 @@ const ChatWindow = () => {
     onTyping: handleTyping,
     onReadReceipt: handleReadReceipt,
   });
+
+  useEffect(() => {
+    if (activeChatId) requestPresence();
+  }, [activeChatId, requestPresence]);
+
+  useEffect(() => {
+    if (activeChatId) return subscribeToMessages(activeChatId, handleNewMessage);
+  }, [activeChatId, handleNewMessage, subscribeToMessages]);
+
+  useEffect(() => () => clearTimeout(typingTimeout.current), [activeChatId]);
 
   useEffect(() => {
     historyRef.current = null;
@@ -148,7 +172,11 @@ const ChatWindow = () => {
 
         setChatInfo(data);
         const messages = normalizeMessages(data.messages);
-        historyRef.current = { id: data.id, cursor: messages.at(-1)?.id || 0 };
+        historyRef.current = {
+          id: data.id,
+          cursor: messages.at(-1)?.id || 0,
+          seen: new Set(messages.map(message => message.id)),
+        };
         setMessages(messages);
         setActiveChatId(data.id);
 
@@ -165,16 +193,12 @@ const ChatWindow = () => {
     return () => controller.abort();
   }, [chatDetailPath, isSaved, isSignedIn, sessionRestored, retry]);
 
-  const latestNotification = notifications[0];
-  const missedMessage = !isConnected && latestNotification?.chat_id === activeChatId
-    ? latestNotification.id
-    : null;
-
   useEffect(() => {
     const history = historyRef.current;
-    if (!history || history.id !== activeChatId || (!isConnected && !missedMessage)) return;
+    if (!history || history.id !== activeChatId) return;
     const controller = new AbortController();
-    const syncMessages = async () => {
+    let syncing = false;
+    const fetchMissedMessages = async () => {
       let hasMore;
       let shouldMarkRead = false;
       const account = String(tokenUser(getAuthToken()));
@@ -185,6 +209,7 @@ const ChatWindow = () => {
         if (controller.signal.aborted || historyRef.current !== history) return;
         const messages = normalizeMessages(data.messages);
         if (messages.length === 0) break;
+        for (const message of messages) history.seen.add(message.id);
         history.cursor = messages.at(-1).id;
         hasMore = data.has_more;
         if (messages.some(message => !message.is_read && String(message.user_id) !== account)) {
@@ -206,9 +231,28 @@ const ChatWindow = () => {
         });
       }
     };
-    syncMessages().catch(() => {});
-    return () => controller.abort();
-  }, [activeChatId, chatDetailPath, isConnected, isSaved, missedMessage]);
+    const syncMessages = async () => {
+      if (syncing || document.visibilityState !== 'visible') return;
+      syncing = true;
+      try {
+        await fetchMissedMessages();
+      } catch {
+        // The next connection event or interval retries with the same cursor.
+      } finally {
+        syncing = false;
+      }
+    };
+    syncMessages();
+    const interval = setInterval(syncMessages, isConnected || isOnline ? 30000 : 4000);
+    document.addEventListener('visibilitychange', syncMessages);
+    window.addEventListener('online', syncMessages);
+    return () => {
+      controller.abort();
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', syncMessages);
+      window.removeEventListener('online', syncMessages);
+    };
+  }, [activeChatId, chatDetailPath, isConnected, isOnline, isSaved]);
 
   // User search for adding group members
   const memberTimerRef = useRef(null);
@@ -255,7 +299,8 @@ const ChatWindow = () => {
   }, [showMenu]);
 
   const handleSendMessage = async (text, attachments = [], voiceMessageData = null) => {
-    if (!activeChatId) return;
+    const current = historyRef.current;
+    if (!current || current.id !== activeChatId) return;
 
     const messageText = (text || '').trim();
     const voiceMessageId = voiceMessageData?.id;
@@ -283,7 +328,9 @@ const ChatWindow = () => {
       if (voiceMessageId != null) body.voice_message_id = voiceMessageId;
       const response = await chatRequest(`/chats/${activeChatId}/send/`, { method: 'post', data: body });
 
+      if (historyRef.current !== current) return;
       const newData = response.data.message || response.data;
+      current.seen.add(newData.id);
       if (newData.voice_message) saveVoiceToCache(newData.voice_message.id, newData.voice_message);
       setMessages(prev => {
         const received = prev.find(m => m.id === newData.id);
@@ -433,9 +480,13 @@ const ChatWindow = () => {
                     <AddMemberBtn onClick={() => setAddMemberOpen(o => !o)} title="Add member">+</AddMemberBtn>
                   </GroupMeta>
                 ) : (
-                  chatInfo?.username && <UserHandle>@{chatInfo.username}</UserHandle>
+                  chatInfo?.username && (
+                    <>
+                      <UserHandle>@{chatInfo.username}</UserHandle>
+                      <PresenceStatus online={presence?.[chatInfo.other_participant?.id]} />
+                    </>
+                  )
                 )}
-                <ConnectionDot connected={isConnected} />
             </StatusRow>
             )}
             {!isSaved && isGroup && addMemberOpen && (
@@ -599,14 +650,6 @@ const StatusRow = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-`;
-
-const ConnectionDot = styled.span`
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: ${({ connected }) => (connected ? '#4caf50' : '#888')};
-  display: inline-block;
 `;
 
 const Username = styled.h2`

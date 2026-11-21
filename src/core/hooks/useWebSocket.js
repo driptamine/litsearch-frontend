@@ -132,7 +132,20 @@ const useWebSocket = (path, { onOpen, onMessage, onClose, onError, enabled = tru
     }
 
     connect();
-    return disconnect;
+    const reconnect = () => {
+      disconnect();
+      connect();
+    };
+    const connectWhenVisible = () => {
+      if (document.visibilityState === 'visible') connect();
+    };
+    window.addEventListener('online', reconnect);
+    document.addEventListener('visibilitychange', connectWhenVisible);
+    return () => {
+      window.removeEventListener('online', reconnect);
+      document.removeEventListener('visibilitychange', connectWhenVisible);
+      disconnect();
+    };
   }, [path, canConnect, connect, disconnect, requireAuth ? accessToken : null, connectionKey]);
 
   const send = useCallback((data) => {

@@ -215,7 +215,8 @@ const App = () => {
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
   const closeNavigation = useCallback(() => setMobileNavigationOpen(false), []);
   const sidebarLayout = showNavigation && !isMobile ? (sidebarExpanded ? 'expanded' : 'compact') : undefined;
-  const showBottomNav = isMobile && !isAuthPage;
+  const isConversation = /^\/chat\/(?:[1-9]\d*|saved|group\/[1-9]\d*)\/?$/.test(pathname);
+  const showBottomNav = isMobile && !isAuthPage && !isConversation;
 
   useEffect(() => {
     closeNavigation();
