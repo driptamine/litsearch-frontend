@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { setAccessToken } from 'core/actions';
+import { fetchCurrentUser, setAccessToken } from 'core/actions';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { getState, store } from 'core/store';
 import { getAuthTokensFromCookies, saveAuthCookies } from 'core/utils/authCookies';
@@ -46,6 +46,7 @@ async function refreshAccess(access) {
       }
       saveAuthCookies(tokens);
       store.dispatch(setAccessToken(tokens));
+      store.dispatch(fetchCurrentUser());
       return tokens.access_token;
     })
     .finally(() => {
