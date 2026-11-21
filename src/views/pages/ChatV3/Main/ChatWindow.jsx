@@ -517,10 +517,10 @@ const ChatWindow = () => {
             <RightActions>
               {!isSaved && (
                 <>
-                  <CallButton onClick={() => handleVoipCall('audio')} title="Voice call" disabled={!isConnected || callBusy}>
+                  <CallButton onClick={() => handleVoipCall('audio')} title="Voice call" disabled={!activeChatId || callBusy}>
                     <FaPhone />
                   </CallButton>
-                  <CallButton onClick={() => handleVoipCall('video')} title="Video call" disabled={!isConnected || callBusy}>
+                  <CallButton onClick={() => handleVoipCall('video')} title="Video call" disabled={!activeChatId || callBusy}>
                     <FaVideo />
                   </CallButton>
                 </>

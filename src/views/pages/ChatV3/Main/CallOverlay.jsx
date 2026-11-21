@@ -99,6 +99,7 @@ const CallOverlay = ({ callState, callType, callerName, callerAvatar, localStrea
 
   const getLabel = () => {
     switch (callState) {
+      case 'starting': return 'Starting call…';
       case 'calling': return 'Calling...';
       case 'connecting': return 'Connecting...';
       case 'connected': return callType === 'video' ? 'Video Call' : 'Voice Call';
@@ -107,7 +108,7 @@ const CallOverlay = ({ callState, callType, callerName, callerAvatar, localStrea
   };
 
   return (
-    <Overlay>
+    <Overlay role="dialog" aria-modal="true" aria-label={isVideoCall ? 'Video call' : 'Voice call'}>
       <OverlayContent>
         {remoteStream && (
           <audio ref={remoteAudioRef} autoPlay playsInline data-call-audio onPlaying={() => setPlaybackBlocked(false)} />
@@ -133,12 +134,12 @@ const CallOverlay = ({ callState, callType, callerName, callerAvatar, localStrea
           </CenterSection>
         )}
 
-        {!callError && callState === 'calling' && (
+        {!callError && (callState === 'starting' || callState === 'calling') && (
           <CenterSection>
             <Spinner>
               <FaSpinner />
             </Spinner>
-            <StatusText>Waiting for an answer…</StatusText>
+            <StatusText>{callState === 'starting' ? 'Preparing microphone…' : 'Waiting for an answer…'}</StatusText>
           </CenterSection>
         )}
 

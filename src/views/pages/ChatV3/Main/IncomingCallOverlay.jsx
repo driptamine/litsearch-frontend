@@ -15,10 +15,10 @@ const IncomingCallOverlay = ({ callType, callerName, callerAvatar, ready, onAcce
         />
         <CallerName>{callerName || 'Incoming Call'}</CallerName>
         <CallLabel>Incoming {callType === 'video' ? 'Video' : 'Voice'} Call</CallLabel>
-        {!ready && <CallLabel>Connecting…</CallLabel>}
+        {!ready && <CallLabel>Connecting to calls…</CallLabel>}
 
         <Actions>
-          <DeclineButton onClick={onDecline} disabled={!ready} title="Decline">
+          <DeclineButton onClick={onDecline} title="Decline">
             <FaPhoneSlash />
           </DeclineButton>
           <AcceptButton onClick={onAccept} disabled={!ready} title="Accept">

@@ -25,6 +25,8 @@ export const NotificationProvider = ({ children }) => {
   const [authenticatedAccount, setAuthenticatedAccount] = useState(null);
   const [presence, setPresence] = useState({});
   const messageListeners = useRef(new Map());
+  const callListeners = useRef(new Set());
+  const lastClosedCall = useRef(null);
 
   useEffect(() => {
     setIncomingCall(null);
@@ -32,6 +34,7 @@ export const NotificationProvider = ({ children }) => {
     setUnreadChatCount(0);
     setNotifications([]);
     setPresence({});
+    lastClosedCall.current = null;
   }, [account]);
 
   const subscribeToMessages = useCallback((chatId, listener) => {
@@ -46,7 +49,22 @@ export const NotificationProvider = ({ children }) => {
     };
   }, []);
 
+  const subscribeToCalls = useCallback(listener => {
+    const listeners = callListeners.current;
+    listeners.add(listener);
+    return () => listeners.delete(listener);
+  }, []);
+
+  const receiveIncomingCall = useCallback((event) => {
+    if (event?.call_id == null || lastClosedCall.current?.id === event.call_id) return;
+    setIncomingCall({
+      chatId: event.chat_id, id: event.call_id, callerId: event.caller_id,
+      callerName: event.caller_name, callType: event.call_type, expiresAt: event.expires_at,
+    });
+  }, []);
+
   const handleMessage = useCallback((data) => {
+    if (!data?.type) return;
     if (data?.message && (data.type === 'new_message' || data.type === 'chat_updated')) {
       messageListeners.current.get(String(data.chat_id))?.forEach(listener => listener(data.message));
     }
@@ -90,17 +108,18 @@ export const NotificationProvider = ({ children }) => {
         break;
       }
       case 'incoming_call': {
-        setIncomingCall({
-          chatId: data.chat_id,
-          id: data.call_id,
-          callerId: data.caller_id,
-          callerName: data.caller_name,
-          callType: data.call_type,
-        });
+        receiveIncomingCall(data);
         break;
       }
       case 'call_closed': {
-        setClosedCall({ id: data.call_id, chatId: data.chat_id });
+        const closed = { id: data.call_id, chatId: data.chat_id };
+        lastClosedCall.current = closed;
+        setClosedCall(closed);
+        break;
+      }
+      case 'call_accepted':
+      case 'voip_webrtc_signal': {
+        callListeners.current.forEach(listener => listener(data));
         break;
       }
       case 'error': {
@@ -108,7 +127,7 @@ export const NotificationProvider = ({ children }) => {
         break;
       }
     }
-  }, []);
+  }, [receiveIncomingCall]);
 
   const clearIncomingCall = useCallback((call) => {
     setIncomingCall(current => current === call ? null : current);
@@ -152,6 +171,8 @@ export const NotificationProvider = ({ children }) => {
       presence: isOnline ? presence : null,
       requestPresence,
       subscribeToMessages,
+      subscribeToCalls,
+      receiveIncomingCall,
       clearNotifications,
       setUnreadChatCount,
       incomingCall,

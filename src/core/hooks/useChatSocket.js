@@ -51,7 +51,7 @@ const useChatSocket = (chatId, { onNewMessage, onTyping, onReadReceipt, onVoipCa
         if (onVoipCallRejectRef.current) onVoipCallRejectRef.current(data);
         break;
       case 'voip_webrtc_signal':
-        if (onVoipWebRtcSignalRef.current) onVoipWebRtcSignalRef.current(data.signal_data);
+        if (onVoipWebRtcSignalRef.current) onVoipWebRtcSignalRef.current(data.signal_data, data);
         break;
     }
   }, []);

@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useSelector } from 'react-redux';
-import { tokenUser } from 'core/api/chatSession';
+import { chatRequest, tokenUser } from 'core/api/chatSession';
 import { useNotifications } from 'core/context/NotificationContext';
 import useChatSocket from 'core/hooks/useChatSocket';
 import useVoip from 'core/hooks/useVoip';
@@ -13,24 +13,38 @@ const CallContext = createContext(null);
 
 export const useCalls = () => useContext(CallContext);
 
-const disconnectedMessage = 'Chat disconnected. Close the call and try again.';
+const unavailable = 'Could not connect the call. Close it and try again.';
+
+async function callCommand(call, type, payload = {}) {
+  const { data } = await chatRequest(`/chats/${call.chatId}/call/`, {
+    method: 'post',
+    data: { type, call_id: call.id, ...payload },
+  });
+  return data;
+}
 
 export function CallProvider({ children }) {
-  const { incomingCall, closedCall, clearIncomingCall } = useNotifications();
+  const {
+    incomingCall, closedCall, clearIncomingCall, receiveIncomingCall, subscribeToCalls, isOnline,
+  } = useNotifications();
   const accessToken = useSelector(state => state.users?.access_token) || getAuthToken();
   const account = tokenUser(accessToken);
   const [call, setCall] = useState(null);
   const [callState, setCallState] = useState('idle');
-  const [readyCall, setReadyCall] = useState(null);
   const [signalError, setSignalError] = useState(null);
   const callRef = useRef(null);
+  const eventHandler = useRef(null);
   const audioContextRef = useRef(null);
-  const sendSignalRef = useRef(null);
+  const ringTimeout = useRef(null);
   const pending = account && !call ? incomingCall : null;
   const roomId = account ? call?.chatId ?? pending?.chatId : null;
 
-  const sendSignal = useCallback((signal) => {
-    if (!sendSignalRef.current?.(signal)) setSignalError(disconnectedMessage);
+  const sendSignal = useCallback(signal => {
+    const current = callRef.current;
+    if (!current?.id || !current.accepted) return;
+    callCommand(current, 'voip_webrtc_signal', { signal_data: signal }).catch(() => {
+      if (signal.type !== 'candidate' && callRef.current === current) setSignalError(unavailable);
+    });
   }, []);
 
   const {
@@ -39,50 +53,60 @@ export function CallProvider({ children }) {
   } = useVoip({ enabled: Boolean(account), onSignal: sendSignal });
 
   const resetCall = useCallback(() => {
+    clearTimeout(ringTimeout.current);
     callRef.current = null;
     stopMedia();
     const context = audioContextRef.current;
     audioContextRef.current = null;
     if (context) context.close().catch(() => {});
     setCall(null);
-    setReadyCall(null);
     setSignalError(null);
     setCallState('idle');
   }, [stopMedia]);
 
   const handleRemoteEnd = (event) => {
-    if (pending && (event.call_id == null || event.call_id === pending.id)) clearIncomingCall(pending);
+    if (pending && event.call_id === pending.id) clearIncomingCall(pending);
     const current = callRef.current;
-    if (current && (event.call_id == null || current.id == null || event.call_id === current.id)) {
-      resetCall();
-    }
+    if (current?.id != null && event.call_id === current.id) resetCall();
   };
 
-  const handleRemoteAccept = async (event) => {
+  const handleRemoteAccept = (event) => {
     const current = callRef.current;
-    if (current?.direction !== 'outgoing' || !current.signaled || current.accepted) return;
-    current.id = event.call_id;
+    if (current?.direction !== 'outgoing' || current.chatId !== event.chat_id || current.accepted) return;
+    if (current.id == null) {
+      current.earlyAcceptance = event;
+      return;
+    }
+    if (event.call_id !== current.id) return;
+    clearTimeout(ringTimeout.current);
     current.accepted = true;
     setCallState('connecting');
-    await createOffer();
+    createOffer();
   };
 
-  const handleSignal = (signal) => {
+  const handleSignal = (signal, event) => {
     const current = callRef.current;
-    if (!current?.accepted || (signal?.type === 'offer' && current.direction !== 'incoming')) return;
-    return handleRemoteSignal(signal);
+    if (!current?.accepted || current.id !== event.call_id) return;
+    if (signal?.type === 'offer' && current.direction !== 'incoming') return;
+    handleRemoteSignal(signal);
   };
 
-  const {
-    isConnected, sendVoipCallStart, sendVoipCallAccept, sendVoipCallReject,
-    sendVoipCallEnd, sendVoipWebRtcSignal,
-  } = useChatSocket(roomId, {
+  eventHandler.current = (event) => {
+    if (event.type === 'call_accepted') handleRemoteAccept(event);
+    if (event.type === 'voip_webrtc_signal') handleSignal(event.signal_data, event);
+  };
+
+  useEffect(() => subscribeToCalls(event => eventHandler.current(event)), [subscribeToCalls]);
+
+  // The conversation channel can still receive WebRTC signals during a notification reconnect.
+  const { isConnected: roomConnected } = useChatSocket(roomId, {
+    enabled: !isOnline,
     onVoipCallAccept: handleRemoteAccept,
     onVoipCallEnd: handleRemoteEnd,
     onVoipCallReject: handleRemoteEnd,
     onVoipWebRtcSignal: handleSignal,
   });
-  sendSignalRef.current = sendVoipWebRtcSignal;
+  const canReceiveSignals = isOnline || roomConnected;
 
   useEffect(() => resetCall, [account, resetCall]);
 
@@ -92,31 +116,56 @@ export function CallProvider({ children }) {
 
   useEffect(() => {
     if (!closedCall) return;
-    if (incomingCall && incomingCall.id === closedCall.id && incomingCall.chatId === closedCall.chatId) {
-      clearIncomingCall(incomingCall);
-    }
+    if (incomingCall?.id === closedCall.id) clearIncomingCall(incomingCall);
     const current = callRef.current;
-    if (current && current.id === closedCall.id && current.chatId === closedCall.chatId) resetCall();
-  }, [closedCall, incomingCall, clearIncomingCall, resetCall]);
+    if (current && current.id === closedCall.id) resetCall();
+  }, [closedCall, incomingCall, clearIncomingCall, resetCall, callState]);
 
   useEffect(() => {
-    if (!isConnected || !readyCall || readyCall !== callRef.current || readyCall.signaled) return;
-    if (readyCall.direction === 'incoming') {
-      readyCall.signaled = sendVoipCallAccept(readyCall.id);
-      readyCall.accepted = readyCall.signaled;
-    } else {
-      readyCall.signaled = sendVoipCallStart(readyCall.callType);
-    }
-    if (!readyCall.signaled) setSignalError(disconnectedMessage);
-  }, [isConnected, readyCall, sendVoipCallAccept, sendVoipCallStart]);
+    if (!pending?.expiresAt) return;
+    const timeout = setTimeout(() => clearIncomingCall(pending), Math.max(0, Date.parse(pending.expiresAt) - Date.now()));
+    return () => clearTimeout(timeout);
+  }, [pending, clearIncomingCall]);
+
+  useEffect(() => {
+    if (!account || call || incomingCall) return;
+    const controller = new AbortController();
+    let loading = false;
+    const restoreRingingCall = async () => {
+      if (loading || document.visibilityState !== 'visible') return;
+      loading = true;
+      try {
+        const { data } = await chatRequest('/chats/calls/incoming/', { signal: controller.signal });
+        if (!controller.signal.aborted) receiveIncomingCall(data.incoming_call);
+      } catch {
+        // Reconnect, polling, or returning to the tab will retry.
+      } finally {
+        loading = false;
+      }
+    };
+    restoreRingingCall();
+    const interval = isOnline ? undefined : setInterval(restoreRingingCall, 4000);
+    document.addEventListener('visibilitychange', restoreRingingCall);
+    return () => {
+      controller.abort();
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', restoreRingingCall);
+    };
+  }, [account, call, incomingCall, isOnline, receiveIncomingCall]);
+
+  useEffect(() => {
+    if (callState !== 'connecting') return;
+    const timeout = setTimeout(() => setSignalError(unavailable), 25000);
+    return () => clearTimeout(timeout);
+  }, [callState]);
 
   const prepareCall = async (details, direction) => {
     if (callRef.current) return;
     const type = details.callType === 'video' ? 'video' : 'audio';
-    const next = { ...details, callType: type, direction, signaled: false, accepted: false };
+    const next = { ...details, callType: type, direction, accepted: false };
     callRef.current = next;
     setCall(next);
-    setCallState(direction === 'incoming' ? 'connecting' : 'calling');
+    setCallState('starting');
 
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (AudioContext) {
@@ -129,7 +178,37 @@ export function CallProvider({ children }) {
 
     if (!await startMedia(type)) return;
     if (details.delayMs) await new Promise(resolve => setTimeout(resolve, details.delayMs));
-    if (callRef.current === next) setReadyCall(next);
+    if (callRef.current !== next) return;
+
+    try {
+      if (direction === 'incoming') {
+        next.accepted = true;
+        setCallState('connecting');
+        await callCommand(next, 'voip_call_accept');
+        if (callRef.current !== next && tokenUser(getAuthToken()) === account) {
+          callCommand(next, 'voip_call_end').catch(() => {});
+        }
+        return;
+      }
+
+      const started = await callCommand(next, 'voip_call_start', { call_type: type });
+      next.id = started.call_id;
+      if (callRef.current !== next) {
+        if (tokenUser(getAuthToken()) === account) callCommand(next, 'voip_call_end').catch(() => {});
+        return;
+      }
+      setCallState('calling');
+      const expiresIn = Date.parse(started.expires_at) - Date.now();
+      ringTimeout.current = setTimeout(() => {
+        if (callRef.current !== next || next.accepted) return;
+        setSignalError('No one answered the call.');
+        callCommand(next, 'voip_call_end').catch(() => {});
+      }, Number.isFinite(expiresIn) ? Math.max(0, expiresIn) : 45000);
+      if (next.earlyAcceptance) eventHandler.current(next.earlyAcceptance);
+    } catch (error) {
+      if (callRef.current !== next) return;
+      setSignalError(error.response?.data?.detail || error.response?.data?.error || unavailable);
+    }
   };
 
   const startCall = (details) => {
@@ -137,30 +216,33 @@ export function CallProvider({ children }) {
   };
 
   const acceptCall = () => {
-    if (!pending || !isConnected) return;
+    if (!pending || !canReceiveSignals) return;
     prepareCall(pending, 'incoming');
     clearIncomingCall(pending);
   };
 
   const declineCall = () => {
-    if (pending && sendVoipCallReject(pending.id)) clearIncomingCall(pending);
+    if (!pending) return;
+    clearIncomingCall(pending);
+    callCommand(pending, 'voip_call_reject').catch(() => {});
   };
 
   const endCall = () => {
     const current = callRef.current;
-    if (current?.signaled) sendVoipCallEnd(current.id);
-    else if (current?.direction === 'incoming') sendVoipCallReject(current.id);
+    if (current?.id != null) {
+      const type = current.direction === 'incoming' && !current.accepted ? 'voip_call_reject' : 'voip_call_end';
+      callCommand(current, type).catch(() => {});
+    }
     resetCall();
   };
 
   return (
     <CallContext.Provider value={{ startCall, busy: Boolean(call || pending) }}>
-      {children}
       {pending && createPortal(
         <IncomingCallOverlay
           callType={pending.callType}
           callerName={pending.callerName}
-          ready={isConnected}
+          ready={canReceiveSignals}
           onAccept={acceptCall}
           onDecline={declineCall}
         />,
