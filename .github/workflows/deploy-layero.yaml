@@ -16,8 +16,14 @@ jobs:
   deploy:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    env:
+      LAYERO_SITE_ID: ${{ vars.LAYERO_SITE_ID }}
 
     steps:
+      - name: Check Layero site ID
+        run: |
+          : "${LAYERO_SITE_ID:?Set the LAYERO_SITE_ID repository variable}"
+
       - name: Checkout code
         uses: actions/checkout@v6
         with:
@@ -41,6 +47,6 @@ jobs:
         uses: LayeroInfra/deploy-action@e22ae1eceedfd213b9e5bd955a8f3ade8aaa52a1 # v1
         with:
           token: ${{ secrets.LAYERO_TOKEN }}
-          project: 89d51e97-4dfd-4012-b258-5a9b4f4e6d6d
+          project: ${{ env.LAYERO_SITE_ID }}
           prebuilt: dist
           version: '0.11.34'
