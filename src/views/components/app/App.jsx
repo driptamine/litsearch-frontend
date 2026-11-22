@@ -217,6 +217,7 @@ const App = () => {
   const sidebarLayout = showNavigation && !isMobile ? (sidebarExpanded ? 'expanded' : 'compact') : undefined;
   const isConversation = /^\/chat\/(?:[1-9]\d*|saved|group\/[1-9]\d*)\/?$/.test(pathname);
   const showBottomNav = isMobile && !isAuthPage && !isConversation;
+  const showAppHeader = showNavigation && !(isMobile && isConversation);
 
   useEffect(() => {
     closeNavigation();
@@ -228,7 +229,7 @@ const App = () => {
       <NotificationProvider>
       <CallProvider>
       <StyledWrapper className="litloop-shell" data-sidebar-layout={sidebarLayout} isMobile={isMobile} showBottomNav={showBottomNav}>
-        {showNavigation && (
+        {showAppHeader && (
           <AppHeader
             imgSrc={childMessage || user.profileImg}
             themeToggler={themeToggler}
@@ -250,7 +251,7 @@ const App = () => {
             />
           </WrapperContainer>
         ) : (
-          <ContentWrapper>
+          <ContentWrapper noTopPad={isMobile && isConversation}>
             {showNavigation && (
               <Sidebar mobile={isMobile} drawerOpen={mobileNavigationOpen} onDismiss={closeNavigation} />
             )}
@@ -330,7 +331,7 @@ const ContentWrapper = styled.div`
   box-sizing: border-box;
   flex: 1;
   min-height: 0;
-  padding-top: 5em;
+  padding-top: ${({ noTopPad }) => (noTopPad ? '0' : '5em')};
   padding-inline-start: var(--litloop-sidebar-width, 0px);
   transition: padding-inline-start 180ms ease;
 
@@ -339,7 +340,7 @@ const ContentWrapper = styled.div`
   }
 
   @media screen and (max-width: 768px) {
-    padding-top: 70px;
+    padding-top: ${({ noTopPad }) => (noTopPad ? '0' : '70px')};
   }
 `;
 

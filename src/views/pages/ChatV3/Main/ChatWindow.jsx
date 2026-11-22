@@ -35,6 +35,7 @@ const ChatWindow = () => {
     ? `/chats/${isGroup ? 'group' : 'direct'}/${chatTarget}/`
     : null;
   const history = useHistory();
+  const isConversationView = Boolean(isSaved || (isGroup ? groupChatId : userId));
   const { setUnreadChatCount, isOnline, presence, requestPresence, subscribeToMessages } = useNotifications();
   const { startCall, joinGroupVoice, busy: callBusy } = useCalls();
 
@@ -428,7 +429,7 @@ const ChatWindow = () => {
 
   if (!sessionRestored || loading || (isSignedIn && chatDetailPath && !chatInfo && loadError === null)) {
     return (
-      <ChatWindowContainer>
+      <ChatWindowContainer isConversation={isConversationView}>
         <ChatHeader>
           <SkeletonLine width="48px" height="48px" style={{ borderRadius: '50%', marginRight: '15px' }} />
           <UserInfo>
@@ -449,7 +450,7 @@ const ChatWindow = () => {
     const needsLogin = !isSignedIn || loadError === 401;
     const unavailable = !chatDetailPath || loadError === 400 || loadError === 403 || loadError === 404;
     return (
-      <ChatWindowContainer>
+      <ChatWindowContainer isConversation={isConversationView}>
         <ChatStatus role="status">
           <p>{needsLogin ? 'Log in to open this conversation.' : unavailable
             ? 'This conversation is unavailable.' : 'Could not load this conversation.'}</p>
@@ -464,7 +465,7 @@ const ChatWindow = () => {
 
 
   return (
-    <ChatWindowContainer>
+    <ChatWindowContainer isConversation={isConversationView}>
       {(isSaved || (isGroup ? groupChatId : userId)) ? (
         <>
           <ChatHeader>
@@ -678,6 +679,7 @@ const ChatHeader = styled.div`
   padding-bottom: 16px;
   border-bottom: 1px solid #333;
   margin-bottom: 16px;
+  position: -webkit-sticky;
   position: sticky;
   top: 0;
   z-index: 20;
@@ -921,7 +923,13 @@ const ChatWindowContainer = styled.div`
   @media screen and (max-width: 768px) {
     width: 100%;
     padding: 10px;
-    height: calc(100vh - 60px);
+    position: ${({ isConversation }) => (isConversation ? 'fixed' : 'static')};
+    inset: ${({ isConversation }) => (isConversation ? '0' : 'auto')};
+    z-index: ${({ isConversation }) => (isConversation ? '40' : 'auto')};
+    height: ${({ isConversation }) => (isConversation ? '100vh' : 'calc(100vh - 60px)')};
+    height: ${({ isConversation }) => (isConversation ? '100dvh' : 'calc(100dvh - 60px)')};
+    max-height: ${({ isConversation }) => (isConversation ? '100dvh' : 'none')};
+    overflow: ${({ isConversation }) => (isConversation ? 'visible' : 'hidden')};
   }
 `;
 
@@ -931,6 +939,7 @@ const MessagesContainer = styled.div`
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding-right: 8px;
 
   &::-webkit-scrollbar {
