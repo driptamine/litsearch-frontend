@@ -282,6 +282,49 @@ const ChatInput = ({ onSendMessage, onTyping }) => {
         ))}
         {uploading && <UploadingLabel>Uploading...</UploadingLabel>}
       </AttachmentsPreview>
+      {(recState === 'recording' || (recState === 'stopped' && blob) || voiceUploading || voiceMessageData) && (
+        <VoicePanel>
+          {recState === 'recording' && (
+            <>
+              <RecordDot />
+              <RecordTimer>{formatDuration(duration)}</RecordTimer>
+              <PanelHint>Recording…</PanelHint>
+              <PanelSpacer />
+              <VoiceBtn onClick={handleCancelRecording} title="Cancel recording">
+                <FaTrash size={14} color="#ff4444" />
+              </VoiceBtn>
+              <VoiceBtn onClick={handleStopRecording} title="Stop recording">
+                <FaStop size={16} />
+              </VoiceBtn>
+            </>
+          )}
+          {recState === 'stopped' && blob && !voiceUploading && !voiceMessageData && (
+            <>
+              <RecordTimer>{formatDuration(duration)}</RecordTimer>
+              <PanelSpacer />
+              <VoiceBtn onClick={handleDiscardVoice} title="Discard">
+                <FaTrash size={14} color="#ff4444" />
+              </VoiceBtn>
+              <ReRecordBtn onClick={() => handleStartRecording()}>
+                Re-record
+              </ReRecordBtn>
+            </>
+          )}
+          {voiceUploading && (
+            <PanelHint>Uploading voice…</PanelHint>
+          )}
+          {voiceMessageData && !voiceUploading && (
+            <>
+              <ReadyDot />
+              <PanelHint>Voice ready{voiceMessageData.duration ? ` · ${formatDuration(voiceMessageData.duration)}` : ''}</PanelHint>
+              <PanelSpacer />
+              <VoiceBtn onClick={handleDiscardVoice} title="Discard voice">
+                <FaTrash size={14} color="#ff4444" />
+              </VoiceBtn>
+            </>
+          )}
+        </VoicePanel>
+      )}
       <InputRow>
         <AttachWrapper>
           <AttachButton onClick={handleAttachClick} disabled={uploading}>
@@ -318,41 +361,6 @@ const ChatInput = ({ onSendMessage, onTyping }) => {
           <VoiceButton onClick={handleStartRecording} disabled={uploading || voiceUploading} title="Record voice message">
             <FaMicrophone size={16} />
           </VoiceButton>
-        )}
-        {recState === 'recording' && (
-          <RecordBar>
-            <RecordDot />
-            <RecordTimer>{formatDuration(duration)}</RecordTimer>
-            <VoiceBtn onClick={handleStopRecording} title="Stop recording">
-              <FaStop size={16} />
-            </VoiceBtn>
-          </RecordBar>
-        )}
-        {recState === 'stopped' && blob && (
-          <RecordBar>
-            <span style={{ color: '#ccc', fontSize: 13 }}>{formatDuration(duration)}</span>
-            <VoiceBtn onClick={handleDiscardVoice} title="Discard">
-              <FaTrash size={14} color="#ff4444" />
-            </VoiceBtn>
-            <VoiceBtn onClick={() => handleStartRecording()} title="Re-record" style={{ fontSize: 12, color: '#009688' }}>
-              Re-record
-            </VoiceBtn>
-          </RecordBar>
-        )}
-        {voiceMessageData && !voiceUploading && (
-          <span style={{ color: '#009688', fontSize: 12, marginRight: 4 }}>
-            Voice ready
-          </span>
-        )}
-        {voiceMessageData && !voiceUploading && (
-          <VoiceBtn onClick={handleDiscardVoice} title="Discard voice" style={{ marginRight: 8 }}>
-            <FaTrash size={12} color="#ff4444" />
-          </VoiceBtn>
-        )}
-        {voiceUploading && (
-          <span style={{ color: '#888', fontSize: 12, marginRight: 8 }}>
-            Uploading...
-          </span>
         )}
         <SendButton onClick={handleSend} disabled={(!message.trim() && !attachments.length && !voiceMessageData) || uploading || voiceUploading}>
           <IoSend size={20} />
@@ -495,11 +503,20 @@ const UploadingLabel = styled.span`
 const InputRow = styled.div`
   display: flex;
   align-items: center;
+
+  @media screen and (max-width: 768px) {
+    gap: 6px;
+  }
 `;
 
 const AttachWrapper = styled.div`
   position: relative;
   margin-right: 8px;
+  flex-shrink: 0;
+
+  @media screen and (max-width: 768px) {
+    margin-right: 0;
+  }
 `;
 
 const DropdownBackdrop = styled.div`
@@ -558,6 +575,12 @@ const Input = styled.input`
   &::placeholder {
     color: #888;
   }
+
+  @media screen and (max-width: 768px) {
+    padding: 10px 14px;
+    font-size: 16px;
+    min-width: 0;
+  }
 `;
 
 const AttachButton = styled.button`
@@ -597,6 +620,10 @@ const VoiceButton = styled.button`
   flex-shrink: 0;
   margin-right: 8px;
   transition: background 0.2s;
+
+  @media screen and (max-width: 768px) {
+    margin-right: 0;
+  }
   &:hover:not(:disabled) {
     background: #c2185b;
   }
@@ -606,11 +633,54 @@ const VoiceButton = styled.button`
   }
 `;
 
-const RecordBar = styled.div`
+const VoicePanel = styled.div`
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: calc(100% + 8px);
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-right: 8px;
+  gap: 10px;
+  background: #222;
+  border: 1px solid #444;
+  border-radius: 14px;
+  padding: 10px 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 30;
+`;
+
+const PanelHint = styled.span`
+  color: #ccc;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const PanelSpacer = styled.span`
+  flex: 1;
+`;
+
+const ReadyDot = styled.div`
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #009688;
+  flex-shrink: 0;
+`;
+
+const ReRecordBtn = styled.button`
+  background: none;
+  border: none;
+  color: #009688;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 2px;
+  white-space: nowrap;
+  &:hover {
+    color: #00bfa5;
+  }
 `;
 
 const RecordDot = styled.div`
@@ -651,6 +721,13 @@ const SendButton = styled.button`
   width: 42px;
   height: 42px;
   margin-left: 12px;
+  flex-shrink: 0;
+
+  @media screen and (max-width: 768px) {
+    width: 40px;
+    height: 40px;
+    margin-left: 0;
+  }
   border: none;
   border-radius: 50%;
   background-color: #009688;
