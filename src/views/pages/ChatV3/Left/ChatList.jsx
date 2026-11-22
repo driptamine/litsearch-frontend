@@ -61,6 +61,7 @@ const ChatList = ({ emojiData }) => {
 
   const currentUserAvatar = authUser?.profileImg || authUser?.avatar || DEFAULT_AVATAR;
   const currentUsername = authUser?.username || authUser?.user?.username || authUser?.user__username || 'User';
+  const savedChat = chats?.find(c => c.is_saved_messages);
 
   return (
     <ChatListContainer>
@@ -100,12 +101,16 @@ const ChatList = ({ emojiData }) => {
       </Tabs>
 
       <SavedMessagesRow>
-        <LinkStyledSaved to="/chat/saved" onClick={() => {}}>
-          <SavedIconWrap>
-            <FaBookmark />
-          </SavedIconWrap>
-          <SavedLabel>Saved Messages</SavedLabel>
-        </LinkStyledSaved>
+        {savedChat ? (
+          <ChatRow chat={savedChat} />
+        ) : (
+          <LinkStyledSaved to="/chat/saved" onClick={() => {}}>
+            <SavedIconWrap>
+              <FaBookmark />
+            </SavedIconWrap>
+            <SavedLabel>Saved Messages</SavedLabel>
+          </LinkStyledSaved>
+        )}
       </SavedMessagesRow>
 
       {!isSignedIn && <Link to="/login">Log in to see your chats</Link>}
@@ -253,6 +258,12 @@ const KebabButton = styled.button`
 const Tabs = styled.div`
   display: flex;
   overflow: auto;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--navBg, #000);
+  margin: -20px -20px 0;
+  padding: 20px 20px 0;
 `;
 
 const ImgWrap = styled.div`
