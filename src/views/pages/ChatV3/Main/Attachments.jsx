@@ -133,6 +133,12 @@ const Tabs = styled.div`
   gap: 0;
   border-bottom: 2px solid #333;
   margin-bottom: 20px;
+  position: sticky;
+  top: 60px;
+  z-index: 10;
+  background-color: var(--navBg, #000);
+  margin: -20px -20px 20px;
+  padding: 20px 20px 0;
 `;
 
 const Tab = styled.button`

@@ -7,6 +7,7 @@ import { chatRequest } from 'core/api/chatSession';
 import useSelectAuthUser from 'core/hooks/useSelectAuthUser';
 import { useNotifications } from 'core/context/NotificationContext';
 import ChatRow from './ChatRow';
+import { AppleEmoji } from '../AppleEmoji';
 import CreateGroupModal from './CreateGroupModal';
 import PresenceStatus from '../PresenceStatus';
 
@@ -90,11 +91,11 @@ const ChatList = ({ emojiData }) => {
       </ProfileRow>
 
       <Tabs>
-        <AllTabs>All Tabs</AllTabs>
+        <AllTabs>All</AllTabs>
         {emojiData?.emojis?.map((emoji) => (
           <LinkStyled key={emoji.unicode} to="#">
             <HoverWrapper>
-              <>{emoji.emoji}</>
+              <AppleEmoji char={emoji.emoji} />
             </HoverWrapper>
           </LinkStyled>
         ))}
@@ -264,6 +265,10 @@ const Tabs = styled.div`
   background-color: var(--navBg, #000);
   margin: -20px -20px 0;
   padding: 20px 20px 0;
+
+  @media screen and (max-width: 768px) {
+    top: 60px;
+  }
 `;
 
 const ImgWrap = styled.div`
@@ -312,6 +317,7 @@ const ChatListContainer = styled.div`
     border-right: none;
     border-bottom: 1px solid #404040;
     height: auto;
+    overflow-y: visible;
   }
 `;
 

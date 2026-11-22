@@ -3,6 +3,7 @@ import { styled } from '@linaria/react';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import ChatTrackAttachment, { isTrackAttachment } from './ChatTrackAttachment';
 import VoiceMessagePlayer from './VoiceMessagePlayer';
+import { renderAppleEmojis } from '../AppleEmoji';
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
 
@@ -63,7 +64,7 @@ const TheirMessage = ({ message, formatTime }) => {
             />
           </VoiceMsgWrap>
         )}
-        {messageText && <MessageText>{messageText}</MessageText>}
+        {messageText && <MessageText>{renderAppleEmojis(messageText)}</MessageText>}
         <MessageTime>{formatTime(msgData.created_at)}</MessageTime>
       </Message>
     </MessageRow>
