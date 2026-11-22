@@ -219,7 +219,7 @@ const UnreadBadge = styled.div`
 `;
 
 const ProfileRow = styled.div`
-  display: flex;
+  display: none;
   align-items: center;
   gap: 8px;
   margin-bottom: 20px;

@@ -382,6 +382,17 @@ const ChatWindow = () => {
     sendTyping(isTyping);
   };
 
+  const handleAvatarClick = () => {
+    if (isSaved || isGroup || !chatInfo?.username) return;
+    history.push(`/${chatInfo.username}`);
+  };
+
+  const handleUserInfoClick = (e) => {
+    if (isSaved) return;
+    if (e.target.closest('input, button')) return;
+    history.push(isGroup ? `/chat/group/${groupChatId}/attachments` : `/chat/${userId}/attachments`);
+  };
+
   const handleVoipCall = callType => startCall({
     chatId: activeChatId,
     callType,
@@ -418,13 +429,13 @@ const ChatWindow = () => {
   if (!sessionRestored || loading || (isSignedIn && chatDetailPath && !chatInfo && loadError === null)) {
     return (
       <ChatWindowContainer>
-        <Header>
+        <ChatHeader>
           <SkeletonLine width="48px" height="48px" style={{ borderRadius: '50%', marginRight: '15px' }} />
           <UserInfo>
             <SkeletonLine width="150px" height="24px" mb="5px" />
             <SkeletonLine width="100px" height="16px" />
           </UserInfo>
-        </Header>
+        </ChatHeader>
         <MessagesContainer>
           <SkeletonLine width="60%" height="40px" mb="10px" style={{ alignSelf: 'flex-start' }} />
           <SkeletonLine width="40%" height="40px" mb="10px" style={{ alignSelf: 'flex-end' }} />
@@ -456,7 +467,7 @@ const ChatWindow = () => {
     <ChatWindowContainer>
       {(isSaved || (isGroup ? groupChatId : userId)) ? (
         <>
-          <Header>
+          <ChatHeader>
             <BackButton onClick={() => history.push('/chat/im')}>
               <FaArrowLeft />
             </BackButton>
@@ -468,12 +479,15 @@ const ChatWindow = () => {
           <Avatar
             src={targetAvatar}
             alt={chatInfo?.name || 'Chat'}
+            onClick={handleAvatarClick}
+            title={!isGroup && !isSaved && chatInfo?.username ? `View @${chatInfo.username}'s profile` : undefined}
+            style={!isGroup && !isSaved && chatInfo?.username ? { cursor: 'pointer' } : undefined}
             onError={(e) => {
               if (e.target.src !== DEFAULT_AVATAR) e.target.src = DEFAULT_AVATAR;
             }}
           />
           )}
-          <UserInfo>
+          <UserInfo onClick={handleUserInfoClick} title={isSaved ? undefined : 'View attachments'}>
             <Username>
               {isSaved
                 ? 'Saved Messages'
@@ -515,7 +529,7 @@ const ChatWindow = () => {
             </StatusRow>
             )}
             {!isSaved && isGroup && addMemberOpen && (
-                <AddMemberWrap>
+                <AddMemberWrap onClick={(e) => e.stopPropagation()}>
                   <MemberSearchInput
                     value={memberSearch}
                     onChange={e => setMemberSearch(e.target.value)}
@@ -583,7 +597,7 @@ const ChatWindow = () => {
                 )}
               </MenuWrap>
             </RightActions>
-          </Header>
+          </ChatHeader>
           <MessagesContainer role="log" aria-label="Chat messages">
             {messages?.map((message, index) => {
               const currentUserName = authUser?.username || authUser?.user?.username || authUser?.user__username || '';
@@ -658,12 +672,17 @@ const BackButton = styled.button`
 
 import themeVars from 'views/styles/theme-vars';
 
-const Header = styled.div`
+const ChatHeader = styled.div`
   display: flex;
   align-items: center;
   padding-bottom: 16px;
   border-bottom: 1px solid #333;
   margin-bottom: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  flex-shrink: 0;
+  background-color: ${themeVars.navBg};
 `;
 
 const Avatar = styled.img`
@@ -897,6 +916,7 @@ const ChatWindowContainer = styled.div`
   flex-direction: column;
   flex: 1;
   height: calc(100vh - 5em);
+  overflow: hidden;
 
   @media screen and (max-width: 768px) {
     width: 100%;
@@ -909,6 +929,7 @@ const MessagesContainer = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding-right: 8px;
 
