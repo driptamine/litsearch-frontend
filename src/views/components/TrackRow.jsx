@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { styled } from '@linaria/react';
 import TrackEditModal from 'views/components/TrackEditModal';
+import { usePlayer } from 'core/context/PlayerContext';
 
 const Row = styled.div`
   display: flex;
@@ -213,12 +214,8 @@ const EditBtn = styled.button`
   }
 `;
 
-function TrackRow({ track, index = 0, showNumber = true, preload = 'metadata', showEdit = false, onTrackUpdated, onTrackDeleted }) {
-  const audioRef = useRef(null);
-  const [playing, setPlaying] = useState(false);
-  const [hasPlayed, setHasPlayed] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
+function TrackRow({ track, index = 0, showNumber = true, showEdit = false, onTrackUpdated, onTrackDeleted }) {
+  const player = usePlayer();
   const [isSeeking, setIsSeeking] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
 
@@ -228,50 +225,25 @@ function TrackRow({ track, index = 0, showNumber = true, preload = 'metadata', s
     ? track.artists.map(item => typeof item === 'string' ? item : item?.name).filter(Boolean).join(', ')
     : '');
 
-  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const rowKey = track.pk || track.id || src;
+  const isCurrent = player?.isCurrentKey(rowKey) ?? false;
+  const playing = isCurrent && !!player?.playing;
+  const currentTime = isCurrent ? (player?.currentTime || 0) : 0;
+  const duration = isCurrent
+    ? (player?.duration || track.duration || 0)
+    : (track.duration || 0);
 
-  useEffect(() => {
-    const handleOtherTrackPlay = (e) => {
-      const audio = audioRef.current;
-      if (!audio || e.detail === audio) return;
-      audio.pause();
-      if (audio.currentTime) audio.currentTime = 0;
-      setPlaying(false);
-      setHasPlayed(false);
-      setCurrentTime(0);
-    };
-    document.addEventListener('track-started', handleOtherTrackPlay);
-    return () => document.removeEventListener('track-started', handleOtherTrackPlay);
-  }, []);
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   const togglePlay = (e) => {
     e.stopPropagation();
     e.preventDefault();
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (!audio.paused) {
-      audio.pause();
+    if (!player || !src) return;
+    if (!isCurrent) {
+      player.playTrack(track);
     } else {
-      audio.play().catch(() => setPlaying(false));
+      player.toggle();
     }
-  };
-
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
-    }
-  };
-
-  const handleLoadedMetadata = () => {
-    if (audioRef.current) {
-      setDuration(audioRef.current.duration);
-    }
-  };
-
-  const handleEnded = () => {
-    setPlaying(false);
-    setHasPlayed(false);
-    setCurrentTime(0);
   };
 
   const handleSeek = (e) => {
@@ -279,10 +251,11 @@ function TrackRow({ track, index = 0, showNumber = true, preload = 'metadata', s
     e.preventDefault();
     const value = parseFloat(e.target.value);
     setIsSeeking(true);
-    if (audioRef.current) {
-      audioRef.current.currentTime = value;
-      setCurrentTime(value);
+    if (!player || !src) return;
+    if (!isCurrent) {
+      player.playTrack(track);
     }
+    player.seekTo(value);
   };
 
   const handleSeekEnd = (e) => {
@@ -295,27 +268,12 @@ function TrackRow({ track, index = 0, showNumber = true, preload = 'metadata', s
 
   return (
     <Row>
-      <audio
-        ref={audioRef}
-        src={src}
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleLoadedMetadata}
-        onEnded={handleEnded}
-        onPlay={(e) => {
-          setPlaying(true);
-          setHasPlayed(true);
-          document.dispatchEvent(new CustomEvent('track-started', { detail: e.currentTarget }));
-        }}
-        onPause={() => setPlaying(false)}
-        onError={() => setPlaying(false)}
-        preload={preload}
-      />
       <PlayBtn type="button" onClick={togglePlay} aria-label={`${playing ? 'Pause' : 'Play'} ${title}`} disabled={!src}>
         {playing ? <PauseIcon /> : <PlayIcon />}
       </PlayBtn>
       {showNumber && <TrackNumber>{index + 1}</TrackNumber>}
       <ContentColumn>
-        {hasPlayed ? (
+        {isCurrent ? (
           <TrackInfoRow>
             <Title>{title}</Title>
             {artist && <Artist>{artist}</Artist>}
@@ -326,7 +284,7 @@ function TrackRow({ track, index = 0, showNumber = true, preload = 'metadata', s
             {artist && <Artist>{artist}</Artist>}
           </TrackInfoCol>
         )}
-        {hasPlayed && (
+        {isCurrent && (
           <ProgressArea>
             <ProgressWrapper>
               <ProgressBar

@@ -33,6 +33,8 @@ import useEventListenerMemo from 'core/hooks2/useEventListenerMemo';
 import useDetectMobile from 'core/hooks/useDetectMobile';
 import { NotificationProvider } from 'core/context/NotificationContext';
 import { CallProvider } from 'core/context/CallContext';
+import { PlayerProvider } from 'core/context/PlayerContext';
+import MiniPlayer from 'views/components/MiniPlayer';
 
 const ModalContext = React.createContext();
 
@@ -227,6 +229,7 @@ const App = () => {
     <>
       <GlobalStyleThemeMode />
       <NotificationProvider>
+      <PlayerProvider>
       <CallProvider>
       <StyledWrapper className="litloop-shell" data-sidebar-layout={sidebarLayout} isMobile={isMobile} showBottomNav={showBottomNav}>
         {showAppHeader && (
@@ -289,6 +292,7 @@ const App = () => {
         )}
 
         {showBottomNav && <BottomNavbar />}
+        <MiniPlayer />
         {isMobile && !/^\/(todo|notes|users|maps|mapsv2)(\/|$)/.test(pathname) && (/^\/[^/]+$/.test(pathname) || pathname.startsWith('/feed')) && (
           <CreateButton to="/create_post">
             <FaPlus size={22} />
@@ -296,6 +300,7 @@ const App = () => {
         )}
       </StyledWrapper>
       </CallProvider>
+      </PlayerProvider>
       </NotificationProvider>
 
       {isModalVisible && (
