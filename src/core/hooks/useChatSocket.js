@@ -33,7 +33,7 @@ const useChatSocket = (chatId, { onNewMessage, onTyping, onReadReceipt, onVoipCa
         if (onNewMessageRef.current) onNewMessageRef.current(data.message);
         break;
       case 'typing':
-        if (onTypingRef.current) onTypingRef.current(data.user_id, data.is_typing);
+        if (onTypingRef.current) onTypingRef.current(data.user_id, data.is_typing, data.username);
         break;
       case 'read_receipt':
         if (onReadReceiptRef.current) onReadReceiptRef.current(data.read_by, data.message_ids);
@@ -63,9 +63,10 @@ const useChatSocket = (chatId, { onNewMessage, onTyping, onReadReceipt, onVoipCa
     requireAuth: true,
   });
 
-  const sendMessage = useCallback((text, attachments = [], voiceMessageId = null) => {
+  const sendMessage = useCallback((text, attachments = [], voiceMessageId = null, replyToId = null) => {
     const payload = { type: 'send_message', text, attachments };
     if (voiceMessageId != null) payload.voice_message_id = voiceMessageId;
+    if (replyToId != null) payload.reply_to = replyToId;
     return send(payload);
   }, [send]);
 

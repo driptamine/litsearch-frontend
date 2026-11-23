@@ -19,7 +19,9 @@ const resolveUrl = (url) => {
   return `${LITLOOP_API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 };
 
-const ChatInput = ({ onSendMessage, onTyping }) => {
+const ChatInput = ({ onSendMessage, onTyping, replyTo, onCancelReply }) => {
+  const replyName = replyTo ? (replyTo.username || replyTo.sender_name || 'User') : '';
+  const replySnippet = replyTo ? (replyTo.text || replyTo.content || replyTo.body || 'Attachment') : '';
   const [message, setMessage] = useState('');
   const [attachments, setAttachments] = useState([]);
   const [uploading, setUploading] = useState(false);
@@ -70,13 +72,13 @@ const ChatInput = ({ onSendMessage, onTyping }) => {
 
   const handleSend = useCallback(() => {
     if ((message.trim() || attachments.length > 0 || voiceMessageData) && !uploading && !voiceUploading) {
-      onSendMessage(message, attachments, voiceMessageData);
+      onSendMessage(message, attachments, voiceMessageData, replyTo?.id ?? null);
       setMessage('');
       setAttachments([]);
       setVoiceMessageData(null);
       if (onTyping) onTyping(false);
     }
-  }, [message, attachments, uploading, voiceUploading, voiceMessageData, onSendMessage, onTyping]);
+  }, [message, attachments, uploading, voiceUploading, voiceMessageData, onSendMessage, onTyping, replyTo]);
 
   const handleChange = useCallback((e) => {
     setMessage(e.target.value);
@@ -268,6 +270,18 @@ const ChatInput = ({ onSendMessage, onTyping }) => {
           <DropText>Drop files here</DropText>
         </DropOverlay>
       )}
+      {replyTo && (
+        <ReplyPreview>
+          <ReplyBar />
+          <ReplyPreviewBody>
+            <ReplyPreviewName>Reply to {replyName}</ReplyPreviewName>
+            <ReplyPreviewText>{replySnippet}</ReplyPreviewText>
+          </ReplyPreviewBody>
+          <ReplyCancelBtn onClick={onCancelReply} title="Cancel reply">
+            <IoClose size={16} />
+          </ReplyCancelBtn>
+        </ReplyPreview>
+      )}
       <AttachmentsPreview>
         {attachments.map((att, idx) => (
           <AttachmentChip key={idx}>
@@ -441,6 +455,62 @@ const AttachmentsPreview = styled.div`
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 6px;
+`;
+
+const ReplyPreview = styled.div`
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  background: #242424;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+`;
+
+const ReplyBar = styled.div`
+  width: 3px;
+  border-radius: 2px;
+  background: #4db6ac;
+  flex-shrink: 0;
+`;
+
+const ReplyPreviewBody = styled.div`
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+const ReplyPreviewName = styled.div`
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #4db6ac;
+`;
+
+const ReplyPreviewText = styled.div`
+  font-size: 0.82rem;
+  color: #bbb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const ReplyCancelBtn = styled.button`
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  &:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+  }
 `;
 
 const AttachmentChip = styled.div`

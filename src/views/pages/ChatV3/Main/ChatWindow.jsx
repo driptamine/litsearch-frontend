@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { styled } from '@linaria/react';
 import { Link, useParams, useHistory, useRouteMatch } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -46,19 +46,22 @@ const ChatWindow = () => {
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState(null);
   const [retry, setRetry] = useState(0);
-  const [partnerTyping, setPartnerTyping] = useState(false);
+  const [typingUsers, setTypingUsers] = useState({});
   const [demoDelay, setDemoDelay] = useState(false);
   const [addMemberOpen, setAddMemberOpen] = useState(false);
   const [memberSearch, setMemberSearch] = useState('');
   const [memberResults, setMemberResults] = useState([]);
   const [addingMember, setAddingMember] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [replyTo, setReplyTo] = useState(null);
+  const [flashId, setFlashId] = useState(null);
+  const quoteTimer = useRef(null);
   const menuRef = useRef(null);
   const messagesEndRef = useRef(null);
   const voiceCacheRef = useRef(null);
   const nextTempId = useRef(0);
   const historyRef = useRef(null);
-  const typingTimeout = useRef(null);
+  const typingTimers = useRef({});
 
   const getVoiceCache = () => {
     if (voiceCacheRef.current) return voiceCacheRef.current;
@@ -107,6 +110,15 @@ const ChatWindow = () => {
     if (!current || current.id !== activeChatId || message?.id == null ||
         (message.chat_id != null && message.chat_id !== activeChatId) || current.seen.has(message.id)) return;
     current.seen.add(message.id);
+    if (message?.user_id != null) {
+      const typingKey = String(message.user_id);
+      setTypingUsers(prev => {
+        if (!(typingKey in prev)) return prev;
+        const next = { ...prev };
+        delete next[typingKey];
+        return next;
+      });
+    }
     const username = authUser?.username || authUser?.user?.username || authUser?.user__username;
     const sentByMe = message.user_id != null
       ? String(message.user_id) === String(tokenUser(getAuthToken()))
@@ -123,11 +135,32 @@ const ChatWindow = () => {
     }
   }, [activeChatId, authUser, isSaved]);
 
-  const handleTyping = useCallback((userId, isTyping) => {
-    if (String(userId) === String(tokenUser(getAuthToken()))) return;
-    clearTimeout(typingTimeout.current);
-    setPartnerTyping(isTyping);
-    if (isTyping) typingTimeout.current = setTimeout(() => setPartnerTyping(false), 4000);
+  const handleTyping = useCallback((typingUserId, isTyping, username) => {
+    if (String(typingUserId) === String(tokenUser(getAuthToken()))) return;
+    const key = String(typingUserId);
+    if (typingTimers.current[key]) {
+      clearTimeout(typingTimers.current[key]);
+      typingTimers.current[key] = null;
+    }
+    setTypingUsers(prev => {
+      if (!isTyping) {
+        if (!(key in prev)) return prev;
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      }
+      return { ...prev, [key]: { username: username || prev[key]?.username || 'Someone' } };
+    });
+    if (isTyping) {
+      typingTimers.current[key] = setTimeout(() => {
+        setTypingUsers(prev => {
+          if (!(key in prev)) return prev;
+          const next = { ...prev };
+          delete next[key];
+          return next;
+        });
+      }, 4000);
+    }
   }, []);
 
   const handleReadReceipt = useCallback((readBy, messageIds) => {
@@ -150,7 +183,11 @@ const ChatWindow = () => {
     if (activeChatId) return subscribeToMessages(activeChatId, handleNewMessage);
   }, [activeChatId, handleNewMessage, subscribeToMessages]);
 
-  useEffect(() => () => clearTimeout(typingTimeout.current), [activeChatId]);
+  useEffect(() => () => {
+    Object.values(typingTimers.current).forEach(timer => timer && clearTimeout(timer));
+    typingTimers.current = {};
+    if (quoteTimer.current) clearTimeout(quoteTimer.current);
+  }, [activeChatId]);
 
   useEffect(() => {
     setVoiceRoom(null);
@@ -178,7 +215,11 @@ const ChatWindow = () => {
     setChatInfo(null);
     setMessages([]);
     setActiveChatId(null);
-    setPartnerTyping(false);
+    setTypingUsers({});
+    Object.values(typingTimers.current).forEach(timer => timer && clearTimeout(timer));
+    typingTimers.current = {};
+    setReplyTo(null);
+    setFlashId(null);
     setLoadError(null);
     if (!chatDetailPath || !isSignedIn || !sessionRestored) {
       setLoading(false);
@@ -321,7 +362,17 @@ const ChatWindow = () => {
     return () => document.removeEventListener('mousedown', handleClick);
   }, [showMenu]);
 
-  const handleSendMessage = async (text, attachments = [], voiceMessageData = null) => {
+  const scrollToQuoted = useCallback((quotedId) => {
+    if (quotedId == null) return;
+    const el = document.getElementById(`chat-msg-${quotedId}`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setFlashId(quotedId);
+    if (quoteTimer.current) clearTimeout(quoteTimer.current);
+    quoteTimer.current = setTimeout(() => setFlashId(null), 1200);
+  }, []);
+
+  const handleSendMessage = async (text, attachments = [], voiceMessageData = null, replyToId = null) => {
     const current = historyRef.current;
     if (!current || current.id !== activeChatId) return;
 
@@ -331,6 +382,15 @@ const ChatWindow = () => {
 
     if (voiceMessageData) saveVoiceToCache(voiceMessageData.id, voiceMessageData);
 
+    const quoted = replyToId != null ? replyTo : null;
+    setReplyTo(null);
+    const quoteSnapshot = quoted ? {
+      id: quoted.id,
+      username: quoted.username || quoted.sender_name || 'User',
+      text: quoted.text || quoted.content || quoted.body || '',
+      avatar: quoted.avatar || null,
+    } : null;
+
     const currentUserName = authUser?.username || authUser?.user?.username || 'You';
     const tempId = `pending-${++nextTempId.current}`;
     const tempMessage = {
@@ -339,6 +399,8 @@ const ChatWindow = () => {
       attachments,
       voice_message_id: voiceMessageId,
       voice_message: voiceMessageData || undefined,
+      reply_to: replyToId,
+      reply_to_message: quoteSnapshot,
       isTemp: true,
       tempId: tempId,
       sentByMe: true,
@@ -349,6 +411,7 @@ const ChatWindow = () => {
     try {
       const body = { text: messageText, attachments };
       if (voiceMessageId != null) body.voice_message_id = voiceMessageId;
+      if (replyToId != null) body.reply_to = replyToId;
       const response = await chatRequest(`/chats/${activeChatId}/send/`, { method: 'post', data: body });
 
       if (historyRef.current !== current) return;
@@ -463,6 +526,28 @@ const ChatWindow = () => {
     );
   }
 
+  const messageById = useMemo(
+    () => new Map((messages || []).filter(item => item.id != null).map(item => [item.id, item])),
+    [messages]
+  );
+
+  const quoteFor = useCallback((message) => {
+    if (message.reply_to_message) return message.reply_to_message;
+    if (message.reply_to == null) return null;
+    const parent = messageById.get(message.reply_to);
+    if (!parent) return null;
+    return {
+      id: parent.id,
+      username: parent.username || parent.sender_name || 'User',
+      text: parent.text || parent.content || parent.body || '',
+      avatar: parent.avatar || null,
+    };
+  }, [messageById]);
+
+  const typingNames = Object.values(typingUsers).map(entry => entry.username).filter(Boolean);
+  const typingText = typingNames.length === 1 ? `${typingNames[0]} is typing…`
+    : typingNames.length === 2 ? `${typingNames[0]} and ${typingNames[1]} are typing…`
+    : typingNames.length > 2 ? `${typingNames.length} people are typing…` : '';
 
   return (
     <ChatWindowContainer isConversation={isConversationView}>
@@ -509,22 +594,29 @@ const ChatWindow = () => {
             {!isSaved && (
             <StatusRow>
                 {isGroup ? (
-                  <GroupMeta>
-                    <GroupBadge>Group</GroupBadge>
-                    {chatInfo?.participants && (
-                      <MemberCount>{chatInfo.participants.length} members</MemberCount>
-                    )}
-                    <AddMemberBtn onClick={() => setAddMemberOpen(o => !o)} title="Add member">+</AddMemberBtn>
-                  </GroupMeta>
+                  <>
+                    <GroupMeta>
+                      <GroupBadge>Group</GroupBadge>
+                      {chatInfo?.participants && (
+                        <MemberCount>{chatInfo.participants.length} members</MemberCount>
+                      )}
+                      <AddMemberBtn onClick={() => setAddMemberOpen(o => !o)} title="Add member">+</AddMemberBtn>
+                    </GroupMeta>
+                    {typingText && <TypingStatus>{typingText}</TypingStatus>}
+                  </>
                 ) : (
-                  chatInfo?.username && (
-                    <>
-                      <UserHandle>@{chatInfo.username}</UserHandle>
-                      <PresenceStatus
-                        online={presence[chatInfo.other_participant?.id]?.online}
-                        lastSeenAt={presence[chatInfo.other_participant?.id]?.lastSeenAt || chatInfo.other_participant?.last_seen_at}
-                      />
-                    </>
+                  typingText ? (
+                    <TypingStatus>{typingText}</TypingStatus>
+                  ) : (
+                    chatInfo?.username && (
+                      <>
+                        <UserHandle>@{chatInfo.username}</UserHandle>
+                        <PresenceStatus
+                          online={presence[chatInfo.other_participant?.id]?.online}
+                          lastSeenAt={presence[chatInfo.other_participant?.id]?.lastSeenAt || chatInfo.other_participant?.last_seen_at}
+                        />
+                      </>
+                    )
                   )
                 )}
             </StatusRow>
@@ -605,24 +697,37 @@ const ChatWindow = () => {
               const isMe = message.isTemp ||
                            message.sentByMe ||
                            (currentUserName && (message.username || message.sender_name)?.toLowerCase() === currentUserName.toLowerCase());
+              const msgProps = {
+                key: message.id || message.tempId || index,
+                message,
+                quote: quoteFor(message),
+                flash: flashId != null && message.id != null && message.id === flashId,
+                onReply: message.id != null ? () => setReplyTo(message) : undefined,
+                onQuoteClick: scrollToQuoted,
+              };
 
               return isMe ? (
-                <MyMessage key={message.id || message.tempId || index} message={message} authUser={authUser} formatTime={formatTime} />
+                <MyMessage authUser={authUser} formatTime={formatTime} {...msgProps} />
               ) : (
-                <TheirMessage key={message.id || message.tempId || index} message={message} formatTime={formatTime} />
+                <TheirMessage formatTime={formatTime} {...msgProps} />
               );
             })}
-            {!isSaved && partnerTyping && (
+            {!isSaved && typingText && (
               <TypingIndicator>
                 <TypingDots>
                   <span>.</span><span>.</span><span>.</span>
                 </TypingDots>
-                <TypingLabel>typing</TypingLabel>
+                <TypingLabel>{typingText}</TypingLabel>
               </TypingIndicator>
             )}
             <div ref={messagesEndRef} />
           </MessagesContainer>
-          <ChatInput onSendMessage={handleSendMessage} onTyping={handleInputChange} />
+          <ChatInput
+            onSendMessage={handleSendMessage}
+            onTyping={handleInputChange}
+            replyTo={replyTo}
+            onCancelReply={() => setReplyTo(null)}
+          />
 
         </>
       ) : (
@@ -987,6 +1092,12 @@ const TypingLabel = styled.span`
   font-size: 0.8rem;
   color: #888;
   margin-left: 8px;
+  font-style: italic;
+`;
+
+const TypingStatus = styled.span`
+  font-size: 0.85rem;
+  color: #009688;
   font-style: italic;
 `;
 

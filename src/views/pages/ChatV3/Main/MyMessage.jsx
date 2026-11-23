@@ -1,5 +1,6 @@
 import React from 'react';
 import { styled } from '@linaria/react';
+import { FaReply } from 'react-icons/fa';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import ChatTrackAttachment, { isTrackAttachment } from './ChatTrackAttachment';
 import VoiceMessagePlayer from './VoiceMessagePlayer';
@@ -13,7 +14,7 @@ const resolveUrl = (url) => {
   return `${LITLOOP_API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 };
 
-const MyMessage = ({ message, authUser, formatTime }) => {
+const MyMessage = ({ message, authUser, formatTime, quote, flash, onReply, onQuoteClick }) => {
   const msgData = message;
   const messageText = msgData.text || msgData.content || msgData.body || '';
   const currentUserName = authUser?.username || authUser?.user?.username || 'You';
@@ -21,8 +22,23 @@ const MyMessage = ({ message, authUser, formatTime }) => {
   const attachments = msgData.attachments || [];
 
   return (
-    <MessageRow>
-      <Message>
+    <MessageRow
+      id={msgData.id != null ? `chat-msg-${msgData.id}` : undefined}
+      onDoubleClick={onReply}
+      title={onReply ? 'Double-click to reply' : undefined}
+    >
+      {onReply && (
+        <ReplyBtn className="msg-reply-btn" onClick={onReply} title="Reply">
+          <FaReply size={13} />
+        </ReplyBtn>
+      )}
+      <Message style={flash ? { outline: '2px solid #4db6ac', outlineOffset: '2px' } : undefined}>
+        {quote && (
+          <QuoteBlock onClick={() => onQuoteClick && onQuoteClick(quote.id)} title="Go to quoted message">
+            <QuoteName>{quote.username || 'User'}</QuoteName>
+            <QuoteText>{quote.text || 'Attachment'}</QuoteText>
+          </QuoteBlock>
+        )}
         {attachments.length > 0 && (
           <AttachmentsWrap>
             {attachments.map((att, idx) => (
@@ -78,6 +94,59 @@ const MessageRow = styled.div`
   align-items: flex-end;
   margin: 4px 0;
   justify-content: flex-end;
+
+  &:hover .msg-reply-btn {
+    opacity: 1;
+  }
+`;
+
+const ReplyBtn = styled.button`
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  margin-right: 4px;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s, background 0.15s;
+  &:hover {
+    color: #4db6ac;
+    background: rgba(255, 255, 255, 0.08);
+  }
+  @media (hover: none) {
+    opacity: 1;
+  }
+`;
+
+const QuoteBlock = styled.div`
+  border-left: 3px solid rgba(255, 255, 255, 0.7);
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  max-width: 100%;
+`;
+
+const QuoteName = styled.div`
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #c8e6c9;
+  margin-bottom: 2px;
+`;
+
+const QuoteText = styled.div`
+  font-size: 0.8rem;
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
 `;
 
 const SmallAvatar = styled.img`
