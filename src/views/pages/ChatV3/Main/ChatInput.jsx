@@ -6,6 +6,7 @@ import { IoClose } from 'react-icons/io5';
 import { FaImage, FaFilm, FaMusic, FaFileUpload, FaMicrophone, FaStop, FaTrash } from 'react-icons/fa';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader, uploadVoiceMessage } from 'core/api/rest-helper';
+import { extractAudioMetadata } from 'core/utils/extractAudioMetadata';
 import axios from 'axios';
 import useMediaRecorder from 'core/hooks/useMediaRecorder';
 import PhotoPickerModal from 'views/components/upload/uploader/posts/PhotoPickerModal';
@@ -44,6 +45,7 @@ const ChatInput = ({ onSendMessage, onTyping, onInputFocus, replyTo, onCancelRep
 
     for (const file of files) {
       try {
+        const audioMeta = file.type.startsWith('audio/') ? await extractAudioMetadata(file) : null;
         const formData = new FormData();
         formData.append('file', file);
         const res = await axios.post(`${LITLOOP_API_URL}/chats/upload/`, formData, {
@@ -53,7 +55,9 @@ const ChatInput = ({ onSendMessage, onTyping, onInputFocus, replyTo, onCancelRep
         newAttachments.push({
           url: res.data.url,
           type: res.data.type,
-          name: res.data.name,
+          name: audioMeta?.title || res.data.name,
+          ...(audioMeta?.artist ? { artist: audioMeta.artist } : {}),
+          ...(audioMeta?.duration ? { duration: audioMeta.duration } : {}),
         });
       } catch (err) {
         uploadError = err.response?.data?.error || err.message;

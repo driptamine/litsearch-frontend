@@ -4,6 +4,7 @@ import axios from 'axios';
 import { IoIosCloseCircle } from 'react-icons/io';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader } from 'core/api/rest-helper';
+import { extractAudioMetadata } from 'core/utils/extractAudioMetadata';
 
 const CHUNK_SIZE = 5 * 1024 * 1024;
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
@@ -179,6 +180,8 @@ export const BaseMediaUploader = forwardRef(({ mediaType, onUploadComplete, labe
         const apiPrefix = mType === 'track' ? 'tracks' : mType === 'photo' ? 'photos' : 'videos';
         const storagePath = 'r2';
 
+        const audioMeta = mType === 'track' ? await extractAudioMetadata(file) : null;
+
         const initRes = await axios.post(`${LITLOOP_API_URL}/${apiPrefix}/${storagePath}/create_presigned_url/`, {
           filename: fileName,
           content_type: file.type,
@@ -220,11 +223,16 @@ export const BaseMediaUploader = forwardRef(({ mediaType, onUploadComplete, labe
           key,
           parts,
           media_type: mType,
+          ...(audioMeta ? { name: audioMeta.title, artist: audioMeta.artist, duration: audioMeta.duration } : {}),
         }, { headers: { "Content-Type": "application/json", ...authHeader() } });
 
-        const { id, location, name, artist } = completeRes.data;
+        const { id, location, resource } = completeRes.data;
         setFileLinks(prev => ({ ...prev, [file.name]: location }));
-        onUploadComplete?.(id, getMediaType(file.type), { name, artist });
+        onUploadComplete?.(id, getMediaType(file.type), {
+          name: audioMeta?.title || resource?.name || resource?.title || file.name,
+          artist: audioMeta?.artist || resource?.artist || '',
+          duration: audioMeta?.duration || resource?.duration || 0,
+        });
 
       } catch (err) {
         console.error(`Upload failed for ${file.name}:`, err);

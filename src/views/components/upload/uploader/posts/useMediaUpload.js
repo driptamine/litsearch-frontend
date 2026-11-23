@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import axios from 'axios';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader } from 'core/api/rest-helper';
+import { extractAudioMetadata } from 'core/utils/extractAudioMetadata';
 
 const CHUNK_SIZE = 5 * 1024 * 1024;
 
@@ -32,6 +33,7 @@ export function useMediaUpload() {
         const fileName = `${file.name}-${Date.now()}`;
         const apiPrefix = getApiPrefix(mediaType);
         const storagePath = getStoragePath(mediaType);
+        const audioMeta = mediaType === 'track' ? await extractAudioMetadata(file) : null;
 
         const initRes = await axios.post(
           `${LITLOOP_API_URL}/${apiPrefix}/${storagePath}/create_presigned_url/`,
@@ -65,11 +67,14 @@ export function useMediaUpload() {
 
         const completeRes = await axios.post(
           `${LITLOOP_API_URL}/${apiPrefix}/${storagePath}/complete_upload/`,
-          { upload_id, key, parts, media_type: mediaType, ...(album_id ? { album_id } : {}) },
+          {
+            upload_id, key, parts, media_type: mediaType, ...(album_id ? { album_id } : {}),
+            ...(audioMeta ? { name: audioMeta.title, artist: audioMeta.artist, duration: audioMeta.duration } : {}),
+          },
           { headers: { "Content-Type": "application/json", ...authHeader() } }
         );
 
-        results.push(completeRes.data);
+        results.push({ ...completeRes.data, ...(audioMeta ? { name: audioMeta.title, artist: audioMeta.artist, duration: audioMeta.duration } : {}) });
       } catch (err) {
         console.error(`Upload failed for ${file.name}:`, err);
       }

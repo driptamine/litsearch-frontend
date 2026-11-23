@@ -38,9 +38,23 @@ const UserTracks = ({ username }) => {
     }
   }, [username]);
 
-  if (isLoading) return <Message>Loading tracks...</Message>;
-  if (error) return <Message error>{error}</Message>;
-  if (!tracks || tracks.length === 0) return <NoTracks>No tracks yet.</NoTracks>;
+  const body = isLoading ? <Message>Loading tracks...</Message>
+    : error ? <Message error>{error}</Message>
+    : (!tracks || tracks.length === 0) ? <NoTracks>No tracks yet.</NoTracks>
+    : (
+      <TrackList>
+        {tracks.map((track, i) => (
+          <TrackRow
+            key={track.pk || track.id || i}
+            track={track}
+            index={i}
+            showEdit={true}
+            onTrackUpdated={handleTrackUpdated}
+            onTrackDeleted={handleTrackDeleted}
+          />
+        ))}
+      </TrackList>
+    );
 
   const handleTrackUpdated = (updatedTrack) => {
     setTracks(prev => prev.map(t =>
@@ -75,18 +89,7 @@ const UserTracks = ({ username }) => {
           </AddBtn>
         </Actions>
       </Toolbar>
-      <TrackList>
-        {tracks.map((track, i) => (
-          <TrackRow
-            key={track.pk || track.id || i}
-            track={track}
-            index={i}
-            showEdit={true}
-            onTrackUpdated={handleTrackUpdated}
-            onTrackDeleted={handleTrackDeleted}
-          />
-        ))}
-      </TrackList>
+      {body}
       {showTrackPicker && (
         <TrackPickerModal
           onSelect={handleTracksAdded}

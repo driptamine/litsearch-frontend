@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { styled } from '@linaria/react';
 import { Link, useParams, useHistory, useRouteMatch } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaArrowLeft, FaBookmark, FaTrash, FaPhone, FaVideo, FaPaperclip, FaEllipsisV } from 'react-icons/fa';
+import { FaArrowLeft, FaBookmark, FaTrash, FaPhone, FaVideo, FaPaperclip, FaEllipsisV, FaReply, FaCopy, FaCheckSquare, FaForward } from 'react-icons/fa';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { fetchLogout } from 'core/actions';
 import { getAxiosReq } from 'core/api/rest-helper';
@@ -16,6 +16,8 @@ import useChatSocket from 'core/hooks/useChatSocket';
 import { useNotifications } from 'core/context/NotificationContext';
 import MyMessage from 'views/pages/ChatV3/Main/MyMessage';
 import TheirMessage from 'views/pages/ChatV3/Main/TheirMessage';
+import MessageContextMenu from 'views/pages/ChatV3/Main/MessageContextMenu';
+import ForwardModal from 'views/pages/ChatV3/Main/ForwardModal';
 import PresenceStatus from 'views/pages/ChatV3/PresenceStatus';
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
@@ -55,6 +57,10 @@ const ChatWindow = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [replyTo, setReplyTo] = useState(null);
   const [flashId, setFlashId] = useState(null);
+  const [menuFor, setMenuFor] = useState(null);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [forwardMessages, setForwardMessages] = useState(null);
   const quoteTimer = useRef(null);
   const menuRef = useRef(null);
   const windowRef = useRef(null);
@@ -245,6 +251,10 @@ const ChatWindow = () => {
     typingTimers.current = {};
     setReplyTo(null);
     setFlashId(null);
+    setMenuFor(null);
+    setSelectMode(false);
+    setSelectedIds([]);
+    setForwardMessages(null);
     setLoadError(null);
     if (!chatDetailPath || !isSignedIn || !sessionRestored) {
       setLoading(false);
@@ -402,6 +412,78 @@ const ChatWindow = () => {
     if (quoteTimer.current) clearTimeout(quoteTimer.current);
     quoteTimer.current = setTimeout(() => setFlashId(null), 1200);
   }, []);
+
+  const copyTextToClipboard = useCallback(async (text) => {
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const area = document.createElement('textarea');
+      area.value = text;
+      document.body.appendChild(area);
+      area.select();
+      try { document.execCommand('copy'); } catch (_) {}
+      area.remove();
+    }
+  }, []);
+
+  const messageTextOf = (message) => (
+    message ? (message.text || message.content || message.body || '').trim() : ''
+  );
+
+  const exitSelectMode = useCallback(() => {
+    setSelectMode(false);
+    setSelectedIds([]);
+  }, []);
+
+  const toggleSelect = useCallback((message) => {
+    if (message?.id == null) return;
+    setSelectedIds(prev => prev.includes(message.id)
+      ? prev.filter(id => id !== message.id)
+      : [...prev, message.id]);
+  }, []);
+
+  useEffect(() => {
+    if (selectMode && selectedIds.length === 0) setSelectMode(false);
+  }, [selectMode, selectedIds]);
+
+  const selectedMessages = (messages || [])
+    .filter(message => selectedIds.includes(message.id))
+    .sort((left, right) => left.id - right.id);
+
+  const copySelected = useCallback(() => {
+    const lines = selectedMessages.map(message => {
+      const name = message.username || message.sender_name || 'User';
+      return `${name}: ${messageTextOf(message)}`;
+    }).filter(Boolean);
+    copyTextToClipboard(lines.join('\n'));
+    exitSelectMode();
+  }, [selectedMessages, copyTextToClipboard, exitSelectMode]);
+
+  const handleMenuAction = useCallback((key) => {
+    const target = menuFor?.message;
+    if (!target) return;
+    if (key === 'reply') {
+      setReplyTo(target);
+    } else if (key === 'select') {
+      setSelectMode(true);
+      setSelectedIds(target.id != null ? [target.id] : []);
+    } else if (key === 'copy') {
+      copyTextToClipboard(messageTextOf(target));
+    } else if (key === 'forward') {
+      setForwardMessages([target]);
+    }
+  }, [menuFor, copyTextToClipboard]);
+
+  const menuItems = menuFor ? [
+    { key: 'reply', label: 'Reply', icon: <FaReply size={14} /> },
+    { key: 'select', label: 'Select', icon: <FaCheckSquare size={14} /> },
+    {
+      key: 'copy', label: 'Copy text', icon: <FaCopy size={14} />,
+      disabled: !messageTextOf(menuFor.message),
+    },
+    { key: 'forward', label: 'Forward', icon: <FaForward size={14} /> },
+  ] : [];
 
   const handleSendMessage = async (text, attachments = [], voiceMessageData = null, replyToId = null) => {
     const current = historyRef.current;
@@ -735,8 +817,12 @@ const ChatWindow = () => {
                 message,
                 quote: quoteFor(message),
                 flash: flashId != null && message.id != null && message.id === flashId,
-                onReply: message.id != null ? () => setReplyTo(message) : undefined,
+                onReply: message.id != null && !selectMode ? () => setReplyTo(message) : undefined,
                 onQuoteClick: scrollToQuoted,
+                onMenu: (x, y, target) => { if (target?.id != null) setMenuFor({ x, y, message: target }); },
+                selectMode,
+                selected: message.id != null && selectedIds.includes(message.id),
+                onToggleSelect: () => toggleSelect(message),
               };
 
               return isMe ? (
@@ -754,6 +840,36 @@ const ChatWindow = () => {
               </TypingIndicator>
             )}
           </MessagesContainer>
+          {selectMode && (
+            <SelectionBar>
+              <SelectedCount>{selectedIds.length} selected</SelectedCount>
+              <SelectActions>
+                <SelectBtn onClick={copySelected}>Copy</SelectBtn>
+                <SelectBtn
+                  onClick={() => setForwardMessages(selectedMessages)}
+                  disabled={selectedMessages.length === 0}
+                >
+                  Forward
+                </SelectBtn>
+                <SelectBtn onClick={exitSelectMode}>Cancel</SelectBtn>
+              </SelectActions>
+            </SelectionBar>
+          )}
+          {menuFor && (
+            <MessageContextMenu
+              x={menuFor.x}
+              y={menuFor.y}
+              items={menuItems}
+              onSelect={handleMenuAction}
+              onClose={() => setMenuFor(null)}
+            />
+          )}
+          {forwardMessages && (
+            <ForwardModal
+              messages={forwardMessages}
+              onClose={() => { setForwardMessages(null); exitSelectMode(); }}
+            />
+          )}
           <ChatInput
             onSendMessage={handleSendMessage}
             onTyping={handleInputChange}
@@ -1132,6 +1248,43 @@ const TypingStatus = styled.span`
   font-size: 0.85rem;
   color: #009688;
   font-style: italic;
+`;
+
+const SelectionBar = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 16px;
+  border-top: 1px solid #333;
+  background-color: #1e1e1e;
+`;
+
+const SelectedCount = styled.span`
+  font-size: 0.85rem;
+  color: #4db6ac;
+  font-weight: 600;
+`;
+
+const SelectActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const SelectBtn = styled.button`
+  background: none;
+  border: 1px solid #444;
+  color: #ddd;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 16px;
+  cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
+  opacity: ${({ disabled }) => (disabled ? 0.4 : 1)};
+  &:hover {
+    border-color: ${({ disabled }) => (disabled ? '#444' : '#4db6ac')};
+    color: ${({ disabled }) => (disabled ? '#ddd' : '#4db6ac')};
+  }
 `;
 
 const SavedIconWrap = styled.div`

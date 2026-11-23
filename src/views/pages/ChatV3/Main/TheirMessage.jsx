@@ -1,6 +1,7 @@
 import React from 'react';
 import { styled } from '@linaria/react';
-import { FaReply } from 'react-icons/fa';
+import { FaReply, FaCheck } from 'react-icons/fa';
+import { useLongPressMenu } from './MessageContextMenu';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import ChatTrackAttachment, { isTrackAttachment } from './ChatTrackAttachment';
 import VoiceMessagePlayer from './VoiceMessagePlayer';
@@ -14,18 +15,22 @@ const resolveUrl = (url) => {
   return `${LITLOOP_API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 };
 
-const TheirMessage = ({ message, formatTime, quote, flash, onReply, onQuoteClick }) => {
+const TheirMessage = ({ message, formatTime, quote, flash, onReply, onQuoteClick, onMenu, selectMode, selected, onToggleSelect }) => {
   const msgData = message;
   const messageText = msgData.text || msgData.content || msgData.body || '';
   const senderName = msgData.username || msgData.sender_name || 'User';
   const senderAvatar = resolveUrl(msgData.avatar) || DEFAULT_AVATAR;
   const attachments = msgData.attachments || [];
+  const press = useLongPressMenu(onMenu || (() => {}), message);
 
   return (
     <MessageRow
       id={msgData.id != null ? `chat-msg-${msgData.id}` : undefined}
-      onDoubleClick={onReply}
-      title={onReply ? 'Double-click to reply' : undefined}
+      onDoubleClick={selectMode ? undefined : onReply}
+      onClick={selectMode && msgData.id != null ? onToggleSelect : undefined}
+      title={selectMode ? 'Toggle selection' : (onReply ? 'Double-click to reply' : undefined)}
+      style={selectMode && selected ? { background: 'rgba(77, 182, 172, 0.12)', borderRadius: '12px' } : undefined}
+      {...(selectMode ? {} : press)}
     >
       <SmallAvatar
         src={senderAvatar}
@@ -78,10 +83,16 @@ const TheirMessage = ({ message, formatTime, quote, flash, onReply, onQuoteClick
         {messageText && <MessageText>{renderAppleEmojis(messageText)}</MessageText>}
         <MessageTime>{formatTime(msgData.created_at)}</MessageTime>
       </Message>
-      {onReply && (
-        <ReplyBtn className="msg-reply-btn" onClick={onReply} title="Reply">
-          <FaReply size={13} />
-        </ReplyBtn>
+      {selectMode ? (
+        <SelectBox checked={selected}>
+          {selected && <FaCheck size={11} />}
+        </SelectBox>
+      ) : (
+        onReply && (
+          <ReplyBtn className="msg-reply-btn" onClick={onReply} title="Reply">
+            <FaReply size={13} />
+          </ReplyBtn>
+        )
       )}
     </MessageRow>
   );
@@ -92,10 +103,30 @@ const MessageRow = styled.div`
   align-items: flex-end;
   margin: 4px 0;
   justify-content: flex-start;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 
   &:hover .msg-reply-btn {
     opacity: 1;
   }
+`;
+
+const SelectBox = styled.button`
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid ${({ checked }) => (checked ? '#4db6ac' : '#666')};
+  background: ${({ checked }) => (checked ? '#4db6ac' : 'transparent')};
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 8px;
+  align-self: center;
+  padding: 0;
 `;
 
 const ReplyBtn = styled.button`

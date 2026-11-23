@@ -5,6 +5,8 @@ import useWebSocket from 'core/hooks/useWebSocket';
 import { getAuthToken } from 'core/utils/getAuthToken';
 import { chatRequest, refreshAccess, tokenUser } from 'core/api/chatSession';
 import { LITLOOP_API_URL } from 'core/constants/urls';
+import { playMessageSound } from 'core/utils/messageSound';
+import { enablePushNotifications } from 'core/utils/webPush';
 
 const NotificationContext = createContext(null);
 
@@ -91,6 +93,12 @@ export const NotificationProvider = ({ children }) => {
       case 'new_message': {
         const { chat_id, chat_user_id, message_id, preview, unread_count } = data;
         setUnreadChatCount(unread_count);
+        if (String(chat_user_id) !== String(tokenUser(getAuthToken()))) {
+          const listeners = messageListeners.current.get(String(chat_id));
+          if (!listeners || listeners.size === 0 || document.hidden) {
+            playMessageSound();
+          }
+        }
         setNotifications(prev => [{
           id: message_id ?? Date.now(),
           type: 'new_message',
@@ -173,6 +181,19 @@ export const NotificationProvider = ({ children }) => {
       send({ type: 'auth', token: accessToken });
     }
   }, [isConnected, send, accessToken]);
+
+  // Ask once per browser for Web Push (direct messages arrive even with the
+  // tab closed). The backend serves subscribers from /push/subscribe/.
+  useEffect(() => {
+    if (!enabled || !account) return;
+    try {
+      if (window.localStorage.getItem('push-prompted')) return;
+      window.localStorage.setItem('push-prompted', '1');
+    } catch (_) {
+      return;
+    }
+    enablePushNotifications().catch(() => {});
+  }, [enabled, account]);
 
   const isOnline = Boolean(isConnected && account && authenticatedAccount === account);
   const requestPresence = useCallback(() => {
