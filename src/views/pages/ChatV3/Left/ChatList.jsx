@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { styled } from '@linaria/react';
-import { FaBookmark, FaPlus, FaEllipsisV } from 'react-icons/fa';
+import { FaBookmark, FaPlus, FaEllipsisV, FaEdit, FaCheck } from 'react-icons/fa';
 import { chatRequest } from 'core/api/chatSession';
 
 import useSelectAuthUser from 'core/hooks/useSelectAuthUser';
@@ -13,6 +13,36 @@ import PresenceStatus from '../PresenceStatus';
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
 
+const EMOJI_PALETTE = ['❤️', '🔥', '⭐', '📌', '💼', '📚', '🎮', '🎵', '🎬', '⚽', '💰', '📰', '👥', '📢', '🤖', '🎨', '✈️', '🍔', '💡', '🔔', '💬', '📁', '🌙', '☀️', '🐱', '🌹', '🎯', '💎'];
+
+const tabsStorageKey = (username) => `chat-tabs:${username || 'guest'}`;
+
+const defaultTabs = (emojiData) => (
+  (emojiData?.emojis || []).map((emoji) => ({
+    id: `e-${emoji.unicode}`,
+    emoji: emoji.emoji,
+    chatIds: [],
+  }))
+);
+
+const loadTabs = (username, emojiData) => {
+  const defaults = defaultTabs(emojiData);
+  try {
+    const raw = localStorage.getItem(tabsStorageKey(username));
+    if (!raw) return defaults;
+    const stored = JSON.parse(raw);
+    if (!Array.isArray(stored)) return defaults;
+    const byId = new Map(stored.map(tab => [tab.id, tab]));
+    return defaults.map(tab => ({
+      ...tab,
+      emoji: byId.get(tab.id)?.emoji || tab.emoji,
+      chatIds: Array.isArray(byId.get(tab.id)?.chatIds) ? byId.get(tab.id).chatIds : [],
+    }));
+  } catch (_) {
+    return defaults;
+  }
+};
+
 const ChatList = ({ emojiData }) => {
   const { authUser, isSignedIn } = useSelectAuthUser();
   const { unreadChatCount, setUnreadChatCount, chatUpdateTick, selfPresence, presence, requestPresence } = useNotifications();
@@ -21,6 +51,10 @@ const ChatList = ({ emojiData }) => {
   const [initialLoadDone, setInitialLoadDone] = useState(false);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const location = useLocation();
+  const [chatTabs, setChatTabs] = useState([]);
+  const [activeTabId, setActiveTabId] = useState('all');
+  const [editingTabId, setEditingTabId] = useState(null);
+  const longPressTimer = useRef(null);
 
   const fetchChats = useCallback(async () => {
     try {
@@ -64,6 +98,72 @@ const ChatList = ({ emojiData }) => {
   const currentUsername = authUser?.username || authUser?.user?.username || authUser?.user__username || 'User';
   const savedChat = chats?.find(c => c.is_saved_messages);
 
+  useEffect(() => {
+    setChatTabs(loadTabs(currentUsername, emojiData));
+    setActiveTabId('all');
+    setEditingTabId(null);
+  }, [currentUsername, emojiData]);
+
+  useEffect(() => {
+    if (!chatTabs.length) return;
+    try {
+      localStorage.setItem(tabsStorageKey(currentUsername), JSON.stringify(chatTabs));
+    } catch (_) {}
+  }, [chatTabs, currentUsername]);
+
+  const activeTab = chatTabs.find(tab => tab.id === activeTabId);
+  const editingTab = chatTabs.find(tab => tab.id === editingTabId);
+
+  const visibleChats = (chats || []).filter(chat => {
+    if (chat.is_saved_messages) return false;
+    if (editingTabId) return true;
+    if (activeTabId === 'all' || !activeTab) return true;
+    return activeTab.chatIds.includes(chat.id);
+  });
+
+  const setTabEmoji = useCallback((tabId, emoji) => {
+    setChatTabs(prev => prev.map(tab => tab.id === tabId ? { ...tab, emoji } : tab));
+  }, []);
+
+  const toggleChatInTab = useCallback((tabId, chatId) => {
+    setChatTabs(prev => prev.map(tab => {
+      if (tab.id !== tabId) return tab;
+      const has = tab.chatIds.includes(chatId);
+      return { ...tab, chatIds: has ? tab.chatIds.filter(id => id !== chatId) : [...tab.chatIds, chatId] };
+    }));
+  }, []);
+
+  const startTabEdit = useCallback((tabId) => {
+    setEditingTabId(tabId);
+    setActiveTabId(tabId);
+  }, []);
+
+  const cancelLongPress = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
+  const bindTabLongPress = useCallback((tabId) => ({
+    onTouchStart: () => {
+      cancelLongPress();
+      longPressTimer.current = setTimeout(() => {
+        if (navigator.vibrate) {
+          try { navigator.vibrate(15); } catch (_) {}
+        }
+        startTabEdit(tabId);
+      }, 550);
+    },
+    onTouchMove: cancelLongPress,
+    onTouchEnd: cancelLongPress,
+    onTouchCancel: cancelLongPress,
+    onContextMenu: (e) => {
+      e.preventDefault();
+      startTabEdit(tabId);
+    },
+  }), [cancelLongPress, startTabEdit]);
+
   return (
     <ChatListContainer>
       <ProfileRow>
@@ -90,16 +190,54 @@ const ChatList = ({ emojiData }) => {
         </KebabButton>
       </ProfileRow>
 
+      <TabsHeader>
+        <TabsTitle>Chat Tabs</TabsTitle>
+        {editingTab ? (
+          <EditTabsBtn onClick={() => setEditingTabId(null)} title="Done">
+            <FaCheck size={13} /> Done
+          </EditTabsBtn>
+        ) : (
+          <EditTabsBtn onClick={() => startTabEdit(activeTabId === 'all' ? (chatTabs[0]?.id || 'all') : activeTabId)} title="Edit tabs">
+            <FaEdit size={13} /> Edit
+          </EditTabsBtn>
+        )}
+      </TabsHeader>
       <Tabs>
-        <AllTabs>All</AllTabs>
-        {emojiData?.emojis?.map((emoji) => (
-          <LinkStyled key={emoji.unicode} to="#">
-            <HoverWrapper>
-              <AppleEmoji char={emoji.emoji} />
-            </HoverWrapper>
-          </LinkStyled>
+        <AllTabs active={activeTabId === 'all'} onClick={() => { setActiveTabId('all'); setEditingTabId(null); }}>All</AllTabs>
+        {chatTabs.map((tab) => (
+          <EmojiTab
+            key={tab.id}
+            active={activeTabId === tab.id}
+            editing={editingTabId === tab.id}
+            onClick={() => {
+              setActiveTabId(tab.id);
+              if (editingTabId && editingTabId !== tab.id) setEditingTabId(tab.id);
+            }}
+            {...bindTabLongPress(tab.id)}
+          >
+            <AppleEmoji char={tab.emoji} />
+          </EmojiTab>
         ))}
       </Tabs>
+      {editingTab && (
+        <TabEditor>
+          <EditorTitle>
+            <AppleEmoji char={editingTab.emoji} /> tab — {editingTab.chatIds.length} chats
+          </EditorTitle>
+          <EditorHint>Pick an emoji, then tap chats below to add or remove them.</EditorHint>
+          <EmojiPalette>
+            {EMOJI_PALETTE.map((emoji) => (
+              <EmojiChoice
+                key={emoji}
+                selected={editingTab.emoji === emoji}
+                onClick={() => setTabEmoji(editingTab.id, emoji)}
+              >
+                <AppleEmoji char={emoji} />
+              </EmojiChoice>
+            ))}
+          </EmojiPalette>
+        </TabEditor>
+      )}
 
       <SavedMessagesRow>
         {savedChat ? (
@@ -124,8 +262,28 @@ const ChatList = ({ emojiData }) => {
         <div style={{ padding: '20px', color: '#888' }}>No conversations yet.</div>
       )}
 
-      {chats?.filter(c => !c.is_saved_messages)?.map((chat) => (
-        <div key={chat.id}>
+      {activeTabId !== 'all' && visibleChats.length === 0 && !loading && (
+        <EmptyTabHint>
+          No chats in this tab yet.
+          {!editingTab && ' Tap Edit above, pick the tab, then tap chats to add them.'}
+        </EmptyTabHint>
+      )}
+      {visibleChats.map((chat) => (
+        <ChatRowWrap
+          key={chat.id}
+          onClickCapture={(e) => {
+            if (editingTab) {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleChatInTab(editingTab.id, chat.id);
+            }
+          }}
+        >
+          {editingTab && (
+            <TabCheck selected={editingTab.chatIds.includes(chat.id)}>
+              {editingTab.chatIds.includes(chat.id) && '✓'}
+            </TabCheck>
+          )}
           <ChatRow
             chat={chat}
             presence={presence[chat.other_participant?.id]}
@@ -139,7 +297,7 @@ const ChatList = ({ emojiData }) => {
               }
             }}
           />
-        </div>
+        </ChatRowWrap>
       ))}
 
       <CircleBtn onClick={() => setShowCreateGroup(true)}>
@@ -203,8 +361,134 @@ const UserWrapper = styled.div`
 `;
 
 const AllTabs = styled.div`
-  margin: auto;
+  margin: auto 0;
   cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 14px;
+  color: ${({ active }) => (active ? '#fff' : '#888')};
+  background: ${({ active }) => (active ? '#0084ff' : 'transparent')};
+  font-size: 0.9rem;
+  font-weight: 600;
+  flex-shrink: 0;
+`;
+
+const TabsHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 -20px 4px;
+  padding: 0 20px;
+`;
+
+const TabsTitle = styled.span`
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #666;
+`;
+
+const EditTabsBtn = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: #4db6ac;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  &:hover {
+    background: rgba(77, 182, 172, 0.12);
+  }
+`;
+
+const EmojiTab = styled.button`
+  background: ${({ active }) => (active ? 'rgba(0, 132, 255, 0.18)' : 'transparent')};
+  border: 1px solid ${({ editing }) => (editing ? '#4db6ac' : 'transparent')};
+  border-radius: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 1.15rem;
+  line-height: 1;
+  flex-shrink: 0;
+  outline: ${({ editing }) => (editing ? '2px solid rgba(77, 182, 172, 0.5)' : 'none')};
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+`;
+
+const TabEditor = styled.div`
+  margin: 0 -20px;
+  padding: 10px 20px 12px;
+  border-bottom: 1px solid #333;
+  background: #161616;
+`;
+
+const EditorTitle = styled.div`
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+`;
+
+const EditorHint = styled.div`
+  color: #888;
+  font-size: 0.78rem;
+  margin-bottom: 8px;
+`;
+
+const EmojiPalette = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+`;
+
+const EmojiChoice = styled.button`
+  background: ${({ selected }) => (selected ? 'rgba(77, 182, 172, 0.25)' : 'transparent')};
+  border: 1px solid ${({ selected }) => (selected ? '#4db6ac' : 'transparent')};
+  border-radius: 8px;
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 5px;
+  cursor: pointer;
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+`;
+
+const ChatRowWrap = styled.div`
+  position: relative;
+`;
+
+const TabCheck = styled.div`
+  position: absolute;
+  left: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid ${({ selected }) => (selected ? '#4db6ac' : '#666')};
+  background: ${({ selected }) => (selected ? '#4db6ac' : 'rgba(0, 0, 0, 0.5)')};
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  pointer-events: none;
+`;
+
+const EmptyTabHint = styled.div`
+  padding: 24px 16px;
+  color: #888;
+  font-size: 0.85rem;
+  text-align: center;
+  line-height: 1.5;
 `;
 
 const UnreadBadge = styled.div`
@@ -279,24 +563,6 @@ const Avatar = styled.img`
   width: 48px;
   height: 48px;
   border-radius: 10px;
-`;
-
-const LinkStyled = styled(Link)`
-  text-decoration: none;
-  display: flex;
-  cursor: pointer;
-  padding: 0.5625rem;
-  &:hover {
-    background-color: var(--chatHoverText, #2e2e2e);
-    border-radius: 10px;
-  }
-`;
-
-const HoverWrapper = styled.div`
-  display: flex;
-  &:hover {
-    background-color: var(--chatHoverText, #2e2e2e);
-  }
 `;
 
 const ChatListContainer = styled.div`
