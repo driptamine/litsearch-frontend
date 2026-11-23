@@ -158,6 +158,7 @@ function ModalSwitch({ children, renderModal, stopSong, pauseSong, resumeSong, a
             {/* Music Routes */}
             <Route exact path="/musicv2" component={TrackListLoopV2} />
             <Route exact path="/musicv1" component={TrackListLoopV1} />
+            <Route exact path="/music/liked" component={lazyImport(() => import('views/pages/LikedTracks'))} />
 
             {/* Search Routes */}
             <Route exact path="/search/:searchType" component={SearchResults} />

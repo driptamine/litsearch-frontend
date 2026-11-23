@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import { chatRequest } from 'core/api/chatSession';
 
 // Global audio playback: one <audio> element for the whole app, so music
 // keeps playing while navigating between pages.
@@ -7,6 +8,12 @@ const PlayerContext = createContext(null);
 export const usePlayer = () => useContext(PlayerContext);
 
 const trackKey = (track) => String(track?.key ?? track?.pk ?? track?.id ?? track?.url ?? '');
+
+const numericId = (track) => {
+  const raw = track?.pk ?? track?.trackId ?? track?.track_id;
+  const id = typeof raw === 'number' ? raw : parseInt(raw, 10);
+  return Number.isFinite(id) && id > 0 ? id : null;
+};
 
 export const PlayerProvider = ({ children }) => {
   const audioRef = useRef(null);
@@ -21,6 +28,7 @@ export const PlayerProvider = ({ children }) => {
   const playQueue = useCallback((tracks, startIndex = 0) => {
     const list = (tracks || []).map(track => ({
       key: trackKey(track),
+      trackId: numericId(track),
       url: track.url || track.r2_url || track.gcs_url || track.preview_url || '',
       title: track.title || track.name || 'Track',
       artist: typeof track.artist === 'string'
@@ -99,10 +107,32 @@ export const PlayerProvider = ({ children }) => {
 
   const isCurrentKey = useCallback((key) => !!current && current.key === String(key ?? ''), [current]);
 
+  const [liked, setLiked] = useState(false);
+
+  useEffect(() => {
+    if (!current?.trackId) {
+      setLiked(false);
+      return;
+    }
+    let cancelled = false;
+    chatRequest(`/tracks/like/${current.trackId}/`).then(({ data }) => {
+      if (!cancelled) setLiked(!!data?.liked);
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [current?.trackId]);
+
+  const toggleLike = useCallback(async () => {
+    if (!current?.trackId) return;
+    try {
+      const { data } = await chatRequest(`/tracks/like/${current.trackId}/`, { method: 'post', data: {} });
+      if (typeof data?.liked === 'boolean') setLiked(data.liked);
+    } catch (_) {}
+  }, [current]);
+
   return (
     <PlayerContext.Provider value={{
-      current, queue, playing, currentTime, duration,
-      playQueue, playTrack, toggle, seekTo, next, prev, close, isCurrentKey,
+      current, queue, playing, currentTime, duration, liked,
+      playQueue, playTrack, toggle, seekTo, next, prev, close, isCurrentKey, toggleLike,
     }}>
       <audio
         ref={audioRef}

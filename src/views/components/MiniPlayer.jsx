@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { styled } from '@linaria/react';
 import { useLocation } from 'react-router-dom';
 import { FaPlay, FaPause, FaTimes, FaStepForward, FaStepBackward } from 'react-icons/fa';
 import { usePlayer } from 'core/context/PlayerContext';
 import useDetectMobile from 'core/hooks/useDetectMobile';
+import FullPlayer from 'views/components/FullPlayer';
+
+export const LOGO_PINK = '#e91e63';
 
 // Thin global mini player docked above the bottom navbar (mobile only).
-// Stays mounted across route changes so playback never stops.
+// Stays mounted across route changes so playback never stops. Tapping the
+// bar (outside the buttons) opens the FullPlayer sheet.
 const MiniPlayer = () => {
   const isMobile = useDetectMobile();
   const { pathname } = useLocation();
   const player = usePlayer();
+  const [fullOpen, setFullOpen] = useState(false);
   if (!isMobile || !player?.current) return null;
 
   const isAuthPage = pathname === '/' || pathname === '/login' || pathname === '/signup';
@@ -21,7 +26,8 @@ const MiniPlayer = () => {
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <Bar $aboveNav={aboveNav} onClick={player.toggle} title={`${current.title} — ${current.artist}`}>
+    <>
+    <Bar $aboveNav={aboveNav} onClick={() => setFullOpen(true)} title={`${current.title} — ${current.artist}`}>
       <ProgressTrack>
         <ProgressFill style={{ width: `${progress}%` }} />
       </ProgressTrack>
@@ -46,6 +52,8 @@ const MiniPlayer = () => {
         <FaTimes size={13} />
       </CloseBtn>
     </Bar>
+    <FullPlayer open={fullOpen} onClose={() => setFullOpen(false)} />
+    </>
   );
 };
 
@@ -85,7 +93,7 @@ const ProgressTrack = styled.div`
 
 const ProgressFill = styled.div`
   height: 100%;
-  background: #1db954;
+  background: ${LOGO_PINK};
   border-radius: 1px;
 `;
 
@@ -94,7 +102,7 @@ const PlayBtn = styled.button`
   height: 36px;
   border-radius: 50%;
   border: none;
-  background: #1db954;
+  background: ${LOGO_PINK};
   color: #fff;
   cursor: pointer;
   display: flex;

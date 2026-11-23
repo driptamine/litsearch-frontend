@@ -214,7 +214,7 @@ const EditBtn = styled.button`
   }
 `;
 
-function TrackRow({ track, index = 0, showNumber = true, showEdit = false, onTrackUpdated, onTrackDeleted }) {
+function TrackRow({ track, index = 0, showNumber = true, showEdit = false, onTrackUpdated, onTrackDeleted, queue }) {
   const player = usePlayer();
   const [isSeeking, setIsSeeking] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -240,7 +240,7 @@ function TrackRow({ track, index = 0, showNumber = true, showEdit = false, onTra
     e.preventDefault();
     if (!player || !src) return;
     if (!isCurrent) {
-      player.playTrack(track);
+      player.playTrack(track, queue);
     } else {
       player.toggle();
     }
@@ -253,7 +253,7 @@ function TrackRow({ track, index = 0, showNumber = true, showEdit = false, onTra
     setIsSeeking(true);
     if (!player || !src) return;
     if (!isCurrent) {
-      player.playTrack(track);
+      player.playTrack(track, queue);
     }
     player.seekTo(value);
   };
