@@ -8,7 +8,9 @@ const LIKE_KEY = 'cookie_banner_likes';
 const LIKED_KEY = 'cookie_banner_liked';
 
 const CookieConsent = () => {
-  const [consent, setConsent] = useCookieState('cookie_consent', null);
+  // One year so the banner asks exactly once per browser (it used to be a
+  // session cookie and reappeared after every browser restart).
+  const [consent, setConsent] = useCookieState('cookie_consent', null, { 'max-age': 31536000 });
   const [image, setImage] = useState(null);
   const [likes, setLikes] = useState(() => Number(localStorage.getItem(LIKE_KEY) || 0));
   const [liked, setLiked] = useState(() => localStorage.getItem(LIKED_KEY) === 'true');
