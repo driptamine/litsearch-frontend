@@ -104,12 +104,59 @@ const ChatList = ({ emojiData }) => {
     setEditingTabId(null);
   }, [currentUsername, emojiData]);
 
+  const pushTabsTimer = useRef(null);
+  useEffect(() => () => {
+    if (pushTabsTimer.current) clearTimeout(pushTabsTimer.current);
+  }, []);
+
+  const pushTabsToServer = useCallback((tabs) => {
+    if (!isSignedIn) return;
+    if (pushTabsTimer.current) clearTimeout(pushTabsTimer.current);
+    pushTabsTimer.current = setTimeout(() => {
+      chatRequest('/chats/tabs/', {
+        method: 'put',
+        data: { tabs: tabs.map(tab => ({ emoji: tab.emoji, chat_ids: tab.chatIds })) },
+      }).catch(() => {});
+    }, 800);
+  }, [isSignedIn]);
+
+  // Server is the source of truth when signed in: adopt backend tabs, or
+  // migrate local customizations up once when the server has none yet.
+  useEffect(() => {
+    if (!isSignedIn) return;
+    let cancelled = false;
+    chatRequest('/chats/tabs/').then(({ data }) => {
+      if (cancelled || !Array.isArray(data?.tabs)) return;
+      if (data.tabs.length > 0) {
+        setChatTabs(data.tabs.map(tab => ({
+          id: `srv-${tab.id}`,
+          emoji: tab.emoji,
+          chatIds: (tab.chat_ids || []).map(Number).filter(n => n > 0),
+        })));
+      } else {
+        const current = tabsSnapshotRef.current;
+        const defaults = defaultTabs(emojiData);
+        const customized = current.some(tab => {
+          const original = defaults.find(d => d.id === tab.id);
+          return tab.chatIds.length > 0 || (original && tab.emoji !== original.emoji);
+        });
+        if (customized && current.length) {
+          pushTabsToServer(current);
+        }
+      }
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [isSignedIn, emojiData, pushTabsToServer]);
+
+  const tabsSnapshotRef = useRef([]);
   useEffect(() => {
     if (!chatTabs.length) return;
+    tabsSnapshotRef.current = chatTabs;
     try {
       localStorage.setItem(tabsStorageKey(currentUsername), JSON.stringify(chatTabs));
     } catch (_) {}
-  }, [chatTabs, currentUsername]);
+    pushTabsToServer(chatTabs);
+  }, [chatTabs, currentUsername, pushTabsToServer]);
 
   const activeTab = chatTabs.find(tab => tab.id === activeTabId);
   const editingTab = chatTabs.find(tab => tab.id === editingTabId);

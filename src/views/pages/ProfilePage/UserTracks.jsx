@@ -38,24 +38,6 @@ const UserTracks = ({ username }) => {
     }
   }, [username]);
 
-  const body = isLoading ? <Message>Loading tracks...</Message>
-    : error ? <Message error>{error}</Message>
-    : (!tracks || tracks.length === 0) ? <NoTracks>No tracks yet.</NoTracks>
-    : (
-      <TrackList>
-        {tracks.map((track, i) => (
-          <TrackRow
-            key={track.pk || track.id || i}
-            track={track}
-            index={i}
-            showEdit={true}
-            onTrackUpdated={handleTrackUpdated}
-            onTrackDeleted={handleTrackDeleted}
-          />
-        ))}
-      </TrackList>
-    );
-
   const handleTrackUpdated = (updatedTrack) => {
     setTracks(prev => prev.map(t =>
       (t.pk || t.uri || t.id) === (updatedTrack.pk || updatedTrack.uri || updatedTrack.id) ? updatedTrack : t
@@ -77,6 +59,24 @@ const UserTracks = ({ username }) => {
       return [...newOnes, ...prev];
     });
   };
+
+  const body = isLoading ? <Message>Loading tracks...</Message>
+    : error ? <Message error>{error}</Message>
+    : (!tracks || tracks.length === 0) ? <NoTracks>No tracks yet.</NoTracks>
+    : (
+      <TrackList>
+        {tracks.map((track, i) => (
+          <TrackRow
+            key={track.pk || track.id || i}
+            track={track}
+            index={i}
+            showEdit={true}
+            onTrackUpdated={handleTrackUpdated}
+            onTrackDeleted={handleTrackDeleted}
+          />
+        ))}
+      </TrackList>
+    );
 
   return (
     <Wrapper>
