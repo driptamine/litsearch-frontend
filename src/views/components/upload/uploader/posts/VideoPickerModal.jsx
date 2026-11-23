@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { styled } from '@linaria/react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
+import { FaUpload } from 'react-icons/fa';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader } from 'core/api/rest-helper';
 import { useMediaUpload } from './useMediaUpload';
@@ -14,6 +15,7 @@ function VideoPickerModal({ onSelect, onClose }) {
   const [error, setError] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const dragCounter = useRef(0);
+  const fileInputRef = useRef(null);
   const { uploadFiles, isUploading, progress } = useMediaUpload();
 
   const fetchVideos = useCallback(async () => {
@@ -100,6 +102,23 @@ function VideoPickerModal({ onSelect, onClose }) {
     }
   }, [uploadFiles, fetchVideos]);
 
+  const handleFileSelect = useCallback(async (e) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (!files.length) return;
+
+    const results = await uploadFiles(files, 'video');
+    const newIds = results.map(r => r.id).filter(Boolean);
+    if (newIds.length) {
+      setSelectedIds(prev => {
+        const next = new Set(prev);
+        newIds.forEach(id => next.add(id));
+        return next;
+      });
+      fetchVideos();
+    }
+  }, [uploadFiles, fetchVideos]);
+
   return (
     <Overlay onClick={onClose}>
       <Modal
@@ -111,8 +130,21 @@ function VideoPickerModal({ onSelect, onClose }) {
       >
         <Header>
           Select Videos
-          <CloseBtn onClick={onClose}>&times;</CloseBtn>
+          <HeaderActions>
+            <UploadBtn onClick={() => fileInputRef.current?.click()} disabled={isUploading} title="Upload videos">
+              <FaUpload size={13} /> Upload
+            </UploadBtn>
+            <CloseBtn onClick={onClose}>&times;</CloseBtn>
+          </HeaderActions>
         </Header>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="video/*"
+          multiple
+          style={{ display: 'none' }}
+          onChange={handleFileSelect}
+        />
         <Body>
           {isDragOver && (
             <DropOverlay>
@@ -213,6 +245,29 @@ const CloseBtn = styled.button`
   background: none; border: none; color: #888;
   font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1;
   &:hover { color: white; }
+`;
+
+const HeaderActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const UploadBtn = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: transparent;
+  color: #4db6ac;
+  border: 1px solid #4db6ac;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  &:disabled { opacity: 0.4; cursor: default; }
+  &:hover:not(:disabled) { background: rgba(77, 182, 172, 0.12); }
 `;
 
 const Body = styled.div`
