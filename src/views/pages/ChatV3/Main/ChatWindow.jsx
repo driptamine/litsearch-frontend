@@ -819,7 +819,7 @@ const ChatWindow = () => {
                 flash: flashId != null && message.id != null && message.id === flashId,
                 onReply: message.id != null && !selectMode ? () => setReplyTo(message) : undefined,
                 onQuoteClick: scrollToQuoted,
-                onMenu: (x, y, target) => { if (target?.id != null) setMenuFor({ x, y, message: target }); },
+                onMenu: (x, y, target, viaTouch) => { if (target?.id != null) setMenuFor({ x, y, message: target, viaTouch }); },
                 selectMode,
                 selected: message.id != null && selectedIds.includes(message.id),
                 onToggleSelect: () => toggleSelect(message),
@@ -862,6 +862,7 @@ const ChatWindow = () => {
               items={menuItems}
               onSelect={handleMenuAction}
               onClose={() => setMenuFor(null)}
+              guardTouch={menuFor.viaTouch}
             />
           )}
           {forwardMessages && (

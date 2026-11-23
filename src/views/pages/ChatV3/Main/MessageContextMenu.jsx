@@ -43,7 +43,7 @@ export const useLongPressMenu = (onMenu, message, { delay = 550 } = {}) => {
         if (navigator.vibrate) {
           try { navigator.vibrate(15); } catch (_) {}
         }
-        onMenu(touch.clientX, touch.clientY, message);
+        onMenu(touch.clientX, touch.clientY, message, true);
       }, delay);
     },
     onTouchMove: (e) => {
@@ -63,14 +63,18 @@ export const useLongPressMenu = (onMenu, message, { delay = 550 } = {}) => {
         return;
       }
       e.preventDefault();
-      onMenu(e.clientX, e.clientY, message);
+      onMenu(e.clientX, e.clientY, message, false);
     },
   };
 };
 
-const MessageContextMenu = ({ x, y, items, onSelect, onClose }) => {
+const MessageContextMenu = ({ x, y, items, onSelect, onClose, guardTouch }) => {
   const menuRef = useRef(null);
   const pos = clampMenuPosition(x, y, items.length);
+  // After a long-press the finger lifting off synthesizes a click that lands
+  // on the freshly opened menu (usually the first item). Swallow early taps.
+  const openedAt = useRef(Date.now());
+  const isFreshTap = () => guardTouch && Date.now() - openedAt.current < 450;
 
   useEffect(() => {
     const handleKey = (e) => {
@@ -88,7 +92,7 @@ const MessageContextMenu = ({ x, y, items, onSelect, onClose }) => {
   }, [onClose]);
 
   return (
-    <Overlay onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }}>
+    <Overlay onClick={() => { if (!isFreshTap()) onClose(); }} onContextMenu={(e) => { e.preventDefault(); onClose(); }}>
       <Menu
         ref={menuRef}
         style={{ left: pos.x, top: pos.y }}
@@ -100,7 +104,7 @@ const MessageContextMenu = ({ x, y, items, onSelect, onClose }) => {
             key={item.key}
             danger={item.danger}
             disabled={item.disabled}
-            onClick={() => { if (!item.disabled) { onClose(); onSelect(item.key); } }}
+            onClick={() => { if (!item.disabled && !isFreshTap()) { onClose(); onSelect(item.key); } }}
           >
             {item.icon && <ItemIcon>{item.icon}</ItemIcon>}
             <ItemLabel>{item.label}</ItemLabel>

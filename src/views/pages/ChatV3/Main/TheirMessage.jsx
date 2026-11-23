@@ -148,7 +148,7 @@ const ReplyBtn = styled.button`
     background: rgba(255, 255, 255, 0.08);
   }
   @media (hover: none) {
-    opacity: 1;
+    display: none;
   }
 `;
 
