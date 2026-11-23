@@ -333,10 +333,6 @@ const UserPosts = ({ username, newPosts = [], isOwnProfile = false }) => {
   );
 
   return (
-    <>
-      <ObserverOverlay>
-        <ObserverLabel>IO viewport (threshold 0.5)</ObserverLabel>
-      </ObserverOverlay>
     <Wrapper>
       <ViewSwitcher>
         <ViewButton active={viewMode === 'grid'} onClick={() => setViewMode('grid')}>Grid</ViewButton>
@@ -354,7 +350,6 @@ const UserPosts = ({ username, newPosts = [], isOwnProfile = false }) => {
       {viewMode === 'feed' && renderFeed()}
       {viewMode === 'gallery' && renderGallery()}
     </Wrapper>
-    </>
   );
 };
 
@@ -610,28 +605,6 @@ const NoPosts = styled.div`
   border-radius: 12px;
   border: 1px dashed #444;
   width: 100%;
-`;
-
-const ObserverOverlay = styled.div`
-  position: fixed;
-  inset: 0;
-  border: 2px dashed rgba(0, 255, 100, 0.5);
-  pointer-events: none;
-  z-index: 9999;
-`;
-
-const ObserverLabel = styled.div`
-  position: fixed;
-  top: 4px;
-  right: 4px;
-  background: rgba(0, 0, 0, 0.7);
-  color: #0f6;
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  z-index: 9999;
-  pointer-events: none;
-  font-family: monospace;
 `;
 
 export default UserPosts;
