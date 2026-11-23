@@ -221,6 +221,9 @@ function ModalSwitch({ children, renderModal, stopSong, pauseSong, resumeSong, a
             {/* User Videos Route */}
             <Route path="/:username/videos" component={UserVideosPage} />
 
+            {/* Admin Routes */}
+            <Route path="/admin/usernames" component={lazyImport(() => import('views/pages/AdminUsernames'))} />
+
             {/* User Profile Route */}
             <Route path="/:username" component={ProfilePage} />
           </Switch>

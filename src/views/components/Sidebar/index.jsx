@@ -6,7 +6,7 @@ import {
   LuChevronRight, LuCompass, LuDisc3, LuFileText, LuFilm, LuHash, LuHouse,
   LuImages, LuLayers3, LuListTodo, LuLogIn, LuMap, LuMessageCircle,
   LuMusic2, LuOrbit, LuPanelLeftClose, LuPanelLeftOpen, LuPencilLine,
-  LuUsersRound, LuVideo, LuX,
+  LuShieldCheck, LuUsersRound, LuVideo, LuX,
 } from 'react-icons/lu';
 
 import { toggleSidebar } from 'core/reducers/sidebar';
@@ -91,6 +91,13 @@ const Sidebar = ({ mobile = false, drawerOpen = false, onDismiss }) => {
   const compact = !mobile && !expanded;
   const username = authUser?.username || authUser?.user?.username || authUser?.user__username;
   const profile = username && isSignedIn ? `/${encodeURIComponent(username)}` : null;
+  const isUsernameAdmin = isSignedIn && (
+    authUser?.is_superuser || authUser?.is_staff ||
+    String(username || '').toLowerCase() === 'drip'
+  );
+  const adminLinks = [
+    { id: 'AdminUsernames', to: '/admin/usernames', label: 'Usernames', icon: LuShieldCheck },
+  ];
   const avatar = assetURL(authUser?.avatar || authUser?.user?.avatar || authUser?.profileImg);
   const navigate = mobile ? onDismiss : undefined;
 
@@ -212,6 +219,7 @@ const Sidebar = ({ mobile = false, drawerOpen = false, onDismiss }) => {
           ]} onNavigate={navigate} compact={compact} />
           <SidebarLinks title="Workspace" items={workspaceLinks} onNavigate={navigate} compact={compact} />
           {profile && <SidebarLinks title="Library" items={library} onNavigate={navigate} compact={compact} />}
+          {isUsernameAdmin && <SidebarLinks title="Admin" items={adminLinks} onNavigate={navigate} compact={compact} />}
         </nav>
 
         <div className="litloop-sidebar-footer">
