@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { styled } from '@linaria/react';
 import * as EmailValidator from 'email-validator';
-import { updateUserAction, changePasswordAction } from 'core/actions';
+import { setUserProfile } from 'core/actions';
 import { selectors } from 'core/reducers';
-import { putReq, getReq } from 'core/api/rest-helper';
+import { putReq, postReq, getReq } from 'core/api/rest-helper';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 
 const SettingsPage = () => {
@@ -22,62 +22,79 @@ const SettingsPage = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const [usernameMsg, setUsernameMsg] = useState('');
-  const [emailMsg, setEmailMsg] = useState('');
-  const [passwordMsg, setPasswordMsg] = useState('');
+  const [usernameMsg, setUsernameMsg] = useState({ text: '', error: false });
+  const [emailMsg, setEmailMsg] = useState({ text: '', error: false });
+  const [passwordMsg, setPasswordMsg] = useState({ text: '', error: false });
 
-  const handleUsernameSubmit = (e) => {
+  const handleUsernameSubmit = async (e) => {
     e.preventDefault();
-    setUsernameMsg('');
+    setUsernameMsg({ text: '', error: false });
 
     if (!username.trim()) {
-      setUsernameMsg('Username cannot be empty');
+      setUsernameMsg({ text: 'Username cannot be empty', error: true });
       return;
     }
 
-    dispatch(updateUserAction({ username: username.trim() }));
-    setUsernameMsg('Saved!');
+    const { response, error } = await putReq(`${LITLOOP_API_URL}/users/me/`, { username: username.trim() });
+    if (error) {
+      setUsernameMsg({ text: error.code === 409 ? 'Username is taken' : 'Could not save. Try again.', error: true });
+      return;
+    }
+    dispatch(setUserProfile(response));
+    setUsernameMsg({ text: 'Saved!', error: false });
     setEditUsername(false);
   };
 
-  const handleEmailSubmit = (e) => {
+  const handleEmailSubmit = async (e) => {
     e.preventDefault();
-    setEmailMsg('');
+    setEmailMsg({ text: '', error: false });
 
     if (!EmailValidator.validate(email.trim())) {
-      setEmailMsg('Invalid email address');
+      setEmailMsg({ text: 'Invalid email address', error: true });
       return;
     }
 
-    dispatch(updateUserAction({ email: email.trim() }));
-    setEmailMsg('Saved!');
+    const { response, error } = await putReq(`${LITLOOP_API_URL}/users/me/`, { email: email.trim() });
+    if (error) {
+      setEmailMsg({ text: error.code === 409 ? 'Email is taken' : 'Could not save. Try again.', error: true });
+      return;
+    }
+    dispatch(setUserProfile(response));
+    setEmailMsg({ text: 'Saved!', error: false });
     setEditEmail(false);
   };
 
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-    setPasswordMsg('');
+    setPasswordMsg({ text: '', error: false });
 
     if (!currentPassword) {
-      setPasswordMsg('Current password is required');
+      setPasswordMsg({ text: 'Current password is required', error: true });
       return;
     }
 
-    if (newPassword.length < 6) {
-      setPasswordMsg('New password must be at least 6 characters');
+    if (newPassword.length < 8) {
+      setPasswordMsg({ text: 'New password must be at least 8 characters', error: true });
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setPasswordMsg('Passwords do not match');
+      setPasswordMsg({ text: 'Passwords do not match', error: true });
       return;
     }
 
-    dispatch(changePasswordAction({
-      oldPassword: currentPassword,
-      newPassword: newPassword
-    }));
-    setPasswordMsg('Password changed!');
+    const { error } = await postReq(`${LITLOOP_API_URL}/users/me/password/`, {
+      old_password: currentPassword,
+      new_password: newPassword
+    });
+    if (error) {
+      setPasswordMsg({
+        text: error.code === 401 ? 'Current password is incorrect' : 'Could not change password. Try again.',
+        error: true
+      });
+      return;
+    }
+    setPasswordMsg({ text: 'Password changed!', error: false });
     setEditPassword(false);
     setCurrentPassword('');
     setNewPassword('');
@@ -105,9 +122,9 @@ const SettingsPage = () => {
             />
             <ButtonRow>
               <SaveBtn type="submit">Save</SaveBtn>
-              <CancelBtn type="button" onClick={() => { setEditUsername(false); setUsername(currentUsername); setUsernameMsg(''); }}>Cancel</CancelBtn>
+              <CancelBtn type="button" onClick={() => { setEditUsername(false); setUsername(currentUsername); setUsernameMsg({ text: '', error: false }); }}>Cancel</CancelBtn>
             </ButtonRow>
-            {usernameMsg && <Msg>{usernameMsg}</Msg>}
+            {usernameMsg.text && <Msg error={usernameMsg.error}>{usernameMsg.text}</Msg>}
           </Form>
         ) : (
           <EditBtn onClick={() => setEditUsername(true)}>Edit</EditBtn>
@@ -128,9 +145,9 @@ const SettingsPage = () => {
             />
             <ButtonRow>
               <SaveBtn type="submit">Save</SaveBtn>
-              <CancelBtn type="button" onClick={() => { setEditEmail(false); setEmail(currentEmail); setEmailMsg(''); }}>Cancel</CancelBtn>
+              <CancelBtn type="button" onClick={() => { setEditEmail(false); setEmail(currentEmail); setEmailMsg({ text: '', error: false }); }}>Cancel</CancelBtn>
             </ButtonRow>
-            {emailMsg && <Msg>{emailMsg}</Msg>}
+            {emailMsg.text && <Msg error={emailMsg.error}>{emailMsg.text}</Msg>}
           </Form>
         ) : (
           <EditBtn onClick={() => setEditEmail(true)}>Edit</EditBtn>
@@ -162,9 +179,9 @@ const SettingsPage = () => {
             />
             <ButtonRow>
               <SaveBtn type="submit">Change Password</SaveBtn>
-              <CancelBtn type="button" onClick={() => { setEditPassword(false); setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); setPasswordMsg(''); }}>Cancel</CancelBtn>
+              <CancelBtn type="button" onClick={() => { setEditPassword(false); setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); setPasswordMsg({ text: '', error: false }); }}>Cancel</CancelBtn>
             </ButtonRow>
-            {passwordMsg && <Msg>{passwordMsg}</Msg>}
+            {passwordMsg.text && <Msg error={passwordMsg.error}>{passwordMsg.text}</Msg>}
           </Form>
         ) : (
           <EditBtn onClick={() => setEditPassword(true)}>Change</EditBtn>
@@ -387,7 +404,7 @@ const EditBtn = styled.button`
 `;
 
 const Msg = styled.p`
-  color: #4ade80;
+  color: ${({ error }) => (error ? '#f87171' : '#4ade80')};
   font-family: Verdana;
   font-size: 13px;
   margin: 0;
