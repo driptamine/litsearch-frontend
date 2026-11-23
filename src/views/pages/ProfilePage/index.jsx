@@ -232,6 +232,11 @@ const Container = styled.div`
   padding: 40px 20px;
   background-color: var(--navBg, #141414);
   gap: 40px;
+
+  @media (max-width: 768px) {
+    padding: 0 0 24px;
+    gap: 0;
+  }
 `;
 
 const MessageCard = styled.div`
@@ -254,6 +259,13 @@ const ProfileCard = styled.div`
   flex-direction: column;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   border: 1px solid #333;
+
+  @media (max-width: 768px) {
+    max-width: none;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
 `;
 
 const CoverWrap = styled.div`
@@ -282,7 +294,7 @@ const CoverImage = styled.img`
 const CoverFallback = styled.div`
   width: 100%;
   height: 100%;
-  background: linear-gradient(120deg, #0d3b42 0%, #009688 55%, #0084ff 100%);
+  background: #2a2a2a;
 `;
 
 const CoverOverlay = styled.div`
@@ -454,6 +466,10 @@ const TracksButton = styled(Link)`
   &:active {
     transform: scale(0.95);
   }
+
+  @media (max-width: 768px) {
+    margin-top: 16px;
+  }
 `;
 
 const PostCreatorSection = styled.div`
@@ -480,6 +496,10 @@ const ModalBody = styled.div`
 const PostsSection = styled.div`
   width: 100%;
   max-width: 1000px;
+
+  @media (max-width: 768px) {
+    margin-top: 12px;
+  }
 `;
 
 export default ProfilePage;
