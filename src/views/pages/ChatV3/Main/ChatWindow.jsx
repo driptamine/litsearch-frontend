@@ -489,6 +489,26 @@ const ChatWindow = () => {
     return `${date} ${time}`;
   };
 
+  // Hooks must run on every render, including the loading/error states below
+  // that return early — otherwise React crashes with "rendered more hooks".
+  const messageById = useMemo(
+    () => new Map((messages || []).filter(item => item.id != null).map(item => [item.id, item])),
+    [messages]
+  );
+
+  const quoteFor = useCallback((message) => {
+    if (message.reply_to_message) return message.reply_to_message;
+    if (message.reply_to == null) return null;
+    const parent = messageById.get(message.reply_to);
+    if (!parent) return null;
+    return {
+      id: parent.id,
+      username: parent.username || parent.sender_name || 'User',
+      text: parent.text || parent.content || parent.body || '',
+      avatar: parent.avatar || null,
+    };
+  }, [messageById]);
+
 
   if (!sessionRestored || loading || (isSignedIn && chatDetailPath && !chatInfo && loadError === null)) {
     return (
@@ -525,24 +545,6 @@ const ChatWindow = () => {
       </ChatWindowContainer>
     );
   }
-
-  const messageById = useMemo(
-    () => new Map((messages || []).filter(item => item.id != null).map(item => [item.id, item])),
-    [messages]
-  );
-
-  const quoteFor = useCallback((message) => {
-    if (message.reply_to_message) return message.reply_to_message;
-    if (message.reply_to == null) return null;
-    const parent = messageById.get(message.reply_to);
-    if (!parent) return null;
-    return {
-      id: parent.id,
-      username: parent.username || parent.sender_name || 'User',
-      text: parent.text || parent.content || parent.body || '',
-      avatar: parent.avatar || null,
-    };
-  }, [messageById]);
 
   const typingNames = Object.values(typingUsers).map(entry => entry.username).filter(Boolean);
   const typingText = typingNames.length === 1 ? `${typingNames[0]} is typing…`
