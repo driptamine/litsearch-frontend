@@ -57,7 +57,8 @@ const ChatWindow = () => {
   const [flashId, setFlashId] = useState(null);
   const quoteTimer = useRef(null);
   const menuRef = useRef(null);
-  const messagesEndRef = useRef(null);
+  const windowRef = useRef(null);
+  const messagesContainerRef = useRef(null);
   const voiceCacheRef = useRef(null);
   const nextTempId = useRef(0);
   const historyRef = useRef(null);
@@ -97,13 +98,37 @@ const ChatWindow = () => {
     });
   };
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const scrollToBottom = useCallback((smooth = true) => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    container.scrollTo({ top: container.scrollHeight, behavior: smooth ? "smooth" : "auto" });
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
+
+  // On mobile the virtual keyboard doesn't resize CSS viewport units
+  // everywhere (iOS Safari overlays it), leaving a gap below the input.
+  // Sync the fixed window height to the visible area instead.
+  useEffect(() => {
+    if (!isConversationView) return;
+    const viewport = window.visualViewport;
+    const container = windowRef.current;
+    if (!viewport || !container) return;
+    const syncHeight = () => {
+      container.style.height = `${viewport.height}px`;
+      container.style.maxHeight = `${viewport.height}px`;
+      window.scrollTo(0, 0);
+    };
+    syncHeight();
+    viewport.addEventListener('resize', syncHeight);
+    return () => {
+      viewport.removeEventListener('resize', syncHeight);
+      container.style.height = '';
+      container.style.maxHeight = '';
+    };
+  }, [isConversationView]);
 
   const handleNewMessage = useCallback((message) => {
     const current = historyRef.current;
@@ -364,9 +389,15 @@ const ChatWindow = () => {
 
   const scrollToQuoted = useCallback((quotedId) => {
     if (quotedId == null) return;
+    const container = messagesContainerRef.current;
     const el = document.getElementById(`chat-msg-${quotedId}`);
-    if (!el) return;
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (!container || !el) return;
+    const containerRect = container.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    container.scrollTo({
+      top: container.scrollTop + (elRect.top - containerRect.top) - container.clientHeight / 2 + elRect.height / 2,
+      behavior: 'smooth',
+    });
     setFlashId(quotedId);
     if (quoteTimer.current) clearTimeout(quoteTimer.current);
     quoteTimer.current = setTimeout(() => setFlashId(null), 1200);
@@ -552,7 +583,7 @@ const ChatWindow = () => {
     : typingNames.length > 2 ? `${typingNames.length} people are typing…` : '';
 
   return (
-    <ChatWindowContainer isConversation={isConversationView}>
+    <ChatWindowContainer ref={windowRef} isConversation={isConversationView}>
       {(isSaved || (isGroup ? groupChatId : userId)) ? (
         <>
           <ChatHeader>
@@ -693,7 +724,7 @@ const ChatWindow = () => {
               </MenuWrap>
             </RightActions>
           </ChatHeader>
-          <MessagesContainer role="log" aria-label="Chat messages">
+          <MessagesContainer ref={messagesContainerRef} role="log" aria-label="Chat messages">
             {messages?.map((message, index) => {
               const currentUserName = authUser?.username || authUser?.user?.username || authUser?.user__username || '';
               const isMe = message.isTemp ||
@@ -722,11 +753,11 @@ const ChatWindow = () => {
                 <TypingLabel>{typingText}</TypingLabel>
               </TypingIndicator>
             )}
-            <div ref={messagesEndRef} />
           </MessagesContainer>
           <ChatInput
             onSendMessage={handleSendMessage}
             onTyping={handleInputChange}
+            onInputFocus={() => scrollToBottom(false)}
             replyTo={replyTo}
             onCancelReply={() => setReplyTo(null)}
           />

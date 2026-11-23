@@ -19,7 +19,7 @@ const resolveUrl = (url) => {
   return `${LITLOOP_API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
 };
 
-const ChatInput = ({ onSendMessage, onTyping, replyTo, onCancelReply }) => {
+const ChatInput = ({ onSendMessage, onTyping, onInputFocus, replyTo, onCancelReply }) => {
   const replyName = replyTo ? (replyTo.username || replyTo.sender_name || 'User') : '';
   const replySnippet = replyTo ? (replyTo.text || replyTo.content || replyTo.body || 'Attachment') : '';
   const [message, setMessage] = useState('');
@@ -369,6 +369,7 @@ const ChatInput = ({ onSendMessage, onTyping, replyTo, onCancelReply }) => {
           value={message}
           onChange={handleChange}
           onKeyPress={handleKeyPress}
+          onFocus={() => { if (onInputFocus) setTimeout(onInputFocus, 350); }}
           placeholder="Type your message..."
         />
         {recState === 'idle' && !voiceMessageData && (
@@ -423,6 +424,11 @@ const ChatInputContainer = styled.div`
   border-top: 1px solid #434343;
   background-color: #1a1a1a;
   border-radius: 0 0 10px 10px;
+
+  @media screen and (max-width: 768px) {
+    border-radius: 0;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
 `;
 
 const DropOverlay = styled.div`
