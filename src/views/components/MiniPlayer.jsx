@@ -6,7 +6,7 @@ import { usePlayer } from 'core/context/PlayerContext';
 import useDetectMobile from 'core/hooks/useDetectMobile';
 import FullPlayer from 'views/components/FullPlayer';
 
-export const LOGO_PINK = '#e91e63';
+export const PLAYER_ACCENT = '#686abb';
 
 // Thin global mini player docked above the bottom navbar (mobile only).
 // Stays mounted across route changes so playback never stops. Tapping the
@@ -93,7 +93,7 @@ const ProgressTrack = styled.div`
 
 const ProgressFill = styled.div`
   height: 100%;
-  background: ${LOGO_PINK};
+  background: ${PLAYER_ACCENT};
   border-radius: 1px;
 `;
 
@@ -102,7 +102,7 @@ const PlayBtn = styled.button`
   height: 36px;
   border-radius: 50%;
   border: none;
-  background: ${LOGO_PINK};
+  background: ${PLAYER_ACCENT};
   color: #fff;
   cursor: pointer;
   display: flex;
@@ -123,6 +123,7 @@ const Meta = styled.div`
 `;
 
 const TrackTitle = styled.span`
+  font-family: Verdana;
   color: #fff;
   font-size: 13px;
   font-weight: 600;
@@ -132,6 +133,7 @@ const TrackTitle = styled.span`
 `;
 
 const TrackArtist = styled.span`
+  font-family: Verdana;
   color: rgba(255, 255, 255, 0.6);
   font-size: 11px;
   white-space: nowrap;

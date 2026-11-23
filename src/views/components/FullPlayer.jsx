@@ -7,7 +7,7 @@ import {
 } from 'react-icons/fa';
 import { usePlayer } from 'core/context/PlayerContext';
 
-const LOGO_PINK = '#e91e63';
+const PLAYER_ACCENT = '#686abb';
 
 const formatTime = (seconds) => {
   if (!seconds || !isFinite(seconds)) return '0:00';
@@ -182,8 +182,8 @@ const Cover = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, ${LOGO_PINK} 0%, #7b1fa2 100%);
-  box-shadow: 0 12px 40px rgba(233, 30, 99, 0.35);
+  background: linear-gradient(135deg, ${PLAYER_ACCENT} 0%, #484b8f 100%);
+  box-shadow: 0 12px 40px rgba(104, 106, 187, 0.35);
 `;
 
 const TrackName = styled.div`
@@ -218,7 +218,7 @@ const LikeBtn = styled.button`
   background: none;
   border: none;
   cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
-  color: ${({ liked }) => (liked ? LOGO_PINK : 'rgba(255, 255, 255, 0.6)')};
+  color: ${({ liked }) => (liked ? PLAYER_ACCENT : 'rgba(255, 255, 255, 0.6)')};
   opacity: ${({ disabled }) => (disabled ? 0.3 : 1)};
   padding: 6px;
   display: flex;
@@ -260,15 +260,15 @@ const SeekBar = styled.input`
     height: 14px;
     width: 14px;
     border-radius: 50%;
-    background: ${LOGO_PINK};
+    background: ${PLAYER_ACCENT};
     border: none;
-    box-shadow: 0 0 10px rgba(233, 30, 99, 0.6);
+    box-shadow: 0 0 10px rgba(104, 106, 187, 0.6);
   }
   &::-moz-range-thumb {
     height: 14px;
     width: 14px;
     border-radius: 50%;
-    background: ${LOGO_PINK};
+    background: ${PLAYER_ACCENT};
     border: none;
   }
   &::-moz-range-track {
@@ -300,13 +300,13 @@ const PlayPauseBtn = styled.button`
   height: 64px;
   border-radius: 50%;
   border: none;
-  background: ${LOGO_PINK};
+  background: ${PLAYER_ACCENT};
   color: #fff;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 24px rgba(233, 30, 99, 0.5);
+  box-shadow: 0 6px 24px rgba(104, 106, 187, 0.5);
   &:active { transform: scale(0.94); }
 `;
 
@@ -339,7 +339,7 @@ const QueueItem = styled.button`
   align-items: center;
   gap: 10px;
   width: 100%;
-  background: ${({ active }) => (active ? 'rgba(233, 30, 99, 0.14)' : 'transparent')};
+  background: ${({ active }) => (active ? 'rgba(104, 106, 187, 0.14)' : 'transparent')};
   border: none;
   border-radius: 8px;
   padding: 8px 10px;
