@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { styled } from '@linaria/react';
 import { useLocation } from 'react-router-dom';
-import { FaPlay, FaPause, FaTimes, FaStepForward, FaStepBackward } from 'react-icons/fa';
+import { FaPlay, FaPause, FaTimes, FaStepForward, FaStepBackward, FaMusic } from 'react-icons/fa';
 import { usePlayer } from 'core/context/PlayerContext';
 import useDetectMobile from 'core/hooks/useDetectMobile';
 import FullPlayer from 'views/components/FullPlayer';
 
 export const PLAYER_ACCENT = '#686abb';
 
-// Thin global mini player docked above the bottom navbar (mobile only).
+// Global mini player docked above the bottom navbar (mobile only).
 // Stays mounted across route changes so playback never stops. Tapping the
 // bar (outside the buttons) opens the FullPlayer sheet.
 const MiniPlayer = () => {
@@ -16,21 +16,27 @@ const MiniPlayer = () => {
   const { pathname } = useLocation();
   const player = usePlayer();
   const [fullOpen, setFullOpen] = useState(false);
-  if (!isMobile || !player?.current) return null;
-
+  if (!player?.current) return null;
   const isAuthPage = pathname === '/' || pathname === '/login' || pathname === '/signup';
   const isConversation = /^\/chat\/(?:[1-9]\d*|saved|group\/[1-9]\d*)\/?$/.test(pathname);
-  const aboveNav = isMobile && !isAuthPage && !isConversation;
-
+  const aboveNav = !isAuthPage && !isConversation;
   const { current, playing, currentTime, duration, queue } = player;
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const albumCover = current?.album_cover || current?.artwork_url || current?.image_url || current?.cover_url || null;
+
+  const openFullPlayer = () => setFullOpen(true);
 
   return (
     <>
-    <Bar $aboveNav={aboveNav} onClick={() => setFullOpen(true)} title={`${current.title} — ${current.artist}`}>
+    <MusicBar $aboveNav={aboveNav} onClick={openFullPlayer} title={`${current.title} — ${current.artist}`}>
       <ProgressTrack>
         <ProgressFill style={{ width: `${progress}%` }} />
       </ProgressTrack>
+      {!isMobile && (
+        <AlbumCover>
+          {albumCover ? <AlbumCoverImg src={albumCover} alt="Album cover" /> : <FaMusic size={16} color="rgba(255,255,255,0.85)" />}
+        </AlbumCover>
+      )}
       <PlayBtn onClick={(e) => { e.stopPropagation(); player.toggle(); }} title={playing ? 'Pause' : 'Play'}>
         {playing ? <FaPause size={14} /> : <FaPlay size={14} />}
       </PlayBtn>
@@ -51,13 +57,13 @@ const MiniPlayer = () => {
       <CloseBtn onClick={(e) => { e.stopPropagation(); player.close(); }} title="Close">
         <FaTimes size={13} />
       </CloseBtn>
-    </Bar>
+    </MusicBar>
     <FullPlayer open={fullOpen} onClose={() => setFullOpen(false)} />
     </>
   );
 };
 
-const Bar = styled.div`
+const MusicBar = styled.div<{ $aboveNav: boolean }>`
   position: fixed;
   left: 12px;
   right: 12px;
@@ -78,6 +84,16 @@ const Bar = styled.div`
     inset 0 0 0 1px rgba(255, 255, 255, 0.08),
     0 -4px 24px rgba(0, 0, 0, 0.35);
   padding-bottom: env(safe-area-inset-bottom);
+
+  @media (min-width: 769px) {
+    left: calc(var(--litloop-sidebar-width, 0px) + 12px);
+    bottom: 0;
+    transition: left 180ms ease;
+  }
+
+  @media (min-width: 769px) and (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 `;
 
 const ProgressTrack = styled.div`
@@ -89,6 +105,11 @@ const ProgressTrack = styled.div`
   background: rgba(255, 255, 255, 0.15);
   border-radius: 1px;
   overflow: hidden;
+
+  @media (min-width: 769px) {
+    left: 72px;
+    right: 12px;
+  }
 `;
 
 const ProgressFill = styled.div`
@@ -163,6 +184,31 @@ const CloseBtn = styled.button`
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+`;
+
+const AlbumCover = styled.div`
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: linear-gradient(135deg, ${PLAYER_ACCENT} 0%, #484b8f 100%);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (min-width: 769px) {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+  }
+`;
+
+const AlbumCoverImg = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 `;
 
 export default MiniPlayer;

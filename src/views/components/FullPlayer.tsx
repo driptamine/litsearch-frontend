@@ -38,6 +38,9 @@ const FullPlayer = ({ open, onClose }) => {
   const { current, playing, currentTime, duration, queue, liked } = player;
   const shownTime = seekValue ?? currentTime;
 
+  // Get album cover from track data
+  const albumCover = current?.album_cover || current?.artwork_url || current?.image_url || current?.cover_url || null;
+
   return (
     <Sheet onClick={onClose}>
       <Panel onClick={(e) => e.stopPropagation()}>
@@ -52,7 +55,11 @@ const FullPlayer = ({ open, onClose }) => {
         </TopBar>
 
         <Cover>
-          <FaMusic size={72} color="rgba(255,255,255,0.85)" />
+          {albumCover ? (
+            <CoverImg src={albumCover} alt="Album cover" />
+          ) : (
+            <FaMusic size={72} color="rgba(255,255,255,0.85)" />
+          )}
         </Cover>
 
         <TrackName>{current.title}</TrackName>
@@ -184,6 +191,14 @@ const Cover = styled.div`
   justify-content: center;
   background: linear-gradient(135deg, ${PLAYER_ACCENT} 0%, #484b8f 100%);
   box-shadow: 0 12px 40px rgba(104, 106, 187, 0.35);
+  overflow: hidden;
+`;
+
+const CoverImg = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
 `;
 
 const TrackName = styled.div`
