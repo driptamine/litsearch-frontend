@@ -17,7 +17,7 @@ const UserPosts = ({ username, newPosts = [], isOwnProfile = false }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [viewMode, setViewMode] = useState('feed');
-  const [feedLayout, setFeedLayout] = useState('stats');
+  const [feedLayout, setFeedLayout] = useState('classic');
   const [editingPostId, setEditingPostId] = useState(null);
   const [editingDescription, setEditingDescription] = useState('');
   useEffect(() => {

@@ -34,6 +34,7 @@ const MainContent = styled.div`
   flex-direction: column;
   gap: 4px;
   flex-grow: 1;
+  min-width: 0;
 `;
 
 const Header = styled.div`

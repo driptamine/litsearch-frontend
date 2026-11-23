@@ -7,6 +7,7 @@ import useSelectAuthUser from 'core/hooks/useSelectAuthUser';
 import { fetchCurrentUser, uploadAvatarAction } from 'core/actions';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import PostCreator from 'views/components/upload/uploader/posts/PostCreator';
+import { authHeader } from 'core/api/rest-helper';
 import UserPosts from './UserPosts';
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23333' rx='8'/%3E%3Ccircle cx='24' cy='18' r='8' fill='%23999'/%3E%3Cpath d='M8 44c0-8.84 7.16-16 16-16s16 7.16 16 16' fill='%23999'/%3E%3C/svg%3E";
@@ -16,6 +17,7 @@ const ProfilePage = () => {
   const { authUser, isSignedIn } = useSelectAuthUser();
   const dispatch = useDispatch();
   const fileInputRef = useRef(null);
+  const coverInputRef = useRef(null);
   const [newPosts, setNewPosts] = useState([]);
   const location = useLocation();
   const [profileData, setProfileData] = useState(null);
@@ -92,6 +94,29 @@ const ProfilePage = () => {
     }
   };
 
+  const handleCoverClick = () => {
+    if (isOwnProfile) {
+      coverInputRef.current?.click();
+    }
+  };
+
+  const handleCoverChange = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const { data } = await axios.post(`${LITLOOP_API_URL}/users/me/cover`, formData, { headers: authHeader() });
+      if (data?.cover_image && displayUsername) {
+        const res = await axios.get(`${LITLOOP_API_URL}/users/${displayUsername}/`);
+        setProfileData(res.data);
+      }
+    } catch (err) {
+      console.error('Error uploading cover:', err);
+    }
+  };
+
   const getFullUrl = (url) => {
     if (!url) return DEFAULT_AVATAR;
     if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('//')) {
@@ -101,44 +126,67 @@ const ProfilePage = () => {
   };
 
   const profileImg = getFullUrl(profileData?.avatar || profileData?.profile_img || profileData?.profileImg);
+  const coverImg = getFullUrl(profileData?.cover_image || profileData?.coverImage);
   const email = isOwnProfile ? (profileData?.email || authUser?.email || authUser?.user?.email) : null;
   const fullName = profileData?.full_name || (profileData?.first_name ? `${profileData.first_name} ${profileData.last_name || ''}`.trim() : null);
 
   return (
     <Container>
       <ProfileCard>
-        <AvatarWrapper onClick={handleAvatarClick} style={{ cursor: isOwnProfile ? 'pointer' : 'default' }}>
-           <ProfileImage src={profileImg} alt={displayUsername} />
-           {isOwnProfile && (
-             <UploadOverlay className="upload-overlay">
-               <span>Change</span>
-             </UploadOverlay>
-           )}
-        </AvatarWrapper>
+        <CoverWrap onClick={handleCoverClick} style={{ cursor: isOwnProfile ? 'pointer' : 'default' }}>
+          {coverImg && coverImg !== DEFAULT_AVATAR ? (
+            <CoverImage src={coverImg} alt="" />
+          ) : (
+            <CoverFallback />
+          )}
+          {isOwnProfile && (
+            <CoverOverlay className="cover-overlay">
+              <span>Change cover</span>
+            </CoverOverlay>
+          )}
+        </CoverWrap>
         <input
           type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
+          ref={coverInputRef}
+          onChange={handleCoverChange}
           accept="image/*"
           style={{ display: 'none' }}
         />
-        <UserInfo>
-          <Username>{displayUsername}</Username>
-          {fullName && <FullName>{fullName}</FullName>}
-          {email && <Email>{email}</Email>}
-          {profileData?.bio && <Bio>{profileData.bio}</Bio>}
-        </UserInfo>
-
-        {!isOwnProfile && (
-          <ActionButtons>
-            <FollowButton>Follow</FollowButton>
-            <MessageButton to={`/chat/${profileData?.id || profileData?.pk || profileData?.user_id}`} title="Message">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-              </svg>
-            </MessageButton>
-          </ActionButtons>
-        )}
+        <ProfileBody>
+          <AvatarRow>
+            <AvatarWrapper onClick={handleAvatarClick} style={{ cursor: isOwnProfile ? 'pointer' : 'default' }}>
+               <ProfileImage src={profileImg} alt={displayUsername} />
+               {isOwnProfile && (
+                 <UploadOverlay className="upload-overlay">
+                   <span>Change</span>
+                 </UploadOverlay>
+               )}
+            </AvatarWrapper>
+            {!isOwnProfile && (
+              <ActionButtons>
+                <FollowButton>Follow</FollowButton>
+                <MessageButton to={`/chat/${profileData?.id || profileData?.pk || profileData?.user_id}`} title="Message">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                  </svg>
+                </MessageButton>
+              </ActionButtons>
+            )}
+          </AvatarRow>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/*"
+            style={{ display: 'none' }}
+          />
+          <UserInfo>
+            <Username>{displayUsername}</Username>
+            {fullName && <FullName>{fullName}</FullName>}
+            {email && <Email>{email}</Email>}
+            {profileData?.bio && <Bio>{profileData.bio}</Bio>}
+          </UserInfo>
+        </ProfileBody>
       </ProfileCard>
 
       {isOwnProfile && (
@@ -172,8 +220,8 @@ const Bio = styled.p`
   margin-top: 10px;
   color: #aaa;
   font-size: 0.95rem;
-  max-width: 300px;
   line-height: 1.4;
+  overflow-wrap: anywhere;
 `;
 
 const Container = styled.div`
@@ -198,14 +246,71 @@ const MessageCard = styled.div`
 const ProfileCard = styled.div`
   background-color: #1a1a1a;
   border-radius: 20px;
-  padding: 40px;
+  padding: 0;
+  overflow: hidden;
   width: 100%;
-  max-width: 400px;
+  max-width: 600px;
   display: flex;
   flex-direction: column;
-  align-items: center;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   border: 1px solid #333;
+`;
+
+const CoverWrap = styled.div`
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background: #222;
+  overflow: hidden;
+
+  &:hover .cover-overlay {
+    opacity: 1;
+  }
+
+  @media (max-width: 768px) {
+    height: 140px;
+  }
+`;
+
+const CoverImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+`;
+
+const CoverFallback = styled.div`
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(120deg, #0d3b42 0%, #009688 55%, #0084ff 100%);
+`;
+
+const CoverOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+`;
+
+const ProfileBody = styled.div`
+  padding: 0 20px 24px;
+`;
+
+const AvatarRow = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: -60px;
+  margin-bottom: 12px;
 `;
 
 const UploadOverlay = styled.div`
@@ -232,8 +337,8 @@ const AvatarWrapper = styled.div`
   height: 120px;
   border-radius: 50%;
   overflow: hidden;
-  margin-bottom: 20px;
-  border: 4px solid #0084ff;
+  flex-shrink: 0;
+  border: 4px solid #1a1a1a;
 
   &:hover .upload-overlay {
     opacity: 1;
@@ -247,8 +352,9 @@ const ProfileImage = styled.img`
 `;
 
 const UserInfo = styled.div`
-  text-align: center;
-  margin-bottom: 30px;
+  text-align: left;
+  margin-bottom: 8px;
+  min-width: 0;
 `;
 
 const Username = styled.h2`
@@ -320,9 +426,9 @@ const MessageButton = styled(Link)`
 const ActionButtons = styled.div`
   display: flex;
   gap: 12px;
-  width: 100%;
-  margin-top: 10px;
+  padding-bottom: 8px;
   align-items: center;
+  flex-shrink: 0;
 `;
 
 const TracksButton = styled(Link)`
@@ -374,7 +480,6 @@ const ModalBody = styled.div`
 const PostsSection = styled.div`
   width: 100%;
   max-width: 1000px;
-  padding: 0 20px;
 `;
 
 export default ProfilePage;

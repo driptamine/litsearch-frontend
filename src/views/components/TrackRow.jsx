@@ -93,6 +93,7 @@ const Title = styled.span`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
 `;
 
 const Artist = styled.span`
@@ -102,6 +103,8 @@ const Artist = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+  max-width: 50%;
+  flex-shrink: 0;
 `;
 
 const ContentColumn = styled.div`
