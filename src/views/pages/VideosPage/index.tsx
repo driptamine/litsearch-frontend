@@ -5,11 +5,17 @@ import axios from 'axios';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader } from 'core/api/rest-helper';
 import CustomPlayerV4 from 'views/components/video-player/web/CustomPlayerV4';
+import { useSelector } from 'react-redux';
+import { FaEdit } from 'react-icons/fa';
+import VideoEditModal from 'views/components/upload/uploader/posts/VideoEditModal';
 
 function UserVideosPage() {
   const { username } = useParams();
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editingVideo, setEditingVideo] = useState(null);
+  const currentUsername = useSelector((state) => state.users?.username);
+  const isOwner = username === currentUsername;
 
   useEffect(() => {
     if (!username) return;
@@ -32,6 +38,10 @@ function UserVideosPage() {
     fetchVideos();
   }, [username]);
 
+  const handleVideoUpdate = (updatedVideo) => {
+    setVideos(prev => prev.map(v => (v.id === updatedVideo.id ? updatedVideo : v)));
+  };
+
   return (
     <Container>
       <Main>
@@ -48,6 +58,14 @@ function UserVideosPage() {
                     <Link to={`/video/${video.id || video.pk}`} style={{ textDecoration: 'none' }}>
                       <VideoTitle>{video.title || 'Untitled Video'}</VideoTitle>
                     </Link>
+                    {isOwner && (
+                      <EditBtn
+                        onClick={() => setEditingVideo(video)}
+                        title="Edit video"
+                      >
+                        <FaEdit size={14} />
+                      </EditBtn>
+                    )}
                   </VideoInfo>
                 </VideoCard>
               ))}
@@ -56,6 +74,13 @@ function UserVideosPage() {
           )}
         </Grid>
       </Main>
+      {editingVideo && (
+        <VideoEditModal
+          video={editingVideo}
+          onClose={() => setEditingVideo(null)}
+          onUpdate={handleVideoUpdate}
+        />
+      )}
     </Container>
   );
 }
@@ -93,6 +118,9 @@ const VideoCard = styled.div`
 
 const VideoInfo = styled.div`
   padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 `;
 
 const VideoTitle = styled.h3`
@@ -102,6 +130,24 @@ const VideoTitle = styled.h3`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+`;
+
+const EditBtn = styled.button`
+  background: transparent;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  opacity: 0.7;
+  transition: opacity 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &:hover {
+    opacity: 1;
+    color: #0084ff;
+  }
 `;
 
 const SkeletonCard = styled.div`

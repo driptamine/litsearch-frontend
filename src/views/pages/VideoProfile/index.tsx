@@ -9,12 +9,17 @@ import RecommendedVideo from 'views/components/video-player/web/RecommendedVideo
 import Comment from 'views/components/Comment';
 import api_dataV2 from 'views/utils/api_data.json';
 import { comments } from 'views/pages/VideoProfile/data/api_data';
+import { useSelector } from 'react-redux';
+import { FaEdit } from 'react-icons/fa';
+import VideoEditModal from 'views/components/upload/uploader/posts/VideoEditModal';
 
 
 function VideoProfile() {
   const { videoId } = useParams();
   const [video, setVideo] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [editingVideo, setEditingVideo] = useState(null);
+  const currentUser = useSelector((state) => state.users);
 
   useEffect(() => {
     if (!videoId) return;
@@ -31,6 +36,12 @@ function VideoProfile() {
     fetchVideo();
   }, [videoId]);
 
+  const handleVideoUpdate = (updatedVideo) => {
+    setVideo(updatedVideo);
+  };
+
+  const isOwner = video && currentUser && (video.user_id === currentUser.id || video.user?.id === currentUser.id);
+
   if (loading) return <LayoutContainer><MainContent><p>Loading...</p></MainContent></LayoutContainer>;
   if (!video) return <LayoutContainer><MainContent><p>Video not found.</p></MainContent></LayoutContainer>;
 
@@ -41,7 +52,17 @@ function VideoProfile() {
           videoId={videoId}
           url={video.r2_url || video.gcs_url || video.url}
         />
-        <h2>{video.title || video.name}</h2>
+        <TitleRow>
+          <h2>{video.title || video.name}</h2>
+          {isOwner && (
+            <EditBtn
+              onClick={() => setEditingVideo(video)}
+              title="Edit video"
+            >
+              <FaEdit size={16} />
+            </EditBtn>
+          )}
+        </TitleRow>
         {video.description && <Description>{video.description}</Description>}
         <MetaRow>
           <span>{video.views_count || 0} views</span>
@@ -64,6 +85,13 @@ function VideoProfile() {
           />
         )}
       </VideoWrapper>
+      {editingVideo && (
+        <VideoEditModal
+          video={editingVideo}
+          onClose={() => setEditingVideo(null)}
+          onUpdate={handleVideoUpdate}
+        />
+      )}
     </LayoutContainer>
   );
 }
@@ -82,6 +110,31 @@ const MetaRow = styled.div`
   opacity: 0.6;
   font-size: 0.9rem;
   margin-bottom: 16px;
+`;
+
+const TitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+`;
+
+const EditBtn = styled.button`
+  background: transparent;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  opacity: 0.7;
+  transition: opacity 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &:hover {
+    opacity: 1;
+    color: #0084ff;
+  }
 `;
 
 const LayoutContainer = styled.div`
