@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "ES2022.Array", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "checkJs": false,
+    "jsx": "react-jsx",
+    "strict": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "paths": {
+      "*": ["./src/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/ssr/entry-client.jsx",
+    "src/views/components/AutoComplete",
+    "src/views/components/PdfViewer/PdfViewer.jsx",
+    "src/views/components/SearchBar/keyCode.js",
+    "src/views/components/app/StyledApp.jsx",
+    "src/views/components/player/NetflixPlayer.jsx",
+    "src/views/components/player/VideoReact.jsx",
+    "src/views/components/slider/index.jsx",
+    "src/views/components/video-player/VideoPlayerV2/InvisibleHtmlSlider.jsx",
+    "src/views/components/video-player/VideoPlayerV2/Slider.jsx",
+    "src/views/components/video-player/VideoPlayerV2/content.jsx",
+    "src/views/pages/LoginPage/oauth/OAuthService.js",
+    "src/views/pages/SearchesResults/index.jsx",
+    "src/views/utils/imdb.jsx"
+  ]
+}

@@ -13,14 +13,14 @@
 }
 
 .litloop-sidebar {
-  --sidebar-bg: #17151c;
-  --sidebar-text: #eeeaf4;
-  --sidebar-muted: #aaa2b7;
-  --sidebar-border: #302a39;
-  --sidebar-hover: #25212d;
-  --sidebar-selected: #302640;
-  --sidebar-accent: #d8c3ff;
-  --sidebar-mark: #d7bfff;
+  --sidebar-bg: #111114;
+  --sidebar-text: #e8e8ec;
+  --sidebar-muted: #8b8b95;
+  --sidebar-border: #2a2a30;
+  --sidebar-hover: #1e1e24;
+  --sidebar-selected: #2a2a32;
+  --sidebar-accent: #b8b8c4;
+  --sidebar-mark: #9a9aa8;
 
   position: fixed;
   inset: 0 auto 0 0;
@@ -41,14 +41,14 @@
 }
 
 [data-theme="light"] .litloop-sidebar {
-  --sidebar-bg: #f7f4fa;
-  --sidebar-text: #241e2c;
-  --sidebar-muted: #6c6175;
-  --sidebar-border: #e3dce9;
-  --sidebar-hover: #eee8f3;
-  --sidebar-selected: #e8dcf7;
-  --sidebar-accent: #563983;
-  --sidebar-mark: #d7bfff;
+  --sidebar-bg: #f7f7f9;
+  --sidebar-text: #232327;
+  --sidebar-muted: #6e6e78;
+  --sidebar-border: #e3e3e8;
+  --sidebar-hover: #eeeff2;
+  --sidebar-selected: #e6e6ec;
+  --sidebar-accent: #55555f;
+  --sidebar-mark: #8a8a96;
 }
 
 .litloop-sidebar-top {
