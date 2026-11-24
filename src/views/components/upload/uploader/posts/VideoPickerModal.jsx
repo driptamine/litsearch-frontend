@@ -2,10 +2,11 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { styled } from '@linaria/react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
-import { FaUpload } from 'react-icons/fa';
+import { FaUpload, FaEdit } from 'react-icons/fa';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader } from 'core/api/rest-helper';
 import { useMediaUpload } from './useMediaUpload';
+import VideoEditModal from './VideoEditModal';
 
 function VideoPickerModal({ onSelect, onClose }) {
   const username = useSelector((state) => state.users?.username);
@@ -14,6 +15,7 @@ function VideoPickerModal({ onSelect, onClose }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [editingVideo, setEditingVideo] = useState(null);
   const dragCounter = useRef(0);
   const fileInputRef = useRef(null);
   const { uploadFiles, isUploading, progress } = useMediaUpload();
@@ -119,6 +121,15 @@ function VideoPickerModal({ onSelect, onClose }) {
     }
   }, [uploadFiles, fetchVideos]);
 
+  const handleVideoUpdate = useCallback((updatedVideo) => {
+    setVideos(prev => prev.map(v => (v.id === updatedVideo.id ? updatedVideo : v)));
+  }, []);
+
+  const handleEditClick = useCallback((e, video) => {
+    e.stopPropagation();
+    setEditingVideo(video);
+  }, []);
+
   return (
     <Overlay onClick={onClose}>
       <Modal
@@ -177,21 +188,26 @@ function VideoPickerModal({ onSelect, onClose }) {
                 const title = video.title || `Video ${i + 1}`;
                 const selected = selectedIds.has(id);
                 return (
-                  <VideoCard key={id} selected={selected} onClick={() => toggle(id)}>
-                    {thumb ? (
-                      <Thumb src={thumb} alt="" />
-                    ) : (
-                      <Placeholder>
-                        <PlayIcon>▶</PlayIcon>
-                      </Placeholder>
-                    )}
-                    <OverlayText>
-                      <VideoTitle>{title}</VideoTitle>
-                    </OverlayText>
-                    <CheckBadge selected={selected}>
-                      {selected && '✓'}
-                    </CheckBadge>
-                  </VideoCard>
+                  <VideoCardHover>
+                    <VideoCard key={id} selected={selected} onClick={() => toggle(id)}>
+                      {thumb ? (
+                        <Thumb src={thumb} alt="" />
+                      ) : (
+                        <Placeholder>
+                          <PlayIcon>▶</PlayIcon>
+                        </Placeholder>
+                      )}
+                      <OverlayText>
+                        <VideoTitle>{title}</VideoTitle>
+                      </OverlayText>
+                      <CheckBadge selected={selected}>
+                        {selected && '✓'}
+                      </CheckBadge>
+                      <EditBtn onClick={(e) => handleEditClick(e, video)} title="Edit video">
+                        <FaEdit size={14} />
+                      </EditBtn>
+                    </VideoCard>
+                  </VideoCardHover>
                 );
               })}
             </Grid>
@@ -204,6 +220,13 @@ function VideoPickerModal({ onSelect, onClose }) {
           </AddBtn>
         </Footer>
       </Modal>
+      {editingVideo && (
+        <VideoEditModal
+          video={editingVideo}
+          onClose={() => setEditingVideo(null)}
+          onUpdate={handleVideoUpdate}
+        />
+      )}
     </Overlay>
   );
 }
@@ -459,6 +482,34 @@ const AddBtn = styled.button`
   font-size: 0.95rem; font-weight: 600; cursor: pointer;
   &:disabled { opacity: 0.4; cursor: not-allowed; }
   &:hover:not(:disabled) { background: #0073e6; }
+`;
+
+const EditBtn = styled.button`
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 5;
+  &:hover {
+    background: rgba(0, 0, 0, 0.8);
+  }
+`;
+
+const VideoCardHover = styled.div`
+  &:hover ${EditBtn} {
+    opacity: 1;
+  }
 `;
 
 export default VideoPickerModal;

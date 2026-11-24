@@ -14,7 +14,7 @@ function getApiPrefix(mediaType) {
 }
 
 function getStoragePath(mediaType) {
-  return 'r2';
+  return '';
 }
 
 export function useMediaUpload() {
@@ -36,7 +36,7 @@ export function useMediaUpload() {
         const audioMeta = mediaType === 'track' ? await extractAudioMetadata(file) : null;
 
         const initRes = await axios.post(
-          `${LITLOOP_API_URL}/${apiPrefix}/${storagePath}/create_presigned_url/`,
+          `${LITLOOP_API_URL}/${apiPrefix}/create_presigned_url/`,
           { filename: fileName, content_type: file.type, media_type: mediaType },
           { headers: { "Content-Type": "application/json", ...authHeader() } }
         );
@@ -50,7 +50,7 @@ export function useMediaUpload() {
           const blob = file.slice(start, end);
 
           const presignRes = await axios.post(
-            `${LITLOOP_API_URL}/${apiPrefix}/${storagePath}/get_presigned_url/`,
+            `${LITLOOP_API_URL}/${apiPrefix}/get_presigned_url/`,
             { upload_id, key, part_number: partNumber },
             { headers: { "Content-Type": "application/json", ...authHeader() } }
           );
@@ -66,7 +66,7 @@ export function useMediaUpload() {
         }
 
         const completeRes = await axios.post(
-          `${LITLOOP_API_URL}/${apiPrefix}/${storagePath}/complete_upload/`,
+          `${LITLOOP_API_URL}/${apiPrefix}/complete_upload/`,
           {
             upload_id, key, parts, media_type: mediaType, ...(album_id ? { album_id } : {}),
             ...(audioMeta ? { name: audioMeta.title, artist: audioMeta.artist, duration: audioMeta.duration } : {}),

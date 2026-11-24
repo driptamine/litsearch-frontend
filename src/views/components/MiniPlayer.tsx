@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { styled } from '@linaria/react';
 import { useLocation } from 'react-router-dom';
 import { FaPlay, FaPause, FaTimes, FaStepForward, FaStepBackward, FaMusic } from 'react-icons/fa';
 import { usePlayer } from 'core/context/PlayerContext';
-import useDetectMobile from 'core/hooks/useDetectMobile';
 import FullPlayer from 'views/components/FullPlayer';
 
 export const PLAYER_ACCENT = '#686abb';
@@ -12,10 +11,12 @@ export const PLAYER_ACCENT = '#686abb';
 // Stays mounted across route changes so playback never stops. Tapping the
 // bar (outside the buttons) opens the FullPlayer sheet.
 const MiniPlayer = () => {
-  const isMobile = useDetectMobile();
   const { pathname } = useLocation();
   const player = usePlayer();
   const [fullOpen, setFullOpen] = useState(false);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [isScrubbing, setIsScrubbing] = useState(false);
+  const [scrubPercent, setScrubPercent] = useState<number | null>(null);
   if (!player?.current) return null;
   const isAuthPage = pathname === '/' || pathname === '/login' || pathname === '/signup';
   const isConversation = /^\/chat\/(?:[1-9]\d*|saved|group\/[1-9]\d*)\/?$/.test(pathname);
@@ -24,39 +25,98 @@ const MiniPlayer = () => {
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
   const albumCover = current?.album_cover || current?.artwork_url || current?.image_url || current?.cover_url || null;
 
+  const shownProgress = scrubPercent ?? progress;
+  const shownTime = scrubPercent !== null && duration > 0 ? (scrubPercent / 100) * duration : currentTime;
+
+  const formatTime = (seconds: number) => {
+    if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
+    const total = Math.floor(seconds);
+    const minutes = Math.floor(total / 60);
+    const secs = total % 60;
+    return `${minutes}:${String(secs).padStart(2, '0')}`;
+  };
+
+  const seekFromClientX = (clientX: number) => {
+    const el = trackRef.current;
+    if (!el || duration <= 0) return;
+    const rect = el.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    setScrubPercent(ratio * 100);
+    player.seekTo(ratio * duration);
+  };
+
+  const handleSeekStart = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setIsScrubbing(true);
+    seekFromClientX(e.clientX);
+  };
+
+  const handleSeekMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isScrubbing) return;
+    e.stopPropagation();
+    seekFromClientX(e.clientX);
+  };
+
+  const handleSeekEnd = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    setIsScrubbing(false);
+    setScrubPercent(null);
+  };
+
   const openFullPlayer = () => setFullOpen(true);
 
   return (
     <>
     <MusicBar $aboveNav={aboveNav} onClick={openFullPlayer} title={`${current.title} — ${current.artist}`}>
-      <ProgressTrack>
-        <ProgressFill style={{ width: `${progress}%` }} />
-      </ProgressTrack>
-      {!isMobile && (
+      <LeftGroup>
         <AlbumCover>
           {albumCover ? <AlbumCoverImg src={albumCover} alt="Album cover" /> : <FaMusic size={16} color="rgba(255,255,255,0.85)" />}
         </AlbumCover>
-      )}
-      <PlayBtn onClick={(e) => { e.stopPropagation(); player.toggle(); }} title={playing ? 'Pause' : 'Play'}>
-        {playing ? <FaPause size={14} /> : <FaPlay size={14} />}
-      </PlayBtn>
-      <Meta>
-        <TrackTitle>{current.title}</TrackTitle>
-        {current.artist && <TrackArtist>{current.artist}</TrackArtist>}
-      </Meta>
-      {queue.length > 1 && (
-        <>
+        <Meta>
+          <TrackTitle>{current.title}</TrackTitle>
+          {current.artist && <TrackArtist>{current.artist}</TrackArtist>}
+        </Meta>
+      </LeftGroup>
+      <Controls>
+        {queue.length > 1 && (
           <StepBtn onClick={(e) => { e.stopPropagation(); player.prev(); }} title="Previous">
             <FaStepBackward size={12} />
           </StepBtn>
+        )}
+        <PlayBtn onClick={(e) => { e.stopPropagation(); player.toggle(); }} title={playing ? 'Pause' : 'Play'}>
+          {playing ? <FaPause size={14} /> : <FaPlay size={14} />}
+        </PlayBtn>
+        {queue.length > 1 && (
           <StepBtn onClick={(e) => { e.stopPropagation(); player.next(); }} title="Next">
             <FaStepForward size={12} />
           </StepBtn>
-        </>
-      )}
+        )}
+      </Controls>
       <CloseBtn onClick={(e) => { e.stopPropagation(); player.close(); }} title="Close">
         <FaTimes size={13} />
       </CloseBtn>
+      <ProgressRow onClick={(e) => e.stopPropagation()}>
+        <SeekArea
+          onPointerDown={handleSeekStart}
+          onPointerMove={handleSeekMove}
+          onPointerUp={handleSeekEnd}
+          onPointerCancel={handleSeekEnd}
+          role="slider"
+          aria-label="Seek"
+          aria-valuemin={0}
+          aria-valuemax={Math.round(duration)}
+          aria-valuenow={Math.round((shownProgress / 100) * duration)}
+        >
+          <TimeLabel>{formatTime(shownTime)}</TimeLabel>
+          <ProgressTrack ref={trackRef}>
+            <ProgressFill style={{ width: `${shownProgress}%` }} />
+            <ProgressKnob style={{ left: `${shownProgress}%` }} $dragging={isScrubbing} />
+          </ProgressTrack>
+          <TimeLabelRight>{formatTime(duration)}</TimeLabelRight>
+        </SeekArea>
+      </ProgressRow>
     </MusicBar>
     <FullPlayer open={fullOpen} onClose={() => setFullOpen(false)} />
     </>
@@ -68,12 +128,15 @@ const MusicBar = styled.div<{ $aboveNav: boolean }>`
   left: 12px;
   right: 12px;
   bottom: ${({ $aboveNav }) => ($aboveNav ? '80px' : '12px')};
-  height: 48px;
   z-index: 1001;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
   align-items: center;
-  gap: 10px;
-  padding: 0 8px 0 6px;
+  column-gap: 12px;
+  row-gap: 6px;
+  padding: 8px 12px;
+  min-height: 64px;
   border-radius: 24px;
   cursor: pointer;
   overflow: hidden;
@@ -83,7 +146,7 @@ const MusicBar = styled.div<{ $aboveNav: boolean }>`
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.08),
     0 -4px 24px rgba(0, 0, 0, 0.35);
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
 
   @media (min-width: 769px) {
     left: calc(var(--litloop-sidebar-width, 0px) + 12px);
@@ -96,26 +159,101 @@ const MusicBar = styled.div<{ $aboveNav: boolean }>`
   }
 `;
 
-const ProgressTrack = styled.div`
-  position: absolute;
-  top: 0;
-  left: 16px;
-  right: 16px;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 1px;
-  overflow: hidden;
+const LeftGroup = styled.div`
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  justify-self: start;
+`;
 
-  @media (min-width: 769px) {
-    left: 72px;
-    right: 12px;
-  }
+const Controls = styled.div`
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  justify-self: center;
+`;
+
+const ProgressRow = styled.div`
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+`;
+
+const SeekArea = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 35%;
+  min-width: 120px;
+  max-width: 520px;
+  padding: 8px 0;
+  margin: -8px 0;
+  cursor: pointer;
+  touch-action: none;
+`;
+
+const ProgressTrack = styled.div`
+  position: relative;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+`;
+
+const TimeLabel = styled.span`
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 10px);
+  transform: translateY(-50%);
+  font-family: Verdana;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  pointer-events: none;
+`;
+
+const TimeLabelRight = styled.span`
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 10px);
+  transform: translateY(-50%);
+  font-family: Verdana;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  pointer-events: none;
 `;
 
 const ProgressFill = styled.div`
   height: 100%;
   background: ${PLAYER_ACCENT};
-  border-radius: 1px;
+  border-radius: 2px;
+  pointer-events: none;
+`;
+
+const ProgressKnob = styled.div<{ $dragging: boolean }>`
+  position: absolute;
+  top: 50%;
+  width: ${({ $dragging }) => ($dragging ? '14px' : '11px')};
+  height: ${({ $dragging }) => ($dragging ? '14px' : '11px')};
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid ${PLAYER_ACCENT};
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+  transform: translate(-50%, -50%);
+  transition: width 120ms ease, height 120ms ease;
+  pointer-events: none;
 `;
 
 const PlayBtn = styled.button`
@@ -175,6 +313,9 @@ const StepBtn = styled.button`
 `;
 
 const CloseBtn = styled.button`
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: end;
   background: none;
   border: none;
   color: rgba(255, 255, 255, 0.5);

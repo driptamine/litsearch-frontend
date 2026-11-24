@@ -178,11 +178,11 @@ export const BaseMediaUploader = forwardRef(({ mediaType, onUploadComplete, labe
       try {
         const simulation = simulateInitialProgress();
         const apiPrefix = mType === 'track' ? 'tracks' : mType === 'photo' ? 'photos' : 'videos';
-        const storagePath = 'r2';
+        const storagePath = '';
 
         const audioMeta = mType === 'track' ? await extractAudioMetadata(file) : null;
 
-        const initRes = await axios.post(`${LITLOOP_API_URL}/${apiPrefix}/${storagePath}/create_presigned_url/`, {
+        const initRes = await axios.post(`${LITLOOP_API_URL}/${apiPrefix}/create_presigned_url/`, {
           filename: fileName,
           content_type: file.type,
           media_type: mType,
@@ -197,7 +197,7 @@ export const BaseMediaUploader = forwardRef(({ mediaType, onUploadComplete, labe
           const end = Math.min(start + CHUNK_SIZE, file.size);
           const blob = file.slice(start, end);
 
-          const presignRes = await axios.post(`${LITLOOP_API_URL}/${apiPrefix}/${storagePath}/get_presigned_url/`, {
+          const presignRes = await axios.post(`${LITLOOP_API_URL}/${apiPrefix}/get_presigned_url/`, {
             upload_id,
             key,
             part_number: partNumber,
@@ -218,7 +218,7 @@ export const BaseMediaUploader = forwardRef(({ mediaType, onUploadComplete, labe
 
         await simulation;
 
-        const completeRes = await axios.post(`${LITLOOP_API_URL}/${apiPrefix}/${storagePath}/complete_upload/`, {
+        const completeRes = await axios.post(`${LITLOOP_API_URL}/${apiPrefix}/complete_upload/`, {
           upload_id,
           key,
           parts,
