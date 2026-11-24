@@ -295,7 +295,12 @@ export const BaseMediaUploader = forwardRef(({ mediaType, onUploadComplete, labe
         </UploadButton>
       )}
 
-      <HiddenInput type="file" ref={inputRef} onChange={handleFileChange} multiple />
+      <HiddenInput
+        type="file"
+        ref={inputRef}
+        onChange={handleFileChange}
+        multiple
+      />
 
       <PreviewFiles>
         {files.map((file) => (
@@ -354,7 +359,11 @@ const DropZone = styled.div`
 `;
 
 const HiddenInput = styled.input`
-  display: none;
+  position: absolute;
+  opacity: 0;
+  width: 0.1px;
+  height: 0.1px;
+  pointer-events: none;
 `;
 
 const UploadButton = styled.button`

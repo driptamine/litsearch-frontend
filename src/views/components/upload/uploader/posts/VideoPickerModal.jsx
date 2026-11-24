@@ -153,7 +153,13 @@ function VideoPickerModal({ onSelect, onClose }) {
           type="file"
           accept="video/*"
           multiple
-          style={{ display: 'none' }}
+          style={{
+            position: 'absolute',
+            opacity: 0,
+            width: '0.1px',
+            height: '0.1px',
+            pointerEvents: 'none',
+          }}
           onChange={handleFileSelect}
         />
         <Body>
