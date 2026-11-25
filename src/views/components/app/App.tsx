@@ -240,7 +240,7 @@ const App = () => {
             onOpenNavigation={() => setMobileNavigationOpen(true)}
             navigationOpen={mobileNavigationOpen}
             >
-            <Toggle theme={theme} toggleTheme={themeToggler} />
+            {/*<Toggle theme={theme} toggleTheme={themeToggler} />*/}
           </AppHeader>
         )}
 

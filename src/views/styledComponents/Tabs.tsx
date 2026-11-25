@@ -13,4 +13,14 @@ export const StyledTabs = styled.div`
   }
   -ms-overflow-style: none;
   scrollbar-width: none;
+
+  @media (max-width: 768px) {
+    position: sticky;
+    top: 60px; /* below app header */
+    z-index: 100;
+    background: var(--navBg);
+    padding-top: 10px;
+    padding-bottom: 5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
 `;
