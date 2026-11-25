@@ -79,14 +79,24 @@ const MiniPlayer = () => {
           {current.artist && <TrackArtist>{current.artist}</TrackArtist>}
         </Meta>
       </LeftGroup>
-      <RightGroup>
-        <CloseBtn onClick={(e) => { e.stopPropagation(); player.close(); }} title="Close">
-          <FaTimes size={13} />
-        </CloseBtn>
+      <Controls>
+        {queue.length > 1 && (
+          <StepBtn onClick={(e) => { e.stopPropagation(); player.prev(); }} title="Previous">
+            <FaStepBackward size={12} />
+          </StepBtn>
+        )}
         <PlayBtn onClick={(e) => { e.stopPropagation(); player.toggle(); }} title={playing ? 'Pause' : 'Play'}>
           {playing ? <FaPause size={14} /> : <FaPlay size={14} />}
         </PlayBtn>
-      </RightGroup>
+        {queue.length > 1 && (
+          <StepBtn onClick={(e) => { e.stopPropagation(); player.next(); }} title="Next">
+            <FaStepForward size={12} />
+          </StepBtn>
+        )}
+      </Controls>
+      <CloseBtn onClick={(e) => { e.stopPropagation(); player.close(); }} title="Close">
+        <FaTimes size={13} />
+      </CloseBtn>
       <ProgressRow onClick={(e) => e.stopPropagation()}>
         <SeekArea
           onPointerDown={handleSeekStart}
@@ -99,10 +109,12 @@ const MiniPlayer = () => {
           aria-valuemax={Math.round(duration)}
           aria-valuenow={Math.round((shownProgress / 100) * duration)}
         >
+          <TimeLabel>{formatTime(shownTime)}</TimeLabel>
           <ProgressTrack ref={trackRef}>
             <ProgressFill style={{ width: `${shownProgress}%` }} />
             <ProgressKnob style={{ left: `${shownProgress}%` }} $dragging={isScrubbing} />
           </ProgressTrack>
+          <TimeLabelRight>{formatTime(duration)}</TimeLabelRight>
         </SeekArea>
       </ProgressRow>
     </MusicBar>
@@ -167,15 +179,6 @@ const Controls = styled.div`
   justify-self: center;
 `;
 
-const RightGroup = styled.div`
-  grid-column: 3;
-  grid-row: 1;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  justify-self: end;
-`;
-
 const ProgressRow = styled.div`
   grid-column: 1 / -1;
   grid-row: 2;
@@ -189,9 +192,9 @@ const SeekArea = styled.div`
   position: relative;
   display: flex;
   align-items: center;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
+  width: 35%;
+  min-width: 120px;
+  max-width: 520px;
   padding: 8px 0;
   margin: -8px 0;
   cursor: pointer;
@@ -204,6 +207,32 @@ const ProgressTrack = styled.div`
   height: 4px;
   background: rgba(255, 255, 255, 0.15);
   border-radius: 2px;
+`;
+
+const TimeLabel = styled.span`
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 10px);
+  transform: translateY(-50%);
+  font-family: Verdana;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  pointer-events: none;
+`;
+
+const TimeLabelRight = styled.span`
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 10px);
+  transform: translateY(-50%);
+  font-family: Verdana;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  pointer-events: none;
 `;
 
 const ProgressFill = styled.div`
@@ -284,6 +313,9 @@ const StepBtn = styled.button`
 `;
 
 const CloseBtn = styled.button`
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: end;
   background: none;
   border: none;
   color: rgba(255, 255, 255, 0.5);
