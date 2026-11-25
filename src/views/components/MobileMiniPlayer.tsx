@@ -77,12 +77,12 @@ const MobileMiniPlayer = () => {
         </Meta>
       </LeftGroup>
       <RightGroup>
-        <CloseBtn onClick={(e) => { e.stopPropagation(); player.close(); }} title="Close">
-          <FaTimes size={13} />
-        </CloseBtn>
         <PlayBtn onClick={(e) => { e.stopPropagation(); player.toggle(); }} title={playing ? 'Pause' : 'Play'}>
           {playing ? <FaPause size={14} /> : <FaPlay size={14} />}
         </PlayBtn>
+        <CloseBtn onClick={(e) => { e.stopPropagation(); player.close(); }} title="Close">
+          <FaTimes size={13} />
+        </CloseBtn>
       </RightGroup>
       <ProgressRow onClick={(e) => e.stopPropagation()}>
         <SeekArea
