@@ -599,6 +599,7 @@ const ChatTabs = styled.div`
 
   @media screen and (max-width: 768px) {
     top: 60px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
 `;
 
@@ -629,8 +630,9 @@ const ChatListContainer = styled.div`
     position: relative;
     border-right: none;
     border-bottom: 1px solid #404040;
-    height: auto;
-    overflow-y: visible;
+    height: calc(100vh - 60px - 5em);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 `;
 
