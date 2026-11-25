@@ -5,7 +5,7 @@ import { FaMusic } from 'react-icons/fa';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader } from 'core/api/rest-helper';
 import TrackRow from 'views/components/TrackRow';
-import TrackPickerModal from 'views/components/upload/uploader/posts/TrackPickerModal';
+import UploadTrackModal from 'views/components/upload/uploader/posts/UploadTrackModal';
 
 const UserTracks = ({ username }) => {
   const [tracks, setTracks] = useState([]);
@@ -51,11 +51,11 @@ const UserTracks = ({ username }) => {
     fetchUserTracks();
   };
 
-  const handleTracksAdded = (selectedTracks) => {
+  const handleTracksAdded = (newTracks) => {
     setTracks(prev => {
       const existing = new Set(prev.map(t => t.pk || t.id));
-      const newOnes = selectedTracks.filter(t => !existing.has(t.pk || t.id));
-      return [...newOnes, ...prev];
+      const uniqueNew = newTracks.filter(t => !existing.has(t.pk || t.id || t.uri));
+      return [...uniqueNew, ...prev];
     });
   };
 
@@ -89,9 +89,9 @@ const UserTracks = ({ username }) => {
       </Toolbar>
       {body}
       {showTrackPicker && (
-        <TrackPickerModal
-          onSelect={handleTracksAdded}
+        <UploadTrackModal
           onClose={() => setShowTrackPicker(false)}
+          onUploadComplete={handleTracksAdded}
         />
       )}
     </Wrapper>
