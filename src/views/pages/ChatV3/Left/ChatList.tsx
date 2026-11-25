@@ -249,7 +249,7 @@ const ChatList = ({ emojiData }) => {
           </EditTabsBtn>
         )}
       </TabsHeader>
-      <Tabs>
+      <ChatTabs>
         <AllTabs active={activeTabId === 'all'} onClick={() => { setActiveTabId('all'); setEditingTabId(null); }}>All</AllTabs>
         {chatTabs.map((tab) => (
           <EmojiTab
@@ -265,7 +265,7 @@ const ChatList = ({ emojiData }) => {
             <AppleEmoji char={tab.emoji} />
           </EmojiTab>
         ))}
-      </Tabs>
+      </ChatTabs>
       {editingTab && (
         <TabEditor>
           <EditorTitle>
@@ -587,7 +587,7 @@ const KebabButton = styled.button`
   }
 `;
 
-const Tabs = styled.div`
+const ChatTabs = styled.div`
   display: flex;
   overflow: auto;
   position: sticky;
