@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { FaPlay, FaPause, FaTimes, FaStepForward, FaStepBackward, FaMusic } from 'react-icons/fa';
 import { usePlayer } from 'core/context/PlayerContext';
 import FullPlayer from 'views/components/FullPlayer';
+import MobileMiniPlayer from 'views/components/MobileMiniPlayer';
 
 export const PLAYER_ACCENT = '#686abb';
 
@@ -69,56 +70,57 @@ const MiniPlayer = () => {
 
   return (
     <>
-    <MusicBar $aboveNav={aboveNav} onClick={openFullPlayer} title={`${current.title} — ${current.artist}`}>
-      <LeftGroup>
-        <AlbumCover>
-          {albumCover ? <AlbumCoverImg src={albumCover} alt="Album cover" /> : <FaMusic size={16} color="rgba(255,255,255,0.85)" />}
-        </AlbumCover>
-        <Meta>
-          <TrackTitle>{current.title}</TrackTitle>
-          {current.artist && <TrackArtist>{current.artist}</TrackArtist>}
-        </Meta>
-      </LeftGroup>
-      <Controls>
-        {queue.length > 1 && (
-          <StepBtn onClick={(e) => { e.stopPropagation(); player.prev(); }} title="Previous">
-            <FaStepBackward size={12} />
-          </StepBtn>
-        )}
-        <PlayBtn onClick={(e) => { e.stopPropagation(); player.toggle(); }} title={playing ? 'Pause' : 'Play'}>
-          {playing ? <FaPause size={14} /> : <FaPlay size={14} />}
-        </PlayBtn>
-        {queue.length > 1 && (
-          <StepBtn onClick={(e) => { e.stopPropagation(); player.next(); }} title="Next">
-            <FaStepForward size={12} />
-          </StepBtn>
-        )}
-      </Controls>
-      <CloseBtn onClick={(e) => { e.stopPropagation(); player.close(); }} title="Close">
-        <FaTimes size={13} />
-      </CloseBtn>
-      <ProgressRow onClick={(e) => e.stopPropagation()}>
-        <SeekArea
-          onPointerDown={handleSeekStart}
-          onPointerMove={handleSeekMove}
-          onPointerUp={handleSeekEnd}
-          onPointerCancel={handleSeekEnd}
-          role="slider"
-          aria-label="Seek"
-          aria-valuemin={0}
-          aria-valuemax={Math.round(duration)}
-          aria-valuenow={Math.round((shownProgress / 100) * duration)}
-        >
-          <TimeLabel>{formatTime(shownTime)}</TimeLabel>
-          <ProgressTrack ref={trackRef}>
-            <ProgressFill style={{ width: `${shownProgress}%` }} />
-            <ProgressKnob style={{ left: `${shownProgress}%` }} $dragging={isScrubbing} />
-          </ProgressTrack>
-          <TimeLabelRight>{formatTime(duration)}</TimeLabelRight>
-        </SeekArea>
-      </ProgressRow>
-    </MusicBar>
-    <FullPlayer open={fullOpen} onClose={() => setFullOpen(false)} />
+      <MobileMiniPlayer />
+      <MusicBar $aboveNav={aboveNav} onClick={openFullPlayer} title={`${current.title} — ${current.artist}`}>
+        <LeftGroup>
+          <AlbumCover>
+            {albumCover ? <AlbumCoverImg src={albumCover} alt="Album cover" /> : <FaMusic size={16} color="rgba(255,255,255,0.85)" />}
+          </AlbumCover>
+          <Meta>
+            <TrackTitle>{current.title}</TrackTitle>
+            {current.artist && <TrackArtist>{current.artist}</TrackArtist>}
+          </Meta>
+        </LeftGroup>
+        <Controls>
+          {queue.length > 1 && (
+            <StepBtn onClick={(e) => { e.stopPropagation(); player.prev(); }} title="Previous">
+              <FaStepBackward size={12} />
+            </StepBtn>
+          )}
+          <PlayBtn onClick={(e) => { e.stopPropagation(); player.toggle(); }} title={playing ? 'Pause' : 'Play'}>
+            {playing ? <FaPause size={14} /> : <FaPlay size={14} />}
+          </PlayBtn>
+          {queue.length > 1 && (
+            <StepBtn onClick={(e) => { e.stopPropagation(); player.next(); }} title="Next">
+              <FaStepForward size={12} />
+            </StepBtn>
+          )}
+        </Controls>
+        <CloseBtn onClick={(e) => { e.stopPropagation(); player.close(); }} title="Close">
+          <FaTimes size={13} />
+        </CloseBtn>
+        <ProgressRow onClick={(e) => e.stopPropagation()}>
+          <SeekArea
+            onPointerDown={handleSeekStart}
+            onPointerMove={handleSeekMove}
+            onPointerUp={handleSeekEnd}
+            onPointerCancel={handleSeekEnd}
+            role="slider"
+            aria-label="Seek"
+            aria-valuemin={0}
+            aria-valuemax={Math.round(duration)}
+            aria-valuenow={Math.round((shownProgress / 100) * duration)}
+          >
+            <TimeLabel>{formatTime(shownTime)}</TimeLabel>
+            <ProgressTrack ref={trackRef}>
+              <ProgressFill style={{ width: `${shownProgress}%` }} />
+              <ProgressKnob style={{ left: `${shownProgress}%` }} $dragging={isScrubbing} />
+            </ProgressTrack>
+            <TimeLabelRight>{formatTime(duration)}</TimeLabelRight>
+          </SeekArea>
+        </ProgressRow>
+      </MusicBar>
+      <FullPlayer open={fullOpen} onClose={() => setFullOpen(false)} />
     </>
   );
 };
@@ -147,6 +149,10 @@ const MusicBar = styled.div<{ $aboveNav: boolean }>`
     inset 0 0 0 1px rgba(255, 255, 255, 0.08),
     0 -4px 24px rgba(0, 0, 0, 0.35);
   padding-bottom: calc(8px + env(safe-area-inset-bottom));
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 
   @media (min-width: 769px) {
     left: calc(var(--litloop-sidebar-width, 0px) + 12px);
