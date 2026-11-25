@@ -92,9 +92,10 @@ function ModalSwitch({ children, renderModal, stopSong, pauseSong, resumeSong, a
   useScrollMemory();
 
   const auth = getState().users.access_token;
-  const isMobile = window.innerWidth <= 768;
+const isMobile = window.innerWidth <= 768;
   const isChatPath = pathname.startsWith('/chat');
   const isSpecificChat = pathname !== '/chat/im' && isChatPath;
+  const isChatListPage = pathname === '/chat/im';
 
   const showChatList = isChatPath && !(isMobile && isSpecificChat);
 
@@ -136,7 +137,7 @@ function ModalSwitch({ children, renderModal, stopSong, pauseSong, resumeSong, a
             <Route exact path="/communities/@:handle/:mediaType" component={CommunityDetailPage} />
             <Route exact path="/communities/:communityId" component={CommunityDetailPage} />
             <Route exact path="/communities/:communityId/:mediaType" component={CommunityDetailPage} />
-            <Route exact path="/magazines" component={ModalMagazines} />
+            <Route exact path="/magazines" component={ModalAlbums} />
             <Route exact path="/albums" component={ModalAlbums} />
             <Route exact path="/maps" component={RasterMapPage} />
             <Route exact path="/mapsv2" component={VectorMapPage} />
@@ -144,9 +145,11 @@ function ModalSwitch({ children, renderModal, stopSong, pauseSong, resumeSong, a
 
             {/* Chat Routes */}
             <Route exact path="/chat/im">
-              <ChatWindowContainer>
-                <h2>Select a chat to start messaging</h2>
-              </ChatWindowContainer>
+              {!isMobile && (
+                <ChatWindowContainer>
+                  <h2>Select a chat to start messaging</h2>
+                </ChatWindowContainer>
+              )}
             </Route>
             <Route exact path="/chat/saved" component={ChatWindow} />
             <Route exact path="/chat/:userId" component={ChatWindow} />

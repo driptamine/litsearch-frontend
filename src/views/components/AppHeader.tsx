@@ -44,6 +44,7 @@ const AppHeader = React.forwardRef((props, ref) => {
   const oauthed = user.google_oauth?.oauthed || user.google?.oauthed || !!user.google_oauth?.profileImg || !!user.profileImg || !!props.imgSrc;
 
   const isMobile = useDetectMobile();
+  const isChatListPage = props.isChatListPage;
   const [searchValue, setSearchValue] = useState('');
   const [isMobileSearch, setIsMobileSearch] = useState(false);
 
@@ -150,7 +151,7 @@ const AppHeader = React.forwardRef((props, ref) => {
   };
 
   return (
-    <StyledAppBar ref={ref}>
+    <StyledAppBar ref={ref} isChatListPage={isChatListPage}>
       <StyledToolbar>
         {((isMobile && !isMobileSearch) || (!isMobile && !props.onOpenNavigation)) && (
           <HeaderLeftSection>
@@ -276,11 +277,9 @@ const StyledAppBar = styled.div`
   user-select: none;
   inset-inline-start: var(--litloop-sidebar-width, 0px);
   inset-inline-end: 0;
-  /* background: #0a0a0a; */
-  /* background: white; */
   height: 60px;
   z-index: 3;
-  position: fixed;
+  position: ${({ isChatListPage }) => (isChatListPage ? 'relative' : 'fixed')};
   background-color: var(--navBg);
   border-bottom: var(--navBorderColor);
   transition: inset-inline-start 180ms ease;
@@ -289,6 +288,9 @@ const StyledAppBar = styled.div`
     transition: none;
   }
 
+  @media screen and (max-width: 768px) {
+    position: ${({ isChatListPage }) => (isChatListPage ? 'relative' : 'fixed')};
+  }
 `;
 const StyledAppBarCSS = css`
   width: 100%;

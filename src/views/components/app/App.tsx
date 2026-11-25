@@ -216,10 +216,11 @@ const App = () => {
   const sidebarExpanded = useSelector(state => state.sidebar.sidebar);
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
   const closeNavigation = useCallback(() => setMobileNavigationOpen(false), []);
-  const sidebarLayout = showNavigation && !isMobile ? (sidebarExpanded ? 'expanded' : 'compact') : undefined;
   const isConversation = /^\/chat\/(?:[1-9]\d*|saved|group\/[1-9]\d*)\/?$/.test(pathname);
+  const isChatListPage = pathname === '/chat/im';
   const showBottomNav = isMobile && !isAuthPage && !isConversation;
   const showAppHeader = showNavigation && !(isMobile && isConversation);
+  const sidebarLayout = showNavigation && !isMobile ? (sidebarExpanded ? 'expanded' : 'compact') : undefined;
 
   useEffect(() => {
     closeNavigation();
@@ -239,6 +240,7 @@ const App = () => {
             themez={theme}
             onOpenNavigation={() => setMobileNavigationOpen(true)}
             navigationOpen={mobileNavigationOpen}
+            isChatListPage={isMobile && isChatListPage}
             >
             {/*<Toggle theme={theme} toggleTheme={themeToggler} />*/}
           </AppHeader>

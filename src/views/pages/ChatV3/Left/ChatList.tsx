@@ -250,116 +250,121 @@ const ChatList = ({ emojiData }) => {
         )}
       </TabsHeader>
       <ChatTabs>
-        <AllTabs active={activeTabId === 'all'} onClick={() => { setActiveTabId('all'); setEditingTabId(null); }}>All</AllTabs>
-        {chatTabs.map((tab) => (
-          <EmojiTab
-            key={tab.id}
-            active={activeTabId === tab.id}
-            editing={editingTabId === tab.id}
-            onClick={() => {
-              setActiveTabId(tab.id);
-              if (editingTabId && editingTabId !== tab.id) setEditingTabId(tab.id);
-            }}
-            {...bindTabLongPress(tab.id)}
-          >
-            <AppleEmoji char={tab.emoji} />
-          </EmojiTab>
-        ))}
+        <ChatTabsInner>
+          <AllTabs active={activeTabId === 'all'} onClick={() => { setActiveTabId('all'); setEditingTabId(null); }}>All</AllTabs>
+          {chatTabs
+            .filter((tab, i, arr) => arr.findIndex(t => t.id === tab.id) === i)
+            .map((tab) => (
+            <EmojiTab
+              key={tab.id}
+              active={activeTabId === tab.id}
+              editing={editingTabId === tab.id}
+              onClick={() => {
+                setActiveTabId(tab.id);
+                if (editingTabId && editingTabId !== tab.id) setEditingTabId(tab.id);
+              }}
+              {...bindTabLongPress(tab.id)}
+            >
+              <AppleEmoji char={tab.emoji} />
+            </EmojiTab>
+          ))}
+        </ChatTabsInner>
       </ChatTabs>
-      {editingTab && (
-        <TabEditor>
-          <EditorTitle>
-            <AppleEmoji char={editingTab.emoji} /> tab — {editingTab.chatIds.length} chats
-          </EditorTitle>
-          <EditorHint>Pick an emoji, then tap chats below to add or remove them.</EditorHint>
-          <EmojiPalette>
-            {EMOJI_PALETTE.map((emoji) => (
-              <EmojiChoice
-                key={emoji}
-                selected={editingTab.emoji === emoji}
-                onClick={() => setTabEmoji(editingTab.id, emoji)}
-              >
-                <AppleEmoji char={emoji} />
-              </EmojiChoice>
-            ))}
-          </EmojiPalette>
-        </TabEditor>
-      )}
-
-      <SavedMessagesRow>
-        {savedChat ? (
-          <ChatRow chat={savedChat} />
-        ) : (
-          <LinkStyledSaved to="/chat/saved" onClick={() => {}}>
-            <SavedIconWrap>
-              <FaBookmark />
-            </SavedIconWrap>
-            <SavedLabel>Saved Messages</SavedLabel>
-          </LinkStyledSaved>
+      <ChatContentContainer>
+        {editingTab && (
+          <TabEditor>
+            <EditorTitle>
+              <AppleEmoji char={editingTab.emoji} /> tab — {editingTab.chatIds.length} chats
+            </EditorTitle>
+            <EditorHint>Pick an emoji, then tap chats below to add or remove them.</EditorHint>
+            <EmojiPalette>
+              {EMOJI_PALETTE.map((emoji) => (
+                <EmojiChoice
+                  key={emoji}
+                  selected={editingTab.emoji === emoji}
+                  onClick={() => setTabEmoji(editingTab.id, emoji)}
+                >
+                  <AppleEmoji char={emoji} />
+                </EmojiChoice>
+              ))}
+            </EmojiPalette>
+          </TabEditor>
         )}
-      </SavedMessagesRow>
 
-      {!isSignedIn && <Link to="/login">Log in to see your chats</Link>}
-
-      {isSignedIn && loading && chats.length === 0 && (
-        <div style={{ padding: '20px', color: '#888' }}>Loading chats...</div>
-      )}
-
-      {isSignedIn && !loading && chats.length === 0 && (
-        <div style={{ padding: '20px', color: '#888' }}>No conversations yet.</div>
-      )}
-
-      {activeTabId !== 'all' && visibleChats.length === 0 && !loading && (
-        <EmptyTabHint>
-          No chats in this tab yet.
-          {!editingTab && ' Tap Edit above, pick the tab, then tap chats to add them.'}
-        </EmptyTabHint>
-      )}
-      {visibleChats.map((chat) => (
-        <ChatRowWrap
-          key={chat.id}
-          onClickCapture={(e) => {
-            if (editingTab) {
-              e.preventDefault();
-              e.stopPropagation();
-              toggleChatInTab(editingTab.id, chat.id);
-            }
-          }}
-        >
-          {editingTab && (
-            <TabCheck selected={editingTab.chatIds.includes(chat.id)}>
-              {editingTab.chatIds.includes(chat.id) && '✓'}
-            </TabCheck>
+        <SavedMessagesRow>
+          {savedChat ? (
+            <ChatRow chat={savedChat} />
+          ) : (
+            <LinkStyledSaved to="/chat/saved" onClick={() => {}}>
+              <SavedIconWrap>
+                <FaBookmark />
+              </SavedIconWrap>
+              <SavedLabel>Saved Messages</SavedLabel>
+            </LinkStyledSaved>
           )}
-          <ChatRow
-            chat={chat}
-            presence={presence[chat.other_participant?.id]}
-            onClick={() => {
-              const clickedUnread = chat.unread_count || 0;
-              setChats(prev => prev.map(c =>
-                c.id === chat.id ? { ...c, unread_count: 0 } : c
-              ));
-              if (clickedUnread > 0) {
-                setUnreadChatCount(prev => Math.max(0, (prev || 0) - clickedUnread));
+        </SavedMessagesRow>
+
+        {!isSignedIn && <Link to="/login">Log in to see your chats</Link>}
+
+        {isSignedIn && loading && chats.length === 0 && (
+          <div style={{ padding: '20px', color: '#888' }}>Loading chats...</div>
+        )}
+
+        {isSignedIn && !loading && chats.length === 0 && (
+          <div style={{ padding: '20px', color: '#888' }}>No conversations yet.</div>
+        )}
+
+        {activeTabId !== 'all' && visibleChats.length === 0 && !loading && (
+          <EmptyTabHint>
+            No chats in this tab yet.
+            {!editingTab && ' Tap Edit above, pick the tab, then tap chats to add them.'}
+          </EmptyTabHint>
+        )}
+        {visibleChats.map((chat) => (
+          <ChatRowWrap
+            key={chat.id}
+            onClickCapture={(e) => {
+              if (editingTab) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleChatInTab(editingTab.id, chat.id);
               }
             }}
+          >
+            {editingTab && (
+              <TabCheck selected={editingTab.chatIds.includes(chat.id)}>
+                {editingTab.chatIds.includes(chat.id) && '✓'}
+              </TabCheck>
+            )}
+            <ChatRow
+              chat={chat}
+              presence={presence[chat.other_participant?.id]}
+              onClick={() => {
+                const clickedUnread = chat.unread_count || 0;
+                setChats(prev => prev.map(c =>
+                  c.id === chat.id ? { ...c, unread_count: 0 } : c
+                ));
+                if (clickedUnread > 0) {
+                  setUnreadChatCount(prev => Math.max(0, (prev || 0) - clickedUnread));
+                }
+              }}
+            />
+          </ChatRowWrap>
+        ))}
+
+        <CircleBtn onClick={() => setShowCreateGroup(true)}>
+          <FaPlus />
+        </CircleBtn>
+
+        {showCreateGroup && (
+          <CreateGroupModal
+            onClose={() => setShowCreateGroup(false)}
+            onCreated={(chat) => {
+              fetchChats();
+            }}
           />
-        </ChatRowWrap>
-      ))}
-
-      <CircleBtn onClick={() => setShowCreateGroup(true)}>
-        <FaPlus />
-      </CircleBtn>
-
-      {showCreateGroup && (
-        <CreateGroupModal
-          onClose={() => setShowCreateGroup(false)}
-          onCreated={(chat) => {
-            fetchChats();
-          }}
-        />
-      )}
-
+        )}
+      </ChatContentContainer>
     </ChatListContainer>
   );
 };
@@ -417,6 +422,10 @@ const AllTabs = styled.div`
   font-size: 0.9rem;
   font-weight: 600;
   flex-shrink: 0;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const TabsHeader = styled.div`
@@ -425,6 +434,10 @@ const TabsHeader = styled.div`
   justify-content: space-between;
   margin: 0 -20px 4px;
   padding: 0 20px;
+
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const TabsTitle = styled.span`
@@ -433,6 +446,27 @@ const TabsTitle = styled.span`
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #666;
+`;
+
+const ChatTabsInner = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  max-width: 100%;
+  height: 48px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+  padding: 0 12px;
+
+  @media screen and (min-width: 769px) {
+    height: auto;
+    overflow: visible;
+    padding: 0;
+  }
 `;
 
 const EditTabsBtn = styled.button`
@@ -462,6 +496,11 @@ const EmojiTab = styled.button`
   line-height: 1;
   flex-shrink: 0;
   outline: ${({ editing }) => (editing ? '2px solid rgba(77, 182, 172, 0.5)' : 'none')};
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
   &:hover {
     background: rgba(255, 255, 255, 0.08);
   }
@@ -594,12 +633,19 @@ const ChatTabs = styled.div`
   top: 0;
   z-index: 10;
   background-color: var(--navBg, #000);
-  margin: -20px -20px 0;
-  padding: 20px 20px 0;
+  padding: 0 20px 0;
 
   @media screen and (max-width: 768px) {
-    top: 60px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 50;
+    margin: 0;
+    padding: 8px 12px;
+    background: var(--navBg, #000);
+    border-bottom: 1px solid #333;
   }
 `;
 
@@ -624,15 +670,48 @@ const ChatListContainer = styled.div`
   border-bottom-left-radius: 10px;
   height: calc(100vh - 5em);
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+  }
+  &:hover::-webkit-scrollbar-thumb {
+    background-color: #444;
+  }
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
 
   @media screen and (max-width: 768px) {
     width: 100%;
     position: relative;
     border-right: none;
     border-bottom: 1px solid #404040;
-    height: calc(100vh - 60px - 5em);
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    flex: 1;
+    height: auto;
+    min-height: 0;
+    padding: 0;
+    background-color: var(--navBg, #000);
+  }
+`;
+
+const ChatContentContainer = styled.div`
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 20px 20px;
+
+  @media screen and (max-width: 768px) {
+    padding: 0 16px 16px;
   }
 `;
 

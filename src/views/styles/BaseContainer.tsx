@@ -23,9 +23,9 @@ const BaseContainer = styled.div`
     padding-left: 0;
     padding-right: 0;
     padding-top: ${({ flush }) => (flush ? '0' : '10px')};
-    height: ${({ flush }) => (flush ? 'calc(100vh - 70px)' : 'auto')};
+    height: ${({ flush, isChat }) => (flush ? 'calc(100vh - 70px)' : isChat ? '100%' : 'auto')};
     margin-top: 0;
-    overflow: ${({ flush }) => (flush ? 'hidden' : 'auto')};
+    overflow: ${({ flush, isChat }) => (flush || isChat ? 'hidden' : 'auto')};
   }
 `;
 
