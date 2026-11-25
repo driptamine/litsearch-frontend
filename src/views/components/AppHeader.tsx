@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { styled } from '@linaria/react';
 import { css } from '@linaria/core';
 import { FaUpload, FaCloudUploadAlt, FaSearch, FaTimes } from 'react-icons/fa';
+import { ImContrast } from 'react-icons/im';
 import { LuPanelLeftOpen } from 'react-icons/lu';
 
 import { fetchQuerySearch, fetchLogout } from 'core/actions';
@@ -26,6 +27,9 @@ import DropdownV2 from 'views/components/Dropdown/DropdownV2';
 import DropdownPortal from 'views/components/Dropdown/DropdownPortal';
 import DropDownNew from 'views/components/DropdownV2/DropDown';
 import GridIconApps from 'views/components/GridIconApps/GridIconApps';
+
+import Toggle from 'views/components/Toggle/Toggler';
+import { useThemeMode } from 'views/components/Toggle/useThemeMode'
 import { TwitchContext } from 'views/pages/Auth/twitch/useToken';
 import useDetectMobile from 'core/hooks/useDetectMobile';
 import useSelectAuthUser from 'core/hooks/useSelectAuthUser';
@@ -493,6 +497,12 @@ const UploadButton = styled(FaUpload)`
 const UploadButtonS3 = styled(FaCloudUploadAlt)`
   color: var(--text);
   margin-right: 1.5em;
+  cursor: pointer;
+`;
+const ThemeToggler = styled(ImContrast)`
+  font-size: 40px;
+  color: white;
+  margin-right: 3em;
   cursor: pointer;
 `;
 
