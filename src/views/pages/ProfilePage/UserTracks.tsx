@@ -5,7 +5,6 @@ import { FaMusic } from 'react-icons/fa';
 import { LITLOOP_API_URL } from 'core/constants/urls';
 import { authHeader } from 'core/api/rest-helper';
 import TrackRow from 'views/components/TrackRow';
-import { TrackUploader } from 'views/components/upload/uploader/tracks/TrackUploader';
 import TrackPickerModal from 'views/components/upload/uploader/posts/TrackPickerModal';
 
 const UserTracks = ({ username }) => {
@@ -83,10 +82,9 @@ const UserTracks = ({ username }) => {
       <Toolbar>
         <Header>Tracks ({tracks.length})</Header>
         <Actions>
-          <TrackUploader onTrackUpload={handleTrackUpload} />
-          <AddBtn onClick={() => setShowTrackPicker(true)}>
-            <FaMusic />
-          </AddBtn>
+          <UploadTrackButton onClick={() => setShowTrackPicker(true)}>
+            <FaMusic size={16} /> Upload Track
+          </UploadTrackButton>
         </Actions>
       </Toolbar>
       {body}
@@ -126,19 +124,25 @@ const Actions = styled.div`
   gap: 8px;
 `;
 
-const AddBtn = styled.button`
+const UploadTrackButton = styled.button`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 8px;
-  background: transparent;
-  color: #1db954;
-  border: 1px solid #1db954;
-  border-radius: 6px;
-  font-size: 0.75rem;
+  gap: 8px;
+  padding: 12px 20px;
+  background: white;
+  color: #1a1a1a;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
   &:hover {
-    background: rgba(29, 185, 84, 0.1);
+    background: #f0f0f0;
+  }
+  &:active {
+    transform: scale(0.98);
   }
 `;
 
