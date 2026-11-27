@@ -11,6 +11,7 @@ import litLightLogo from 'views/assets/viewsLogos/purple-views-logo.png';
 
 import { fetchQuerySearch } from 'core/actions';
 import { selectors } from 'core/reducers/index';
+import useDetectMobile from 'core/hooks/useDetectMobile';
 // import "./App.css";
 import Autocomplete from './Autocomplete';
 
@@ -41,6 +42,7 @@ const months = [
 
 function SearchApp() {
   const dispatch = useDispatch();
+  const isMobile = useDetectMobile();
   const [value, setValue] = useState('')
   const [searchValue, setSearchValue] = useState("");
   const [cursorPosition, setCursorPosition] = useState('');
@@ -95,7 +97,7 @@ function SearchApp() {
               <InputStyled
                 {...params}
                 id="textarea-input"
-                autoFocus
+                autoFocus={!isMobile}
                 autoComplete="off"
                 ref={ref}
                 placeholder='Search LitLoop'
@@ -128,6 +130,11 @@ const SearchContainer = styled.div`
   background-color: ${themeVars.body};
   padding-bottom: 10vh; /* Push slightly up from center */
   transition: background-color 0.3s ease;
+
+  @media (max-width: 768px) {
+    min-height: 100dvh;
+    padding-bottom: max(10vh, calc(var(--litloop-bottom-nav-top, 0px) + 12px));
+  }
 `;
 
 const LogoSection = styled.div`

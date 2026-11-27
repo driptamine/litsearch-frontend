@@ -211,14 +211,16 @@ const App = () => {
   const isMobile = useDetectMobile();
   const showChatList = pathname.startsWith('/chat');
   const isMapsPath = pathname === '/maps' || pathname === '/mapsv2';
-  const isAuthPage = pathname === '/' || pathname === '/login' || pathname === '/signup';
-  const showNavigation = !isAuthPage && pathname !== '/auth/google/callback';
+  const isMainSearch = pathname === '/';
+  const isAuthPage = pathname === '/login' || pathname === '/signup';
+  const useStandaloneLayout = isMainSearch || isAuthPage;
+  const showNavigation = !useStandaloneLayout && pathname !== '/auth/google/callback';
   const sidebarExpanded = useSelector(state => state.sidebar.sidebar);
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
   const closeNavigation = useCallback(() => setMobileNavigationOpen(false), []);
   const isConversation = /^\/chat\/(?:[1-9]\d*|saved|group\/[1-9]\d*)\/?$/.test(pathname);
   const isChatListPage = pathname === '/chat/im';
-  const showBottomNav = isMobile && !isAuthPage && !isConversation;
+  const hasBottomNav = !isAuthPage && !isConversation;
   const showAppHeader = showNavigation && !(isMobile && isConversation);
   const sidebarLayout = showNavigation && !isMobile ? (sidebarExpanded ? 'expanded' : 'compact') : undefined;
 
@@ -232,7 +234,11 @@ const App = () => {
       <NotificationProvider>
       <PlayerProvider>
       <CallProvider>
-      <StyledWrapper className="litloop-shell" data-sidebar-layout={sidebarLayout} isMobile={isMobile} showBottomNav={showBottomNav}>
+      <StyledWrapper
+        className="litloop-shell"
+        data-sidebar-layout={sidebarLayout}
+        data-bottom-nav={hasBottomNav ? (isMainSearch ? 'search' : 'default') : undefined}
+      >
         {showAppHeader && (
           <AppHeader
             imgSrc={childMessage || user.profileImg}
@@ -246,7 +252,7 @@ const App = () => {
           </AppHeader>
         )}
 
-        {isAuthPage ? (
+        {useStandaloneLayout ? (
           <WrapperContainer id='Wrapper'>
             <ModalRoutes
               stopSong={stopSongz}
@@ -293,7 +299,7 @@ const App = () => {
           </ContentWrapper>
         )}
 
-        {showBottomNav && <BottomNavbar />}
+        {hasBottomNav && <BottomNavbar />}
         <MiniPlayer />
         {isMobile && !/^\/(todo|notes|users|maps|mapsv2)(\/|$)/.test(pathname) && (/^\/[^/]+$/.test(pathname) || pathname.startsWith('/feed')) && (
           <CreateButton to="/create_post">
@@ -351,17 +357,25 @@ const ContentWrapper = styled.div`
   }
 `;
 
-const styledWrapperStyles = props => `
-  padding-bottom: ${props.showBottomNav ? '60px' : '0'};
-`;
-
 const StyledWrapper = styled.div`
   box-sizing: border-box;
   height: 100%;
   width: 100%;
-  ${styledWrapperStyles}
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 768px) {
+    &[data-bottom-nav] {
+      --litloop-bottom-nav-height: 60px;
+      --litloop-bottom-nav-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+      --litloop-bottom-nav-top: calc(var(--litloop-bottom-nav-height) + var(--litloop-bottom-nav-bottom));
+      --litloop-mobile-player-bottom: calc(var(--litloop-bottom-nav-top) + 8px);
+    }
+
+    &[data-bottom-nav='default'] {
+      padding-bottom: var(--litloop-bottom-nav-height);
+    }
+  }
 `;
 
 const btnStyles = `

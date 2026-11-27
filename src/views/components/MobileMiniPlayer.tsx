@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
 import { styled } from '@linaria/react';
-import { useLocation } from 'react-router-dom';
 import { FaPlay, FaPause, FaTimes, FaMusic } from 'react-icons/fa';
 import { usePlayer } from 'core/context/PlayerContext';
 import FullPlayer from 'views/components/FullPlayer';
@@ -8,16 +7,12 @@ import FullPlayer from 'views/components/FullPlayer';
 export const PLAYER_ACCENT = '#686abb';
 
 const MobileMiniPlayer = () => {
-  const { pathname } = useLocation();
   const player = usePlayer();
   const [fullOpen, setFullOpen] = useState(false);
   const trackRef = useRef<HTMLDivElement>(null);
   const [isScrubbing, setIsScrubbing] = useState(false);
   const [scrubPercent, setScrubPercent] = useState<number | null>(null);
   if (!player?.current) return null;
-  const isAuthPage = pathname === '/' || pathname === '/login' || pathname === '/signup';
-  const isConversation = /^\/chat\/(?:[1-9]\d*|saved|group\/[1-9]\d*)\/?$/.test(pathname);
-  const aboveNav = !isAuthPage && !isConversation;
   const { current, playing, currentTime, duration, queue } = player;
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
   const albumCover = current?.album_cover || current?.artwork_url || current?.image_url || current?.cover_url || null;
@@ -66,7 +61,7 @@ const MobileMiniPlayer = () => {
 
   return (
     <>
-    <MobileMusicBar $aboveNav={aboveNav} onClick={openFullPlayer} title={`${current.title} — ${current.artist}`}>
+    <MobileMusicBar onClick={openFullPlayer} title={`${current.title} — ${current.artist}`}>
       <LeftGroup>
         <AlbumCover>
           {albumCover ? <AlbumCoverImg src={albumCover} alt="Album cover" /> : <FaMusic size={16} color="rgba(255,255,255,0.85)" />}
@@ -108,11 +103,11 @@ const MobileMiniPlayer = () => {
   );
 };
 
-const MobileMusicBar = styled.div<{ $aboveNav: boolean }>`
+const MobileMusicBar = styled.div`
   position: fixed;
   left: 12px;
   right: 12px;
-  bottom: ${({ $aboveNav }) => ($aboveNav ? '80px' : '12px')};
+  bottom: var(--litloop-mobile-player-bottom, 12px);
   z-index: 1001;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
